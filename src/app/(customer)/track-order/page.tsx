@@ -1,0 +1,300 @@
+'use client';
+
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
+import { Order, OrderStatus } from '@/types';
+import { formatMYR } from '@/lib/currency';
+import { HeaderNav } from '@/components/customer/header-nav';
+import { Footer } from '@/components/customer/footer';
+import { AnnouncementBar } from '@/components/customer/announcement-bar';
+import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
+import { 
+  Search, 
+  PackageCheck, 
+  Truck, 
+  CheckCircle2, 
+  Clock, 
+  AlertCircle, 
+  Calendar,
+  MessageCircle,
+  ExternalLink
+} from 'lucide-react';
+
+function TrackOrderContent() {
+  const { t } = useLanguage();
+  const searchParams = useSearchParams();
+  const initialOrderNum = searchParams.get('orderNumber') || '';
+  const initialPhone = searchParams.get('phone') || '';
+
+  const [orderNumber, setOrderNumber] = useState(initialOrderNum);
+  const [phone, setPhone] = useState(initialPhone);
+  const [orderResult, setOrderResult] = useState<Order | null>(null);
+  const [searched, setSearched] = useState(false);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orderNumber || !phone) return;
+
+    const res = db.getOrderByNumberAndPhone(orderNumber, phone);
+    setOrderResult(res || null);
+    setSearched(true);
+  };
+
+  useEffect(() => {
+    if (initialOrderNum && initialPhone) {
+      const res = db.getOrderByNumberAndPhone(initialOrderNum, initialPhone);
+      setOrderResult(res || null);
+      setSearched(true);
+    }
+  }, [initialOrderNum, initialPhone]);
+
+  const timelineSteps: { key: OrderStatus; label: string; desc: string }[] = [
+    { key: 'NEW', label: 'Order Placed', desc: 'Order received via WhatsApp' },
+    { key: 'CONFIRMED', label: 'Confirmed', desc: 'Payment & stock verified by admin' },
+    { key: 'PROCESSING', label: 'Processing & Packing', desc: 'Preparing bakery items' },
+    { key: 'SHIPPED', label: 'Dispatched / Shipped', desc: 'Courier resi tracking issued' },
+    { key: 'DELIVERED', label: 'Delivered', desc: 'Package delivered to address' },
+  ];
+
+  const getStepIndex = (status: OrderStatus) => {
+    const map: Record<OrderStatus, number> = {
+      'NEW': 0,
+      'CONFIRMED': 1,
+      'PROCESSING': 2,
+      'SHIPPED': 3,
+      'DELIVERED': 4,
+      'CANCELLED': -1,
+    };
+    return map[status] ?? 0;
+  };
+
+  return (
+    <>
+      {/* Header */}
+      <div className="text-center max-w-xl mx-auto mb-8">
+        <div className="w-14 h-14 rounded-full bg-[#800020]/10 text-[#800020] flex items-center justify-center mx-auto mb-3">
+          <PackageCheck className="w-7 h-7" />
+        </div>
+        <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#800020]">
+          Track Parcel & Order Status
+        </h1>
+        <p className="text-stone-600 text-xs sm:text-sm mt-1">
+          Enter your Order ID (e.g., <span className="font-bold text-[#800020]">#FBS-20260728-101</span>) and phone number to view live delivery updates.
+        </p>
+      </div>
+
+      {/* Search Input Card */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-md mb-10 max-w-2xl mx-auto">
+        <form onSubmit={handleSearch} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                Order ID / Number <span className="text-red-600">*</span>
+              </label>
+              <input 
+                type="text"
+                required
+                placeholder="#FBS-20260728-101"
+                value={orderNumber}
+                onChange={(e) => setOrderNumber(e.target.value)}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
+                WhatsApp Phone Number <span className="text-red-600">*</span>
+              </label>
+              <input 
+                type="text"
+                required
+                placeholder="+60129876543"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
+          >
+            <Search className="w-4 h-4" /> Track Order Now
+          </button>
+        </form>
+      </div>
+
+      {/* Search Result */}
+      {searched && (
+        <div>
+          {!orderResult ? (
+            <div className="bg-white p-10 rounded-3xl border border-[#EADBC8] shadow-sm text-center max-w-xl mx-auto">
+              <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+              <h3 className="font-serif text-xl font-bold text-[#800020]">Order Not Found</h3>
+              <p className="text-stone-600 text-xs mt-1">
+                We could not find an order matching <span className="font-bold">{orderNumber}</span> and phone number <span className="font-bold">{phone}</span>. Please verify your details or contact admin on WhatsApp.
+              </p>
+              <a
+                href="https://wa.me/60123456789"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white text-xs font-bold rounded-xl shadow"
+              >
+                <MessageCircle className="w-4 h-4 fill-white" /> Contact Admin Support
+              </a>
+            </div>
+          ) : (
+            <div className="bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-lg space-y-8 animate-fade-in">
+              
+              {/* Result Header */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-stone-200 pb-4 gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-3 py-1 bg-[#800020]/10 text-[#800020] text-xs font-bold rounded-full">
+                      {orderResult.orderStatus}
+                    </span>
+                    <span className="text-xs text-stone-500 flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5" /> Placed on {new Date(orderResult.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <h2 className="font-serif text-2xl font-bold text-[#2B1B1B]">
+                    Order {orderResult.orderNumber}
+                  </h2>
+                </div>
+
+                <div className="text-left sm:text-right">
+                  <span className="text-xs text-stone-500 block">Total Amount</span>
+                  <span className="font-serif text-2xl font-extrabold text-[#800020]">
+                    {formatMYR(orderResult.totalAmount)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Courier Resi / Self-Pickup Information Card */}
+              {orderResult.courierName?.includes('Self-Pickup') || orderResult.courierName?.includes('Penghantaran Sendiri') ? (
+                <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">🚗 Penghantaran Mandiri / Self-Pickup</span>
+                      <h4 className="text-sm font-extrabold text-stone-900">
+                        {orderResult.trackingNumber 
+                          ? `Catatan Kurir: ${orderResult.trackingNumber}` 
+                          : 'Pesanan dikirim langsung oleh Kurir Toko FBS Bakery World / Diambil di Toko'}
+                      </h4>
+                    </div>
+                  </div>
+                  <span className="px-3.5 py-1.5 bg-emerald-700 text-white text-xs font-bold rounded-xl shadow">
+                    Verified Store Delivery
+                  </span>
+                </div>
+              ) : orderResult.courierName && orderResult.trackingNumber ? (
+                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center">
+                      <Truck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">Dispatched Courier Resi</span>
+                      <h4 className="text-sm font-extrabold text-stone-900">{orderResult.courierName}: <span className="font-mono text-emerald-800">{orderResult.trackingNumber}</span></h4>
+                    </div>
+                  </div>
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(orderResult.courierName + ' ' + orderResult.trackingNumber)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
+                  >
+                    Track Package <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              ) : (
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>Package is being prepared for dispatch. Tracking resi number will be updated once shipped.</span>
+                </div>
+              )}
+
+              {/* Interactive Status Timeline */}
+              <div>
+                <h3 className="text-sm font-bold text-[#800020] uppercase tracking-wider mb-6">
+                  Delivery Status Timeline
+                </h3>
+
+                <div className="relative">
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                    {timelineSteps.map((step, idx) => {
+                      const currentIdx = getStepIndex(orderResult.orderStatus);
+                      const isDone = currentIdx >= idx;
+                      const isCurrent = currentIdx === idx;
+
+                      return (
+                        <div key={step.key} className="flex flex-col items-center text-center">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 shadow transition-colors ${
+                            isDone ? 'bg-[#800020] text-white' : 'bg-stone-200 text-stone-400'
+                          } ${isCurrent ? 'ring-4 ring-[#D4AF37]' : ''}`}>
+                            {isDone ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
+                          </div>
+                          <h4 className={`text-xs font-bold ${isDone ? 'text-[#800020]' : 'text-stone-400'}`}>
+                            {step.label}
+                          </h4>
+                          <p className="text-[10px] text-stone-500 mt-0.5 max-w-[120px]">{step.desc}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Purchased Items List */}
+              <div className="border-t border-stone-200 pt-6">
+                <h3 className="text-sm font-bold text-[#2B1B1B] mb-3">Purchased Items</h3>
+                <div className="space-y-3">
+                  {orderResult.items.map(item => (
+                    <div key={item.id} className="flex justify-between items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl border border-stone-200">
+                      <div className="flex items-center gap-3">
+                        {item.mainImage && (
+                          <img src={item.mainImage} alt={item.productName} className="w-10 h-10 object-cover rounded-lg" />
+                        )}
+                        <div>
+                          <span className="font-bold text-stone-900 block">{item.productName}</span>
+                          <span className="text-[11px] text-stone-500">Variant: {item.variantName} x {item.quantity}</span>
+                        </div>
+                      </div>
+                      <span className="font-bold text-[#800020]">{formatMYR(item.subtotal)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+export default function TrackOrderPage() {
+  return (
+    <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+      <AnnouncementBar />
+      <HeaderNav />
+
+      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <Suspense fallback={<div className="p-8 text-center text-xs font-bold text-[#800020]">Loading Tracking...</div>}>
+          <TrackOrderContent />
+        </Suspense>
+      </main>
+
+      <Footer />
+      <FloatingWhatsApp />
+    </div>
+  );
+}
