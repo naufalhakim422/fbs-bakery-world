@@ -99,9 +99,9 @@ export default function CustomerRegisterPage() {
     setTimeout(() => {
       const googleUser = {
         id: `google-${Date.now()}`,
-        name: 'Google User',
+        name: 'Pelanggan Google Baru',
         email: 'user.google@gmail.com',
-        phone: '+60129876543',
+        phone: '',
         customerType: 'VIP',
         provider: 'GOOGLE',
         address: 'Shah Alam, Selangor',
@@ -129,7 +129,7 @@ export default function CustomerRegisterPage() {
         localStorage.setItem('fbs_customers', JSON.stringify(existingCustomers));
       }
 
-      alert('Account registered with Google successfully!');
+      alert('Pendaftaran Akun dengan Google Berhasil!');
       router.push('/account');
     }, 600);
   };

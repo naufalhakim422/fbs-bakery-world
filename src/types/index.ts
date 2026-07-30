@@ -84,6 +84,7 @@ export interface Customer {
   email: string;
   phone: string;
   customerType: 'RETAIL' | 'WHOLESALE' | 'VIP';
+  provider?: 'GOOGLE' | 'FACEBOOK' | 'EMAIL' | 'PHONE' | 'FORM';
   address: string;
   city: string;
   state: string;

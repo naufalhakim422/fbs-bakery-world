@@ -182,12 +182,12 @@ export const HeaderNav: React.FC = () => {
               {/* Customer Account or Login Button */}
               <Link 
                 href={customerSession ? "/account" : "/account/login"} 
-                className="p-2 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/20 text-[#FFF8F0] hover:text-[#D4AF37] rounded-full border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5"
-                title={customerSession ? `Logged in: ${customerSession.name}` : t.nav.signIn}
+                className="p-2 sm:px-3.5 sm:py-1.5 bg-white/10 hover:bg-white/20 text-[#FFF8F0] hover:text-[#D4AF37] rounded-full border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5"
+                title={customerSession ? `Halo, ${customerSession.name}` : t.nav.signIn}
               >
                 <User className="w-4 h-4 text-[#D4AF37]" />
                 <span className="hidden sm:inline">
-                  {customerSession ? customerSession.name.split(' ')[0] : t.nav.signIn}
+                  {customerSession ? `Halo, ${customerSession.name.split(' ')[0]}` : t.nav.signIn}
                 </span>
               </Link>
 

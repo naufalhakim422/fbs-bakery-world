@@ -43,10 +43,10 @@ export default function CustomerAccountPage() {
 
       const sessObj = JSON.parse(session);
       const customers = db.getCustomers();
-      const found = customers.find(c => c.phone.replace(/[^0-9]/g, '').includes(sessObj.phone?.replace(/[^0-9]/g, '')) || c.id === sessObj.id);
+      const found = customers.find(c => c.id === sessObj.id || (sessObj.phone && sessObj.phone !== '+60129876543' && c.phone.replace(/[^0-9]/g, '') === sessObj.phone?.replace(/[^0-9]/g, '')));
       
       if (found) {
-        setCustomer(found);
+        setCustomer({ ...found, name: sessObj.name || found.name, email: sessObj.email || found.email });
       } else {
         setCustomer({
           id: sessObj.id || `cust-${Date.now()}`,
