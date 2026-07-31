@@ -20,7 +20,8 @@ import {
   Sparkles,
   Globe,
   X,
-  Wallet
+  Wallet,
+  Film
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -38,6 +39,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const router = useRouter();
   const { language, setLanguage, t } = useLanguage();
 
+  const videoMenuName = language === 'ID' 
+    ? 'Manajemen Video' 
+    : language === 'MS' 
+    ? 'Pengurusan Video' 
+    : 'Video Management';
+
   const menuItems = [
     { name: t.adminNav.dashboard, href: '/admin2026', icon: LayoutDashboard },
     { name: 'Arus Kas (Cashflow)', href: '/admin2026/cashflow', icon: Wallet },
@@ -46,6 +53,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { name: t.adminNav.categories, href: '/admin2026/categories', icon: Layers },
     { name: t.adminNav.recipes, href: '/admin2026/recipes', icon: ChefHat },
     { name: t.adminNav.blogs, href: '/admin2026/blogs', icon: BookOpen },
+    { name: videoMenuName, href: '/admin2026/videos', icon: Film },
     { name: t.adminNav.banners, href: '/admin2026/banners', icon: ImageIcon },
     { name: t.adminNav.vouchers, href: '/admin2026/vouchers', icon: Tag },
     { name: t.adminNav.customers, href: '/admin2026/customers', icon: Users },

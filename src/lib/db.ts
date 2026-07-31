@@ -1,4 +1,4 @@
-import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, Voucher, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview } from '@/types';
+import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, Voucher, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost } from '@/types';
 
 let categoriesData: Category[] = [
   {
@@ -370,6 +370,49 @@ let initialBlogs: Blog[] = [
     createdAt: '2026-07-20T08:00:00Z',
   }
 ];
+
+let initialVideos: VideoPost[] = [
+  {
+    id: 'vid-1',
+    title: 'Cara Buat Croissant Butter Lapis di Rumah 🥐',
+    description: 'Tutorial lengkap membuat croissant butter berlapis ala Perancis yang renyah di luar dan lembut di dalam.',
+    platform: 'YOUTUBE',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    thumbnail: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800&auto=format&fit=crop',
+    duration: '12:45',
+    category: 'Croissant',
+    status: 'PUBLISHED',
+    isFeatured: true,
+    createdAt: '2026-07-28T08:00:00Z',
+  },
+  {
+    id: 'vid-2',
+    title: 'Baking Tips: Semolina Flour Cake Demo 🍰',
+    description: 'Rahasia membuat bolu semolina khas Timur Tengah yang lembut dan tidak seret saat dimakan.',
+    platform: 'FBS',
+    embedUrl: 'https://assets.mixkit.co/videos/preview/mixkit-chef-kneading-dough-on-a-table-42938-large.mp4',
+    thumbnail: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
+    duration: '08:15',
+    category: 'Cake',
+    status: 'PUBLISHED',
+    isFeatured: true,
+    createdAt: '2026-07-29T10:00:00Z',
+  },
+  {
+    id: 'vid-3',
+    title: 'Matcha Lava Tart Kyoto Style Tour 🍵',
+    description: 'Review pembuatan Matcha Lava Tart menggunakan Uji Matcha Kyoto Grade A langsung di dapur FBS.',
+    platform: 'TIKTOK',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    thumbnail: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop',
+    duration: '05:30',
+    category: 'Matcha',
+    status: 'PUBLISHED',
+    isFeatured: true,
+    createdAt: '2026-07-30T12:00:00Z',
+  }
+];
+
 
 let initialBanners: Banner[] = [
   {
@@ -969,6 +1012,51 @@ export const db = {
     let blogs = loadFromStorage<Blog[]>('fbs_blogs', initialBlogs);
     blogs = blogs.filter(b => b.id !== id);
     saveToStorage('fbs_blogs', blogs);
+    return true;
+  },
+
+  // Videos
+  getVideos: (): VideoPost[] => {
+    return loadFromStorage<VideoPost[]>('fbs_videos', initialVideos);
+  },
+
+  getVideoById: (id: string) => {
+    const list = loadFromStorage<VideoPost[]>('fbs_videos', initialVideos);
+    return list.find(v => v.id === id);
+  },
+
+  saveVideo: (videoInput: Partial<VideoPost>): VideoPost => {
+    const list = loadFromStorage<VideoPost[]>('fbs_videos', initialVideos);
+    if (videoInput.id) {
+      const idx = list.findIndex(v => v.id === videoInput.id);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...videoInput };
+        saveToStorage('fbs_videos', list);
+        return list[idx];
+      }
+    }
+    const newVideo: VideoPost = {
+      id: `vid-${Date.now()}`,
+      title: videoInput.title || 'New Video Post',
+      description: videoInput.description || '',
+      platform: videoInput.platform || 'YOUTUBE',
+      embedUrl: videoInput.embedUrl || '',
+      thumbnail: videoInput.thumbnail || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800&auto=format&fit=crop',
+      duration: videoInput.duration || '05:00',
+      category: videoInput.category || 'General',
+      status: videoInput.status || 'PUBLISHED',
+      isFeatured: videoInput.isFeatured ?? false,
+      createdAt: new Date().toISOString(),
+    };
+    list.unshift(newVideo);
+    saveToStorage('fbs_videos', list);
+    return newVideo;
+  },
+
+  deleteVideo: (id: string) => {
+    let list = loadFromStorage<VideoPost[]>('fbs_videos', initialVideos);
+    list = list.filter(v => v.id !== id);
+    saveToStorage('fbs_videos', list);
     return true;
   },
 

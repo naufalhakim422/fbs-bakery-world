@@ -235,3 +235,18 @@ export interface ProductReview {
   verifiedPurchase?: boolean;
 }
 
+export interface VideoPost {
+  id: string;
+  title: string;
+  description: string;
+  platform: 'YOUTUBE' | 'TIKTOK' | 'FBS';
+  embedUrl: string;
+  thumbnail: string;
+  duration: string;
+  category: string;
+  status: 'PUBLISHED' | 'DRAFT';
+  isFeatured: boolean;
+  createdAt: string;
+}
+
+

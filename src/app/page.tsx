@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
+import { VideoPost } from '@/types';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -20,7 +21,15 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  BookOpen,
+  Calendar,
+  User,
+  Film,
+  Clock,
+  PlayCircle,
+  Play,
+  X
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -32,7 +41,10 @@ export default function HomePage() {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [bestSellers, setBestSellers] = useState<any[]>([]);
-  const { t } = useLanguage();
+  const [latestArticles, setLatestArticles] = useState<any[]>([]);
+  const [latestVideos, setLatestVideos] = useState<VideoPost[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<VideoPost | null>(null);
+  const { language, t } = useLanguage();
 
   const loadData = () => {
     setSettings(db.getStoreSettings());
@@ -54,6 +66,11 @@ export default function HomePage() {
     setRecipes(db.getRecipes());
     setFeaturedProducts(db.getProducts({ featured: true }));
     setBestSellers(db.getProducts({ bestSeller: true }));
+    
+    // Load Latest Articles (type ARTICLE, max 6) and Latest Videos (status PUBLISHED, max 6)
+    const allBlogs = db.getBlogs();
+    setLatestArticles(allBlogs.filter(b => b.type === 'ARTICLE').slice(0, 6));
+    setLatestVideos(db.getVideos().filter(v => v.status === 'PUBLISHED').slice(0, 6));
   };
 
   useEffect(() => {
@@ -382,7 +399,197 @@ export default function HomePage() {
           })()}
         </section>
 
+        {/* LATEST ARTICLES SECTION */}
+        {latestArticles.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+              <div>
+                <span className="text-xs font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
+                  {language === 'ID' ? 'KUMPULAN ARTIKEL' : language === 'MS' ? 'KUMPULAN ARTIKEL' : 'BAKING GUIDES'}
+                </span>
+                <h2 className="font-serif text-3xl font-bold text-[#2B1B1B]">
+                  {language === 'ID' ? 'Artikel Edukasi Terbaru' : language === 'MS' ? 'Artikel Edukasi Terbaru' : 'Latest Educational Articles'}
+                </h2>
+              </div>
+              <Link 
+                href="/blog?tab=articles" 
+                className="px-6 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-2"
+              >
+                {language === 'ID' ? 'Lihat Semua Artikel' : language === 'MS' ? 'Lihat Semua Artikel' : 'View All Articles'} <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {latestArticles.map((article) => (
+                <div key={article.id} className="bg-white rounded-3xl overflow-hidden border border-[#EADBC8] shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                  <div className="relative aspect-16/10 overflow-hidden">
+                    <img 
+                      src={article.image} 
+                      alt={article.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div>
+                      <div className="flex items-center gap-3 text-[10px] text-stone-400 mb-1">
+                        <span className="flex items-center gap-1"><User className="w-3 h-3 text-[#800020]" /> {article.author}</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-[#800020]" /> {new Date(article.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <h3 className="font-serif font-bold text-lg text-[#2B1B1B] group-hover:text-[#800020] transition-colors line-clamp-2 leading-snug">
+                        {article.title}
+                      </h3>
+                      <p className="text-stone-500 text-xs leading-relaxed line-clamp-2">
+                        {article.excerpt}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
+                      <Link
+                        href={`/blog/${article.slug}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#800020] hover:underline"
+                      >
+                        {language === 'ID' ? 'Baca Selengkapnya' : language === 'MS' ? 'Baca Selengkapnya' : 'Read Full Article'} <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* LATEST VIDEOS SECTION */}
+        {latestVideos.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+              <div>
+                <span className="text-xs font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
+                  {language === 'ID' ? 'TUTORIAL VIDEO' : language === 'MS' ? 'TUTORIAL VIDEO' : 'VIDEO SHOWCASE'}
+                </span>
+                <h2 className="font-serif text-3xl font-bold text-[#2B1B1B]">
+                  {language === 'ID' ? 'Video & Tutorial Terbaru' : language === 'MS' ? 'Video & Tutorial Terbaru' : 'Latest Videos & Tutorials'}
+                </h2>
+              </div>
+              <Link 
+                href="/blog" 
+                onClick={() => {
+                  // Switch tab programmatically if needed by custom query or state
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('fbs_blog_active_tab', 'videos');
+                  }
+                }}
+                className="px-6 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-2"
+              >
+                {language === 'ID' ? 'Lihat Semua Video' : language === 'MS' ? 'Lihat Semua Video' : 'View All Videos'} <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {latestVideos.map((video) => (
+                <div key={video.id} className="bg-white rounded-3xl overflow-hidden border border-[#EADBC8] shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                  <div 
+                    onClick={() => setSelectedVideo(video)}
+                    className="relative aspect-video overflow-hidden cursor-pointer bg-black group-hover:opacity-95 transition-opacity"
+                  >
+                    <img 
+                      src={video.thumbnail} 
+                      alt={video.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-[#800020]/90 text-[#D4AF37] flex items-center justify-center border border-[#D4AF37]/50 shadow-2xl group-hover:scale-110 transition-transform animate-fade-in">
+                        <Play className="w-4 h-4 fill-[#D4AF37] ml-0.5" />
+                      </div>
+                    </div>
+                    <span className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/85 text-white text-[10px] font-mono rounded font-semibold flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-[#D4AF37]" /> {video.duration}
+                    </span>
+                    <span className="absolute top-2 left-2 px-2 py-0.5 bg-stone-900/90 text-[#D4AF37] text-[9px] font-extrabold rounded border border-[#D4AF37]/30 uppercase">
+                      {video.platform}
+                    </span>
+                  </div>
+
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div>
+                      <span className="text-[10px] font-extrabold text-[#800020] uppercase tracking-wider block mb-0.5">
+                        {video.category}
+                      </span>
+                      <h3 className="font-serif font-bold text-base text-[#2B1B1B] line-clamp-2 group-hover:text-[#800020] transition-colors leading-snug">
+                        {video.title}
+                      </h3>
+                      <p className="text-stone-500 text-xs leading-relaxed line-clamp-2">
+                        {video.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-semibold">
+                      <span>{new Date(video.createdAt).toLocaleDateString()}</span>
+                      <button
+                        onClick={() => setSelectedVideo(video)}
+                        className="px-3 py-1 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-[10px] font-bold rounded-lg border border-[#D4AF37]/30 flex items-center gap-1 shadow"
+                      >
+                        <PlayCircle className="w-3.5 h-3.5" /> {language === 'ID' ? 'Tonton' : language === 'MS' ? 'Tonton' : 'Watch'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
       </main>
+
+      {/* POPUP/MODAL VIDEO PLAYER */}
+      {selectedVideo && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#181113] rounded-3xl max-w-3xl w-full p-4 sm:p-6 space-y-4 shadow-2xl border border-[#D4AF37]/30 animate-scale-up relative">
+            
+            <button 
+              onClick={() => setSelectedVideo(null)} 
+              className="absolute -top-3 -right-3 sm:top-4 sm:right-4 p-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] rounded-full border border-[#D4AF37]/40 shadow-lg transition-colors z-50"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div>
+              <span className="text-[10px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">
+                {selectedVideo.category} • {selectedVideo.platform} VIDEO
+              </span>
+              <h2 className="font-serif text-lg sm:text-2xl font-bold text-white leading-snug">
+                {selectedVideo.title}
+              </h2>
+            </div>
+
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-stone-800 shadow-inner">
+              {selectedVideo.platform === 'FBS' ? (
+                <video 
+                  src={selectedVideo.embedUrl} 
+                  controls 
+                  autoPlay 
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <iframe
+                  src={selectedVideo.embedUrl.includes('youtube.com') && !selectedVideo.embedUrl.includes('embed/')
+                    ? selectedVideo.embedUrl.replace('watch?v=', 'embed/')
+                    : selectedVideo.embedUrl}
+                  title={selectedVideo.title}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              )}
+            </div>
+
+            <p className="text-stone-300 text-xs sm:text-sm leading-relaxed max-h-24 overflow-y-auto pr-2">
+              {selectedVideo.description}
+            </p>
+          </div>
+        </div>
+      )}
 
       <Footer />
       <FloatingWhatsApp />
