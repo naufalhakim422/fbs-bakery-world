@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -17,6 +18,7 @@ import FacebookButton from '@/components/auth/facebook-button';
 
 export default function CustomerRegisterPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -44,12 +46,12 @@ export default function CustomerRegisterPage() {
     }
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match. Please verify.');
+      setError(t.customerAccount.passwordMismatch);
       return;
     }
 
     if (!isBotVerified) {
-      setError('Silakan centang dan selesaikan verifikasi "Saya Bukan Robot" di bawah.');
+      setError(t.customerAccount.rateLimitWarning);
       return;
     }
 
@@ -100,12 +102,9 @@ export default function CustomerRegisterPage() {
       }
 
       setLoading(false);
-      alert('Pendaftaran & Verifikasi 2 Langkah Berhasil! Selamat datang di FBS Bakery World.');
       router.push('/account');
     }, 500);
   };
-
-
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
@@ -124,17 +123,17 @@ export default function CustomerRegisterPage() {
               NEW CUSTOMER REGISTRATION
             </span>
             <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2B1B1B]">
-              Create Baker Account
+              {t.customerAccount.registerTitle}
             </h1>
             <p className="text-stone-600 text-xs mt-1">
-              Wajib minimal 8-12 karakter & 1 karakter khusus (@#$%^&*!_-?).
+              {t.customerAccount.registerSubtitle}
             </p>
           </div>
           {/* Social Login Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
             <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
-              <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>atau daftar dengan</span>
+              <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>{t.customerAccount.orContinueWith}</span>
               <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -142,7 +141,6 @@ export default function CustomerRegisterPage() {
               <FacebookButton />
             </div>
           </div>
-
 
           {error && (
             <div className="p-3 bg-red-50 text-red-700 border border-red-200 text-xs rounded-xl font-medium flex items-center gap-2">
@@ -154,7 +152,7 @@ export default function CustomerRegisterPage() {
           <form onSubmit={handleRegisterSubmit} className="space-y-4 text-xs">
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
-                Full Name <span className="text-red-600">*</span>
+                {t.customerAccount.fullName} <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input 
@@ -171,7 +169,7 @@ export default function CustomerRegisterPage() {
 
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
-                WhatsApp Phone Number <span className="text-red-600">*</span>
+                {t.customerAccount.phoneNumber} <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input 
@@ -188,7 +186,7 @@ export default function CustomerRegisterPage() {
 
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
-                Email Address (Optional)
+                {t.customerAccount.emailAddress} ({t.common.optional})
               </label>
               <div className="relative">
                 <input 
@@ -205,7 +203,7 @@ export default function CustomerRegisterPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Password <span className="text-red-600">*</span>
+                  {t.customerAccount.password} <span className="text-red-600">*</span>
                 </label>
                 <div className="relative">
                   <input 
@@ -218,12 +216,11 @@ export default function CustomerRegisterPage() {
                   />
                   <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                   
-                  {/* SHOW/HIDE PASSWORD TOGGLE BUTTON */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-stone-400 hover:text-[#800020] transition-colors"
-                    title={showPassword ? 'Sembunyikan Password' : 'Lihat Password'}
+                    title={showPassword ? t.customerAccount.hidePassword : t.customerAccount.showPassword}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -232,7 +229,7 @@ export default function CustomerRegisterPage() {
 
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Confirm Password <span className="text-red-600">*</span>
+                  {t.customerAccount.confirmPassword} <span className="text-red-600">*</span>
                 </label>
                 <div className="relative">
                   <input 
@@ -245,12 +242,11 @@ export default function CustomerRegisterPage() {
                   />
                   <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                   
-                  {/* SHOW/HIDE CONFIRM PASSWORD TOGGLE BUTTON */}
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-3 text-stone-400 hover:text-[#800020] transition-colors"
-                    title={showConfirmPassword ? 'Sembunyikan Password' : 'Lihat Password'}
+                    title={showConfirmPassword ? t.customerAccount.hidePassword : t.customerAccount.showPassword}
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -258,21 +254,6 @@ export default function CustomerRegisterPage() {
               </div>
             </div>
 
-            {/* LIVE PASSWORD REQUIREMENTS INDICATORS */}
-            {form.password.length > 0 && (
-              <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-1 text-[11px]">
-                <div className={`flex items-center gap-1.5 ${passwordValidation.hasMinLength ? 'text-emerald-700 font-bold' : 'text-stone-500'}`}>
-                  {passwordValidation.hasMinLength ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <span className="w-3.5 h-3.5 text-center">○</span>}
-                  <span>Minimal 8-12+ karakter ({form.password.length} karakter)</span>
-                </div>
-                <div className={`flex items-center gap-1.5 ${passwordValidation.hasSpecialChar ? 'text-emerald-700 font-bold' : 'text-stone-500'}`}>
-                  {passwordValidation.hasSpecialChar ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <span className="w-3.5 h-3.5 text-center">○</span>}
-                  <span>Mengandung karakter khusus (@, #, $, %, !, *, _, -)</span>
-                </div>
-              </div>
-            )}
-
-            {/* ANTI-BOT SAYA BUKAN ROBOT CHALLENGE */}
             <BotChallenge onVerified={setIsBotVerified} />
 
             <button
@@ -282,30 +263,27 @@ export default function CustomerRegisterPage() {
                 isBotVerified ? 'bg-[#800020] hover:bg-[#6F1D1B]' : 'bg-stone-400 cursor-not-allowed'
               }`}
             >
-              {loading ? 'Creating Account...' : 'Complete Registration'} <ArrowRight className="w-4 h-4" />
+              {loading ? t.customerAccount.registering : t.customerAccount.registerBtn} <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="pt-4 border-t border-stone-200 text-center text-xs">
+          <div className="pt-4 border-t border-stone-200 text-center space-y-3 text-xs">
             <p className="text-stone-600">
-              Already have an account?{' '}
+              {t.customerAccount.hasAccount}{' '}
               <Link href="/account/login" className="text-[#800020] font-bold hover:underline">
-                Sign In Here
+                {t.customerAccount.loginBtn}
               </Link>
             </p>
           </div>
-
         </div>
-
       </main>
 
-      {/* 2-STEP OTP VERIFICATION MODAL */}
       <OtpModal
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}
-        targetDestination={form.email || form.phone}
+        targetDestination={form.phone || form.email}
         onVerifySuccess={handleOtpVerifySuccess}
-        title="Verifikasi 2 Langkah Pendaftaran (OTP)"
+        title={t.customerAccount.verifyIdentity}
       />
 
       <Footer />

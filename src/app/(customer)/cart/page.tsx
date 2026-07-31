@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
+import { useLanguage } from '@/lib/language-context';
 import { formatMYR } from '@/lib/currency';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
@@ -12,6 +13,7 @@ import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ArrowLeft, MessageCircle,
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, subtotal, totalItems, freeShippingThreshold } = useCart();
+  const { t } = useLanguage();
 
   const amountToFreeShipping = freeShippingThreshold - subtotal;
   const progressPercent = Math.min(100, (subtotal / freeShippingThreshold) * 100);
@@ -27,10 +29,10 @@ export default function CartPage() {
         <div className="mb-8 flex items-center justify-between border-b border-[#EADBC8] pb-4">
           <div>
             <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#800020] flex items-center gap-3">
-              <ShoppingBag className="w-8 h-8 text-[#D4AF37]" /> Your Shopping Cart
+              <ShoppingBag className="w-8 h-8 text-[#D4AF37]" /> {t.cart.title}
             </h1>
             <p className="text-stone-600 text-xs sm:text-sm mt-1">
-              Review selected baking ingredients and size options before proceeding to WhatsApp Checkout.
+              {t.cart.subtitle}
             </p>
           </div>
           {cart.length > 0 && (
@@ -38,7 +40,7 @@ export default function CartPage() {
               onClick={clearCart}
               className="text-xs font-bold text-stone-500 hover:text-red-600 underline"
             >
-              Clear Entire Cart
+              {t.cart.clearCart}
             </button>
           )}
         </div>
@@ -48,15 +50,15 @@ export default function CartPage() {
             <div className="w-20 h-20 rounded-full bg-[#800020]/10 text-[#800020] flex items-center justify-center mx-auto mb-4">
               <ShoppingBag className="w-10 h-10" />
             </div>
-            <h2 className="font-serif text-2xl font-bold text-[#800020]">Your cart is empty</h2>
+            <h2 className="font-serif text-2xl font-bold text-[#800020]">{t.cart.emptyTitle}</h2>
             <p className="text-stone-600 text-xs sm:text-sm mt-2 max-w-md mx-auto">
-              Explore our wide variety of semolina flour, matcha powder, Belgian chocolate chips, and New Zealand butter.
+              {t.cart.emptySubtitle}
             </p>
             <Link
               href="/products"
               className="mt-6 inline-flex items-center gap-2 px-8 py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-2xl shadow-lg transition-transform active:scale-95"
             >
-              <ArrowLeft className="w-4 h-4" /> Continue Shopping
+              <ArrowLeft className="w-4 h-4" /> {t.cart.continueShopping}
             </Link>
           </div>
         ) : (
@@ -68,9 +70,9 @@ export default function CartPage() {
               {/* Free Shipping Meter */}
               <div className="bg-[#5A0015] text-[#FFF8F0] p-4 rounded-2xl border border-[#D4AF37]/30 shadow-md">
                 {amountToFreeShipping > 0 ? (
-                  <p className="text-xs">Add <span className="font-bold text-[#D4AF37]">{formatMYR(amountToFreeShipping)}</span> more for <span className="font-bold text-[#D4AF37]">FREE SHIPPING</span>!</p>
+                  <p className="text-xs">{t.cart.freeShippingAdd} <span className="font-bold text-[#D4AF37]">{formatMYR(amountToFreeShipping)}</span>!</p>
                 ) : (
-                  <p className="text-xs text-[#D4AF37] font-semibold">🎉 Free Delivery unlocked across Malaysia!</p>
+                  <p className="text-xs text-[#D4AF37] font-semibold">{t.cart.freeShippingUnlocked}</p>
                 )}
                 <div className="w-full bg-black/40 h-2 rounded-full mt-2 overflow-hidden">
                   <div 
@@ -95,9 +97,9 @@ export default function CartPage() {
                     <div>
                       <h3 className="font-serif font-bold text-base text-[#2B1B1B]">{item.productName}</h3>
                       <span className="inline-block px-2.5 py-0.5 bg-[#800020]/10 text-[#800020] text-xs font-bold rounded-md mt-1">
-                        Variant: {item.variantName}
+                        {t.cart.variant}: {item.variantName}
                       </span>
-                      <span className="block text-xs text-stone-400 font-mono mt-1">SKU: {item.sku}</span>
+                      <span className="block text-xs text-stone-400 font-mono mt-1">{t.cart.sku}: {item.sku}</span>
                     </div>
                   </div>
 
@@ -137,7 +139,7 @@ export default function CartPage() {
                     </div>
 
                     <div className="text-right">
-                      <span className="block text-xs text-stone-400">Subtotal</span>
+                      <span className="block text-xs text-stone-400">{t.cart.subtotal}</span>
                       <span className="font-serif text-lg font-bold text-[#800020]">
                         {formatMYR(item.price * item.quantity)}
                       </span>
@@ -146,7 +148,7 @@ export default function CartPage() {
                     <button 
                       onClick={() => removeFromCart(item.productId, item.variantId)}
                       className="p-2 text-stone-400 hover:text-red-600 rounded-lg transition-colors"
-                      title="Remove item"
+                      title={t.cart.removeItem}
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
@@ -159,7 +161,7 @@ export default function CartPage() {
                   href="/products"
                   className="inline-flex items-center gap-2 text-xs font-bold text-[#800020] hover:underline"
                 >
-                  <ArrowLeft className="w-4 h-4" /> Add More Products to Order
+                  <ArrowLeft className="w-4 h-4" /> {t.cart.addMore}
                 </Link>
               </div>
 
@@ -168,38 +170,38 @@ export default function CartPage() {
             {/* Right Column: Order Summary Card */}
             <div className="bg-white p-6 rounded-3xl border border-[#EADBC8] shadow-md h-fit space-y-6">
               <h2 className="font-serif text-xl font-bold text-[#800020] border-b border-stone-200 pb-3">
-                Order Summary
+                {t.cart.orderSummary}
               </h2>
 
               <div className="space-y-3 text-xs text-stone-600">
                 <div className="flex justify-between">
-                  <span>Total Items</span>
-                  <span className="font-bold text-stone-800">{totalItems} Items</span>
+                  <span>{t.cart.totalItems}</span>
+                  <span className="font-bold text-stone-800">{totalItems} {t.cart.items}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Product Subtotal</span>
+                  <span>{t.cart.subtotal}</span>
                   <span className="font-bold text-stone-800">{formatMYR(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Delivery Fee</span>
-                  <span className="font-bold text-emerald-700">Confirmed via WhatsApp</span>
+                  <span>{t.cart.deliveryFee}</span>
+                  <span className="font-bold text-emerald-700">{t.cart.confirmedViaWA}</span>
                 </div>
                 <div className="pt-3 border-t border-stone-200 flex justify-between items-baseline">
-                  <span className="text-sm font-bold text-[#2B1B1B]">Estimated Total</span>
+                  <span className="text-sm font-bold text-[#2B1B1B]">{t.cart.estimatedTotal}</span>
                   <span className="font-serif text-2xl font-extrabold text-[#800020]">{formatMYR(subtotal)}</span>
                 </div>
               </div>
 
               <div className="p-3 bg-[#FFF8F0] rounded-xl border border-[#EADBC8] text-[11px] text-stone-600 flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
-                <span>Payment & shipping costs are confirmed directly with our admin via WhatsApp after order submission.</span>
+                <span>{t.cart.paymentNote}</span>
               </div>
 
               <Link
                 href="/checkout"
                 className="w-full py-4 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl font-bold text-sm transition-all shadow-xl flex items-center justify-center gap-2 active:scale-95"
               >
-                <MessageCircle className="w-5 h-5 fill-white" /> Proceed to WhatsApp Checkout <ArrowRight className="w-4 h-4" />
+                <MessageCircle className="w-5 h-5 fill-white" /> {t.cart.proceedCheckout} <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 

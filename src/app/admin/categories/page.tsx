@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { Category } from '@/types';
 import { Layers, Plus, Trash2, Edit3, Image as ImageIcon, X, CheckCircle2, Upload, Sparkles } from 'lucide-react';
 
 export default function AdminCategoriesPage() {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -79,11 +81,10 @@ export default function AdminCategoriesPage() {
     db.saveCategory(payload);
     setCategories(db.getCategories());
     setIsModalOpen(false);
-    alert(editingCategory ? 'Category updated successfully!' : 'New Category created successfully!');
   };
 
   const handleDeleteCategory = (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete category "${name}"?`)) {
+    if (confirm(t.adminCategories.confirmDelete)) {
       db.deleteCategory(id);
       setCategories(db.getCategories());
     }
@@ -97,10 +98,10 @@ export default function AdminCategoriesPage() {
         <div>
           <div className="flex items-center gap-2 text-[#800020] mb-1">
             <Layers className="w-6 h-6" />
-            <span className="text-xs font-bold uppercase tracking-widest">STORE CATEGORY MANAGEMENT</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t.adminNav.categories}</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">Baking Product Categories</h1>
-          <p className="text-xs text-stone-500 mt-0.5">Manage showcase categories for home bakers & commercial bakery buyers.</p>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">{t.adminCategories.title}</h1>
+          <p className="text-xs text-stone-500 mt-0.5">{t.adminCategories.subtitle}</p>
         </div>
 
         <button
@@ -108,7 +109,7 @@ export default function AdminCategoriesPage() {
           className="px-5 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-2xl shadow-lg transition-transform active:scale-95 flex items-center gap-2"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
-          <span>CREATE NEW CATEGORY</span>
+          <span>{t.adminCategories.addNew}</span>
         </button>
       </div>
 
@@ -128,7 +129,7 @@ export default function AdminCategoriesPage() {
                 </span>
                 <h3 className="font-serif font-bold text-base text-stone-900">{cat.name}</h3>
                 <p className="text-stone-500 text-xs line-clamp-2">{cat.description}</p>
-                <span className="text-[10px] font-mono text-stone-400 block">Slug: {cat.slug}</span>
+                <span className="text-[10px] font-mono text-stone-400 block">{t.adminCategories.slugLabel}: {cat.slug}</span>
               </div>
             </div>
 
@@ -137,13 +138,13 @@ export default function AdminCategoriesPage() {
                 onClick={() => openEditModal(cat)}
                 className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold rounded-xl flex items-center gap-1 transition-colors"
               >
-                <Edit3 className="w-3.5 h-3.5" /> Edit
+                <Edit3 className="w-3.5 h-3.5" /> {t.common.edit}
               </button>
               <button
                 onClick={() => handleDeleteCategory(cat.id, cat.name)}
                 className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-xl flex items-center gap-1 transition-colors"
               >
-                <Trash2 className="w-3.5 h-3.5" /> Delete
+                <Trash2 className="w-3.5 h-3.5" /> {t.common.delete}
               </button>
             </div>
           </div>
@@ -159,7 +160,7 @@ export default function AdminCategoriesPage() {
               <div className="flex items-center gap-2 text-[#800020]">
                 <Layers className="w-6 h-6" />
                 <h3 className="font-serif font-bold text-lg">
-                  {editingCategory ? 'Edit Category' : 'Create New Category'}
+                  {editingCategory ? t.adminCategories.editBtn : t.adminCategories.addNew}
                 </h3>
               </div>
               <button 
@@ -174,7 +175,7 @@ export default function AdminCategoriesPage() {
               
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Category Name <span className="text-red-600">*</span>
+                  {t.adminCategories.nameLabel} <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -189,7 +190,7 @@ export default function AdminCategoriesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">
-                    URL Slug
+                    {t.adminCategories.slugLabel}
                   </label>
                   <input
                     type="text"
@@ -202,7 +203,7 @@ export default function AdminCategoriesPage() {
 
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">
-                    Sort Order Position
+                    Sort Order
                   </label>
                   <input
                     type="number"
@@ -215,11 +216,11 @@ export default function AdminCategoriesPage() {
 
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Short Description
+                  {t.adminCategories.descLabel}
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="Describe what products belong to this category..."
+                  placeholder="..."
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   className="w-full px-4 py-2 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
@@ -229,7 +230,7 @@ export default function AdminCategoriesPage() {
               {/* LOCAL IMAGE FILE UPLOADER & DRAG-AND-DROP */}
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Category Image File <span className="text-stone-400 font-normal">(Upload File atau Paste URL)</span>
+                  {t.adminCategories.imageLabel}
                 </label>
 
                 {imagePreview ? (
@@ -248,7 +249,7 @@ export default function AdminCategoriesPage() {
                     <Upload className="w-8 h-8 text-stone-400 mx-auto" />
                     <div className="text-xs text-stone-600">
                       <label className="text-[#800020] font-bold cursor-pointer hover:underline">
-                        <span>Pilih file gambar lokal</span>
+                        <span>Upload File</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -256,14 +257,13 @@ export default function AdminCategoriesPage() {
                           className="hidden"
                         />
                       </label>
-                      <span> atau drag & drop file ke sini</span>
                     </div>
                   </div>
                 )}
 
                 <input
                   type="text"
-                  placeholder="Atau tempel URL gambar..."
+                  placeholder="URL..."
                   value={form.image}
                   onChange={(e) => { setForm({ ...form, image: e.target.value }); setImagePreview(e.target.value); }}
                   className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 mt-2 font-mono text-[11px]"
@@ -276,13 +276,13 @@ export default function AdminCategoriesPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="w-1/3 py-3 bg-stone-100 text-stone-700 font-bold rounded-xl hover:bg-stone-200"
                 >
-                  Cancel
+                  {t.adminCategories.cancelBtn}
                 </button>
                 <button
                   type="submit"
                   className="w-2/3 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold rounded-xl shadow-lg flex items-center justify-center gap-2"
                 >
-                  <CheckCircle2 className="w-4 h-4" /> SAVE CATEGORY
+                  <CheckCircle2 className="w-4 h-4" /> {t.adminCategories.saveBtn}
                 </button>
               </div>
 

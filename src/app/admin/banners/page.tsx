@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { Banner, Product } from '@/types';
 import { Plus, Image as ImageIcon, Sparkles, Trash2, Edit, CheckCircle2, X, Eye, EyeOff, Upload, ArrowRight, Link as LinkIcon, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function AdminBannersPage() {
+  const { t } = useLanguage();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [isSavedAll, setIsSavedAll] = useState(false);
@@ -121,7 +123,7 @@ export default function AdminBannersPage() {
       alert('Minimal harus ada 1 banner slide di sistem.');
       return;
     }
-    if (confirm('Apakah Anda yakin ingin menghapus slot banner ini?')) {
+    if (confirm(t.adminCategories.confirmDelete)) {
       const updated = banners.filter(b => b.id !== id);
       setBanners(updated);
       db.deleteBanner(id);
@@ -146,10 +148,10 @@ export default function AdminBannersPage() {
       <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-[#800020]" /> Pengaturan 4 Banner Carousel Slide Beranda
+            <Sparkles className="w-6 h-6 text-[#800020]" /> {t.adminBanners.title}
           </h1>
           <p className="text-xs text-stone-500 mt-0.5">
-            Upload file gambar banner promo (minimal 4 slide), hubungkan langsung ke produk sasaran, dan simpan dalam sekali klik!
+            {t.adminBanners.subtitle}
           </p>
         </div>
 
@@ -161,11 +163,11 @@ export default function AdminBannersPage() {
         >
           {isSavedAll ? (
             <>
-              <CheckCircle2 className="w-4 h-4 text-emerald-300" /> SEMUA 4 BANNER TERSIMPAN!
+              <CheckCircle2 className="w-4 h-4 text-emerald-300" /> {t.common.saved}
             </>
           ) : (
             <>
-              <Save className="w-4 h-4 text-[#D4AF37]" /> SIMPAN SEMUA BANNER PROMO
+              <Save className="w-4 h-4 text-[#D4AF37]" /> {t.adminBanners.saveBtn}
             </>
           )}
         </button>
@@ -175,7 +177,7 @@ export default function AdminBannersPage() {
       <div className="bg-stone-900 p-6 rounded-3xl border-2 border-[#D4AF37]/50 shadow-xl text-white space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-black text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-[#D4AF37]" /> LIVE PREVIEW ROTASI BANNER SLIDER BERANDA ( {activeBanners.length} SLIDE AKTIF )
+            <Sparkles className="w-4 h-4 text-[#D4AF37]" /> LIVE PREVIEW ( {activeBanners.length} SLIDE )
           </span>
           {activeBanners.length > 1 && (
             <div className="flex items-center gap-2">
@@ -198,150 +200,192 @@ export default function AdminBannersPage() {
           )}
         </div>
 
-        {activeBanners.length > 0 && activeBanners[activePreviewIndex] ? (
-          <div className="relative aspect-21/9 rounded-2xl overflow-hidden border border-white/20 shadow-inner group">
+        {activeBanners[activePreviewIndex] && (
+          <div className="relative h-64 sm:h-80 rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-inner group">
             <img 
               src={activeBanners[activePreviewIndex].imageUrl} 
               alt={activeBanners[activePreviewIndex].title} 
-              className="w-full h-full object-cover" 
+              className="w-full h-full object-cover"
             />
-            <div className="absolute top-3 left-3 bg-[#800020] text-[#D4AF37] px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow">
-              Slide {activePreviewIndex + 1}: {activeBanners[activePreviewIndex].title}
-            </div>
-            <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-[#F7E7CE] px-3 py-1.5 rounded-xl text-[11px] font-mono border border-white/20">
-              🔗 Linked To: <strong>{activeBanners[activePreviewIndex].buttonLink}</strong>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent p-6 sm:p-10 flex flex-col justify-center max-w-xl space-y-2">
+              <span className="px-3 py-1 bg-[#800020] text-[#D4AF37] text-[10px] font-bold rounded-full w-fit uppercase">
+                PROMO BANNER SLIDE #{activePreviewIndex + 1}
+              </span>
+              <h2 className="font-serif text-xl sm:text-3xl font-extrabold text-[#F7E7CE] leading-tight">
+                {activeBanners[activePreviewIndex].title}
+              </h2>
+              <p className="text-stone-300 text-xs line-clamp-2">
+                {activeBanners[activePreviewIndex].subtitle}
+              </p>
+              <div className="pt-2">
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#800020] text-white font-bold text-xs rounded-xl shadow">
+                  {activeBanners[activePreviewIndex].buttonText || 'SHOP NOW'} <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
             </div>
           </div>
-        ) : (
-          <div className="p-8 text-center text-xs text-stone-400">Tidak ada slide banner yang aktif saat ini.</div>
         )}
       </div>
 
-      {/* 4 DEDICATED SLIDE BANNER EDITORS */}
+      {/* BANNERS FORM CARDS GRID */}
       <form onSubmit={handleSaveAllBanners} className="space-y-6">
-        
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {banners.map((banner, index) => (
+        <div className="flex items-center justify-between">
+          <h2 className="font-serif text-lg font-bold text-stone-900">
+            Daftar 4 Slot Banner Slide ({banners.length} Slot)
+          </h2>
+
+          <button
+            type="button"
+            onClick={handleAddNewSlot}
+            className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-[#D4AF37] text-xs font-bold rounded-xl border border-[#D4AF37]/30 flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4 text-[#D4AF37]" /> {t.adminBanners.addNew}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {banners.map((b, index) => (
             <div 
-              key={banner.id} 
-              className={`p-6 rounded-3xl border transition-all space-y-4 ${
-                banner.status 
-                  ? 'bg-white border-stone-200 shadow-md' 
-                  : 'bg-stone-100/70 border-stone-300 opacity-75'
+              key={b.id} 
+              className={`bg-white p-6 rounded-3xl border shadow-sm space-y-4 relative transition-all ${
+                b.status ? 'border-stone-200' : 'border-stone-300 bg-stone-50/50 opacity-75'
               }`}
             >
-              
-              {/* Slot Header Bar */}
               <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#800020] text-[#F7E7CE] font-serif font-black text-xs flex items-center justify-center border border-[#D4AF37]/50 shadow">
+                  <span className="w-7 h-7 rounded-full bg-[#800020] text-[#D4AF37] font-bold text-xs flex items-center justify-center border border-[#D4AF37]/40 shadow">
                     {index + 1}
-                  </div>
-                  <div>
-                    <h3 className="font-serif font-bold text-base text-stone-900">
-                      SLOT BANNER SLIDE #{index + 1}
-                    </h3>
-                    <span className="text-[10px] text-stone-500 font-mono">ID: {banner.id}</span>
-                  </div>
+                  </span>
+                  <span className="font-serif font-bold text-sm text-[#800020]">
+                    SLOT BANNER #{index + 1} {b.status ? '(AKTIF)' : '(NONAKTIF)'}
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Status Switch */}
                   <button
                     type="button"
-                    onClick={() => handleUpdateSlotField(banner.id, 'status', !banner.status)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                      banner.status 
-                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
-                        : 'bg-stone-200 text-stone-600 border border-stone-300'
+                    onClick={() => handleUpdateSlotField(b.id, 'status', !b.status)}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-colors flex items-center gap-1 ${
+                      b.status 
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-300' 
+                        : 'bg-stone-200 text-stone-600 border-stone-300'
                     }`}
                   >
-                    {banner.status ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                    <span>{banner.status ? 'Aktif' : 'Disabled'}</span>
+                    {b.status ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                    {b.status ? t.common.publish : t.common.unpublish}
                   </button>
 
-                  {/* Delete Slot Button */}
                   <button
                     type="button"
-                    onClick={() => handleDeleteSlot(banner.id)}
-                    className="p-1.5 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                    title="Hapus Slot Banner Ini"
+                    onClick={() => handleDeleteSlot(b.id)}
+                    className="p-1.5 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50"
+                    title="Hapus slot banner"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              {/* QUICK PRODUCT PICKER DROPDOWN FOR THIS SLOT */}
-              <div className="bg-amber-50/80 p-3 rounded-2xl border border-amber-200/80 space-y-1">
-                <label className="block font-bold text-amber-900 uppercase text-[10px] flex items-center gap-1">
-                  <LinkIcon className="w-3.5 h-3.5 text-[#800020]" /> Hubungkan Ke Produk Dari Katalog (Otomatis Mengisi Link & Gambar):
+              {/* QUICK FILL FROM PRODUCT DROPDOWN */}
+              <div className="p-3 bg-[#FFF8F0] rounded-2xl border border-[#EADBC8] space-y-1">
+                <label className="block text-[11px] font-bold text-[#800020] uppercase">
+                  ⚡ Auto-Fill Data dari Produk Katalog:
                 </label>
                 <select
-                  onChange={(e) => handleSlotProductSelect(banner.id, e.target.value)}
-                  defaultValue=""
-                  className="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl font-bold text-xs text-stone-800 focus:outline-none focus:border-[#800020]"
+                  onChange={(e) => handleSlotProductSelect(b.id, e.target.value)}
+                  className="w-full px-3 py-1.5 border border-stone-300 rounded-xl text-xs bg-white text-stone-900 font-medium"
                 >
-                  <option value="">-- Hubungkan Ke Barang Dari Katalog Produk --</option>
+                  <option value="">-- Pilih Produk untuk Auto-Fill Banner --</option>
                   {products.map(p => (
                     <option key={p.id} value={p.slug}>
-                      📦 {p.productName} ({p.brand})
+                      {p.productName} ({p.category})
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* FILE UPLOAD & PREVIEW */}
+              {/* IMAGE PREVIEW & UPLOADER */}
               <div className="space-y-2">
-                <label className="block font-bold text-stone-700 uppercase text-[11px]">
-                  Gambar Banner Slide #{index + 1}
+                <label className="block text-xs font-bold text-stone-700 uppercase">
+                  {t.adminBanners.bannerImage}
                 </label>
 
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                  <div className="sm:col-span-7 relative h-32 rounded-2xl overflow-hidden border border-stone-300 bg-stone-900 shadow-inner flex-shrink-0">
-                    <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
-                    <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 bg-black/70 text-white text-[9px] rounded font-bold">
-                      Gambar Slide Saat Ini
-                    </span>
-                  </div>
-
-                  <div className="sm:col-span-5 border-2 border-dashed border-stone-300 hover:border-[#800020] rounded-2xl p-3 text-center bg-stone-50 transition-colors relative flex flex-col items-center justify-center min-h-[128px]">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleSlotFileUpload(banner.id, e)}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    <Upload className="w-6 h-6 text-[#800020] mb-1" />
-                    <span className="font-bold text-stone-800 text-[11px] block">Upload Gambar File</span>
-                    <span className="text-[9px] text-stone-500">Klik / Geser Foto Laptop</span>
+                <div className="relative h-36 rounded-2xl overflow-hidden border border-stone-300 group bg-stone-100">
+                  <img src={b.imageUrl} alt={b.title} className="w-full h-full object-cover" />
+                  
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                    <label className="px-4 py-2 bg-white text-stone-900 font-bold text-xs rounded-xl cursor-pointer shadow-lg hover:bg-stone-100 flex items-center gap-1.5">
+                      <Upload className="w-4 h-4 text-[#800020]" /> Upload Gambar Baru
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => handleSlotFileUpload(b.id, e)}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
                 </div>
+
+                <input
+                  type="text"
+                  placeholder="URL Gambar Banner (e.g. https://...)"
+                  value={b.imageUrl}
+                  onChange={(e) => handleUpdateSlotField(b.id, 'imageUrl', e.target.value)}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-xl text-xs font-mono"
+                />
               </div>
 
-              {/* SLIDE TITLE & TARGET LINK */}
+              {/* TITLE & SUBTITLE */}
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="block font-bold text-stone-700 uppercase mb-1">Judul Banner / Nama Promo</label>
-                  <input 
+                  <label className="block font-bold text-stone-700 uppercase mb-1">
+                    {t.adminBanners.bannerTitle}
+                  </label>
+                  <input
                     type="text"
                     required
-                    value={banner.title}
-                    onChange={(e) => handleUpdateSlotField(banner.id, 'title', e.target.value)}
-                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-stone-900 font-bold"
+                    value={b.title}
+                    onChange={(e) => handleUpdateSlotField(b.id, 'title', e.target.value)}
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl font-serif font-bold text-sm text-stone-900"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-stone-700 uppercase mb-1">Target Link Produk (URL)</label>
-                  <input 
-                    type="text"
-                    required
-                    placeholder="Contoh: /products/semolina-flour-premium-grade"
-                    value={banner.buttonLink}
-                    onChange={(e) => handleUpdateSlotField(banner.id, 'buttonLink', e.target.value)}
-                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-stone-900 font-mono text-[11px] bg-white"
+                  <label className="block font-bold text-stone-700 uppercase mb-1">
+                    {t.adminBanners.bannerSubtitle}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={b.subtitle}
+                    onChange={(e) => handleUpdateSlotField(b.id, 'subtitle', e.target.value)}
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-stone-900"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-stone-700 uppercase mb-1">
+                      Teks Tombol (CTA)
+                    </label>
+                    <input
+                      type="text"
+                      value={b.buttonText}
+                      onChange={(e) => handleUpdateSlotField(b.id, 'buttonText', e.target.value)}
+                      className="w-full px-3 py-2 border border-stone-300 rounded-xl font-bold text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-stone-700 uppercase mb-1">
+                      {t.adminBanners.bannerLink}
+                    </label>
+                    <input
+                      type="text"
+                      value={b.buttonLink}
+                      onChange={(e) => handleUpdateSlotField(b.id, 'buttonLink', e.target.value)}
+                      className="w-full px-3 py-2 border border-stone-300 rounded-xl font-mono text-[11px]"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -349,34 +393,15 @@ export default function AdminBannersPage() {
           ))}
         </div>
 
-        {/* BOTTOM SAVE & ADD EXTRA SLOT ACTIONS */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-stone-200">
-          <button
-            type="button"
-            onClick={handleAddNewSlot}
-            className="w-full sm:w-auto px-5 py-3.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-2xl transition-all border border-stone-300 flex items-center justify-center gap-2"
-          >
-            <Plus className="w-4 h-4 text-[#800020]" /> TAMBAH SLOT BANNER KE-{banners.length + 1}
-          </button>
-
+        {/* BOTTOM SAVE BUTTON */}
+        <div className="pt-4 flex justify-end">
           <button
             type="submit"
-            className={`w-full sm:w-auto px-8 py-3.5 text-[#D4AF37] font-serif font-bold text-xs rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 border border-[#D4AF37]/40 ${
-              isSavedAll ? 'bg-emerald-700 text-white border-emerald-500' : 'bg-[#800020] hover:bg-[#6F1D1B]'
-            }`}
+            className="px-8 py-4 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-serif font-bold text-sm rounded-2xl shadow-xl flex items-center gap-2 border border-[#D4AF37]/40 active:scale-95 transition-transform"
           >
-            {isSavedAll ? (
-              <>
-                <CheckCircle2 className="w-4 h-4 text-emerald-300" /> SEMUA {banners.length} BANNER TERSIMPAN KETAT!
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 text-[#D4AF37]" /> SIMPAN SEMUA {banners.length} BANNER PROMO
-              </>
-            )}
+            <Save className="w-5 h-5 text-[#D4AF37]" /> {t.adminBanners.saveBtn}
           </button>
         </div>
-
       </form>
 
     </div>

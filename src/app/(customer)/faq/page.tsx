@@ -1,13 +1,16 @@
 'use client';
 
 import React from 'react';
+import { useLanguage } from '@/lib/language-context';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
-import { HelpCircle, ChevronDown } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 export default function FAQPage() {
+  const { t } = useLanguage();
+
   const faqs = [
     {
       q: 'How does ordering work on FBS Bakery World?',
@@ -41,10 +44,10 @@ export default function FAQPage() {
         <div className="text-center max-w-xl mx-auto">
           <HelpCircle className="w-12 h-12 text-[#800020] mx-auto mb-2" />
           <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#2B1B1B]">
-            Frequently Asked Questions (FAQ)
+            {t.faq.title}
           </h1>
           <p className="text-stone-600 text-xs sm:text-sm mt-2">
-            Common questions regarding ordering, payment, shipping, and wholesale bakery supplies.
+            {t.faq.subtitle}
           </p>
         </div>
 

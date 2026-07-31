@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -17,6 +18,7 @@ import FacebookButton from '@/components/auth/facebook-button';
 
 export default function CustomerLoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [phoneOrEmail, setPhoneOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -54,10 +56,8 @@ export default function CustomerLoginPage() {
         loginAt: new Date().toISOString() 
       };
       existing[idx] = finalUser;
-      alert(`Selamat datang kembali, ${finalUser.name}! Login berhasil.`);
     } else {
       existing.unshift(finalUser);
-      alert(`Akun baru berhasil didaftarkan & diverifikasi untuk ${finalUser.name}!`);
     }
 
     localStorage.setItem('fbs_customers', JSON.stringify(existing));
@@ -72,7 +72,7 @@ export default function CustomerLoginPage() {
 
     const status = checkRateLimit(identifier);
     if (status.isLocked) {
-      setError(`Terlalu banyak percobaan login gagal! Akses dikunci sementara selama ${status.lockoutRemainingSeconds} detik untuk mencegah brute force.`);
+      setError(`${t.customerAccount.accountLocked} ${status.lockoutRemainingSeconds}s.`);
       setRateLimitState(status);
       return;
     }
@@ -80,12 +80,12 @@ export default function CustomerLoginPage() {
     if (!phoneOrEmail || !password) {
       const newStatus = recordFailedAttempt(identifier);
       setRateLimitState(newStatus);
-      setError(`Silakan isi Email / WhatsApp dan Password.`);
+      setError(t.customerAccount.wrongCredentials);
       return;
     }
 
     if ((status.shouldShowCaptcha || rateLimitState.shouldShowCaptcha) && !isBotVerified) {
-      setError('Terdeteksi percobaan login berulang. Silakan centang dan selesaikan verifikasi "Saya Bukan Robot" di bawah.');
+      setError(t.customerAccount.rateLimitWarning);
       return;
     }
 
@@ -125,8 +125,6 @@ export default function CustomerLoginPage() {
     }, 400);
   };
 
-
-
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
       <AnnouncementBar />
@@ -144,17 +142,18 @@ export default function CustomerLoginPage() {
               Member Portal
             </span>
             <h1 className="font-serif text-2xl font-bold text-stone-900">
-              Masuk Pelanggan
+              {t.customerAccount.loginTitle}
             </h1>
             <p className="text-stone-600 text-xs mt-1">
-              Sign in dengan nomor WhatsApp / email & password Anda.
+              {t.customerAccount.loginSubtitle}
             </p>
           </div>
+
           {/* Social Login Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
             <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
-              <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>atau masuk dengan</span>
+              <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>{t.customerAccount.orContinueWith}</span>
               <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -162,14 +161,15 @@ export default function CustomerLoginPage() {
               <FacebookButton />
             </div>
           </div>
+
           {rateLimitState.isLocked && (
             <div className="p-4 bg-red-100 border-2 border-red-500 text-red-900 rounded-2xl text-xs space-y-1">
               <div className="flex items-center gap-2 font-bold text-sm text-red-700">
                 <ShieldAlert className="w-5 h-5 text-red-600" />
-                <span>BRUTE-FORCE LOCKOUT AKTIF</span>
+                <span>{t.customerAccount.securityCheck}</span>
               </div>
               <p>
-                Akun ini dikunci sementara karena 5x percobaan login gagal. Silakan tunggu <strong>{rateLimitState.lockoutRemainingSeconds} detik</strong> sebelum mencoba kembali.
+                {t.customerAccount.accountLocked} <strong>{rateLimitState.lockoutRemainingSeconds}s</strong>.
               </p>
             </div>
           )}
@@ -184,13 +184,13 @@ export default function CustomerLoginPage() {
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
-                WhatsApp Phone or Email <span className="text-red-600">*</span>
+                {t.customerAccount.phoneOrEmail} <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input 
                   type="text"
                   required
-                  placeholder="e.g. +60123456789 or name@example.com"
+                  placeholder="e.g. +60123456789 / name@example.com"
                   value={phoneOrEmail}
                   onChange={(e) => setPhoneOrEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
@@ -201,7 +201,7 @@ export default function CustomerLoginPage() {
 
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
-                Password <span className="text-red-600">*</span>
+                {t.customerAccount.password} <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input 
@@ -218,7 +218,7 @@ export default function CustomerLoginPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3.5 text-stone-400 hover:text-[#800020] transition-colors"
-                  title={showPassword ? 'Sembunyikan Password' : 'Tampilkan Password'}
+                  title={showPassword ? t.customerAccount.hidePassword : t.customerAccount.showPassword}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -230,14 +230,14 @@ export default function CustomerLoginPage() {
             <div className="flex items-center justify-between text-xs text-stone-600">
               <label className="flex items-center gap-1.5 cursor-pointer">
                 <input type="checkbox" defaultChecked className="rounded text-[#800020]" />
-                <span>Remember me</span>
+                <span>{t.customerAccount.rememberMe}</span>
               </label>
               
               <Link 
                 href="/account/forgot-password" 
                 className="text-[#800020] font-bold hover:underline"
               >
-                Lupa Password?
+                {t.customerAccount.forgotPassword}
               </Link>
             </div>
 
@@ -252,15 +252,15 @@ export default function CustomerLoginPage() {
                   : 'bg-stone-400 cursor-not-allowed'
               }`}
             >
-              {loading ? 'Signing In...' : 'Sign In To Account'} <ArrowRight className="w-4 h-4" />
+              {loading ? t.customerAccount.loggingIn : t.customerAccount.loginBtn} <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
           <div className="pt-4 border-t border-stone-200 text-center space-y-3 text-xs">
             <p className="text-stone-600">
-              Don't have an account yet?{' '}
+              {t.customerAccount.noAccount}{' '}
               <Link href="/account/register" className="text-[#800020] font-bold hover:underline">
-                Register New Account
+                {t.customerAccount.registerTitle}
               </Link>
             </p>
 
@@ -278,7 +278,7 @@ export default function CustomerLoginPage() {
         onClose={() => setShowOtpModal(false)}
         targetDestination={phoneOrEmail}
         onVerifySuccess={handleOtpVerifySuccess}
-        title="Verifikasi Keamanan 2 Langkah (OTP)"
+        title={t.customerAccount.verifyIdentity}
       />
 
       <Footer />

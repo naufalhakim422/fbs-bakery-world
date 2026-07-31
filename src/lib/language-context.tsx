@@ -56,15 +56,65 @@ export interface Translations {
     subtotal: string;
     estimatedTotal: string;
     proceedCheckout: string;
+    clearCart: string;
+    continueShopping: string;
+    addMore: string;
+    orderSummary: string;
+    totalItems: string;
+    items: string;
+    deliveryFee: string;
+    confirmedViaWA: string;
+    paymentNote: string;
+    freeShippingAdd: string;
+    freeShippingUnlocked: string;
+    variant: string;
+    sku: string;
+    removeItem: string;
   };
   checkout: {
     title: string;
+    subtitle: string;
     contactHeader: string;
     addressHeader: string;
     notesHeader: string;
     submitBtn: string;
+    submitting: string;
     voucherLabel: string;
     voucherApplyBtn: string;
+    voucherPlaceholder: string;
+    voucherApplied: string;
+    voucherNotFound: string;
+    voucherMinSpend: string;
+    fullName: string;
+    phoneNumber: string;
+    streetAddress: string;
+    city: string;
+    postcode: string;
+    state: string;
+    notesPlaceholder: string;
+    namePlaceholder: string;
+    phonePlaceholder: string;
+    addressPlaceholder: string;
+    orderItems: string;
+    subtotalProduk: string;
+    discountVoucher: string;
+    finalTotal: string;
+    formNote: string;
+    emptyCart: string;
+    emptyCartNote: string;
+    browseCatalog: string;
+    autoFillNote: string;
+    changeAddress: string;
+    orderSuccess: string;
+    orderRegistered: string;
+    thankYou: string;
+    orderStatus: string;
+    totalAmount: string;
+    phone: string;
+    deliveryAddress: string;
+    openWAAgain: string;
+    trackOrderStatus: string;
+    errorCreating: string;
   };
   adminNav: {
     title: string;
@@ -80,6 +130,223 @@ export interface Translations {
     settings: string;
     openStore: string;
     signOut: string;
+    cashflow: string;
+  };
+  adminLogin: {
+    title: string;
+    subtitle: string;
+    usernameLabel: string;
+    passwordLabel: string;
+    signInBtn: string;
+    authenticating: string;
+    returnToStore: string;
+    activeCreds: string;
+    wrongCreds: string;
+    showPassword: string;
+    hidePassword: string;
+  };
+  adminDashboard: {
+    welcome: string;
+    subtitle: string;
+    totalRevenue: string;
+    totalOrders: string;
+    totalProducts: string;
+    totalCustomers: string;
+    revenueChart: string;
+    recentOrders: string;
+    topProducts: string;
+    orderNumber: string;
+    customer: string;
+    amount: string;
+    status: string;
+    date: string;
+    viewAll: string;
+    period7d: string;
+    period30d: string;
+    period90d: string;
+    periodCustom: string;
+    from: string;
+    to: string;
+  };
+  adminOrders: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    filterAll: string;
+    filterNew: string;
+    filterProcessing: string;
+    filterShipped: string;
+    filterDelivered: string;
+    filterCancelled: string;
+    thOrder: string;
+    thCustomer: string;
+    thItems: string;
+    thTotal: string;
+    thStatus: string;
+    thDate: string;
+    thAction: string;
+    noOrders: string;
+    viewDetail: string;
+    updateStatus: string;
+    orderDetail: string;
+    backToOrders: string;
+    customerInfo: string;
+    orderItems: string;
+    shippingAddress: string;
+    notes: string;
+    timeline: string;
+  };
+  adminProducts: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    searchPlaceholder: string;
+    thImage: string;
+    thName: string;
+    thCategory: string;
+    thPrice: string;
+    thStock: string;
+    thStatus: string;
+    thAction: string;
+    edit: string;
+    delete: string;
+    noProducts: string;
+    active: string;
+    draft: string;
+    newProduct: string;
+    editProduct: string;
+    productName: string;
+    productSlug: string;
+    productDesc: string;
+    productCategory: string;
+    productImage: string;
+    productVariants: string;
+    saveProduct: string;
+    saving: string;
+  };
+  adminCategories: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    nameLabel: string;
+    slugLabel: string;
+    descLabel: string;
+    imageLabel: string;
+    saveBtn: string;
+    editBtn: string;
+    deleteBtn: string;
+    cancelBtn: string;
+    noCategories: string;
+    confirmDelete: string;
+  };
+  adminBlogs: {
+    title: string;
+    subtitle: string;
+    createNew: string;
+    searchPlaceholder: string;
+    thTitle: string;
+    thType: string;
+    thDate: string;
+    thStatus: string;
+    thAction: string;
+    edit: string;
+    delete: string;
+    publish: string;
+    unpublish: string;
+    noBlogs: string;
+    typeArticle: string;
+    typeVideo: string;
+    blogTitle: string;
+    blogSlug: string;
+    blogExcerpt: string;
+    blogContent: string;
+    blogImage: string;
+    blogVideoUrl: string;
+    saveDraft: string;
+    publishBtn: string;
+  };
+  adminBanners: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    thImage: string;
+    thTitle: string;
+    thLink: string;
+    thStatus: string;
+    thAction: string;
+    edit: string;
+    delete: string;
+    noBanners: string;
+    bannerTitle: string;
+    bannerSubtitle: string;
+    bannerLink: string;
+    bannerImage: string;
+    saveBtn: string;
+  };
+  adminVouchers: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    thCode: string;
+    thTitle: string;
+    thDiscount: string;
+    thMinSpend: string;
+    thStatus: string;
+    thAction: string;
+    edit: string;
+    delete: string;
+    noVouchers: string;
+    voucherCode: string;
+    voucherTitle: string;
+    discountType: string;
+    discountValue: string;
+    minSpend: string;
+    statusActive: string;
+    statusInactive: string;
+    saveBtn: string;
+  };
+  adminCustomers: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    filterAll: string;
+    filterRetail: string;
+    filterWholesale: string;
+    thName: string;
+    thEmail: string;
+    thPhone: string;
+    thType: string;
+    thOrders: string;
+    thSpent: string;
+    thJoined: string;
+    noCustomers: string;
+  };
+  adminRecipes: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    thTitle: string;
+    thCategory: string;
+    thDifficulty: string;
+    thStatus: string;
+    thAction: string;
+    edit: string;
+    delete: string;
+    noRecipes: string;
+  };
+  adminSettings: {
+    title: string;
+    subtitle: string;
+    storeInfo: string;
+    storeName: string;
+    storeDesc: string;
+    whatsappNumber: string;
+    adminCredentials: string;
+    adminEmail: string;
+    adminPassword: string;
+    saveSettings: string;
+    saving: string;
+    saved: string;
   };
   common: {
     exploreAll: string;
@@ -94,6 +361,40 @@ export interface Translations {
     reset: string;
     productsCount: string;
     noResults: string;
+    loading: string;
+    save: string;
+    cancel: string;
+    delete: string;
+    edit: string;
+    create: string;
+    update: string;
+    search: string;
+    filter: string;
+    actions: string;
+    view: string;
+    detail: string;
+    upload: string;
+    download: string;
+    export: string;
+    import: string;
+    print: string;
+    publish: string;
+    unpublish: string;
+    approve: string;
+    reject: string;
+    back: string;
+    next: string;
+    previous: string;
+    close: string;
+    confirm: string;
+    yes: string;
+    no: string;
+    or: string;
+    and: string;
+    all: string;
+    none: string;
+    required: string;
+    optional: string;
   };
   trustBadges: {
     b1Title: string;
@@ -129,6 +430,78 @@ export interface Translations {
     inflowTag: string;
     outflowTag: string;
   };
+  customerAccount: {
+    loginTitle: string;
+    loginSubtitle: string;
+    registerTitle: string;
+    registerSubtitle: string;
+    forgotTitle: string;
+    forgotSubtitle: string;
+    dashboardTitle: string;
+    dashboardSubtitle: string;
+    phoneOrEmail: string;
+    password: string;
+    confirmPassword: string;
+    fullName: string;
+    phoneNumber: string;
+    emailAddress: string;
+    loginBtn: string;
+    registerBtn: string;
+    resetBtn: string;
+    loggingIn: string;
+    registering: string;
+    noAccount: string;
+    hasAccount: string;
+    forgotPassword: string;
+    orContinueWith: string;
+    rememberMe: string;
+    logoutBtn: string;
+    profileTitle: string;
+    orderHistory: string;
+    wishlistTitle: string;
+    addressBook: string;
+    editProfile: string;
+    saveProfile: string;
+    address: string;
+    city: string;
+    state: string;
+    postcode: string;
+    wrongCredentials: string;
+    emailExists: string;
+    phoneExists: string;
+    passwordMismatch: string;
+    passwordMinLength: string;
+    verifyIdentity: string;
+    enterOtp: string;
+    securityCheck: string;
+    showPassword: string;
+    hidePassword: string;
+    rateLimitWarning: string;
+    accountLocked: string;
+    returnToStore: string;
+  };
+  faq: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    noResults: string;
+    contactUs: string;
+    contactNote: string;
+  };
+  status: {
+    new: string;
+    processing: string;
+    shipped: string;
+    delivered: string;
+    cancelled: string;
+    active: string;
+    inactive: string;
+    draft: string;
+    published: string;
+    pending: string;
+    completed: string;
+    refunded: string;
+  };
 }
 
 const dictionaries: Record<LanguageCode, Translations> = {
@@ -141,7 +514,7 @@ const dictionaries: Record<LanguageCode, Translations> = {
       products: 'Katalog Produk',
       categories: 'Kategori Bahan',
       recipes: 'Resepi & Petua',
-      blog: 'Blog Baker',
+      blog: 'Blog Kemas Kini',
       about: 'Mengenai Kami',
       contact: 'Hubungi Kami',
       trackOrder: 'Jejak Resi',
@@ -184,15 +557,65 @@ const dictionaries: Record<LanguageCode, Translations> = {
       subtotal: 'Jumlah Subtotal Produk',
       estimatedTotal: 'Anggaran Jumlah Akhir',
       proceedCheckout: 'Lanjut ke WhatsApp Checkout',
+      clearCart: 'Kosongkan Semua Troli',
+      continueShopping: 'Teruskan Membeli-belah',
+      addMore: 'Tambah Lagi Produk ke Pesanan',
+      orderSummary: 'Ringkasan Pesanan',
+      totalItems: 'Jumlah Item',
+      items: 'Item',
+      deliveryFee: 'Kos Penghantaran',
+      confirmedViaWA: 'Disahkan melalui WhatsApp',
+      paymentNote: 'Pembayaran & kos penghantaran disahkan terus oleh admin kami melalui WhatsApp selepas pesanan dihantar.',
+      freeShippingAdd: 'Tambah lagi untuk PENGHANTARAN PERCUMA',
+      freeShippingUnlocked: '🎉 Penghantaran Percuma diaktifkan ke seluruh Malaysia!',
+      variant: 'Varian',
+      sku: 'SKU',
+      removeItem: 'Buang item',
     },
     checkout: {
       title: 'Daftar Keluar via WhatsApp',
+      subtitle: 'Masukkan butiran penghantaran anda dan gunakan baucar promo untuk menjana mesej pesanan WhatsApp anda.',
       contactHeader: '1. Maklumat Hubungan Pelanggan',
       addressHeader: '2. Alamat Penghantaran (Malaysia)',
       notesHeader: '3. Catatan Tambahan (Opsional)',
       submitBtn: 'HANTAR & CHECKOUT VIA WHATSAPP',
+      submitting: 'Menjana Pesanan...',
       voucherLabel: 'Gunakan Kod Baucar Promo',
       voucherApplyBtn: 'Gunakan',
+      voucherPlaceholder: 'Contoh: VIPBAKER20',
+      voucherApplied: 'Baucar Terpasang',
+      voucherNotFound: 'Kod baucar tidak dijumpai atau tidak aktif.',
+      voucherMinSpend: 'Pembelian minimum untuk baucar ini adalah RM',
+      fullName: 'Nama Penuh',
+      phoneNumber: 'Nombor Telefon WhatsApp',
+      streetAddress: 'Alamat Jalan / Unit / Bangunan',
+      city: 'Bandar / Pekan',
+      postcode: 'Poskod',
+      state: 'Negeri',
+      notesPlaceholder: 'Contoh: Penghantaran segera diperlukan, sila balut dengan bubble wrap tambahan.',
+      namePlaceholder: 'Contoh: Ahmad Naufal',
+      phonePlaceholder: 'Contoh: +60123456789',
+      addressPlaceholder: 'Contoh: No 45, Jalan Bunga Raya 7/2, Seksyen 7',
+      orderItems: 'Item Pesanan',
+      subtotalProduk: 'Subtotal Produk',
+      discountVoucher: 'Diskaun Baucar',
+      finalTotal: 'Jumlah Akhir',
+      formNote: 'Menghantar borang ini mencipta ID Pesanan anda dan membuka mesej pra-format terus ke talian sokongan WhatsApp kami.',
+      emptyCart: 'Troli anda kosong',
+      emptyCartNote: 'Sila tambah produk bakeri ke troli anda sebelum meneruskan ke daftar keluar.',
+      browseCatalog: 'Layari Katalog',
+      autoFillNote: '⚡ Alamat Pengiriman Otomatis Terisi: Data alamat diambil dari profil akun Anda.',
+      changeAddress: 'Ubah Alamat Akaun',
+      orderSuccess: 'Pesanan Berjaya Didaftarkan',
+      orderRegistered: 'Pesanan',
+      thankYou: 'Terima kasih! Pesanan anda telah disimpan dalam sistem kami dan dialihkan ke Admin WhatsApp.',
+      orderStatus: 'Status Pesanan',
+      totalAmount: 'Jumlah Keseluruhan',
+      phone: 'Telefon',
+      deliveryAddress: 'Alamat Penghantaran',
+      openWAAgain: 'Buka WhatsApp Sekali Lagi',
+      trackOrderStatus: 'Jejak Status Pesanan',
+      errorCreating: 'Ralat mencipta pesanan. Sila cuba lagi.',
     },
     adminNav: {
       title: 'Portal Kawalan & Pengurusan Perniagaan',
@@ -208,6 +631,223 @@ const dictionaries: Record<LanguageCode, Translations> = {
       settings: 'Tetapan Kedai & WA',
       openStore: 'Buka Store Publik',
       signOut: 'Log Keluar Sesi Admin',
+      cashflow: 'Laporan Aliran Tunai',
+    },
+    adminLogin: {
+      title: 'Log Masuk Portal Admin',
+      subtitle: 'Masukkan kelayakan anda untuk mengakses papan pemuka pengurusan kedai.',
+      usernameLabel: 'Nama Pengguna / E-mel',
+      passwordLabel: 'Kata Laluan',
+      signInBtn: 'Log Masuk ke Papan Pemuka',
+      authenticating: 'Mengesahkan...',
+      returnToStore: '← Kembali ke Laman Utama Kedai',
+      activeCreds: 'Kelayakan Admin Aktif:',
+      wrongCreds: 'Nama pengguna atau kata laluan salah.',
+      showPassword: 'Tunjuk kata laluan',
+      hidePassword: 'Sembunyikan kata laluan',
+    },
+    adminDashboard: {
+      welcome: 'Selamat Datang ke Papan Pemuka',
+      subtitle: 'Ringkasan prestasi perniagaan anda.',
+      totalRevenue: 'Jumlah Pendapatan',
+      totalOrders: 'Jumlah Pesanan',
+      totalProducts: 'Jumlah Produk',
+      totalCustomers: 'Jumlah Pelanggan',
+      revenueChart: 'Carta Pendapatan',
+      recentOrders: 'Pesanan Terkini',
+      topProducts: 'Produk Terlaris',
+      orderNumber: 'No. Pesanan',
+      customer: 'Pelanggan',
+      amount: 'Jumlah',
+      status: 'Status',
+      date: 'Tarikh',
+      viewAll: 'Lihat Semua',
+      period7d: '7 Hari',
+      period30d: '30 Hari',
+      period90d: '90 Hari',
+      periodCustom: 'Kustom',
+      from: 'Dari',
+      to: 'Hingga',
+    },
+    adminOrders: {
+      title: 'Pengurusan Pesanan',
+      subtitle: 'Urus semua pesanan pelanggan dari satu tempat.',
+      searchPlaceholder: 'Cari pesanan...',
+      filterAll: 'Semua',
+      filterNew: 'Baru',
+      filterProcessing: 'Dalam Proses',
+      filterShipped: 'Dihantar',
+      filterDelivered: 'Diterima',
+      filterCancelled: 'Dibatalkan',
+      thOrder: 'PESANAN',
+      thCustomer: 'PELANGGAN',
+      thItems: 'ITEM',
+      thTotal: 'JUMLAH',
+      thStatus: 'STATUS',
+      thDate: 'TARIKH',
+      thAction: 'TINDAKAN',
+      noOrders: 'Tiada pesanan dijumpai.',
+      viewDetail: 'Lihat Butiran',
+      updateStatus: 'Kemaskini Status',
+      orderDetail: 'Butiran Pesanan',
+      backToOrders: '← Kembali ke Senarai Pesanan',
+      customerInfo: 'Maklumat Pelanggan',
+      orderItems: 'Item Pesanan',
+      shippingAddress: 'Alamat Penghantaran',
+      notes: 'Catatan',
+      timeline: 'Garis Masa',
+    },
+    adminProducts: {
+      title: 'Pengurusan Katalog Produk',
+      subtitle: 'Urus semua produk bahan bakeri anda.',
+      addNew: 'Tambah Produk Baru',
+      searchPlaceholder: 'Cari produk...',
+      thImage: 'GAMBAR',
+      thName: 'NAMA PRODUK',
+      thCategory: 'KATEGORI',
+      thPrice: 'HARGA',
+      thStock: 'STOK',
+      thStatus: 'STATUS',
+      thAction: 'TINDAKAN',
+      edit: 'Sunting',
+      delete: 'Padam',
+      noProducts: 'Tiada produk dijumpai.',
+      active: 'Aktif',
+      draft: 'Draf',
+      newProduct: 'Produk Baru',
+      editProduct: 'Sunting Produk',
+      productName: 'Nama Produk',
+      productSlug: 'Slug Produk',
+      productDesc: 'Penerangan Produk',
+      productCategory: 'Kategori Produk',
+      productImage: 'Gambar Produk',
+      productVariants: 'Varian Produk',
+      saveProduct: 'Simpan Produk',
+      saving: 'Menyimpan...',
+    },
+    adminCategories: {
+      title: 'Pengurusan Kategori',
+      subtitle: 'Urus kategori bahan bakeri.',
+      addNew: 'Tambah Kategori Baru',
+      nameLabel: 'Nama Kategori',
+      slugLabel: 'Slug',
+      descLabel: 'Penerangan',
+      imageLabel: 'URL Gambar',
+      saveBtn: 'Simpan',
+      editBtn: 'Sunting',
+      deleteBtn: 'Padam',
+      cancelBtn: 'Batal',
+      noCategories: 'Tiada kategori dijumpai.',
+      confirmDelete: 'Adakah anda pasti mahu memadamkan kategori ini?',
+    },
+    adminBlogs: {
+      title: 'Pengurusan Blog Kemas Kini',
+      subtitle: 'Urus artikel dan video kemas kini.',
+      createNew: 'Cipta Pos Baru',
+      searchPlaceholder: 'Cari blog...',
+      thTitle: 'TAJUK',
+      thType: 'JENIS',
+      thDate: 'TARIKH',
+      thStatus: 'STATUS',
+      thAction: 'TINDAKAN',
+      edit: 'Sunting',
+      delete: 'Padam',
+      publish: 'Terbit',
+      unpublish: 'Nyahterbit',
+      noBlogs: 'Tiada blog dijumpai.',
+      typeArticle: 'Artikel',
+      typeVideo: 'Video',
+      blogTitle: 'Tajuk Blog',
+      blogSlug: 'Slug',
+      blogExcerpt: 'Ringkasan',
+      blogContent: 'Kandungan',
+      blogImage: 'URL Gambar',
+      blogVideoUrl: 'URL Video',
+      saveDraft: 'Simpan Draf',
+      publishBtn: 'Terbitkan',
+    },
+    adminBanners: {
+      title: 'Pengurusan Banner',
+      subtitle: 'Urus banner promosi kedai.',
+      addNew: 'Tambah Banner Baru',
+      thImage: 'GAMBAR',
+      thTitle: 'TAJUK',
+      thLink: 'PAUTAN',
+      thStatus: 'STATUS',
+      thAction: 'TINDAKAN',
+      edit: 'Sunting',
+      delete: 'Padam',
+      noBanners: 'Tiada banner dijumpai.',
+      bannerTitle: 'Tajuk Banner',
+      bannerSubtitle: 'Subtajuk',
+      bannerLink: 'URL Pautan Produk',
+      bannerImage: 'URL Gambar',
+      saveBtn: 'Simpan Banner',
+    },
+    adminVouchers: {
+      title: 'Pengurusan Baucar Promo',
+      subtitle: 'Urus baucar diskaun untuk pelanggan.',
+      addNew: 'Tambah Baucar Baru',
+      thCode: 'KOD',
+      thTitle: 'TAJUK',
+      thDiscount: 'DISKAUN',
+      thMinSpend: 'MIN. BELANJA',
+      thStatus: 'STATUS',
+      thAction: 'TINDAKAN',
+      edit: 'Sunting',
+      delete: 'Padam',
+      noVouchers: 'Tiada baucar dijumpai.',
+      voucherCode: 'Kod Baucar',
+      voucherTitle: 'Tajuk Baucar',
+      discountType: 'Jenis Diskaun',
+      discountValue: 'Nilai Diskaun',
+      minSpend: 'Min. Belanja (RM)',
+      statusActive: 'Aktif',
+      statusInactive: 'Tidak Aktif',
+      saveBtn: 'Simpan Baucar',
+    },
+    adminCustomers: {
+      title: 'Pangkalan Data Pelanggan',
+      subtitle: 'Lihat dan urus semua pelanggan berdaftar.',
+      searchPlaceholder: 'Cari pelanggan...',
+      filterAll: 'Semua',
+      filterRetail: 'Runcit',
+      filterWholesale: 'Borong',
+      thName: 'NAMA',
+      thEmail: 'E-MEL',
+      thPhone: 'TELEFON',
+      thType: 'JENIS',
+      thOrders: 'PESANAN',
+      thSpent: 'BELANJA',
+      thJoined: 'TARIKH DAFTAR',
+      noCustomers: 'Tiada pelanggan dijumpai.',
+    },
+    adminRecipes: {
+      title: 'CMS Pusat Resepi',
+      subtitle: 'Urus resepi bakeri dan panduan masakan.',
+      addNew: 'Tambah Resepi Baru',
+      thTitle: 'TAJUK',
+      thCategory: 'KATEGORI',
+      thDifficulty: 'KESUKARAN',
+      thStatus: 'STATUS',
+      thAction: 'TINDAKAN',
+      edit: 'Sunting',
+      delete: 'Padam',
+      noRecipes: 'Tiada resepi dijumpai.',
+    },
+    adminSettings: {
+      title: 'Tetapan Kedai & WhatsApp',
+      subtitle: 'Konfigurasi maklumat kedai dan kelayakan admin.',
+      storeInfo: 'Maklumat Kedai',
+      storeName: 'Nama Kedai',
+      storeDesc: 'Penerangan Kedai',
+      whatsappNumber: 'Nombor WhatsApp',
+      adminCredentials: 'Kelayakan Admin',
+      adminEmail: 'E-mel Admin',
+      adminPassword: 'Kata Laluan Admin',
+      saveSettings: 'Simpan Tetapan',
+      saving: 'Menyimpan...',
+      saved: 'Disimpan!',
     },
     common: {
       exploreAll: 'Terokai Semua Produk',
@@ -222,6 +862,40 @@ const dictionaries: Record<LanguageCode, Translations> = {
       reset: 'Tetap Semula Penapis',
       productsCount: 'Produk Ditemui',
       noResults: 'Tiada produk ditemui',
+      loading: 'Memuatkan...',
+      save: 'Simpan',
+      cancel: 'Batal',
+      delete: 'Padam',
+      edit: 'Sunting',
+      create: 'Cipta',
+      update: 'Kemaskini',
+      search: 'Cari',
+      filter: 'Tapis',
+      actions: 'Tindakan',
+      view: 'Lihat',
+      detail: 'Butiran',
+      upload: 'Muat Naik',
+      download: 'Muat Turun',
+      export: 'Eksport',
+      import: 'Import',
+      print: 'Cetak',
+      publish: 'Terbit',
+      unpublish: 'Nyahterbit',
+      approve: 'Luluskan',
+      reject: 'Tolak',
+      back: 'Kembali',
+      next: 'Seterusnya',
+      previous: 'Sebelumnya',
+      close: 'Tutup',
+      confirm: 'Sahkan',
+      yes: 'Ya',
+      no: 'Tidak',
+      or: 'atau',
+      and: 'dan',
+      all: 'Semua',
+      none: 'Tiada',
+      required: 'Wajib',
+      optional: 'Pilihan',
     },
     trustBadges: {
       b1Title: '100% Diiktiraf Halal',
@@ -257,6 +931,78 @@ const dictionaries: Record<LanguageCode, Translations> = {
       inflowTag: 'TUNAI MASUK',
       outflowTag: 'TUNAI KELUAR',
     },
+    customerAccount: {
+      loginTitle: 'Log Masuk ke Akaun Anda',
+      loginSubtitle: 'Masukkan butiran anda untuk mengakses akaun pelanggan.',
+      registerTitle: 'Daftar Akaun Baru',
+      registerSubtitle: 'Cipta akaun untuk menikmati pengalaman membeli-belah yang lebih mudah.',
+      forgotTitle: 'Lupa Kata Laluan',
+      forgotSubtitle: 'Masukkan telefon/e-mel untuk menetapkan semula kata laluan anda.',
+      dashboardTitle: 'Papan Pemuka Akaun Saya',
+      dashboardSubtitle: 'Urus profil, pesanan, dan senarai hajat anda.',
+      phoneOrEmail: 'Telefon / E-mel',
+      password: 'Kata Laluan',
+      confirmPassword: 'Sahkan Kata Laluan',
+      fullName: 'Nama Penuh',
+      phoneNumber: 'Nombor Telefon',
+      emailAddress: 'Alamat E-mel',
+      loginBtn: 'Log Masuk',
+      registerBtn: 'Daftar Sekarang',
+      resetBtn: 'Tetap Semula Kata Laluan',
+      loggingIn: 'Mengesahkan...',
+      registering: 'Mendaftar...',
+      noAccount: 'Belum ada akaun?',
+      hasAccount: 'Sudah ada akaun?',
+      forgotPassword: 'Lupa kata laluan?',
+      orContinueWith: 'atau teruskan dengan',
+      rememberMe: 'Ingat saya',
+      logoutBtn: 'Log Keluar',
+      profileTitle: 'Profil Saya',
+      orderHistory: 'Sejarah Pesanan',
+      wishlistTitle: 'Senarai Hajat',
+      addressBook: 'Buku Alamat',
+      editProfile: 'Sunting Profil',
+      saveProfile: 'Simpan Profil',
+      address: 'Alamat',
+      city: 'Bandar',
+      state: 'Negeri',
+      postcode: 'Poskod',
+      wrongCredentials: 'Telefon/e-mel atau kata laluan salah.',
+      emailExists: 'E-mel ini sudah didaftarkan.',
+      phoneExists: 'Nombor telefon ini sudah didaftarkan.',
+      passwordMismatch: 'Kata laluan tidak sepadan.',
+      passwordMinLength: 'Kata laluan mestilah sekurang-kurangnya 6 aksara.',
+      verifyIdentity: 'Sahkan Identiti',
+      enterOtp: 'Masukkan OTP',
+      securityCheck: 'Pemeriksaan Keselamatan',
+      showPassword: 'Tunjuk kata laluan',
+      hidePassword: 'Sembunyikan kata laluan',
+      rateLimitWarning: 'Terlalu banyak percubaan. Sila tunggu sebentar.',
+      accountLocked: 'Akaun dikunci sementara. Sila cuba lagi selepas',
+      returnToStore: '← Kembali ke Kedai',
+    },
+    faq: {
+      title: 'Soalan Lazim (FAQ)',
+      subtitle: 'Jawapan kepada soalan yang sering ditanya tentang produk dan perkhidmatan kami.',
+      searchPlaceholder: 'Cari soalan...',
+      noResults: 'Tiada soalan dijumpai yang sepadan dengan carian anda.',
+      contactUs: 'Hubungi Kami',
+      contactNote: 'Tidak menemui jawapan anda? Hubungi kami melalui WhatsApp.',
+    },
+    status: {
+      new: 'Baru',
+      processing: 'Dalam Proses',
+      shipped: 'Dihantar',
+      delivered: 'Diterima',
+      cancelled: 'Dibatalkan',
+      active: 'Aktif',
+      inactive: 'Tidak Aktif',
+      draft: 'Draf',
+      published: 'Diterbitkan',
+      pending: 'Menunggu',
+      completed: 'Selesai',
+      refunded: 'Dipulangkan',
+    },
   },
   ID: {
     flag: '🇮🇩',
@@ -267,7 +1013,7 @@ const dictionaries: Record<LanguageCode, Translations> = {
       products: 'Katalog Produk',
       categories: 'Kategori Bahan',
       recipes: 'Resep & Tips Baking',
-      blog: 'Blog Baker',
+      blog: 'Blog Update',
       about: 'Tentang Kami',
       contact: 'Hubungi Kami',
       trackOrder: 'Lacak Resi',
@@ -310,15 +1056,65 @@ const dictionaries: Record<LanguageCode, Translations> = {
       subtotal: 'Total Subtotal Produk',
       estimatedTotal: 'Estimasi Total Akhir',
       proceedCheckout: 'Lanjut ke WhatsApp Checkout',
+      clearCart: 'Kosongkan Semua Keranjang',
+      continueShopping: 'Lanjutkan Belanja',
+      addMore: 'Tambah Produk Lain ke Pesanan',
+      orderSummary: 'Ringkasan Pesanan',
+      totalItems: 'Total Item',
+      items: 'Item',
+      deliveryFee: 'Biaya Pengiriman',
+      confirmedViaWA: 'Dikonfirmasi via WhatsApp',
+      paymentNote: 'Pembayaran & biaya pengiriman dikonfirmasi langsung oleh admin kami via WhatsApp setelah pesanan dikirim.',
+      freeShippingAdd: 'Tambah lagi untuk GRATIS ONGKIR',
+      freeShippingUnlocked: '🎉 Gratis Ongkir telah diaktifkan ke seluruh Malaysia!',
+      variant: 'Varian',
+      sku: 'SKU',
+      removeItem: 'Hapus item',
     },
     checkout: {
       title: 'Checkout via WhatsApp',
+      subtitle: 'Masukkan detail pengiriman Anda dan gunakan kode voucher promo untuk membuat pesan pesanan WhatsApp.',
       contactHeader: '1. Detail Kontak Pelanggan',
       addressHeader: '2. Alamat Pengiriman (Malaysia)',
       notesHeader: '3. Catatan Tambahan (Opsional)',
       submitBtn: 'KIRIM & CHECKOUT VIA WHATSAPP',
+      submitting: 'Membuat Pesanan...',
       voucherLabel: 'Gunakan Kode Voucher Promo',
       voucherApplyBtn: 'Gunakan',
+      voucherPlaceholder: 'Contoh: VIPBAKER20',
+      voucherApplied: 'Voucher Terpasang',
+      voucherNotFound: 'Kode voucher tidak ditemukan atau tidak aktif.',
+      voucherMinSpend: 'Minimal belanja untuk voucher ini adalah RM',
+      fullName: 'Nama Lengkap',
+      phoneNumber: 'Nomor Telepon WhatsApp',
+      streetAddress: 'Alamat Jalan / Unit / Gedung',
+      city: 'Kota / Kabupaten',
+      postcode: 'Kode Pos',
+      state: 'Negara Bagian',
+      notesPlaceholder: 'Contoh: Pengiriman segera diperlukan, tolong bungkus dengan bubble wrap tambahan.',
+      namePlaceholder: 'Contoh: Ahmad Naufal',
+      phonePlaceholder: 'Contoh: +60123456789',
+      addressPlaceholder: 'Contoh: No 45, Jalan Bunga Raya 7/2, Section 7',
+      orderItems: 'Item Pesanan',
+      subtotalProduk: 'Subtotal Produk',
+      discountVoucher: 'Diskon Voucher',
+      finalTotal: 'Total Akhir',
+      formNote: 'Mengirim formulir ini membuat ID Pesanan Anda dan membuka pesan pra-format langsung ke jalur dukungan WhatsApp kami.',
+      emptyCart: 'Keranjang Anda kosong',
+      emptyCartNote: 'Silakan tambah produk bakery ke keranjang Anda sebelum melanjutkan ke checkout.',
+      browseCatalog: 'Jelajahi Katalog',
+      autoFillNote: '⚡ Alamat Pengiriman Otomatis Terisi: Data alamat diambil dari profil akun Anda.',
+      changeAddress: 'Ubah Alamat Akun',
+      orderSuccess: 'Pesanan Berhasil Terdaftar',
+      orderRegistered: 'Pesanan',
+      thankYou: 'Terima kasih! Pesanan Anda telah disimpan dalam sistem kami dan dialihkan ke Admin WhatsApp.',
+      orderStatus: 'Status Pesanan',
+      totalAmount: 'Total Jumlah',
+      phone: 'Telepon',
+      deliveryAddress: 'Alamat Pengiriman',
+      openWAAgain: 'Buka WhatsApp Lagi',
+      trackOrderStatus: 'Lacak Status Pesanan',
+      errorCreating: 'Error membuat pesanan. Silakan coba lagi.',
     },
     adminNav: {
       title: 'Portal Kontrol & Manajemen Bisnis',
@@ -334,6 +1130,223 @@ const dictionaries: Record<LanguageCode, Translations> = {
       settings: 'Pengaturan Toko & WA',
       openStore: 'Buka Store Publik',
       signOut: 'Keluar Sesi Admin',
+      cashflow: 'Laporan Arus Kas',
+    },
+    adminLogin: {
+      title: 'Masuk Portal Admin',
+      subtitle: 'Masukkan kredensial Anda untuk mengakses dashboard manajemen toko.',
+      usernameLabel: 'Username / Email',
+      passwordLabel: 'Kata Sandi',
+      signInBtn: 'Masuk ke Dashboard',
+      authenticating: 'Mengautentikasi...',
+      returnToStore: '← Kembali ke Halaman Utama Toko',
+      activeCreds: 'Kredensial Admin Aktif:',
+      wrongCreds: 'Username atau kata sandi salah.',
+      showPassword: 'Tampilkan kata sandi',
+      hidePassword: 'Sembunyikan kata sandi',
+    },
+    adminDashboard: {
+      welcome: 'Selamat Datang di Dashboard',
+      subtitle: 'Ringkasan performa bisnis Anda.',
+      totalRevenue: 'Total Pendapatan',
+      totalOrders: 'Total Pesanan',
+      totalProducts: 'Total Produk',
+      totalCustomers: 'Total Pelanggan',
+      revenueChart: 'Grafik Pendapatan',
+      recentOrders: 'Pesanan Terbaru',
+      topProducts: 'Produk Terlaris',
+      orderNumber: 'No. Pesanan',
+      customer: 'Pelanggan',
+      amount: 'Jumlah',
+      status: 'Status',
+      date: 'Tanggal',
+      viewAll: 'Lihat Semua',
+      period7d: '7 Hari',
+      period30d: '30 Hari',
+      period90d: '90 Hari',
+      periodCustom: 'Kustom',
+      from: 'Dari',
+      to: 'Sampai',
+    },
+    adminOrders: {
+      title: 'Manajemen Pesanan',
+      subtitle: 'Kelola semua pesanan pelanggan dari satu tempat.',
+      searchPlaceholder: 'Cari pesanan...',
+      filterAll: 'Semua',
+      filterNew: 'Baru',
+      filterProcessing: 'Diproses',
+      filterShipped: 'Dikirim',
+      filterDelivered: 'Diterima',
+      filterCancelled: 'Dibatalkan',
+      thOrder: 'PESANAN',
+      thCustomer: 'PELANGGAN',
+      thItems: 'ITEM',
+      thTotal: 'TOTAL',
+      thStatus: 'STATUS',
+      thDate: 'TANGGAL',
+      thAction: 'AKSI',
+      noOrders: 'Tidak ada pesanan ditemukan.',
+      viewDetail: 'Lihat Detail',
+      updateStatus: 'Perbarui Status',
+      orderDetail: 'Detail Pesanan',
+      backToOrders: '← Kembali ke Daftar Pesanan',
+      customerInfo: 'Informasi Pelanggan',
+      orderItems: 'Item Pesanan',
+      shippingAddress: 'Alamat Pengiriman',
+      notes: 'Catatan',
+      timeline: 'Timeline',
+    },
+    adminProducts: {
+      title: 'Manajemen Katalog Produk',
+      subtitle: 'Kelola semua produk bahan bakery Anda.',
+      addNew: 'Tambah Produk Baru',
+      searchPlaceholder: 'Cari produk...',
+      thImage: 'GAMBAR',
+      thName: 'NAMA PRODUK',
+      thCategory: 'KATEGORI',
+      thPrice: 'HARGA',
+      thStock: 'STOK',
+      thStatus: 'STATUS',
+      thAction: 'AKSI',
+      edit: 'Edit',
+      delete: 'Hapus',
+      noProducts: 'Tidak ada produk ditemukan.',
+      active: 'Aktif',
+      draft: 'Draf',
+      newProduct: 'Produk Baru',
+      editProduct: 'Edit Produk',
+      productName: 'Nama Produk',
+      productSlug: 'Slug Produk',
+      productDesc: 'Deskripsi Produk',
+      productCategory: 'Kategori Produk',
+      productImage: 'Gambar Produk',
+      productVariants: 'Varian Produk',
+      saveProduct: 'Simpan Produk',
+      saving: 'Menyimpan...',
+    },
+    adminCategories: {
+      title: 'Manajemen Kategori',
+      subtitle: 'Kelola kategori bahan bakery.',
+      addNew: 'Tambah Kategori Baru',
+      nameLabel: 'Nama Kategori',
+      slugLabel: 'Slug',
+      descLabel: 'Deskripsi',
+      imageLabel: 'URL Gambar',
+      saveBtn: 'Simpan',
+      editBtn: 'Edit',
+      deleteBtn: 'Hapus',
+      cancelBtn: 'Batal',
+      noCategories: 'Tidak ada kategori ditemukan.',
+      confirmDelete: 'Apakah Anda yakin ingin menghapus kategori ini?',
+    },
+    adminBlogs: {
+      title: 'Manajemen Blog Update',
+      subtitle: 'Kelola artikel dan video update.',
+      createNew: 'Buat Post Baru',
+      searchPlaceholder: 'Cari blog...',
+      thTitle: 'JUDUL',
+      thType: 'TIPE',
+      thDate: 'TANGGAL',
+      thStatus: 'STATUS',
+      thAction: 'AKSI',
+      edit: 'Edit',
+      delete: 'Hapus',
+      publish: 'Terbitkan',
+      unpublish: 'Batalkan Terbit',
+      noBlogs: 'Tidak ada blog ditemukan.',
+      typeArticle: 'Artikel',
+      typeVideo: 'Video',
+      blogTitle: 'Judul Blog',
+      blogSlug: 'Slug',
+      blogExcerpt: 'Ringkasan',
+      blogContent: 'Konten',
+      blogImage: 'URL Gambar',
+      blogVideoUrl: 'URL Video',
+      saveDraft: 'Simpan Draf',
+      publishBtn: 'Terbitkan',
+    },
+    adminBanners: {
+      title: 'Manajemen Banner',
+      subtitle: 'Kelola banner promosi toko.',
+      addNew: 'Tambah Banner Baru',
+      thImage: 'GAMBAR',
+      thTitle: 'JUDUL',
+      thLink: 'LINK',
+      thStatus: 'STATUS',
+      thAction: 'AKSI',
+      edit: 'Edit',
+      delete: 'Hapus',
+      noBanners: 'Tidak ada banner ditemukan.',
+      bannerTitle: 'Judul Banner',
+      bannerSubtitle: 'Subjudul',
+      bannerLink: 'URL Link Produk',
+      bannerImage: 'URL Gambar',
+      saveBtn: 'Simpan Banner',
+    },
+    adminVouchers: {
+      title: 'Manajemen Voucher Promo',
+      subtitle: 'Kelola voucher diskon untuk pelanggan.',
+      addNew: 'Tambah Voucher Baru',
+      thCode: 'KODE',
+      thTitle: 'JUDUL',
+      thDiscount: 'DISKON',
+      thMinSpend: 'MIN. BELANJA',
+      thStatus: 'STATUS',
+      thAction: 'AKSI',
+      edit: 'Edit',
+      delete: 'Hapus',
+      noVouchers: 'Tidak ada voucher ditemukan.',
+      voucherCode: 'Kode Voucher',
+      voucherTitle: 'Judul Voucher',
+      discountType: 'Tipe Diskon',
+      discountValue: 'Nilai Diskon',
+      minSpend: 'Min. Belanja (RM)',
+      statusActive: 'Aktif',
+      statusInactive: 'Tidak Aktif',
+      saveBtn: 'Simpan Voucher',
+    },
+    adminCustomers: {
+      title: 'Database Pelanggan',
+      subtitle: 'Lihat dan kelola semua pelanggan terdaftar.',
+      searchPlaceholder: 'Cari pelanggan...',
+      filterAll: 'Semua',
+      filterRetail: 'Retail',
+      filterWholesale: 'Grosir',
+      thName: 'NAMA',
+      thEmail: 'EMAIL',
+      thPhone: 'TELEPON',
+      thType: 'TIPE',
+      thOrders: 'PESANAN',
+      thSpent: 'BELANJA',
+      thJoined: 'TANGGAL DAFTAR',
+      noCustomers: 'Tidak ada pelanggan ditemukan.',
+    },
+    adminRecipes: {
+      title: 'CMS Pusat Resep',
+      subtitle: 'Kelola resep bakery dan panduan masak.',
+      addNew: 'Tambah Resep Baru',
+      thTitle: 'JUDUL',
+      thCategory: 'KATEGORI',
+      thDifficulty: 'KESULITAN',
+      thStatus: 'STATUS',
+      thAction: 'AKSI',
+      edit: 'Edit',
+      delete: 'Hapus',
+      noRecipes: 'Tidak ada resep ditemukan.',
+    },
+    adminSettings: {
+      title: 'Pengaturan Toko & WhatsApp',
+      subtitle: 'Konfigurasi informasi toko dan kredensial admin.',
+      storeInfo: 'Informasi Toko',
+      storeName: 'Nama Toko',
+      storeDesc: 'Deskripsi Toko',
+      whatsappNumber: 'Nomor WhatsApp',
+      adminCredentials: 'Kredensial Admin',
+      adminEmail: 'Email Admin',
+      adminPassword: 'Kata Sandi Admin',
+      saveSettings: 'Simpan Pengaturan',
+      saving: 'Menyimpan...',
+      saved: 'Tersimpan!',
     },
     common: {
       exploreAll: 'Jelajahi Semua Produk',
@@ -345,9 +1358,43 @@ const dictionaries: Record<LanguageCode, Translations> = {
       allCategories: 'Semua Kategori Bahan',
       halalOnly: 'Hanya Produk Halal 100%',
       sortBy: 'Urutkan Berdasarkan',
-      reset: 'Riset Filter',
+      reset: 'Reset Filter',
       productsCount: 'Produk Ditemukan',
       noResults: 'Tidak ada produk ditemukan',
+      loading: 'Memuat...',
+      save: 'Simpan',
+      cancel: 'Batal',
+      delete: 'Hapus',
+      edit: 'Edit',
+      create: 'Buat',
+      update: 'Perbarui',
+      search: 'Cari',
+      filter: 'Filter',
+      actions: 'Aksi',
+      view: 'Lihat',
+      detail: 'Detail',
+      upload: 'Unggah',
+      download: 'Unduh',
+      export: 'Ekspor',
+      import: 'Impor',
+      print: 'Cetak',
+      publish: 'Terbitkan',
+      unpublish: 'Batalkan Terbit',
+      approve: 'Setujui',
+      reject: 'Tolak',
+      back: 'Kembali',
+      next: 'Berikutnya',
+      previous: 'Sebelumnya',
+      close: 'Tutup',
+      confirm: 'Konfirmasi',
+      yes: 'Ya',
+      no: 'Tidak',
+      or: 'atau',
+      and: 'dan',
+      all: 'Semua',
+      none: 'Tidak ada',
+      required: 'Wajib',
+      optional: 'Opsional',
     },
     trustBadges: {
       b1Title: '100% Sertifikat Halal',
@@ -383,6 +1430,78 @@ const dictionaries: Record<LanguageCode, Translations> = {
       inflowTag: 'KAS MASUK',
       outflowTag: 'KAS KELUAR',
     },
+    customerAccount: {
+      loginTitle: 'Masuk ke Akun Anda',
+      loginSubtitle: 'Masukkan detail Anda untuk mengakses akun pelanggan.',
+      registerTitle: 'Daftar Akun Baru',
+      registerSubtitle: 'Buat akun untuk menikmati pengalaman belanja yang lebih mudah.',
+      forgotTitle: 'Lupa Kata Sandi',
+      forgotSubtitle: 'Masukkan telepon/email untuk mereset kata sandi Anda.',
+      dashboardTitle: 'Dashboard Akun Saya',
+      dashboardSubtitle: 'Kelola profil, pesanan, dan wishlist Anda.',
+      phoneOrEmail: 'Telepon / Email',
+      password: 'Kata Sandi',
+      confirmPassword: 'Konfirmasi Kata Sandi',
+      fullName: 'Nama Lengkap',
+      phoneNumber: 'Nomor Telepon',
+      emailAddress: 'Alamat Email',
+      loginBtn: 'Masuk',
+      registerBtn: 'Daftar Sekarang',
+      resetBtn: 'Reset Kata Sandi',
+      loggingIn: 'Mengautentikasi...',
+      registering: 'Mendaftar...',
+      noAccount: 'Belum punya akun?',
+      hasAccount: 'Sudah punya akun?',
+      forgotPassword: 'Lupa kata sandi?',
+      orContinueWith: 'atau lanjutkan dengan',
+      rememberMe: 'Ingat saya',
+      logoutBtn: 'Keluar',
+      profileTitle: 'Profil Saya',
+      orderHistory: 'Riwayat Pesanan',
+      wishlistTitle: 'Daftar Keinginan',
+      addressBook: 'Buku Alamat',
+      editProfile: 'Edit Profil',
+      saveProfile: 'Simpan Profil',
+      address: 'Alamat',
+      city: 'Kota',
+      state: 'Negara Bagian',
+      postcode: 'Kode Pos',
+      wrongCredentials: 'Telepon/email atau kata sandi salah.',
+      emailExists: 'Email ini sudah terdaftar.',
+      phoneExists: 'Nomor telepon ini sudah terdaftar.',
+      passwordMismatch: 'Kata sandi tidak cocok.',
+      passwordMinLength: 'Kata sandi minimal 6 karakter.',
+      verifyIdentity: 'Verifikasi Identitas',
+      enterOtp: 'Masukkan OTP',
+      securityCheck: 'Pemeriksaan Keamanan',
+      showPassword: 'Tampilkan kata sandi',
+      hidePassword: 'Sembunyikan kata sandi',
+      rateLimitWarning: 'Terlalu banyak percobaan. Silakan tunggu sebentar.',
+      accountLocked: 'Akun terkunci sementara. Silakan coba lagi setelah',
+      returnToStore: '← Kembali ke Toko',
+    },
+    faq: {
+      title: 'Pertanyaan yang Sering Diajukan (FAQ)',
+      subtitle: 'Jawaban untuk pertanyaan yang sering ditanyakan tentang produk dan layanan kami.',
+      searchPlaceholder: 'Cari pertanyaan...',
+      noResults: 'Tidak ada pertanyaan yang cocok dengan pencarian Anda.',
+      contactUs: 'Hubungi Kami',
+      contactNote: 'Tidak menemukan jawaban Anda? Hubungi kami via WhatsApp.',
+    },
+    status: {
+      new: 'Baru',
+      processing: 'Diproses',
+      shipped: 'Dikirim',
+      delivered: 'Diterima',
+      cancelled: 'Dibatalkan',
+      active: 'Aktif',
+      inactive: 'Tidak Aktif',
+      draft: 'Draf',
+      published: 'Diterbitkan',
+      pending: 'Menunggu',
+      completed: 'Selesai',
+      refunded: 'Dikembalikan',
+    },
   },
   EN: {
     flag: '🇬🇧',
@@ -393,7 +1512,7 @@ const dictionaries: Record<LanguageCode, Translations> = {
       products: 'Products Catalog',
       categories: 'Supply Categories',
       recipes: 'Baking Recipes',
-      blog: 'Baker Blog',
+      blog: 'Updates Blog',
       about: 'About Us',
       contact: 'Contact Support',
       trackOrder: 'Track Parcel',
@@ -404,7 +1523,7 @@ const dictionaries: Record<LanguageCode, Translations> = {
     searchPlaceholder: 'Search flour, matcha, butter, chocolate...',
     hero: {
       tagline: 'PREMIUM HALAL BAKING INGREDIENTS SUPPLIER',
-      heading: 'Malaysia’s Premier Bakery & Pastry Supply World',
+      heading: 'Malaysia\'s Premier Bakery & Pastry Supply World',
       subheading: 'From imported Semolina Flour, Kyoto Uji Matcha, Beryls Belgian Chocolate, to New Zealand Anchor Butter. Delivered straight to your bakery kitchen.',
       primaryBtn: 'Explore All Products',
       secondaryBtn: 'Track Parcel Order',
@@ -431,20 +1550,70 @@ const dictionaries: Record<LanguageCode, Translations> = {
     cart: {
       title: 'Your Shopping Cart',
       subtitle: 'Review selected baking ingredients before proceeding to WhatsApp Checkout.',
-      emptyTitle: 'Your shopping cart is empty',
+      emptyTitle: 'Your cart is empty',
       emptySubtitle: 'Explore our semolina flour, matcha powder, Belgian chocolate, and premium butter.',
       subtotal: 'Product Subtotal',
       estimatedTotal: 'Estimated Total',
       proceedCheckout: 'Proceed to WhatsApp Checkout',
+      clearCart: 'Clear Entire Cart',
+      continueShopping: 'Continue Shopping',
+      addMore: 'Add More Products to Order',
+      orderSummary: 'Order Summary',
+      totalItems: 'Total Items',
+      items: 'Items',
+      deliveryFee: 'Delivery Fee',
+      confirmedViaWA: 'Confirmed via WhatsApp',
+      paymentNote: 'Payment & shipping costs are confirmed directly with our admin via WhatsApp after order submission.',
+      freeShippingAdd: 'Add more for FREE SHIPPING',
+      freeShippingUnlocked: '🎉 Free Delivery unlocked across Malaysia!',
+      variant: 'Variant',
+      sku: 'SKU',
+      removeItem: 'Remove item',
     },
     checkout: {
       title: 'WhatsApp Checkout',
+      subtitle: 'Enter your delivery details and apply promo vouchers to generate your WhatsApp order message.',
       contactHeader: '1. Customer Contact Details',
       addressHeader: '2. Delivery Address (Malaysia)',
       notesHeader: '3. Additional Notes (Optional)',
       submitBtn: 'SUBMIT & CHECKOUT VIA WHATSAPP',
+      submitting: 'Generating Order...',
       voucherLabel: 'Apply Promo Voucher Code',
       voucherApplyBtn: 'Apply',
+      voucherPlaceholder: 'e.g. VIPBAKER20',
+      voucherApplied: 'Voucher Applied',
+      voucherNotFound: 'Voucher code not found or inactive.',
+      voucherMinSpend: 'Minimum spend for this voucher is RM',
+      fullName: 'Full Name',
+      phoneNumber: 'WhatsApp Phone Number',
+      streetAddress: 'Street Address / Unit / Building',
+      city: 'City / Town',
+      postcode: 'Postcode',
+      state: 'State',
+      notesPlaceholder: 'e.g. Urgent delivery required, please pack in extra bubble wrap.',
+      namePlaceholder: 'e.g. Ahmad Naufal',
+      phonePlaceholder: 'e.g. +60123456789',
+      addressPlaceholder: 'e.g. No 45, Jalan Bunga Raya 7/2, Section 7',
+      orderItems: 'Order Items',
+      subtotalProduk: 'Product Subtotal',
+      discountVoucher: 'Voucher Discount',
+      finalTotal: 'Final Total',
+      formNote: 'Submitting this form creates your Order ID and opens a pre-formatted message directly to our WhatsApp support line.',
+      emptyCart: 'Your cart is empty',
+      emptyCartNote: 'Please add baking products to your cart before proceeding to checkout.',
+      browseCatalog: 'Browse Catalog',
+      autoFillNote: '⚡ Shipping Address Auto-filled: Address data taken from your account profile.',
+      changeAddress: 'Change Account Address',
+      orderSuccess: 'Order Registered Successfully',
+      orderRegistered: 'Order',
+      thankYou: 'Thank you! Your order has been saved in our system and redirected to WhatsApp Admin.',
+      orderStatus: 'Order Status',
+      totalAmount: 'Total Amount',
+      phone: 'Phone',
+      deliveryAddress: 'Delivery Address',
+      openWAAgain: 'Open WhatsApp Again',
+      trackOrderStatus: 'Track Order Status',
+      errorCreating: 'Error creating order. Please try again.',
     },
     adminNav: {
       title: 'Business Dashboard & Management Portal',
@@ -460,6 +1629,223 @@ const dictionaries: Record<LanguageCode, Translations> = {
       settings: 'Store & WhatsApp Settings',
       openStore: 'View Public Store',
       signOut: 'Sign Out Portal',
+      cashflow: 'Cashflow Report',
+    },
+    adminLogin: {
+      title: 'Admin Portal Login',
+      subtitle: 'Enter your credentials to access store management dashboard.',
+      usernameLabel: 'Username / Email',
+      passwordLabel: 'Password',
+      signInBtn: 'Sign In To Dashboard',
+      authenticating: 'Authenticating...',
+      returnToStore: '← Return to Main Store Website',
+      activeCreds: 'Active Admin Credentials:',
+      wrongCreds: 'Username or password is incorrect.',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
+    },
+    adminDashboard: {
+      welcome: 'Welcome to Dashboard',
+      subtitle: 'Overview of your business performance.',
+      totalRevenue: 'Total Revenue',
+      totalOrders: 'Total Orders',
+      totalProducts: 'Total Products',
+      totalCustomers: 'Total Customers',
+      revenueChart: 'Revenue Chart',
+      recentOrders: 'Recent Orders',
+      topProducts: 'Top Products',
+      orderNumber: 'Order No.',
+      customer: 'Customer',
+      amount: 'Amount',
+      status: 'Status',
+      date: 'Date',
+      viewAll: 'View All',
+      period7d: '7 Days',
+      period30d: '30 Days',
+      period90d: '90 Days',
+      periodCustom: 'Custom',
+      from: 'From',
+      to: 'To',
+    },
+    adminOrders: {
+      title: 'Order Management',
+      subtitle: 'Manage all customer orders from one place.',
+      searchPlaceholder: 'Search orders...',
+      filterAll: 'All',
+      filterNew: 'New',
+      filterProcessing: 'Processing',
+      filterShipped: 'Shipped',
+      filterDelivered: 'Delivered',
+      filterCancelled: 'Cancelled',
+      thOrder: 'ORDER',
+      thCustomer: 'CUSTOMER',
+      thItems: 'ITEMS',
+      thTotal: 'TOTAL',
+      thStatus: 'STATUS',
+      thDate: 'DATE',
+      thAction: 'ACTION',
+      noOrders: 'No orders found.',
+      viewDetail: 'View Detail',
+      updateStatus: 'Update Status',
+      orderDetail: 'Order Detail',
+      backToOrders: '← Back to Orders List',
+      customerInfo: 'Customer Information',
+      orderItems: 'Order Items',
+      shippingAddress: 'Shipping Address',
+      notes: 'Notes',
+      timeline: 'Timeline',
+    },
+    adminProducts: {
+      title: 'Product Catalog Management',
+      subtitle: 'Manage all your bakery ingredient products.',
+      addNew: 'Add New Product',
+      searchPlaceholder: 'Search products...',
+      thImage: 'IMAGE',
+      thName: 'PRODUCT NAME',
+      thCategory: 'CATEGORY',
+      thPrice: 'PRICE',
+      thStock: 'STOCK',
+      thStatus: 'STATUS',
+      thAction: 'ACTION',
+      edit: 'Edit',
+      delete: 'Delete',
+      noProducts: 'No products found.',
+      active: 'Active',
+      draft: 'Draft',
+      newProduct: 'New Product',
+      editProduct: 'Edit Product',
+      productName: 'Product Name',
+      productSlug: 'Product Slug',
+      productDesc: 'Product Description',
+      productCategory: 'Product Category',
+      productImage: 'Product Image',
+      productVariants: 'Product Variants',
+      saveProduct: 'Save Product',
+      saving: 'Saving...',
+    },
+    adminCategories: {
+      title: 'Category Management',
+      subtitle: 'Manage bakery ingredient categories.',
+      addNew: 'Add New Category',
+      nameLabel: 'Category Name',
+      slugLabel: 'Slug',
+      descLabel: 'Description',
+      imageLabel: 'Image URL',
+      saveBtn: 'Save',
+      editBtn: 'Edit',
+      deleteBtn: 'Delete',
+      cancelBtn: 'Cancel',
+      noCategories: 'No categories found.',
+      confirmDelete: 'Are you sure you want to delete this category?',
+    },
+    adminBlogs: {
+      title: 'Updates Blog Management',
+      subtitle: 'Manage articles and video updates.',
+      createNew: 'Create New Post',
+      searchPlaceholder: 'Search blogs...',
+      thTitle: 'TITLE',
+      thType: 'TYPE',
+      thDate: 'DATE',
+      thStatus: 'STATUS',
+      thAction: 'ACTION',
+      edit: 'Edit',
+      delete: 'Delete',
+      publish: 'Publish',
+      unpublish: 'Unpublish',
+      noBlogs: 'No blogs found.',
+      typeArticle: 'Article',
+      typeVideo: 'Video',
+      blogTitle: 'Blog Title',
+      blogSlug: 'Slug',
+      blogExcerpt: 'Excerpt',
+      blogContent: 'Content',
+      blogImage: 'Image URL',
+      blogVideoUrl: 'Video URL',
+      saveDraft: 'Save Draft',
+      publishBtn: 'Publish',
+    },
+    adminBanners: {
+      title: 'Banner Management',
+      subtitle: 'Manage store promotional banners.',
+      addNew: 'Add New Banner',
+      thImage: 'IMAGE',
+      thTitle: 'TITLE',
+      thLink: 'LINK',
+      thStatus: 'STATUS',
+      thAction: 'ACTION',
+      edit: 'Edit',
+      delete: 'Delete',
+      noBanners: 'No banners found.',
+      bannerTitle: 'Banner Title',
+      bannerSubtitle: 'Subtitle',
+      bannerLink: 'Product Link URL',
+      bannerImage: 'Image URL',
+      saveBtn: 'Save Banner',
+    },
+    adminVouchers: {
+      title: 'Promo Voucher Management',
+      subtitle: 'Manage discount vouchers for customers.',
+      addNew: 'Add New Voucher',
+      thCode: 'CODE',
+      thTitle: 'TITLE',
+      thDiscount: 'DISCOUNT',
+      thMinSpend: 'MIN. SPEND',
+      thStatus: 'STATUS',
+      thAction: 'ACTION',
+      edit: 'Edit',
+      delete: 'Delete',
+      noVouchers: 'No vouchers found.',
+      voucherCode: 'Voucher Code',
+      voucherTitle: 'Voucher Title',
+      discountType: 'Discount Type',
+      discountValue: 'Discount Value',
+      minSpend: 'Min. Spend (RM)',
+      statusActive: 'Active',
+      statusInactive: 'Inactive',
+      saveBtn: 'Save Voucher',
+    },
+    adminCustomers: {
+      title: 'Customer Database',
+      subtitle: 'View and manage all registered customers.',
+      searchPlaceholder: 'Search customers...',
+      filterAll: 'All',
+      filterRetail: 'Retail',
+      filterWholesale: 'Wholesale',
+      thName: 'NAME',
+      thEmail: 'EMAIL',
+      thPhone: 'PHONE',
+      thType: 'TYPE',
+      thOrders: 'ORDERS',
+      thSpent: 'SPENT',
+      thJoined: 'JOINED',
+      noCustomers: 'No customers found.',
+    },
+    adminRecipes: {
+      title: 'Recipe Center CMS',
+      subtitle: 'Manage bakery recipes and cooking guides.',
+      addNew: 'Add New Recipe',
+      thTitle: 'TITLE',
+      thCategory: 'CATEGORY',
+      thDifficulty: 'DIFFICULTY',
+      thStatus: 'STATUS',
+      thAction: 'ACTION',
+      edit: 'Edit',
+      delete: 'Delete',
+      noRecipes: 'No recipes found.',
+    },
+    adminSettings: {
+      title: 'Store & WhatsApp Settings',
+      subtitle: 'Configure store information and admin credentials.',
+      storeInfo: 'Store Information',
+      storeName: 'Store Name',
+      storeDesc: 'Store Description',
+      whatsappNumber: 'WhatsApp Number',
+      adminCredentials: 'Admin Credentials',
+      adminEmail: 'Admin Email',
+      adminPassword: 'Admin Password',
+      saveSettings: 'Save Settings',
+      saving: 'Saving...',
+      saved: 'Saved!',
     },
     common: {
       exploreAll: 'Explore All Products',
@@ -474,6 +1860,40 @@ const dictionaries: Record<LanguageCode, Translations> = {
       reset: 'Reset Filter',
       productsCount: 'Products Found',
       noResults: 'No baking items found',
+      loading: 'Loading...',
+      save: 'Save',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      edit: 'Edit',
+      create: 'Create',
+      update: 'Update',
+      search: 'Search',
+      filter: 'Filter',
+      actions: 'Actions',
+      view: 'View',
+      detail: 'Detail',
+      upload: 'Upload',
+      download: 'Download',
+      export: 'Export',
+      import: 'Import',
+      print: 'Print',
+      publish: 'Publish',
+      unpublish: 'Unpublish',
+      approve: 'Approve',
+      reject: 'Reject',
+      back: 'Back',
+      next: 'Next',
+      previous: 'Previous',
+      close: 'Close',
+      confirm: 'Confirm',
+      yes: 'Yes',
+      no: 'No',
+      or: 'or',
+      and: 'and',
+      all: 'All',
+      none: 'None',
+      required: 'Required',
+      optional: 'Optional',
     },
     trustBadges: {
       b1Title: '100% Halal Certified',
@@ -509,6 +1929,78 @@ const dictionaries: Record<LanguageCode, Translations> = {
       inflowTag: 'CASH INFLOW',
       outflowTag: 'CASH OUTFLOW',
     },
+    customerAccount: {
+      loginTitle: 'Sign In to Your Account',
+      loginSubtitle: 'Enter your details to access your customer account.',
+      registerTitle: 'Create New Account',
+      registerSubtitle: 'Create an account to enjoy a better shopping experience.',
+      forgotTitle: 'Forgot Password',
+      forgotSubtitle: 'Enter your phone/email to reset your password.',
+      dashboardTitle: 'My Account Dashboard',
+      dashboardSubtitle: 'Manage your profile, orders, and wishlist.',
+      phoneOrEmail: 'Phone / Email',
+      password: 'Password',
+      confirmPassword: 'Confirm Password',
+      fullName: 'Full Name',
+      phoneNumber: 'Phone Number',
+      emailAddress: 'Email Address',
+      loginBtn: 'Sign In',
+      registerBtn: 'Register Now',
+      resetBtn: 'Reset Password',
+      loggingIn: 'Authenticating...',
+      registering: 'Registering...',
+      noAccount: 'Don\'t have an account?',
+      hasAccount: 'Already have an account?',
+      forgotPassword: 'Forgot password?',
+      orContinueWith: 'or continue with',
+      rememberMe: 'Remember me',
+      logoutBtn: 'Log Out',
+      profileTitle: 'My Profile',
+      orderHistory: 'Order History',
+      wishlistTitle: 'Wishlist',
+      addressBook: 'Address Book',
+      editProfile: 'Edit Profile',
+      saveProfile: 'Save Profile',
+      address: 'Address',
+      city: 'City',
+      state: 'State',
+      postcode: 'Postcode',
+      wrongCredentials: 'Phone/email or password is incorrect.',
+      emailExists: 'This email is already registered.',
+      phoneExists: 'This phone number is already registered.',
+      passwordMismatch: 'Passwords do not match.',
+      passwordMinLength: 'Password must be at least 6 characters.',
+      verifyIdentity: 'Verify Identity',
+      enterOtp: 'Enter OTP',
+      securityCheck: 'Security Check',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
+      rateLimitWarning: 'Too many attempts. Please wait a moment.',
+      accountLocked: 'Account temporarily locked. Please try again after',
+      returnToStore: '← Back to Store',
+    },
+    faq: {
+      title: 'Frequently Asked Questions',
+      subtitle: 'Answers to commonly asked questions about our products and services.',
+      searchPlaceholder: 'Search questions...',
+      noResults: 'No questions found matching your search.',
+      contactUs: 'Contact Us',
+      contactNote: 'Can\'t find your answer? Contact us via WhatsApp.',
+    },
+    status: {
+      new: 'New',
+      processing: 'Processing',
+      shipped: 'Shipped',
+      delivered: 'Delivered',
+      cancelled: 'Cancelled',
+      active: 'Active',
+      inactive: 'Inactive',
+      draft: 'Draft',
+      published: 'Published',
+      pending: 'Pending',
+      completed: 'Completed',
+      refunded: 'Refunded',
+    },
   },
   ZH: {
     flag: '🇨🇳',
@@ -519,7 +2011,7 @@ const dictionaries: Record<LanguageCode, Translations> = {
       products: '所有烘焙原料',
       categories: '原料分类',
       recipes: '烘焙食谱',
-      blog: '烘焙博客',
+      blog: '更新博客',
       about: '关于我们',
       contact: '联系客服',
       trackOrder: '追踪订单',
@@ -562,15 +2054,65 @@ const dictionaries: Record<LanguageCode, Translations> = {
       subtotal: '商品小计',
       estimatedTotal: '预估总价',
       proceedCheckout: '前往 WhatsApp 结账',
+      clearCart: '清空购物车',
+      continueShopping: '继续购物',
+      addMore: '添加更多商品到订单',
+      orderSummary: '订单摘要',
+      totalItems: '商品总数',
+      items: '件',
+      deliveryFee: '运费',
+      confirmedViaWA: '通过 WhatsApp 确认',
+      paymentNote: '付款和运费将在提交订单后由管理员通过 WhatsApp 直接确认。',
+      freeShippingAdd: '再加购即可享受免费配送',
+      freeShippingUnlocked: '🎉 已解锁全马免费配送！',
+      variant: '规格',
+      sku: 'SKU',
+      removeItem: '移除商品',
     },
     checkout: {
       title: '通过 WhatsApp 结账',
+      subtitle: '输入您的配送信息并使用优惠券代码生成 WhatsApp 订单消息。',
       contactHeader: '1. 客户联系信息',
       addressHeader: '2. 配送地址 (马来西亚)',
       notesHeader: '3. 额外备注 (可选)',
       submitBtn: '通过 WHATSAPP 提交订单',
+      submitting: '正在生成订单...',
       voucherLabel: '使用优惠券代码',
       voucherApplyBtn: '使用',
+      voucherPlaceholder: '例如: VIPBAKER20',
+      voucherApplied: '优惠券已应用',
+      voucherNotFound: '优惠券代码未找到或已失效。',
+      voucherMinSpend: '此优惠券的最低消费为 RM',
+      fullName: '全名',
+      phoneNumber: 'WhatsApp 电话号码',
+      streetAddress: '街道地址 / 单位 / 大厦',
+      city: '城市 / 城镇',
+      postcode: '邮编',
+      state: '州属',
+      notesPlaceholder: '例如: 需要紧急配送，请用额外气泡膜包装。',
+      namePlaceholder: '例如: Ahmad Naufal',
+      phonePlaceholder: '例如: +60123456789',
+      addressPlaceholder: '例如: No 45, Jalan Bunga Raya 7/2, Section 7',
+      orderItems: '订单商品',
+      subtotalProduk: '商品小计',
+      discountVoucher: '优惠券折扣',
+      finalTotal: '最终总价',
+      formNote: '提交此表单将创建您的订单编号，并直接打开预格式化消息发送至我们的 WhatsApp 客服。',
+      emptyCart: '您的购物车是空的',
+      emptyCartNote: '请先将烘焙产品加入购物车再进行结账。',
+      browseCatalog: '浏览商品目录',
+      autoFillNote: '⚡ 配送地址已自动填写：地址数据来自您的账户资料。',
+      changeAddress: '更改账户地址',
+      orderSuccess: '订单注册成功',
+      orderRegistered: '订单',
+      thankYou: '谢谢！您的订单已保存在我们的系统中并已转发至 WhatsApp 管理员。',
+      orderStatus: '订单状态',
+      totalAmount: '总金额',
+      phone: '电话',
+      deliveryAddress: '配送地址',
+      openWAAgain: '再次打开 WhatsApp',
+      trackOrderStatus: '追踪订单状态',
+      errorCreating: '创建订单时出错。请重试。',
     },
     adminNav: {
       title: '商业控制面板与管理门户',
@@ -586,6 +2128,223 @@ const dictionaries: Record<LanguageCode, Translations> = {
       settings: '店铺与 WhatsApp 设置',
       openStore: '打开公开商城',
       signOut: '退出管理员',
+      cashflow: '现金流报告',
+    },
+    adminLogin: {
+      title: '管理员登录',
+      subtitle: '输入您的凭证以访问店铺管理仪表板。',
+      usernameLabel: '用户名 / 邮箱',
+      passwordLabel: '密码',
+      signInBtn: '登录到仪表板',
+      authenticating: '验证中...',
+      returnToStore: '← 返回商城主页',
+      activeCreds: '当前管理员凭证:',
+      wrongCreds: '用户名或密码不正确。',
+      showPassword: '显示密码',
+      hidePassword: '隐藏密码',
+    },
+    adminDashboard: {
+      welcome: '欢迎来到仪表板',
+      subtitle: '您的业务表现概览。',
+      totalRevenue: '总收入',
+      totalOrders: '总订单',
+      totalProducts: '总商品',
+      totalCustomers: '总客户',
+      revenueChart: '收入图表',
+      recentOrders: '最近订单',
+      topProducts: '热销商品',
+      orderNumber: '订单号',
+      customer: '客户',
+      amount: '金额',
+      status: '状态',
+      date: '日期',
+      viewAll: '查看全部',
+      period7d: '7 天',
+      period30d: '30 天',
+      period90d: '90 天',
+      periodCustom: '自定义',
+      from: '从',
+      to: '到',
+    },
+    adminOrders: {
+      title: '订单管理',
+      subtitle: '从一个地方管理所有客户订单。',
+      searchPlaceholder: '搜索订单...',
+      filterAll: '全部',
+      filterNew: '新订单',
+      filterProcessing: '处理中',
+      filterShipped: '已发货',
+      filterDelivered: '已送达',
+      filterCancelled: '已取消',
+      thOrder: '订单',
+      thCustomer: '客户',
+      thItems: '商品',
+      thTotal: '总计',
+      thStatus: '状态',
+      thDate: '日期',
+      thAction: '操作',
+      noOrders: '未找到订单。',
+      viewDetail: '查看详情',
+      updateStatus: '更新状态',
+      orderDetail: '订单详情',
+      backToOrders: '← 返回订单列表',
+      customerInfo: '客户信息',
+      orderItems: '订单商品',
+      shippingAddress: '配送地址',
+      notes: '备注',
+      timeline: '时间线',
+    },
+    adminProducts: {
+      title: '商品目录管理',
+      subtitle: '管理所有烘焙原料商品。',
+      addNew: '添加新商品',
+      searchPlaceholder: '搜索商品...',
+      thImage: '图片',
+      thName: '商品名称',
+      thCategory: '分类',
+      thPrice: '价格',
+      thStock: '库存',
+      thStatus: '状态',
+      thAction: '操作',
+      edit: '编辑',
+      delete: '删除',
+      noProducts: '未找到商品。',
+      active: '上架',
+      draft: '草稿',
+      newProduct: '新商品',
+      editProduct: '编辑商品',
+      productName: '商品名称',
+      productSlug: '商品别名',
+      productDesc: '商品描述',
+      productCategory: '商品分类',
+      productImage: '商品图片',
+      productVariants: '商品规格',
+      saveProduct: '保存商品',
+      saving: '保存中...',
+    },
+    adminCategories: {
+      title: '分类管理',
+      subtitle: '管理烘焙原料分类。',
+      addNew: '添加新分类',
+      nameLabel: '分类名称',
+      slugLabel: '别名',
+      descLabel: '描述',
+      imageLabel: '图片URL',
+      saveBtn: '保存',
+      editBtn: '编辑',
+      deleteBtn: '删除',
+      cancelBtn: '取消',
+      noCategories: '未找到分类。',
+      confirmDelete: '您确定要删除此分类吗？',
+    },
+    adminBlogs: {
+      title: '更新博客管理',
+      subtitle: '管理文章和视频更新。',
+      createNew: '创建新文章',
+      searchPlaceholder: '搜索博客...',
+      thTitle: '标题',
+      thType: '类型',
+      thDate: '日期',
+      thStatus: '状态',
+      thAction: '操作',
+      edit: '编辑',
+      delete: '删除',
+      publish: '发布',
+      unpublish: '取消发布',
+      noBlogs: '未找到博客。',
+      typeArticle: '文章',
+      typeVideo: '视频',
+      blogTitle: '博客标题',
+      blogSlug: '别名',
+      blogExcerpt: '摘要',
+      blogContent: '内容',
+      blogImage: '图片URL',
+      blogVideoUrl: '视频URL',
+      saveDraft: '保存草稿',
+      publishBtn: '发布',
+    },
+    adminBanners: {
+      title: '横幅管理',
+      subtitle: '管理店铺促销横幅。',
+      addNew: '添加新横幅',
+      thImage: '图片',
+      thTitle: '标题',
+      thLink: '链接',
+      thStatus: '状态',
+      thAction: '操作',
+      edit: '编辑',
+      delete: '删除',
+      noBanners: '未找到横幅。',
+      bannerTitle: '横幅标题',
+      bannerSubtitle: '副标题',
+      bannerLink: '商品链接URL',
+      bannerImage: '图片URL',
+      saveBtn: '保存横幅',
+    },
+    adminVouchers: {
+      title: '优惠券管理',
+      subtitle: '管理客户折扣优惠券。',
+      addNew: '添加新优惠券',
+      thCode: '代码',
+      thTitle: '标题',
+      thDiscount: '折扣',
+      thMinSpend: '最低消费',
+      thStatus: '状态',
+      thAction: '操作',
+      edit: '编辑',
+      delete: '删除',
+      noVouchers: '未找到优惠券。',
+      voucherCode: '优惠券代码',
+      voucherTitle: '优惠券标题',
+      discountType: '折扣类型',
+      discountValue: '折扣金额',
+      minSpend: '最低消费 (RM)',
+      statusActive: '启用',
+      statusInactive: '停用',
+      saveBtn: '保存优惠券',
+    },
+    adminCustomers: {
+      title: '客户数据库',
+      subtitle: '查看和管理所有注册客户。',
+      searchPlaceholder: '搜索客户...',
+      filterAll: '全部',
+      filterRetail: '零售',
+      filterWholesale: '批发',
+      thName: '姓名',
+      thEmail: '邮箱',
+      thPhone: '电话',
+      thType: '类型',
+      thOrders: '订单',
+      thSpent: '消费',
+      thJoined: '注册日期',
+      noCustomers: '未找到客户。',
+    },
+    adminRecipes: {
+      title: '食谱中心 CMS',
+      subtitle: '管理烘焙食谱和烹饪指南。',
+      addNew: '添加新食谱',
+      thTitle: '标题',
+      thCategory: '分类',
+      thDifficulty: '难度',
+      thStatus: '状态',
+      thAction: '操作',
+      edit: '编辑',
+      delete: '删除',
+      noRecipes: '未找到食谱。',
+    },
+    adminSettings: {
+      title: '店铺与 WhatsApp 设置',
+      subtitle: '配置店铺信息和管理员凭证。',
+      storeInfo: '店铺信息',
+      storeName: '店铺名称',
+      storeDesc: '店铺描述',
+      whatsappNumber: 'WhatsApp 号码',
+      adminCredentials: '管理员凭证',
+      adminEmail: '管理员邮箱',
+      adminPassword: '管理员密码',
+      saveSettings: '保存设置',
+      saving: '保存中...',
+      saved: '已保存！',
     },
     common: {
       exploreAll: '浏览所有商品',
@@ -600,6 +2359,40 @@ const dictionaries: Record<LanguageCode, Translations> = {
       reset: '重置筛选',
       productsCount: '找到的商品',
       noResults: '未找到相关烘焙原料',
+      loading: '加载中...',
+      save: '保存',
+      cancel: '取消',
+      delete: '删除',
+      edit: '编辑',
+      create: '创建',
+      update: '更新',
+      search: '搜索',
+      filter: '筛选',
+      actions: '操作',
+      view: '查看',
+      detail: '详情',
+      upload: '上传',
+      download: '下载',
+      export: '导出',
+      import: '导入',
+      print: '打印',
+      publish: '发布',
+      unpublish: '取消发布',
+      approve: '批准',
+      reject: '拒绝',
+      back: '返回',
+      next: '下一步',
+      previous: '上一步',
+      close: '关闭',
+      confirm: '确认',
+      yes: '是',
+      no: '否',
+      or: '或',
+      and: '和',
+      all: '全部',
+      none: '无',
+      required: '必填',
+      optional: '选填',
     },
     trustBadges: {
       b1Title: '100% 清真认证保证',
@@ -634,6 +2427,78 @@ const dictionaries: Record<LanguageCode, Translations> = {
       thAction: '操作',
       inflowTag: '现金流入',
       outflowTag: '现金流出',
+    },
+    customerAccount: {
+      loginTitle: '登录您的账号',
+      loginSubtitle: '输入您的详细信息以访问客户账号。',
+      registerTitle: '创建新账号',
+      registerSubtitle: '创建账号以享受更好的购物体验。',
+      forgotTitle: '忘记密码',
+      forgotSubtitle: '输入您的电话/邮箱以重置密码。',
+      dashboardTitle: '我的账号仪表板',
+      dashboardSubtitle: '管理您的个人资料、订单和收藏夹。',
+      phoneOrEmail: '电话 / 邮箱',
+      password: '密码',
+      confirmPassword: '确认密码',
+      fullName: '全名',
+      phoneNumber: '电话号码',
+      emailAddress: '邮箱地址',
+      loginBtn: '登录',
+      registerBtn: '立即注册',
+      resetBtn: '重置密码',
+      loggingIn: '验证中...',
+      registering: '注册中...',
+      noAccount: '还没有账号？',
+      hasAccount: '已有账号？',
+      forgotPassword: '忘记密码？',
+      orContinueWith: '或继续使用',
+      rememberMe: '记住我',
+      logoutBtn: '退出登录',
+      profileTitle: '我的个人资料',
+      orderHistory: '订单历史',
+      wishlistTitle: '收藏夹',
+      addressBook: '地址簿',
+      editProfile: '编辑个人资料',
+      saveProfile: '保存个人资料',
+      address: '地址',
+      city: '城市',
+      state: '州属',
+      postcode: '邮编',
+      wrongCredentials: '电话/邮箱或密码不正确。',
+      emailExists: '此邮箱已被注册。',
+      phoneExists: '此电话号码已被注册。',
+      passwordMismatch: '密码不匹配。',
+      passwordMinLength: '密码至少需要6个字符。',
+      verifyIdentity: '验证身份',
+      enterOtp: '输入验证码',
+      securityCheck: '安全检查',
+      showPassword: '显示密码',
+      hidePassword: '隐藏密码',
+      rateLimitWarning: '尝试次数过多。请稍候再试。',
+      accountLocked: '账号暂时锁定。请在以下时间后重试',
+      returnToStore: '← 返回商城',
+    },
+    faq: {
+      title: '常见问题 (FAQ)',
+      subtitle: '关于我们产品和服务的常见问题解答。',
+      searchPlaceholder: '搜索问题...',
+      noResults: '没有找到与您搜索匹配的问题。',
+      contactUs: '联系我们',
+      contactNote: '找不到答案？请通过 WhatsApp 联系我们。',
+    },
+    status: {
+      new: '新订单',
+      processing: '处理中',
+      shipped: '已发货',
+      delivered: '已送达',
+      cancelled: '已取消',
+      active: '启用',
+      inactive: '停用',
+      draft: '草稿',
+      published: '已发布',
+      pending: '待处理',
+      completed: '已完成',
+      refunded: '已退款',
     },
   },
 };
@@ -694,5 +2559,3 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 };
 
 export const useLanguage = () => useContext(LanguageContext);
-
-

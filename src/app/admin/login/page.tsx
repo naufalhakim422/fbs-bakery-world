@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { Lock, User, Sparkles, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [creds, setCreds] = useState(db.getAdminCredentials());
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +44,7 @@ export default function AdminLoginPage() {
         }));
         router.push('/admin2026');
       } else {
-        setError(`Username atau Password salah. (Default / Active: ${activeCreds.email} / ${activeCreds.password})`);
+        setError(`${t.adminLogin.wrongCreds} (Default / Active: ${activeCreds.email} / ${activeCreds.password})`);
         setLoading(false);
       }
     }, 800);
@@ -62,9 +64,9 @@ export default function AdminLoginPage() {
             FBS BAKERY WORLD CMS
           </span>
           <h1 className="font-serif text-2xl font-bold text-[#800020]">
-            Masuk Portal Admin
+            {t.adminLogin.title}
           </h1>
-          <p className="text-stone-500 text-xs mt-1">Masukkan kredensial Anda untuk mengakses dashboard manajemen toko.</p>
+          <p className="text-stone-500 text-xs mt-1">{t.adminLogin.subtitle}</p>
         </div>
 
         {error && (
@@ -75,7 +77,7 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4 text-xs">
           <div>
-            <label className="block font-bold text-stone-700 uppercase mb-1">Username / Email</label>
+            <label className="block font-bold text-stone-700 uppercase mb-1">{t.adminLogin.usernameLabel}</label>
             <div className="relative">
               <input 
                 type="text"
@@ -89,7 +91,7 @@ export default function AdminLoginPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-stone-700 uppercase mb-1">Password</label>
+            <label className="block font-bold text-stone-700 uppercase mb-1">{t.adminLogin.passwordLabel}</label>
             <div className="relative">
               <input 
                 type={showPassword ? 'text' : 'password'}
@@ -105,7 +107,7 @@ export default function AdminLoginPage() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-3.5 text-stone-400 hover:text-[#800020] transition-colors focus:outline-none"
-                title={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+                title={showPassword ? t.adminLogin.hidePassword : t.adminLogin.showPassword}
               >
                 {showPassword ? (
                   <EyeOff className="w-4 h-4 text-[#800020]" />
@@ -117,7 +119,7 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="p-3 bg-[#FFF8F0] rounded-xl border border-[#EADBC8] text-[11px] text-stone-600">
-            <strong>Active Admin Credentials:</strong><br />
+            <strong>{t.adminLogin.activeCreds}</strong><br />
             Email: <code className="text-[#800020] font-bold">{creds.email}</code><br />
             Password: <code className="text-[#800020] font-bold">{creds.password}</code>
           </div>
@@ -127,13 +129,13 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="w-full py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
           >
-            {loading ? 'Authenticating...' : 'Sign In To Dashboard'} <ArrowRight className="w-4 h-4" />
+            {loading ? t.adminLogin.authenticating : t.adminLogin.signInBtn} <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
         <div className="pt-2 text-center border-t border-stone-100">
           <Link href="/" className="text-xs font-bold text-[#800020] hover:underline">
-            ← Return to Main Store Website
+            {t.adminLogin.returnToStore}
           </Link>
         </div>
 

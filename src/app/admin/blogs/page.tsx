@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { Blog } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { BookOpen, User, Calendar, Plus, Upload, Trash2, Edit, CheckCircle2, X, Video as VideoIcon, PlayCircle, Sparkles } from 'lucide-react';
 
 export default function AdminBlogsPage() {
+  const { t } = useLanguage();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
@@ -104,7 +106,7 @@ export default function AdminBlogsPage() {
   };
 
   const handleDeleteBlog = (id: string) => {
-    if (confirm('Are you sure you want to delete this blog article?')) {
+    if (confirm(t.adminCategories.confirmDelete)) {
       db.deleteBlog(id);
       setBlogs(db.getBlogs());
     }
@@ -117,10 +119,10 @@ export default function AdminBlogsPage() {
       <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-[#800020]" /> Blog & Educational Video Articles
+            <BookOpen className="w-6 h-6 text-[#800020]" /> {t.adminBlogs.title}
           </h1>
           <p className="text-xs text-stone-500 mt-0.5">
-            Create baking guides, upload cover images, and attach MP4/WebM video tutorial demos.
+            {t.adminBlogs.subtitle}
           </p>
         </div>
 
@@ -131,7 +133,7 @@ export default function AdminBlogsPage() {
           <div className="w-6 h-6 rounded-full bg-[#D4AF37] text-[#800020] flex items-center justify-center font-bold text-base">
             +
           </div>
-          <span>CREATE NEW ARTICLE</span>
+          <span>{t.adminBlogs.createNew}</span>
         </button>
       </div>
 
@@ -140,8 +142,7 @@ export default function AdminBlogsPage() {
         {blogs.length === 0 ? (
           <div className="col-span-2 bg-white rounded-3xl p-12 text-center border border-stone-200 space-y-3">
             <BookOpen className="w-12 h-12 text-stone-300 mx-auto" />
-            <h3 className="font-serif text-lg font-bold text-stone-800">No Articles Found</h3>
-            <p className="text-xs text-stone-500">Click the "+ CREATE NEW ARTICLE" button above to publish your first baking guide.</p>
+            <h3 className="font-serif text-lg font-bold text-stone-800">{t.adminBlogs.noBlogs}</h3>
           </div>
         ) : (
           blogs.map(blog => (
@@ -172,7 +173,7 @@ export default function AdminBlogsPage() {
               {/* Action Buttons */}
               <div className="pt-4 border-t border-stone-100 flex items-center justify-between gap-2">
                 <Link href={`/blog/${blog.slug}`} target="_blank" className="text-xs font-bold text-[#800020] hover:underline">
-                  Preview Article →
+                  {t.common.readArticle} →
                 </Link>
 
                 <div className="flex items-center gap-2">
@@ -180,13 +181,13 @@ export default function AdminBlogsPage() {
                     onClick={() => openEditModal(blog)}
                     className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-bold transition-all flex items-center gap-1"
                   >
-                    <Edit className="w-3.5 h-3.5" /> Edit
+                    <Edit className="w-3.5 h-3.5" /> {t.common.edit}
                   </button>
                   <button
                     onClick={() => handleDeleteBlog(blog.id)}
                     className="px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-xs font-bold transition-all flex items-center gap-1"
                   >
-                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                    <Trash2 className="w-3.5 h-3.5" /> {t.common.delete}
                   </button>
                 </div>
               </div>
@@ -202,7 +203,7 @@ export default function AdminBlogsPage() {
             
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h2 className="font-serif text-xl font-bold text-[#800020] flex items-center gap-2">
-                <Plus className="w-5 h-5 text-[#D4AF37]" /> {editingBlog ? 'Edit Blog Article' : 'Create New Baking Article & Video'}
+                <Plus className="w-5 h-5 text-[#D4AF37]" /> {editingBlog ? t.adminBlogs.edit : t.adminBlogs.createNew}
               </h2>
               <button onClick={() => setIsModalOpen(false)} className="p-1 text-stone-400 hover:text-stone-800">
                 <X className="w-6 h-6" />
@@ -214,7 +215,7 @@ export default function AdminBlogsPage() {
               {/* FILE UPLOAD BOX FOR COVER IMAGE */}
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                  Upload Cover & Multi-Gallery Article Images <span className="text-red-600">*</span>
+                  {t.adminBlogs.blogImage} <span className="text-red-600">*</span>
                 </label>
 
                 <div className="border-2 border-dashed border-stone-300 hover:border-[#800020] rounded-2xl p-4 text-center bg-stone-50 transition-colors relative">
@@ -226,8 +227,7 @@ export default function AdminBlogsPage() {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                   <Upload className="w-8 h-8 text-[#800020] mx-auto mb-1" />
-                  <span className="font-bold text-stone-800 block text-xs">+ Upload Banyak Foto Artikel Sekaligus</span>
-                  <span className="text-[10px] text-stone-500">Pilih 1 atau beberapa foto sekaligus</span>
+                  <span className="font-bold text-stone-800 block text-xs">+ {t.common.upload}</span>
                 </div>
 
                 {blogGallery.length > 0 && (
@@ -252,7 +252,7 @@ export default function AdminBlogsPage() {
               <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2">
                 <div className="flex items-center gap-2 text-[#800020] font-bold uppercase">
                   <VideoIcon className="w-4 h-4" />
-                  <span>Upload Video Demo Artikel (MP4 / WebM / URL)</span>
+                  <span>{t.adminBlogs.blogVideoUrl}</span>
                 </div>
 
                 {videoPreview ? (
@@ -271,7 +271,7 @@ export default function AdminBlogsPage() {
                     <VideoIcon className="w-6 h-6 text-[#800020] mx-auto" />
                     <div className="text-xs text-stone-600">
                       <label className="text-[#800020] font-bold cursor-pointer hover:underline">
-                        <span>Pilih file video MP4 / WebM lokal</span>
+                        <span>Upload MP4 / WebM</span>
                         <input
                           type="file"
                           accept="video/*"
@@ -279,14 +279,13 @@ export default function AdminBlogsPage() {
                           className="hidden"
                         />
                       </label>
-                      <span> atau tempel URL video demo</span>
                     </div>
                   </div>
                 )}
 
                 <input
                   type="text"
-                  placeholder="Atau tempel link video (e.g. https://www.w3schools.com/html/mov_bbb.mp4)..."
+                  placeholder="URL (e.g. https://...)"
                   value={form.videoUrl}
                   onChange={(e) => { setForm({ ...form, videoUrl: e.target.value }); setVideoPreview(e.target.value); }}
                   className="w-full px-3 py-2 border border-stone-300 rounded-xl font-mono text-[11px]"
@@ -295,12 +294,12 @@ export default function AdminBlogsPage() {
 
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Article Title <span className="text-red-600">*</span>
+                  {t.adminBlogs.blogTitle} <span className="text-red-600">*</span>
                 </label>
                 <input 
                   type="text"
                   required
-                  placeholder="e.g. 5 Secrets to Sifting Flour for Fluffy Cakes"
+                  placeholder="e.g. 5 Secrets to Sifting Flour"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold text-sm focus:outline-none focus:border-[#800020]"
@@ -309,7 +308,7 @@ export default function AdminBlogsPage() {
 
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Author Name
+                  {t.adminDashboard.customer}
                 </label>
                 <input 
                   type="text"
@@ -322,12 +321,12 @@ export default function AdminBlogsPage() {
 
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Short Excerpt / Summary <span className="text-red-600">*</span>
+                  {t.adminBlogs.blogExcerpt} <span className="text-red-600">*</span>
                 </label>
                 <textarea
                   rows={2}
                   required
-                  placeholder="Brief summary displayed on blog cards..."
+                  placeholder="..."
                   value={form.excerpt}
                   onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
                   className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-stone-900"
@@ -336,12 +335,12 @@ export default function AdminBlogsPage() {
 
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Full Article Body Content <span className="text-red-600">*</span>
+                  {t.adminBlogs.blogContent} <span className="text-red-600">*</span>
                 </label>
                 <textarea
                   rows={6}
                   required
-                  placeholder="Write the full baking tips or guide content..."
+                  placeholder="..."
                   value={form.content}
                   onChange={(e) => setForm({ ...form, content: e.target.value })}
                   className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-sans"
@@ -354,13 +353,13 @@ export default function AdminBlogsPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="w-1/2 py-3 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
                   className="w-1/2 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
                 >
-                  <CheckCircle2 className="w-4 h-4" /> Save Article & Video
+                  <CheckCircle2 className="w-4 h-4" /> {t.common.save}
                 </button>
               </div>
             </form>

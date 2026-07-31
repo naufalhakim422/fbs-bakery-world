@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
+import { useLanguage } from '@/lib/language-context';
 import { db } from '@/lib/db';
 import { formatMYR } from '@/lib/currency';
 import { generateWhatsAppOrderLink } from '@/lib/whatsapp';
@@ -30,6 +31,7 @@ import {
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, subtotal, totalItems, clearCart } = useCart();
+  const { t } = useLanguage();
   const [settings, setSettings] = useState(db.getStoreSettings());
 
   useEffect(() => {
@@ -115,14 +117,14 @@ export default function CheckoutPage() {
     const found = vouchers.find(v => v.code.toUpperCase() === voucherCode.trim().toUpperCase() && v.status);
 
     if (!found) {
-      setVoucherError('Kode voucher tidak ditemukan atau tidak aktif.');
+      setVoucherError(t.checkout.voucherNotFound);
       setAppliedVoucher(null);
       setDiscountAmount(0);
       return;
     }
 
     if (subtotal < found.minSpend) {
-      setVoucherError(`Minimal belanja untuk voucher ini adalah RM ${found.minSpend}.00`);
+      setVoucherError(`${t.checkout.voucherMinSpend} ${found.minSpend}.00`);
       setAppliedVoucher(null);
       setDiscountAmount(0);
       return;
@@ -205,7 +207,7 @@ export default function CheckoutPage() {
       window.open(waLink, '_blank');
     } catch (err) {
       console.error(err);
-      alert('Error creating order. Please try again.');
+      alert(t.checkout.errorCreating);
     } finally {
       setIsSubmitting(false);
     }
@@ -227,31 +229,31 @@ export default function CheckoutPage() {
 
             <div>
               <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full inline-block mb-2">
-                Order Registered Successfully
+                {t.checkout.orderSuccess}
               </span>
               <h1 className="font-serif text-3xl font-bold text-[#800020]">
-                Order {createdOrder.orderNumber}
+                {t.checkout.orderRegistered} {createdOrder.orderNumber}
               </h1>
               <p className="text-stone-600 text-xs sm:text-sm mt-2">
-                Thank you, <span className="font-bold text-[#2B1B1B]">{createdOrder.customerName}</span>! Your order has been saved in our system and redirected to WhatsApp Admin.
+                {t.checkout.thankYou}
               </p>
             </div>
 
             <div className="p-4 bg-[#FFF8F0] rounded-2xl border border-[#EADBC8] text-left text-xs space-y-2 text-stone-700">
               <div className="flex justify-between font-bold text-[#800020]">
-                <span>Order Status:</span>
+                <span>{t.checkout.orderStatus}:</span>
                 <span className="uppercase">{createdOrder.orderStatus}</span>
               </div>
               <div className="flex justify-between">
-                <span>Total Amount:</span>
+                <span>{t.checkout.totalAmount}:</span>
                 <span className="font-bold">{formatMYR(createdOrder.totalAmount)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Phone:</span>
+                <span>{t.checkout.phone}:</span>
                 <span>{createdOrder.customerPhone}</span>
               </div>
               <div className="flex justify-between">
-                <span>Delivery Address:</span>
+                <span>{t.checkout.deliveryAddress}:</span>
                 <span className="truncate max-w-xs">{createdOrder.address}, {createdOrder.city}, {createdOrder.state}</span>
               </div>
             </div>
@@ -264,14 +266,14 @@ export default function CheckoutPage() {
                   rel="noopener noreferrer"
                   className="flex-1 py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
                 >
-                  <MessageCircle className="w-4 h-4 fill-white" /> Open WhatsApp Again
+                  <MessageCircle className="w-4 h-4 fill-white" /> {t.checkout.openWAAgain}
                 </a>
               )}
               <Link
                 href={`/track-order?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}&phone=${encodeURIComponent(createdOrder.customerPhone)}`}
                 className="flex-1 py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
               >
-                <PackageCheck className="w-4 h-4" /> Track Order Status
+                <PackageCheck className="w-4 h-4" /> {t.checkout.trackOrderStatus}
               </Link>
             </div>
           </div>
@@ -280,20 +282,20 @@ export default function CheckoutPage() {
           <div>
             <div className="mb-8 border-b border-[#EADBC8] pb-4">
               <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#800020] flex items-center gap-3">
-                <MessageCircle className="w-8 h-8 text-[#25D366]" /> WhatsApp Checkout
+                <MessageCircle className="w-8 h-8 text-[#25D366]" /> {t.checkout.title}
               </h1>
               <p className="text-stone-600 text-xs sm:text-sm mt-1">
-                Enter your delivery details and apply promo vouchers to generate your WhatsApp order message.
+                {t.checkout.subtitle}
               </p>
             </div>
 
             {cart.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border border-[#EADBC8] shadow-sm my-8">
                 <ShoppingBag className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-                <h2 className="font-serif text-xl font-bold text-[#800020]">Your cart is empty</h2>
-                <p className="text-stone-500 text-xs mt-1">Please add baking products to your cart before proceeding to checkout.</p>
+                <h2 className="font-serif text-xl font-bold text-[#800020]">{t.checkout.emptyCart}</h2>
+                <p className="text-stone-500 text-xs mt-1">{t.checkout.emptyCartNote}</p>
                 <Link href="/products" className="mt-4 inline-block px-6 py-2.5 bg-[#800020] text-white text-xs font-bold rounded-xl">
-                  Browse Catalog
+                  {t.checkout.browseCatalog}
                 </Link>
               </div>
             ) : (
@@ -306,29 +308,29 @@ export default function CheckoutPage() {
                     <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                        <span><strong>⚡ Alamat Pengiriman Otomatis Terisi:</strong> Data alamat diambil dari profil akun Anda.</span>
+                        <span>{t.checkout.autoFillNote}</span>
                       </div>
                       <Link href="/account" className="text-[11px] font-bold text-[#800020] underline flex-shrink-0">
-                        Ubah Alamat Akun
+                        {t.checkout.changeAddress}
                       </Link>
                     </div>
                   )}
 
                   <div className="flex items-center gap-2 border-b border-stone-200 pb-3 text-[#800020]">
                     <User className="w-5 h-5" />
-                    <h2 className="font-serif text-lg font-bold">1. Customer Contact Details</h2>
+                    <h2 className="font-serif text-lg font-bold">{t.checkout.contactHeader}</h2>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                        Full Name <span className="text-red-600">*</span>
+                        {t.checkout.fullName} <span className="text-red-600">*</span>
                       </label>
                       <input 
                         type="text"
                         name="name"
                         required
-                        placeholder="e.g. Ahmad Naufal"
+                        placeholder={t.checkout.namePlaceholder}
                         value={formData.name}
                         onChange={handleFormChange}
                         className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
@@ -337,13 +339,13 @@ export default function CheckoutPage() {
 
                     <div>
                       <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                        WhatsApp Phone Number <span className="text-red-600">*</span>
+                        {t.checkout.phoneNumber} <span className="text-red-600">*</span>
                       </label>
                       <input 
                         type="tel"
                         name="phone"
                         required
-                        placeholder="e.g. +60123456789"
+                        placeholder={t.checkout.phonePlaceholder}
                         value={formData.phone}
                         onChange={handleFormChange}
                         className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
@@ -353,19 +355,19 @@ export default function CheckoutPage() {
 
                   <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-4 text-[#800020]">
                     <MapPin className="w-5 h-5" />
-                    <h2 className="font-serif text-lg font-bold">2. Delivery Address (Malaysia)</h2>
+                    <h2 className="font-serif text-lg font-bold">{t.checkout.addressHeader}</h2>
                   </div>
 
                   <div className="space-y-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                        Street Address / Unit / Building <span className="text-red-600">*</span>
+                        {t.checkout.streetAddress} <span className="text-red-600">*</span>
                       </label>
                       <textarea
                         name="address"
                         required
                         rows={2}
-                        placeholder="e.g. No 45, Jalan Bunga Raya 7/2, Section 7"
+                        placeholder={t.checkout.addressPlaceholder}
                         value={formData.address}
                         onChange={handleFormChange}
                         className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
@@ -375,7 +377,7 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                          City / Town <span className="text-red-600">*</span>
+                          {t.checkout.city} <span className="text-red-600">*</span>
                         </label>
                         <input 
                           type="text"
@@ -389,7 +391,7 @@ export default function CheckoutPage() {
 
                       <div>
                         <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                          Postcode <span className="text-red-600">*</span>
+                          {t.checkout.postcode} <span className="text-red-600">*</span>
                         </label>
                         <input 
                           type="text"
@@ -403,7 +405,7 @@ export default function CheckoutPage() {
 
                       <div>
                         <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                          State <span className="text-red-600">*</span>
+                          {t.checkout.state} <span className="text-red-600">*</span>
                         </label>
                         <select
                           name="state"
@@ -421,14 +423,14 @@ export default function CheckoutPage() {
 
                   <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-4 text-[#800020]">
                     <FileText className="w-5 h-5" />
-                    <h2 className="font-serif text-lg font-bold">3. Additional Notes (Optional)</h2>
+                    <h2 className="font-serif text-lg font-bold">{t.checkout.notesHeader}</h2>
                   </div>
 
                   <div>
                     <textarea
                       name="notes"
                       rows={2}
-                      placeholder="e.g. Urgent delivery required, please pack in extra bubble wrap."
+                      placeholder={t.checkout.notesPlaceholder}
                       value={formData.notes}
                       onChange={handleFormChange}
                       className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
@@ -440,7 +442,7 @@ export default function CheckoutPage() {
                 {/* Right Column: Order Review & Voucher Promo Input */}
                 <div className="bg-white p-6 rounded-3xl border border-[#EADBC8] shadow-md h-fit space-y-6">
                   <h2 className="font-serif text-xl font-bold text-[#800020] border-b border-stone-200 pb-3">
-                    Order Items ({totalItems})
+                    {t.checkout.orderItems} ({totalItems})
                   </h2>
 
                   <div className="max-h-64 overflow-y-auto space-y-3 pr-1">
@@ -448,7 +450,7 @@ export default function CheckoutPage() {
                       <div key={`${item.productId}-${item.variantId}`} className="flex justify-between items-center text-xs text-stone-700 pb-2 border-b border-stone-100">
                         <div>
                           <span className="font-bold text-stone-900 block truncate max-w-[180px]">{item.productName}</span>
-                          <span className="text-[11px] text-stone-500">Variant: {item.variantName} x {item.quantity}</span>
+                          <span className="text-[11px] text-stone-500">{t.cart.variant}: {item.variantName} x {item.quantity}</span>
                         </div>
                         <span className="font-bold text-[#800020]">{formatMYR(item.price * item.quantity)}</span>
                       </div>
@@ -458,13 +460,13 @@ export default function CheckoutPage() {
                   {/* PROMO VOUCHER APPLICATION FORM */}
                   <div className="pt-2 space-y-3 border-t border-stone-200">
                     <label className="block text-xs font-bold text-stone-700 uppercase flex items-center gap-1.5">
-                      <Tag className="w-4 h-4 text-[#800020]" /> Gunakan Kode Voucher Promo
+                      <Tag className="w-4 h-4 text-[#800020]" /> {t.checkout.voucherLabel}
                     </label>
 
                     <div className="flex gap-2">
                       <input 
                         type="text"
-                        placeholder="Contoh: VIPBAKER20"
+                        placeholder={t.checkout.voucherPlaceholder}
                         value={voucherCode}
                         onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
                         className="w-full px-3 py-2 border border-stone-300 rounded-xl text-xs font-mono font-bold uppercase text-[#800020]"
@@ -474,7 +476,7 @@ export default function CheckoutPage() {
                         onClick={handleApplyVoucher}
                         className="px-4 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl flex-shrink-0"
                       >
-                        Gunakan
+                        {t.checkout.voucherApplyBtn}
                       </button>
                     </div>
 
@@ -485,7 +487,7 @@ export default function CheckoutPage() {
                     {appliedVoucher && (
                       <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
                         <div className="font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Voucher Terpasang: {appliedVoucher.code}
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {t.checkout.voucherApplied}: {appliedVoucher.code}
                         </div>
                         <p className="text-[11px]">{appliedVoucher.title}</p>
                       </div>
@@ -495,26 +497,26 @@ export default function CheckoutPage() {
                   {/* SUBTOTAL & DISCOUNT BREAKDOWN */}
                   <div className="pt-2 space-y-2 text-xs border-t border-stone-200">
                     <div className="flex justify-between text-stone-600">
-                      <span>Subtotal Produk</span>
+                      <span>{t.checkout.subtotalProduk}</span>
                       <span>{formatMYR(subtotal)}</span>
                     </div>
 
                     {discountAmount > 0 && (
                       <div className="flex justify-between text-emerald-700 font-bold">
-                        <span>Diskon Voucher ({appliedVoucher?.code})</span>
+                        <span>{t.checkout.discountVoucher} ({appliedVoucher?.code})</span>
                         <span>-{formatMYR(discountAmount)}</span>
                       </div>
                     )}
 
                     <div className="flex justify-between text-base font-extrabold text-[#800020] pt-2 border-t border-stone-200">
-                      <span>Total Akhir</span>
+                      <span>{t.checkout.finalTotal}</span>
                       <span>{formatMYR(finalTotal)}</span>
                     </div>
                   </div>
 
                   <div className="p-3 bg-[#FFF8F0] rounded-xl border border-[#EADBC8] text-[11px] text-stone-600 flex items-start gap-2">
                     <ShieldCheck className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
-                    <span>Submitting this form creates your Order ID and opens a pre-formatted message directly to our WhatsApp support line.</span>
+                    <span>{t.checkout.formNote}</span>
                   </div>
 
                   <button
@@ -523,7 +525,7 @@ export default function CheckoutPage() {
                     className="w-full py-4 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl font-bold text-sm transition-all shadow-xl flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                   >
                     <MessageCircle className="w-5 h-5 fill-white" />
-                    {isSubmitting ? 'Generating Order...' : 'SUBMIT & CHECKOUT VIA WHATSAPP'}
+                    {isSubmitting ? t.checkout.submitting : t.checkout.submitBtn}
                   </button>
                 </div>
 

@@ -15,8 +15,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  const isLoginPage = pathname === '/admin/login' || pathname === '/admin2026/login';
+
   useEffect(() => {
-    if (pathname === '/admin/login') {
+    if (isLoginPage) {
       setIsAdminLoggedIn(false);
       return;
     }
@@ -42,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } catch (e) {}
   };
 
-  if (pathname === '/admin/login') {
+  if (isLoginPage) {
     return <>{children}</>;
   }
 

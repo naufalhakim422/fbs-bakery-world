@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { Voucher } from '@/types';
 import { Tag, Plus, Sparkles, Trash2, Edit, CheckCircle2, X, Eye, EyeOff, Award, ShieldCheck, Percent, DollarSign } from 'lucide-react';
 
 export default function AdminVouchersPage() {
+  const { t } = useLanguage();
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
@@ -66,7 +68,7 @@ export default function AdminVouchersPage() {
   };
 
   const handleDeleteVoucher = (id: string) => {
-    if (confirm('Are you sure you want to delete this promo voucher?')) {
+    if (confirm(t.adminCategories.confirmDelete)) {
       db.deleteVoucher(id);
       setVouchers(db.getVouchers());
     }
@@ -84,10 +86,10 @@ export default function AdminVouchersPage() {
       <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
-            <Tag className="w-6 h-6 text-[#800020]" /> Promo Vouchers & Member Perks Manager
+            <Tag className="w-6 h-6 text-[#800020]" /> {t.adminVouchers.title}
           </h1>
           <p className="text-xs text-stone-500 mt-0.5">
-            Create discount codes targeted specifically for VIP Members ⭐, Wholesale B2B, or All Customers.
+            {t.adminVouchers.subtitle}
           </p>
         </div>
 
@@ -98,7 +100,7 @@ export default function AdminVouchersPage() {
           <div className="w-6 h-6 rounded-full bg-[#D4AF37] text-[#800020] flex items-center justify-center font-bold text-base">
             +
           </div>
-          <span>CREATE NEW VOUCHER</span>
+          <span>{t.adminVouchers.addNew}</span>
         </button>
       </div>
 
@@ -107,8 +109,7 @@ export default function AdminVouchersPage() {
         {vouchers.length === 0 ? (
           <div className="col-span-3 bg-white rounded-3xl p-12 text-center border border-stone-200 space-y-3">
             <Tag className="w-12 h-12 text-stone-300 mx-auto" />
-            <h3 className="font-serif text-lg font-bold text-stone-800">No Promo Vouchers Found</h3>
-            <p className="text-xs text-stone-500">Click "+ CREATE NEW VOUCHER" above to create member discount codes.</p>
+            <h3 className="font-serif text-lg font-bold text-stone-800">{t.adminVouchers.noVouchers}</h3>
           </div>
         ) : (
           vouchers.map(v => (
@@ -130,7 +131,7 @@ export default function AdminVouchersPage() {
                   <span className={`px-2 py-0.5 text-[10px] font-bold rounded ${
                     v.status ? 'bg-emerald-50 text-emerald-700' : 'bg-stone-100 text-stone-500'
                   }`}>
-                    {v.status ? 'ACTIVE' : 'DISABLED'}
+                    {v.status ? t.adminVouchers.statusActive : t.adminVouchers.statusInactive}
                   </span>
                 </div>
 
@@ -143,13 +144,13 @@ export default function AdminVouchersPage() {
 
                 <div className="space-y-1 text-xs text-stone-600">
                   <div className="flex justify-between">
-                    <span className="text-stone-400">Discount Value:</span>
+                    <span className="text-stone-400">{t.adminVouchers.thDiscount}:</span>
                     <strong className="text-stone-900">
                       {v.discountType === 'PERCENT' ? `${v.discountValue}% OFF` : `RM ${v.discountValue}.00 OFF`}
                     </strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-stone-400">Minimum Spend:</span>
+                    <span className="text-stone-400">{t.adminVouchers.minSpend}:</span>
                     <strong className="text-stone-900">RM {v.minSpend}.00</strong>
                   </div>
                   <div className="flex justify-between">
@@ -165,7 +166,7 @@ export default function AdminVouchersPage() {
                   onClick={() => openEditModal(v)}
                   className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
                 >
-                  <Edit className="w-3.5 h-3.5" /> Edit
+                  <Edit className="w-3.5 h-3.5" /> {t.common.edit}
                 </button>
 
                 <button
@@ -182,7 +183,7 @@ export default function AdminVouchersPage() {
                   onClick={() => handleDeleteVoucher(v.id)}
                   className="px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
                 >
-                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                  <Trash2 className="w-3.5 h-3.5" /> {t.common.delete}
                 </button>
               </div>
 
@@ -198,7 +199,7 @@ export default function AdminVouchersPage() {
             
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h2 className="font-serif text-xl font-bold text-[#800020] flex items-center gap-2">
-                <Tag className="w-5 h-5 text-[#D4AF37]" /> {editingVoucher ? 'Edit Promo Voucher' : 'Create New Promo Voucher'}
+                <Tag className="w-5 h-5 text-[#D4AF37]" /> {editingVoucher ? t.adminVouchers.edit : t.adminVouchers.addNew}
               </h2>
               <button onClick={() => setIsModalOpen(false)} className="p-1 text-stone-400 hover:text-stone-800">
                 <X className="w-6 h-6" />
@@ -209,12 +210,12 @@ export default function AdminVouchersPage() {
               
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Voucher Code (Promo Code) <span className="text-red-600">*</span>
+                  {t.adminVouchers.voucherCode} <span className="text-red-600">*</span>
                 </label>
                 <input 
                   type="text"
                   required
-                  placeholder="e.g. VIPBAKER20 or WHOLESALE50"
+                  placeholder="e.g. VIPBAKER20"
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                   className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl font-mono text-sm font-black text-[#800020] focus:outline-none focus:border-[#800020] uppercase"
@@ -223,12 +224,12 @@ export default function AdminVouchersPage() {
 
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  Voucher Title / Description <span className="text-red-600">*</span>
+                  {t.adminVouchers.voucherTitle} <span className="text-red-600">*</span>
                 </label>
                 <input 
                   type="text"
                   required
-                  placeholder="e.g. Diskon Spesial VIP Member 20% OFF"
+                  placeholder="..."
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold"
@@ -237,7 +238,7 @@ export default function AdminVouchersPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-stone-700 uppercase mb-1">Discount Type</label>
+                  <label className="block font-bold text-stone-700 uppercase mb-1">{t.adminVouchers.discountType}</label>
                   <select
                     value={form.discountType}
                     onChange={(e) => setForm({ ...form, discountType: e.target.value as any })}
@@ -250,7 +251,7 @@ export default function AdminVouchersPage() {
 
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">
-                    Discount Value {form.discountType === 'PERCENT' ? '(%)' : '(RM)'} <span className="text-red-600">*</span>
+                    {t.adminVouchers.discountValue} <span className="text-red-600">*</span>
                   </label>
                   <input 
                     type="number"
@@ -265,7 +266,7 @@ export default function AdminVouchersPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-stone-700 uppercase mb-1">Min Spend (RM)</label>
+                  <label className="block font-bold text-stone-700 uppercase mb-1">{t.adminVouchers.minSpend}</label>
                   <input 
                     type="number"
                     required
@@ -283,10 +284,10 @@ export default function AdminVouchersPage() {
                     onChange={(e) => setForm({ ...form, targetTier: e.target.value as any })}
                     className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 font-bold"
                   >
-                    <option value="ALL">All Customers (Semua)</option>
+                    <option value="ALL">All Customers</option>
                     <option value="RETAIL">Retail Members Only</option>
                     <option value="VIP">VIP Members Only ⭐</option>
-                    <option value="WHOLESALE">Wholesale B2B Only 🏭</option>
+                    <option value="WHOLESALE">Wholesale B2B Only</option>
                   </select>
                 </div>
               </div>
@@ -309,7 +310,7 @@ export default function AdminVouchersPage() {
                     onChange={(e) => setForm({ ...form, status: e.target.checked })}
                     className="rounded text-[#800020] w-4 h-4"
                   />
-                  <span>Enable & Publish this Promo Voucher</span>
+                  <span>Publish</span>
                 </label>
               </div>
 
@@ -319,13 +320,13 @@ export default function AdminVouchersPage() {
                   onClick={() => setIsModalOpen(false)}
                   className="w-1/2 py-3 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
                   className="w-1/2 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
                 >
-                  <CheckCircle2 className="w-4 h-4" /> Save Voucher
+                  <CheckCircle2 className="w-4 h-4" /> {t.adminVouchers.saveBtn}
                 </button>
               </div>
             </form>
