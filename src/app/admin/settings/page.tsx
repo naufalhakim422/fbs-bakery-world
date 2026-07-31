@@ -129,12 +129,6 @@ export default function AdminSettingsPage() {
           buttonLink: '/products/uji-matcha-powder-grade-a',
         },
         {
-          id: 'wpromo-4',
-          title: 'Diskon Peralatan Baking & Mixer Komersial',
-          subtitle: 'Peralatan oven & mixer stainless steel heavy duty garansi resmi.',
-          imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=800&auto=format&fit=crop',
-          buttonText: 'LIHAT MIXER KOMERSIAL',
-          buttonLink: '/products/commercial-stand-mixer-10l',
         }
       ];
     }
@@ -143,34 +137,58 @@ export default function AdminSettingsPage() {
 
   const handleStoreSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    db.updateStoreSettings(storeForm);
-    setIsSavedStore(true);
-    setTimeout(() => setIsSavedStore(false), 2000);
+    setSaveModalTitle('Simpan Pengaturan Toko?');
+    setSaveModalMessage('Apakah Anda yakin ingin menyimpan perubahan informasi toko, alamat gudang, & nomor WhatsApp ini?');
+    setPendingSaveAction(() => () => {
+      db.updateStoreSettings(storeForm);
+      setIsSavedStore(true);
+      setTimeout(() => setIsSavedStore(false), 2500);
+      setConfirmSaveOpen(false);
+    });
+    setConfirmSaveOpen(true);
   };
 
   const handleAboutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    db.updateAboutSettings(aboutForm);
-    setIsSavedAbout(true);
-    setTimeout(() => setIsSavedAbout(false), 2000);
+    setSaveModalTitle('Simpan Halaman Tentang Kami?');
+    setSaveModalMessage('Apakah Anda yakin ingin menyimpan perubahan tata letak & teks Halaman Tentang Kami?');
+    setPendingSaveAction(() => () => {
+      db.updateAboutSettings(aboutForm);
+      setIsSavedAbout(true);
+      setTimeout(() => setIsSavedAbout(false), 2500);
+      setConfirmSaveOpen(false);
+    });
+    setConfirmSaveOpen(true);
   };
 
   const handleHomeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    db.updateHomePageSettings({
-      ...homeForm,
-      wholesaleBanners: wholesaleBanners,
+    setSaveModalTitle('Simpan Tata Letak Beranda Utama?');
+    setSaveModalMessage('Apakah Anda yakin ingin menyimpan perubahan tata letak Beranda & Banner promo?');
+    setPendingSaveAction(() => () => {
+      db.updateHomePageSettings({
+        ...homeForm,
+        wholesaleBanners: wholesaleBanners,
+      });
+      db.saveAllBanners(banners);
+      setIsSavedHome(true);
+      setTimeout(() => setIsSavedHome(false), 2500);
+      setConfirmSaveOpen(false);
     });
-    db.saveAllBanners(banners);
-    setIsSavedHome(true);
-    setTimeout(() => setIsSavedHome(false), 2000);
+    setConfirmSaveOpen(true);
   };
 
   const handleCredsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    db.updateAdminCredentials(credsForm);
-    setIsSavedCreds(true);
-    setTimeout(() => setIsSavedCreds(false), 2000);
+    setSaveModalTitle('Simpan Kredensial Login Admin?');
+    setSaveModalMessage('Apakah Anda yakin ingin memperbarui Username & Password Login Portal Admin ini?');
+    setPendingSaveAction(() => () => {
+      db.updateAdminCredentials(credsForm);
+      setIsSavedCreds(true);
+      setTimeout(() => setIsSavedCreds(false), 2500);
+      setConfirmSaveOpen(false);
+    });
+    setConfirmSaveOpen(true);
   };
 
   const handleAboutImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1212,6 +1230,15 @@ export default function AdminSettingsPage() {
         type="danger"
         onConfirm={() => { if (pendingDeleteAction) pendingDeleteAction(); }}
         onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteAction(null); }}
+      />
+
+      <ConfirmModal
+        isOpen={confirmSaveOpen}
+        title={saveModalTitle}
+        message={saveModalMessage}
+        type="save"
+        onConfirm={() => { if (pendingSaveAction) pendingSaveAction(); }}
+        onCancel={() => { setConfirmSaveOpen(false); setPendingSaveAction(null); }}
       />
     </div>
   );

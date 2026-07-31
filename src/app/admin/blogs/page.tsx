@@ -97,14 +97,21 @@ export default function AdminBlogsPage() {
     setIsModalOpen(true);
   };
 
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+
   const handleSaveBlog = (e: React.FormEvent) => {
     e.preventDefault();
+    setConfirmSaveOpen(true);
+  };
+
+  const executeSaveBlog = () => {
     db.saveBlog({
       id: editingBlog?.id,
       ...form,
       galleryImages: blogGallery,
     });
     setBlogs(db.getBlogs());
+    setConfirmSaveOpen(false);
     setIsModalOpen(false);
   };
 
@@ -384,6 +391,15 @@ export default function AdminBlogsPage() {
         type="danger"
         onConfirm={executeDeleteBlog}
         onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
+
+      <ConfirmModal
+        isOpen={confirmSaveOpen}
+        title={editingBlog ? 'Perbarui Artikel Blog?' : 'Publikasikan Artikel Blog Baru?'}
+        message={editingBlog ? 'Apakah Anda yakin ingin menyimpan perubahan artikel blog ini?' : 'Apakah Anda yakin ingin menyimpan dan mempublikasikan artikel blog baru ini?'}
+        type="save"
+        onConfirm={executeSaveBlog}
+        onCancel={() => setConfirmSaveOpen(false)}
       />
     </div>
   );

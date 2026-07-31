@@ -118,10 +118,15 @@ export default function AdminRecipesPage() {
     }
   };
 
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+
   const handleSaveRecipe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) return;
+    setConfirmSaveOpen(true);
+  };
 
+  const executeSaveRecipe = () => {
     const ingredientsList = form.ingredientsText
       .split('\n')
       .map(i => i.trim())
@@ -148,8 +153,8 @@ export default function AdminRecipesPage() {
 
     db.saveRecipe(payload);
     setRecipes(db.getRecipes());
+    setConfirmSaveOpen(false);
     setIsModalOpen(false);
-    alert(editingRecipe ? 'Recipe updated successfully!' : 'New Recipe created successfully!');
   };
 
   const handleDeleteRecipe = (id: string, title: string) => {
@@ -491,6 +496,15 @@ export default function AdminRecipesPage() {
         type="danger"
         onConfirm={executeDeleteRecipe}
         onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
+
+      <ConfirmModal
+        isOpen={confirmSaveOpen}
+        title={editingRecipe ? 'Perbarui Resep Baking?' : 'Simpan Resep Baking Baru?'}
+        message={editingRecipe ? 'Apakah Anda yakin ingin menyimpan perubahan resep kue ini?' : 'Apakah Anda yakin ingin menyimpan dan mempublikasikan resep kue baru ini?'}
+        type="save"
+        onConfirm={executeSaveRecipe}
+        onCancel={() => setConfirmSaveOpen(false)}
       />
     </div>
   );

@@ -60,13 +60,20 @@ export default function AdminVouchersPage() {
     setIsModalOpen(true);
   };
 
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+
   const handleSaveVoucher = (e: React.FormEvent) => {
     e.preventDefault();
+    setConfirmSaveOpen(true);
+  };
+
+  const executeSaveVoucher = () => {
     db.saveVoucher({
       id: editingVoucher?.id,
       ...form,
     });
     setVouchers(db.getVouchers());
+    setConfirmSaveOpen(false);
     setIsModalOpen(false);
   };
 
@@ -351,6 +358,15 @@ export default function AdminVouchersPage() {
         type="danger"
         onConfirm={executeDeleteVoucher}
         onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
+
+      <ConfirmModal
+        isOpen={confirmSaveOpen}
+        title={editingVoucher ? 'Perbarui Voucher Diskon?' : 'Simpan Voucher Diskon Baru?'}
+        message={editingVoucher ? 'Apakah Anda yakin ingin menyimpan perubahan voucher diskon ini?' : 'Apakah Anda yakin ingin membuat dan mengaktifkan voucher diskon baru ini?'}
+        type="save"
+        onConfirm={executeSaveVoucher}
+        onCancel={() => setConfirmSaveOpen(false)}
       />
     </div>
   );

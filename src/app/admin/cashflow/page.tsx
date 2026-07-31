@@ -205,6 +205,8 @@ export default function AdminCashflowPage() {
   ].filter(c => c.amt > 0);
 
 
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+
   // ─── Add expense ───────────────────────────────────────────────────────────
   const handleAddExpense = (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,11 +215,17 @@ export default function AdminCashflowPage() {
       alert('Masukkan deskripsi dan jumlah pengeluaran kas yang valid.');
       return;
     }
+    setConfirmSaveOpen(true);
+  };
+
+  const executeAddExpense = () => {
+    const amt = parseFloat(newExpAmount);
     const newItem = { id: `exp-${Date.now()}`, date: newExpDate, type: 'OUTFLOW', category: newExpCategory, title: newExpTitle, amount: amt };
     const updated = [newItem, ...expenses];
     setExpenses(updated);
     localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(updated));
     window.dispatchEvent(new Event('storage'));
+    setConfirmSaveOpen(false);
     setShowExpenseModal(false);
     setNewExpTitle('');
     setNewExpAmount('');
@@ -687,6 +695,15 @@ export default function AdminCashflowPage() {
         type="danger"
         onConfirm={executeDeleteExpense}
         onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
+
+      <ConfirmModal
+        isOpen={confirmSaveOpen}
+        title="Simpan Catatan Pengeluaran Kas?"
+        message="Apakah Anda yakin ingin mencatat pengeluaran kas operasional ini ke dalam laporan arus kas?"
+        type="save"
+        onConfirm={executeAddExpense}
+        onCancel={() => setConfirmSaveOpen(false)}
       />
     </div>
   );

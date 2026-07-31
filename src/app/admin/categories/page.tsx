@@ -68,10 +68,15 @@ export default function AdminCategoriesPage() {
     }
   };
 
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+
   const handleSaveCategory = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
+    setConfirmSaveOpen(true);
+  };
 
+  const executeSaveCategory = () => {
     const payload: Partial<Category> = {
       id: editingCategory ? editingCategory.id : undefined,
       name: form.name.trim(),
@@ -83,6 +88,7 @@ export default function AdminCategoriesPage() {
 
     db.saveCategory(payload);
     setCategories(db.getCategories());
+    setConfirmSaveOpen(false);
     setIsModalOpen(false);
   };
 
@@ -308,6 +314,15 @@ export default function AdminCategoriesPage() {
         type="danger"
         onConfirm={executeDeleteCategory}
         onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
+
+      <ConfirmModal
+        isOpen={confirmSaveOpen}
+        title={editingCategory ? 'Perbarui Kategori Produk?' : 'Simpan Kategori Produk Baru?'}
+        message={editingCategory ? 'Apakah Anda yakin ingin menyimpan perubahan kategori produk ini?' : 'Apakah Anda yakin ingin menambahkan kategori produk baru ini?'}
+        type="save"
+        onConfirm={executeSaveCategory}
+        onCancel={() => setConfirmSaveOpen(false)}
       />
     </div>
   );

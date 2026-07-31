@@ -152,12 +152,19 @@ export default function AdminBannersPage() {
     }
   };
 
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+
   const handleSaveAllBanners = (e: React.FormEvent) => {
     e.preventDefault();
+    setConfirmSaveOpen(true);
+  };
+
+  const executeSaveAllBanners = () => {
     banners.forEach(b => {
       db.saveBanner(b);
     });
     setIsSavedAll(true);
+    setConfirmSaveOpen(false);
     setTimeout(() => setIsSavedAll(false), 2500);
   };
 
@@ -487,6 +494,15 @@ export default function AdminBannersPage() {
         type="danger"
         onConfirm={executeDeleteSlot}
         onCancel={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
+      />
+
+      <ConfirmModal
+        isOpen={confirmSaveOpen}
+        title="Simpan Perubahan Banner Slider?"
+        message="Apakah Anda yakin ingin menyimpan seluruh susunan & data banner slider beranda ini?"
+        type="save"
+        onConfirm={executeSaveAllBanners}
+        onCancel={() => setConfirmSaveOpen(false)}
       />
     </div>
   );

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import { ProductVariant } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, Sparkles, Upload, X } from 'lucide-react';
 
 function AdminNewProductContent() {
@@ -106,10 +107,15 @@ function AdminNewProductContent() {
     setVariants(updated);
   };
 
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+
   const handleSubmitProduct = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.productName.trim()) return;
+    setConfirmSaveOpen(true);
+  };
 
+  const executeSaveProduct = () => {
     db.saveProduct({
       id: editId ? db.getProductBySlug(editId)?.id : undefined,
       ...form,
@@ -125,7 +131,7 @@ function AdminNewProductContent() {
       })),
     });
 
-    alert(editId ? 'Product updated successfully!' : 'New Product created successfully!');
+    setConfirmSaveOpen(false);
     router.push('/admin/products');
   };
 
@@ -425,6 +431,14 @@ function AdminNewProductContent() {
 
       </form>
 
+      <ConfirmModal
+        isOpen={confirmSaveOpen}
+        title={editId ? 'Perbarui Data Produk?' : 'Simpan Produk Baru?'}
+        message={editId ? 'Apakah Anda yakin ingin memperbarui data & varian produk ini?' : 'Apakah Anda yakin ingin menyimpan dan mempublikasikan produk baru ini?'}
+        type="save"
+        onConfirm={executeSaveProduct}
+        onCancel={() => setConfirmSaveOpen(false)}
+      />
     </div>
   );
 }
