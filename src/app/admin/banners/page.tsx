@@ -163,7 +163,7 @@ export default function AdminBannersPage() {
         >
           {isSavedAll ? (
             <>
-              <CheckCircle2 className="w-4 h-4 text-emerald-300" /> {t.common.saved}
+              <CheckCircle2 className="w-4 h-4 text-emerald-300" /> {t.common.save}
             </>
           ) : (
             <>
@@ -298,7 +298,7 @@ export default function AdminBannersPage() {
                   <option value="">-- Pilih Produk untuk Auto-Fill Banner --</option>
                   {products.map(p => (
                     <option key={p.id} value={p.slug}>
-                      {p.productName} ({p.category})
+                      {p.productName} ({p.categoryId})
                     </option>
                   ))}
                 </select>
