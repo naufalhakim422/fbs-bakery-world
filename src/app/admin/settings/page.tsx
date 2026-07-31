@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { compressImageFile } from '@/lib/image-compressor';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
-import { extractMapsEmbedUrl } from '@/lib/whatsapp';
+import { extractMapsEmbedUrl, extractMapsAppUrl } from '@/lib/whatsapp';
 import { Banner, Product, WholesalePromoBanner } from '@/types';
 import { Settings, Save, CheckCircle2, MessageCircle, FileText, Upload, X, Image as ImageIcon, Sparkles, Layout, Home, Key, ShieldCheck, Eye, EyeOff, Search } from 'lucide-react';
 
@@ -392,7 +392,7 @@ export default function AdminSettingsPage() {
                 <div className="rounded-2xl overflow-hidden border border-stone-300 shadow-sm bg-stone-900 p-2 space-y-2">
                   <iframe
                     title="Admin Live Maps Preview"
-                    src={extractMapsEmbedUrl(storeForm.googleMapsEmbedUrl) || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy"}
+                    src={extractMapsEmbedUrl(storeForm.googleMapsEmbedUrl, storeForm.address) || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy"}
                     width="100%"
                     height="160"
                     style={{ border: 0 }}
@@ -402,7 +402,7 @@ export default function AdminSettingsPage() {
                   />
                   <div className="text-[10px] font-bold text-[#F7E7CE] bg-[#800020] px-3 py-1.5 rounded-xl flex items-center justify-between">
                     <span>📍 Peta Footer Terdeteksi Secara Otomatis!</span>
-                    <a href={extractMapsEmbedUrl(storeForm.googleMapsAppUrl) || "#"} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Uji Coba Buka App &rarr;</a>
+                    <a href={extractMapsAppUrl(storeForm.googleMapsAppUrl, storeForm.googleMapsEmbedUrl, storeForm.address)} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Uji Coba Buka App &rarr;</a>
                   </div>
                 </div>
               </div>

@@ -48,23 +48,58 @@ export const formatWhatsAppNumber = (phoneStr: string): string => {
   return rawClean || '60129876543';
 };
 
-export const extractMapsEmbedUrl = (input?: string): string => {
-  if (!input) return '';
-  const trimmed = input.trim();
+export const extractMapsEmbedUrl = (input?: string, fallbackAddress?: string): string => {
+  if (!input || !input.trim()) {
+    if (fallbackAddress && fallbackAddress.trim()) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackAddress.trim())}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    }
+    return '';
+  }
+  let trimmed = input.trim();
   
-  // Extract src="..." or src='...' from pasted <iframe ...> snippet
+  // Extract src="..." or src='...' if user pasted full <iframe ...> HTML tag
   const srcMatch = trimmed.match(/src=["']([^"']+)["']/i);
   if (srcMatch && srcMatch[1]) {
-    return srcMatch[1].trim();
+    trimmed = srcMatch[1].trim();
+  } else {
+    // If wrapped in HTML or quotes, extract raw URL
+    const urlMatch = trimmed.match(/(https?:\/\/[^\s"'>]+)/i);
+    if (urlMatch && urlMatch[1]) {
+      trimmed = urlMatch[1].trim();
+    }
   }
 
-  // Extract raw URL if user pasted HTML tag or string containing http(s)
-  const urlMatch = trimmed.match(/(https?:\/\/[^\s"'>]+)/i);
-  if (urlMatch && urlMatch[1]) {
-    return urlMatch[1].trim();
+  // If already an embed URL (has /maps/embed or output=embed), return as is
+  if (trimmed.includes('/maps/embed') || trimmed.includes('output=embed')) {
+    return trimmed;
   }
 
-  return trimmed;
+  // If user pasted a regular Google Maps link (e.g. maps.app.goo.gl or place URL) or address
+  // Convert it into a valid Google Maps embed URL so iframe renders without 404
+  return `https://maps.google.com/maps?q=${encodeURIComponent(trimmed)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+};
+
+export const extractMapsAppUrl = (appUrl?: string, embedUrl?: string, address?: string): string => {
+  if (appUrl && appUrl.trim()) {
+    let clean = appUrl.trim();
+    const urlMatch = clean.match(/(https?:\/\/[^\s"'>]+)/i);
+    if (urlMatch && urlMatch[1]) {
+      clean = urlMatch[1].trim();
+    }
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      return clean;
+    }
+  }
+
+  // Fallback: If embedUrl is available and valid, use it
+  if (embedUrl && embedUrl.trim()) {
+    const cleanEmbed = extractMapsEmbedUrl(embedUrl);
+    if (cleanEmbed) return cleanEmbed;
+  }
+
+  // Fallback: Use warehouse address or default search query
+  const targetQuery = address && address.trim() ? address.trim() : 'FBS Bakery World Malaysia';
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(targetQuery)}`;
 };
 
 export const generateWhatsAppOrderLink = (data: WhatsAppCheckoutData): string => {
