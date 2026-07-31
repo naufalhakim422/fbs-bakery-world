@@ -131,11 +131,22 @@ export default function HomePage() {
               >
                 {/* Clickable Image Slide Direct To Target Product */}
                 <Link href={banner.buttonLink || '/products'} className="block w-full h-full relative cursor-pointer group/slide" title={`Klik untuk melihat ${banner.title || 'produk promo'}`}>
-                  <img 
-                    src={banner.imageUrl || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1920&auto=format&fit=crop'} 
-                    alt={banner.title || 'FBS Banner Promo'} 
-                    className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
-                  />
+                  {banner.videoUrl ? (
+                    <video 
+                      src={banner.videoUrl} 
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline 
+                      className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
+                    />
+                  ) : (
+                    <img 
+                      src={banner.imageUrl || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1920&auto=format&fit=crop'} 
+                      alt={banner.title || 'FBS Banner Promo'} 
+                      className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
+                    />
+                  )}
                 </Link>
               </div>
             );

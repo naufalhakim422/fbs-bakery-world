@@ -893,6 +893,7 @@ export const db = {
       buttonText: bannerInput.buttonText || 'SHOP NOW',
       buttonLink: bannerInput.buttonLink || '/products',
       status: bannerInput.status ?? true,
+      videoUrl: bannerInput.videoUrl || '',
     };
     banners.unshift(newBan);
     saveToStorage('fbs_banners', banners);

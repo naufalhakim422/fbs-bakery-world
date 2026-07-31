@@ -147,6 +147,7 @@ export interface Banner {
   buttonText: string;
   buttonLink: string;
   status: boolean;
+  videoUrl?: string;
 }
 
 export interface Voucher {

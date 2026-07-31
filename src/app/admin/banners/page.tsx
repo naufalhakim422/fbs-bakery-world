@@ -84,6 +84,19 @@ export default function AdminBannersPage() {
     }
   };
 
+  const handleSlotVideoUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result) {
+          handleUpdateSlotField(id, 'videoUrl', reader.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSlotProductSelect = (id: string, productSlug: string) => {
     if (!productSlug) return;
     const selectedProd = products.find(p => p.slug === productSlug || p.id === productSlug);
@@ -201,12 +214,23 @@ export default function AdminBannersPage() {
         </div>
 
         {activeBanners[activePreviewIndex] && (
-          <div className="relative h-64 sm:h-80 rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-inner group">
-            <img 
-              src={activeBanners[activePreviewIndex].imageUrl} 
-              alt={activeBanners[activePreviewIndex].title} 
-              className="w-full h-full object-cover"
-            />
+          <div className="relative h-64 sm:h-80 rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-inner group bg-black">
+            {activeBanners[activePreviewIndex].videoUrl ? (
+              <video 
+                src={activeBanners[activePreviewIndex].videoUrl} 
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+                className="w-full h-full object-cover" 
+              />
+            ) : (
+              <img 
+                src={activeBanners[activePreviewIndex].imageUrl} 
+                alt={activeBanners[activePreviewIndex].title} 
+                className="w-full h-full object-cover"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent p-6 sm:p-10 flex flex-col justify-center max-w-xl space-y-2">
               <span className="px-3 py-1 bg-[#800020] text-[#D4AF37] text-[10px] font-bold rounded-full w-fit uppercase">
                 PROMO BANNER SLIDE #{activePreviewIndex + 1}
@@ -333,6 +357,49 @@ export default function AdminBannersPage() {
                   onChange={(e) => handleUpdateSlotField(b.id, 'imageUrl', e.target.value)}
                   className="w-full px-3 py-2 border border-stone-300 rounded-xl text-xs font-mono"
                 />
+              </div>
+
+              {/* VIDEO ANIMATION / BACKGROUND VIDEO */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-stone-700 uppercase">
+                    URL Video / Animasi Banner (Opsional)
+                  </label>
+                  {b.videoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateSlotField(b.id, 'videoUrl', '')}
+                      className="text-[10px] text-red-600 font-extrabold hover:underline"
+                    >
+                      Hapus Video (Gunakan Gambar Saja)
+                    </button>
+                  )}
+                </div>
+
+                <div className="border border-stone-200 rounded-2xl p-3 bg-stone-50 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <label className="px-3 py-1.5 bg-white border border-stone-300 text-stone-700 font-bold text-[11px] rounded-lg cursor-pointer hover:bg-stone-50 flex items-center gap-1.5 shadow-sm">
+                      <Upload className="w-3.5 h-3.5 text-[#800020]" /> Upload MP4 / WebM
+                      <input 
+                        type="file" 
+                        accept="video/*"
+                        onChange={(e) => handleSlotVideoUpload(b.id, e)}
+                        className="hidden"
+                      />
+                    </label>
+                    <span className="text-[10px] text-stone-500 font-medium">
+                      {b.videoUrl ? '✓ Video Terpasang' : 'Belum ada video (menggunakan gambar)'}
+                    </span>
+                  </div>
+                  
+                  <input
+                    type="text"
+                    placeholder="Atau masukkan Link Video (e.g. https://...)"
+                    value={b.videoUrl || ''}
+                    onChange={(e) => handleUpdateSlotField(b.id, 'videoUrl', e.target.value)}
+                    className="w-full px-3 py-1.5 border border-stone-300 rounded-xl text-[11px] font-mono"
+                  />
+                </div>
               </div>
 
               {/* TITLE & SUBTITLE */}
