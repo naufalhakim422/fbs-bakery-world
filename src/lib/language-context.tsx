@@ -2518,36 +2518,93 @@ const LanguageContext = createContext<LanguageContextProps>({
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLangState] = useState<LanguageCode>('MS');
 
-  // Load saved language on mount
+  // Helper to sync Google Translate widget & cookie
+  const syncGoogleTranslate = (lang: LanguageCode) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const gtLangMap: Record<LanguageCode, string> = {
+        MS: 'ms',
+        ID: 'id',
+        EN: 'en',
+        ZH: 'zh-CN',
+      };
+      const googTransMap: Record<LanguageCode, string> = {
+        MS: '/ms/ms',
+        ID: '/ms/id',
+        EN: '/ms/en',
+        ZH: '/ms/zh-CN',
+      };
+
+      const targetGtLang = gtLangMap[lang] || 'ms';
+      const googTarget = googTransMap[lang] || '/ms/ms';
+
+      // Set cookies for Google Translate widget
+      document.cookie = `googtrans=${googTarget}; path=/; max-age=31536000;`;
+      if (window.location.hostname) {
+        document.cookie = `googtrans=${googTarget}; path=/; domain=${window.location.hostname}; max-age=31536000;`;
+      }
+
+      // Update Google Translate select element if loaded in DOM
+      const gtCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+      if (gtCombo) {
+        gtCombo.value = targetGtLang;
+        gtCombo.dispatchEvent(new Event('change'));
+      }
+    } catch (e) {}
+  };
+
+  // Load saved language on mount from localStorage or cookie
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('fbs_language');
+      let saved = localStorage.getItem('fbs_language');
+      if (!saved) {
+        const match = document.cookie.match(/(?:^|; )fbs_language=([^;]*)/);
+        if (match) saved = match[1];
+      }
       if (saved && (saved === 'MS' || saved === 'ID' || saved === 'EN' || saved === 'ZH')) {
         setLangState(saved as LanguageCode);
+        syncGoogleTranslate(saved as LanguageCode);
       }
     } catch (e) {}
   }, []);
 
-  // Sync across tabs/windows
+  // Sync across tabs/windows & custom events
   useEffect(() => {
     const handleStorageEvent = (e: StorageEvent) => {
       if (e.key === 'fbs_language' && e.newValue) {
         const lang = e.newValue as LanguageCode;
         if (['MS', 'ID', 'EN', 'ZH'].includes(lang)) {
           setLangState(lang);
+          syncGoogleTranslate(lang);
         }
       }
     };
+
+    const handleCustomEvent = (e: any) => {
+      if (e.detail?.lang && ['MS', 'ID', 'EN', 'ZH'].includes(e.detail.lang)) {
+        setLangState(e.detail.lang as LanguageCode);
+      }
+    };
+
     window.addEventListener('storage', handleStorageEvent);
-    return () => window.removeEventListener('storage', handleStorageEvent);
+    window.addEventListener('fbs_language_changed', handleCustomEvent);
+    return () => {
+      window.removeEventListener('storage', handleStorageEvent);
+      window.removeEventListener('fbs_language_changed', handleCustomEvent);
+    };
   }, []);
 
   const setLanguage = (lang: LanguageCode) => {
     setLangState(lang);
     try {
       localStorage.setItem('fbs_language', lang);
-      // Notify other tabs
+      document.cookie = `fbs_language=${lang}; path=/; max-age=31536000;`;
+      
+      syncGoogleTranslate(lang);
+
+      // Notify other tabs & components
       window.dispatchEvent(new StorageEvent('storage', { key: 'fbs_language', newValue: lang }));
+      window.dispatchEvent(new CustomEvent('fbs_language_changed', { detail: { lang } }));
     } catch (e) {}
   };
 
