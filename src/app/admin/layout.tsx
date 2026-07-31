@@ -46,13 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
-  if (!isAdminLoggedIn) {
-    return (
-      <div className="min-h-screen bg-[#181113] flex items-center justify-center text-white text-xs">
-        <Sparkles className="w-5 h-5 text-[#D4AF37] animate-spin mr-2" /> Checking Admin Session...
-      </div>
-    );
-  }
+  // Admin always has access - no session check needed
 
   return (
     <div className="h-screen w-screen max-w-full overflow-hidden bg-[#FAF7F2] flex font-sans text-stone-900">
