@@ -19,9 +19,11 @@ export const Footer: React.FC = () => {
 
     window.addEventListener('storage', handleUpdate);
     window.addEventListener('fbs_db_updated', handleUpdate);
+    window.addEventListener('focus', handleUpdate);
     return () => {
       window.removeEventListener('storage', handleUpdate);
       window.removeEventListener('fbs_db_updated', handleUpdate);
+      window.removeEventListener('focus', handleUpdate);
     };
   }, []);
 

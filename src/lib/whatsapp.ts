@@ -49,11 +49,13 @@ export const formatWhatsAppNumber = (phoneStr: string): string => {
 };
 
 export const extractMapsEmbedUrl = (input?: string, fallbackAddress?: string): string => {
+  const defaultEmbed = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy";
+
   if (!input || !input.trim()) {
     if (fallbackAddress && fallbackAddress.trim()) {
       return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackAddress.trim())}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
     }
-    return '';
+    return defaultEmbed;
   }
   let trimmed = input.trim();
   
@@ -74,8 +76,15 @@ export const extractMapsEmbedUrl = (input?: string, fallbackAddress?: string): s
     return trimmed;
   }
 
-  // If user pasted a regular Google Maps link (e.g. maps.app.goo.gl or place URL) or address
-  // Convert it into a valid Google Maps embed URL so iframe renders without 404
+  // Shortlinks like maps.app.goo.gl or goo.gl/maps cannot be embedded directly in iframes
+  // Fallback to searching the warehouse address if available
+  if (trimmed.includes('maps.app.goo.gl') || trimmed.includes('goo.gl')) {
+    if (fallbackAddress && fallbackAddress.trim()) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackAddress.trim())}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    }
+  }
+
+  // If user pasted an address or place query, convert into valid Google Maps embed URL
   return `https://maps.google.com/maps?q=${encodeURIComponent(trimmed)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 };
 
