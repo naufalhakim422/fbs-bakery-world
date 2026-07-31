@@ -83,11 +83,17 @@ export default function AdminSettingsPage() {
   const [isSavedHome, setIsSavedHome] = useState(false);
   const [isSavedCreds, setIsSavedCreds] = useState(false);
 
-  // Confirm Modal State
+  // Confirm Modal State (Delete)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [pendingDeleteAction, setPendingDeleteAction] = useState<(() => void) | null>(null);
   const [confirmDeleteTitle, setConfirmDeleteTitle] = useState('');
   const [confirmDeleteMessage, setConfirmDeleteMessage] = useState('');
+
+  // Save Confirm Modal State
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [pendingSaveAction, setPendingSaveAction] = useState<(() => void) | null>(null);
+  const [saveModalTitle, setSaveModalTitle] = useState('');
+  const [saveModalMessage, setSaveModalMessage] = useState('');
 
   const [banners, setBanners] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -130,8 +136,6 @@ export default function AdminSettingsPage() {
           buttonText: 'CEK UJI MATCHA GROSIR',
           buttonLink: '/products/uji-matcha-powder-grade-a',
         },
-        {
-        }
       ];
     }
     setWholesaleBanners(wBans);
