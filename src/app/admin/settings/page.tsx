@@ -23,6 +23,8 @@ export default function AdminSettingsPage() {
     whatsappNumber2: currentStore.whatsappNumber2 || '60168765432',
     whatsappBusinessName: currentStore.whatsappBusinessName,
     storeName: currentStore.storeName,
+    companyRegistrationName: currentStore.companyRegistrationName || 'FBS Bakery World (M) Sdn. Bhd. (1080422-V)',
+    operatingHours: currentStore.operatingHours || 'Mon - Fri | 8.30am - 5.30pm',
     currency: currentStore.currency,
     announcement: currentStore.announcement,
     supportEmail: currentStore.supportEmail,
@@ -337,6 +339,32 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setStoreForm({ ...storeForm, announcement: e.target.value })}
                 className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">Nama Perusahaan / Pendaftaran (Tampil Di Footer)</label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="e.g. FBS Bakery World (M) Sdn. Bhd. (1080422-V)"
+                  value={storeForm.companyRegistrationName}
+                  onChange={(e) => setStoreForm({ ...storeForm, companyRegistrationName: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">Waktu Operasional Toko (Tampil Di Footer)</label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="e.g. Mon - Fri | 8.30am - 5.30pm"
+                  value={storeForm.operatingHours}
+                  onChange={(e) => setStoreForm({ ...storeForm, operatingHours: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

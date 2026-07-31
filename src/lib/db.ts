@@ -497,6 +497,8 @@ let storeSettingData: StoreSetting = {
   whatsappNumber2: '60168765432',
   whatsappBusinessName: 'FBS Bakery World Support',
   storeName: 'FBS Bakery World',
+  companyRegistrationName: 'FBS Bakery World (M) Sdn. Bhd. (1080422-V)',
+  operatingHours: 'Mon - Fri | 8.30am - 5.30pm',
   currency: 'RM',
   announcement: '✨ Free Shipping For Orders Above RM150! | Premium Baking Supply Partner Malaysia ✨',
   supportEmail: 'order@fbsbakeryworld.com',
@@ -1154,6 +1156,8 @@ export const db = {
     return {
       ...storeSettingData,
       ...res,
+      companyRegistrationName: res.companyRegistrationName || storeSettingData.companyRegistrationName,
+      operatingHours: res.operatingHours || storeSettingData.operatingHours,
       googleMapsEmbedUrl: (res.googleMapsEmbedUrl && res.googleMapsEmbedUrl.trim()) ? res.googleMapsEmbedUrl : storeSettingData.googleMapsEmbedUrl,
       googleMapsAppUrl: (res.googleMapsAppUrl && res.googleMapsAppUrl.trim()) ? res.googleMapsAppUrl : storeSettingData.googleMapsAppUrl,
     };

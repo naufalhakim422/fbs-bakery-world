@@ -168,6 +168,8 @@ export interface StoreSetting {
   whatsappNumber2?: string;
   whatsappBusinessName: string;
   storeName: string;
+  companyRegistrationName?: string;
+  operatingHours?: string;
   currency: string;
   announcement: string;
   supportEmail: string;
