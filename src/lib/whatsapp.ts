@@ -71,9 +71,14 @@ export const extractMapsEmbedUrl = (input?: string, fallbackAddress?: string): s
     }
   }
 
+  // Replace &amp; with &
+  trimmed = trimmed.replace(/&amp;/g, '&');
+
   // If already an embed URL (has /maps/embed or output=embed), return as is
-  if (trimmed.includes('/maps/embed') || trimmed.includes('output=embed')) {
-    return trimmed;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    if (trimmed.includes('/maps/embed') || trimmed.includes('output=embed')) {
+      return trimmed;
+    }
   }
 
   // Shortlinks like maps.app.goo.gl or goo.gl/maps cannot be embedded directly in iframes

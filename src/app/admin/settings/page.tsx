@@ -373,6 +373,67 @@ export default function AdminSettingsPage() {
                 className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
               />
             </div>
+
+            {/* DYNAMIC GOOGLE MAPS EMBED CONFIGURATION FOR STAFF */}
+            <div className="pt-3 space-y-4 bg-stone-50 p-4 sm:p-5 rounded-2xl border border-stone-200">
+              <h3 className="font-serif text-sm font-bold text-[#800020] uppercase tracking-wider flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#D4AF37]" /> INFORMASIKAN LOKASI TOKO DI GOOGLE MAPS (TERDETEKSI SECARA OTOMATIS DI BAGIAN FOOTER)
+              </h3>
+
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">Tautan Sematkan Google Maps (URL iFrame)</label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="Paste HTML <iframe src='...'> atau URL Embed Google Maps"
+                  value={storeForm.googleMapsEmbedUrl}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const cleaned = extractMapsEmbedUrl(raw, storeForm.address);
+                    setStoreForm({ ...storeForm, googleMapsEmbedUrl: cleaned });
+                  }}
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-[11px] text-stone-900 bg-white"
+                />
+                <span className="text-[10px] text-stone-500 block mt-1">
+                  💡 <strong>Cara mendapatkan:</strong> Buka Google Maps &gt; Cari Toko/Perusahaan &gt; Klik <strong>Bagikan (Share)</strong> &gt; Pilih tab <strong>Sematkan Peta (Embed a map)</strong> &gt; Salin & Tempel kode HTML di sini.
+                </span>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">Tautan Aplikasi Google Maps (Bagikan Tautan Aplikasi HP / Petunjuk Arah)</label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="https://maps.google.com/?q=FBS+Bakery+World"
+                  value={storeForm.googleMapsAppUrl}
+                  onChange={(e) => setStoreForm({ ...storeForm, googleMapsAppUrl: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-[11px] text-stone-900 bg-white"
+                />
+              </div>
+
+              {/* LIVE MAP PREVIEW BOX IN ADMIN */}
+              <div className="pt-2">
+                <span className="block font-bold text-stone-700 uppercase mb-1.5 text-[11px]">
+                  📌 Pratinjau Langsung Google Maps:
+                </span>
+                <div className="rounded-2xl overflow-hidden border border-stone-300 shadow-sm bg-stone-900 p-2 space-y-2">
+                  <iframe
+                    title="Admin Live Maps Preview"
+                    src={extractMapsEmbedUrl(storeForm.googleMapsEmbedUrl, storeForm.address)}
+                    width="100%"
+                    height="160"
+                    style={{ border: 0 }}
+                    allowFullScreen={false}
+                    loading="lazy"
+                    className="rounded-xl w-full"
+                  />
+                  <div className="text-[10px] font-bold text-[#F7E7CE] bg-[#800020] px-3 py-1.5 rounded-xl flex items-center justify-between">
+                    <span>📍 Peta Footer Terdeteksi Secara Otomatis!</span>
+                    <a href={extractMapsAppUrl(storeForm.googleMapsAppUrl, storeForm.googleMapsEmbedUrl, storeForm.address)} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Coba Buka Aplikasi &rarr;</a>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button

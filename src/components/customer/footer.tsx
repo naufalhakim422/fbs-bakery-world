@@ -236,9 +236,35 @@ export const Footer: React.FC = () => {
                 </div>
               </div>
               
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 <div className="px-3 py-2 rounded-xl bg-stone-900/90 border border-[#D4AF37]/30 text-[11px] text-[#F7E7CE] font-semibold flex items-center gap-2 shadow-sm">
                   <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" /> 100% Halal Guaranteed Ingredients
+                </div>
+
+                {/* EMBEDDED GOOGLE MAPS STORE LOCATION WIDGET */}
+                <div className="rounded-2xl overflow-hidden border border-[#F7E7CE]/30 shadow-lg bg-stone-900/90 p-1.5 space-y-1.5" suppressHydrationWarning>
+                  <iframe
+                    title="FBS Bakery World Google Maps Location"
+                    src={extractMapsEmbedUrl(settings.googleMapsEmbedUrl, settings.address)}
+                    width="100%"
+                    height="120"
+                    style={{ border: 0 }}
+                    allowFullScreen={false}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="rounded-xl w-full"
+                  />
+                  <a
+                    href={extractMapsAppUrl(settings.googleMapsAppUrl, settings.googleMapsEmbedUrl, settings.address)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    suppressHydrationWarning
+                    className="w-full py-1.5 px-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#F7E7CE] text-[10px] font-bold rounded-xl transition-all flex items-center justify-center gap-1 group shadow-sm"
+                  >
+                    <MapPin className="w-3 h-3 text-[#D4AF37]" />
+                    <span>Buka di Google Maps App</span>
+                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
                 </div>
               </div>
             </div>
