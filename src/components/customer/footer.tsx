@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, extractMapsEmbedUrl } from '@/lib/whatsapp';
 import { ChefHat, Phone, Mail, MapPin, ShieldCheck, Heart, ArrowUpRight, Search, Sparkles } from 'lucide-react';
 
 export const Footer: React.FC = () => {
@@ -216,7 +216,7 @@ export const Footer: React.FC = () => {
                 <div className="rounded-2xl overflow-hidden border border-[#F7E7CE]/30 shadow-lg bg-stone-900/90 p-1.5 space-y-1.5" suppressHydrationWarning>
                   <iframe
                     title="FBS Bakery World Google Maps Location"
-                    src={settings.googleMapsEmbedUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy"}
+                    src={extractMapsEmbedUrl(settings.googleMapsEmbedUrl) || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy"}
                     width="100%"
                     height="120"
                     style={{ border: 0 }}
@@ -226,7 +226,7 @@ export const Footer: React.FC = () => {
                     className="rounded-xl w-full"
                   />
                   <a
-                    href={settings.googleMapsAppUrl || "https://maps.google.com/?q=FBS+Bakery+World+Malaysia"}
+                    href={extractMapsEmbedUrl(settings.googleMapsAppUrl) || "https://maps.google.com/?q=FBS+Bakery+World+Malaysia"}
                     target="_blank"
                     rel="noopener noreferrer"
                     suppressHydrationWarning

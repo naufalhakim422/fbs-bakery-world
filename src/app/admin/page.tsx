@@ -39,6 +39,7 @@ import {
   PlusCircle,
   Trash2
 } from 'lucide-react';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 
 export default function AdminDashboardPage() {
   const { t } = useLanguage();
@@ -68,6 +69,8 @@ export default function AdminDashboardPage() {
   // Cashflow State
   const [expenses, setExpenses] = useState<any[]>([]);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [newExpTitle, setNewExpTitle] = useState('');
   const [newExpAmount, setNewExpAmount] = useState('');
   const [newExpCategory, setNewExpCategory] = useState('Pembelian Stok (HPP)');
@@ -136,10 +139,16 @@ export default function AdminDashboardPage() {
   };
 
   const handleDeleteExpense = (id: string) => {
-    if (confirm('Hapus pencatatan pengeluaran kas ini?')) {
-      const updated = expenses.filter(e => e.id !== id);
+    setPendingDeleteId(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const executeDeleteExpense = () => {
+    if (pendingDeleteId) {
+      const updated = expenses.filter(e => e.id !== pendingDeleteId);
       setExpenses(updated);
       localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(updated));
+      setPendingDeleteId(null);
     }
   };
 
@@ -981,6 +990,14 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Hapus Pencatatan Pengeluaran?"
+        message="Pencatatan pengeluaran kas ini akan dihapus permanen. Apakah Anda yakin?"
+        type="danger"
+        onConfirm={executeDeleteExpense}
+        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
     </div>
   );
 }

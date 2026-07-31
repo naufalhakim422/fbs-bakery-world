@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
+import { formatWhatsAppNumber } from '@/lib/whatsapp';
 import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar } from 'lucide-react';
 
 export default function AdminOrderDetailPage() {
@@ -87,7 +88,7 @@ export default function AdminOrderDetailPage() {
 
   const finalCourier = courierName === 'OTHER_CUSTOM' ? customCourier : courierName;
 
-  const waCustomerUrl = `https://wa.me/${order.customerPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+  const waCustomerUrl = `https://wa.me/${formatWhatsAppNumber(order.customerPhone)}?text=${encodeURIComponent(
     `Hello ${order.customerName},\n\nUpdate regarding your order ${order.orderNumber} from FBS Bakery World:\n\nStatus: ${orderStatus}\n${
       trackingNumber ? `Courier Expedition: ${finalCourier}\nTracking Resi Number: ${trackingNumber}\n\nYou can track your parcel on our website: https://www.fbsbakeryworld.com/track-order?orderNumber=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customerPhone)}` : ''
     }\n\nThank you!`

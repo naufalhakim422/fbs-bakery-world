@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { Voucher } from '@/types';
 import { Tag, Plus, Sparkles, Trash2, Edit, CheckCircle2, X, Eye, EyeOff, Award, ShieldCheck, Percent, DollarSign } from 'lucide-react';
 
@@ -11,6 +12,8 @@ export default function AdminVouchersPage() {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     code: '',
@@ -68,9 +71,15 @@ export default function AdminVouchersPage() {
   };
 
   const handleDeleteVoucher = (id: string) => {
-    if (confirm(t.adminCategories.confirmDelete)) {
-      db.deleteVoucher(id);
+    setPendingDeleteId(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const executeDeleteVoucher = () => {
+    if (pendingDeleteId) {
+      db.deleteVoucher(pendingDeleteId);
       setVouchers(db.getVouchers());
+      setPendingDeleteId(null);
     }
   };
 
@@ -335,6 +344,14 @@ export default function AdminVouchersPage() {
         </div>
       )}
 
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Hapus Voucher?"
+        message="Voucher yang dihapus tidak dapat dipulihkan. Apakah Anda yakin ingin menghapus voucher ini?"
+        type="danger"
+        onConfirm={executeDeleteVoucher}
+        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
     </div>
   );
 }

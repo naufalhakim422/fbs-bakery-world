@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { Recipe } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { ChefHat, Clock, Plus, Trash2, Edit3, Image as ImageIcon, Video as VideoIcon, X, CheckCircle2, Upload, ExternalLink, PlayCircle, Sparkles } from 'lucide-react';
@@ -11,6 +12,8 @@ export default function AdminRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: '',
@@ -150,9 +153,15 @@ export default function AdminRecipesPage() {
   };
 
   const handleDeleteRecipe = (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete recipe "${title}"?`)) {
-      db.deleteRecipe(id);
+    setPendingDeleteId(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const executeDeleteRecipe = () => {
+    if (pendingDeleteId) {
+      db.deleteRecipe(pendingDeleteId);
       setRecipes(db.getRecipes());
+      setPendingDeleteId(null);
     }
   };
 
@@ -475,6 +484,14 @@ export default function AdminRecipesPage() {
         </div>
       )}
 
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Hapus Resep?"
+        message="Resep yang dihapus tidak dapat dipulihkan. Apakah Anda yakin ingin menghapus resep ini?"
+        type="danger"
+        onConfirm={executeDeleteRecipe}
+        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
     </div>
   );
 }

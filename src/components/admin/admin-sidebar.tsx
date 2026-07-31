@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage, LanguageCode } from '@/lib/language-context';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { 
   LayoutDashboard, 
   Package, 
@@ -38,6 +39,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const pathname = usePathname();
   const router = useRouter();
   const { language, setLanguage, t } = useLanguage();
+  const [isConfirmLogoutOpen, setIsConfirmLogoutOpen] = useState(false);
 
   const videoMenuName = language === 'ID' 
     ? 'Manajemen Video' 
@@ -68,6 +70,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   ];
 
   const handleLogout = () => {
+    setIsConfirmLogoutOpen(true);
+  };
+
+  const executeLogout = () => {
     localStorage.removeItem('fbs_admin_session');
     router.push('/admin2026/login');
   };
@@ -245,6 +251,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={isConfirmLogoutOpen}
+        title={language === 'ID' ? 'Konfirmasi Keluar' : language === 'MS' ? 'Sahkan Keluar' : 'Confirm Sign Out'}
+        message={language === 'ID' ? 'Apakah Anda yakin ingin keluar dari sistem admin FBS Bakery World?' : language === 'MS' ? 'Adakah anda pasti mahu keluar dari sistem admin FBS Bakery World?' : 'Are you sure you want to sign out from the FBS Bakery World admin panel?'}
+        type="logout"
+        onConfirm={executeLogout}
+        onCancel={() => setIsConfirmLogoutOpen(false)}
+      />
     </>
   );
 };

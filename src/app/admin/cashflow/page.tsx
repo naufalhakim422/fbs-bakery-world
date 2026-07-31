@@ -22,6 +22,7 @@ import {
   Calendar,
   CheckCircle2
 } from 'lucide-react';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 
 // ─── Helper: generate daily data points between two dates ───────────────────
 function generateDailyData(startDate: string, endDate: string) {
@@ -84,6 +85,8 @@ export default function AdminCashflowPage() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
   const [activeMetricCard, setActiveMetricCard] = useState<'INFLOW' | 'OUTFLOW' | 'NET' | 'MARGIN'>('INFLOW');
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   // Time Range State
   const [timePeriod, setTimePeriod] = useState<'7D' | '30D' | '1Y' | 'CUSTOM'>('7D');
@@ -221,11 +224,17 @@ export default function AdminCashflowPage() {
   };
 
   const handleDeleteExpense = (id: string) => {
-    if (confirm('Hapus pencatatan pengeluaran kas ini?')) {
-      const updated = expenses.filter(e => e.id !== id);
+    setPendingDeleteId(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const executeDeleteExpense = () => {
+    if (pendingDeleteId) {
+      const updated = expenses.filter(e => e.id !== pendingDeleteId);
       setExpenses(updated);
       localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(updated));
       window.dispatchEvent(new Event('storage'));
+      setPendingDeleteId(null);
     }
   };
 
@@ -671,6 +680,14 @@ export default function AdminCashflowPage() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Hapus Pencatatan Pengeluaran?"
+        message="Pencatatan pengeluaran kas ini akan dihapus permanen. Apakah Anda yakin?"
+        type="danger"
+        onConfirm={executeDeleteExpense}
+        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
     </div>
   );
 }

@@ -17,13 +17,54 @@ export interface WhatsAppCheckoutData {
 
 export const formatWhatsAppNumber = (phoneStr: string): string => {
   if (!phoneStr) return '60129876543';
-  let cleaned = phoneStr.replace(/[^0-9]/g, '');
-  if (cleaned.startsWith('0')) {
-    cleaned = '60' + cleaned.substring(1);
-  } else if (cleaned.length > 0 && !cleaned.startsWith('60') && !cleaned.startsWith('62') && !cleaned.startsWith('65') && !cleaned.startsWith('1')) {
-    cleaned = '60' + cleaned;
+  const rawClean = phoneStr.replace(/[^0-9]/g, '');
+  if (!rawClean) return '60129876543';
+
+  // Already prefixed with country code 62 (Indonesia), 60 (Malaysia), 65 (Singapore)
+  if (rawClean.startsWith('62') || rawClean.startsWith('60') || rawClean.startsWith('65')) {
+    return rawClean;
   }
-  return cleaned || '60129876543';
+
+  // Indonesian local format starting with 08... (e.g. 08123456789 -> 628123456789)
+  if (rawClean.startsWith('08')) {
+    return '62' + rawClean.substring(1);
+  }
+
+  // Indonesian local format starting with 8... (e.g. 8123456789 -> 628123456789)
+  if (rawClean.startsWith('8')) {
+    return '62' + rawClean;
+  }
+
+  // Malaysian local format starting with 01... (e.g. 0123456789 -> 60123456789)
+  if (rawClean.startsWith('01')) {
+    return '60' + rawClean.substring(1);
+  }
+
+  // General leading zero (fallback to Malaysia 60...)
+  if (rawClean.startsWith('0')) {
+    return '60' + rawClean.substring(1);
+  }
+
+  return rawClean || '60129876543';
+};
+
+export const extractMapsEmbedUrl = (input?: string): string => {
+  if (!input) return '';
+  const trimmed = input.trim();
+  
+  // Extract src="..." or src='...' from pasted <iframe ...> snippet
+  const srcMatch = trimmed.match(/src=["']([^"']+)["']/i);
+  if (srcMatch && srcMatch[1]) {
+    return srcMatch[1].trim();
+  }
+
+  // Extract raw URL if user pasted HTML tag or string containing http(s)
+  const urlMatch = trimmed.match(/(https?:\/\/[^\s"'>]+)/i);
+  if (urlMatch && urlMatch[1]) {
+    return urlMatch[1].trim();
+  }
+
+  return trimmed;
 };
 
 export const generateWhatsAppOrderLink = (data: WhatsAppCheckoutData): string => {

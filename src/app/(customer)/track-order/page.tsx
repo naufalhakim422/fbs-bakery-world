@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
+import { formatWhatsAppNumber } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -139,7 +140,7 @@ function TrackOrderContent() {
                 We could not find an order matching <span className="font-bold">{orderNumber}</span> and phone number <span className="font-bold">{phone}</span>. Please verify your details or contact admin on WhatsApp.
               </p>
               <a
-                href="https://wa.me/60123456789"
+                href={`https://wa.me/${formatWhatsAppNumber(db.getStoreSettings().whatsappNumber)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white text-xs font-bold rounded-xl shadow"

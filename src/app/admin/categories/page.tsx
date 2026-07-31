@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { Category } from '@/types';
 import { Layers, Plus, Trash2, Edit3, Image as ImageIcon, X, CheckCircle2, Upload, Sparkles } from 'lucide-react';
 
@@ -11,6 +12,8 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -84,9 +87,15 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDeleteCategory = (id: string, name: string) => {
-    if (confirm(t.adminCategories.confirmDelete)) {
-      db.deleteCategory(id);
+    setPendingDeleteId(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const executeDeleteCategory = () => {
+    if (pendingDeleteId) {
+      db.deleteCategory(pendingDeleteId);
       setCategories(db.getCategories());
+      setPendingDeleteId(null);
     }
   };
 
@@ -292,6 +301,14 @@ export default function AdminCategoriesPage() {
         </div>
       )}
 
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Hapus Kategori?"
+        message="Kategori yang dihapus tidak dapat dipulihkan. Apakah Anda yakin ingin menghapus kategori ini?"
+        type="danger"
+        onConfirm={executeDeleteCategory}
+        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
     </div>
   );
 }

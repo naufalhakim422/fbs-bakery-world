@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { compressImageFile } from '@/lib/image-compressor';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
+import { extractMapsEmbedUrl } from '@/lib/whatsapp';
 import { Banner, Product, WholesalePromoBanner } from '@/types';
 import { Settings, Save, CheckCircle2, MessageCircle, FileText, Upload, X, Image as ImageIcon, Sparkles, Layout, Home, Key, ShieldCheck, Eye, EyeOff, Search } from 'lucide-react';
 
@@ -78,6 +80,12 @@ export default function AdminSettingsPage() {
   const [isSavedHome, setIsSavedHome] = useState(false);
   const [isSavedCreds, setIsSavedCreds] = useState(false);
 
+  // Confirm Modal State
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDeleteAction, setPendingDeleteAction] = useState<(() => void) | null>(null);
+  const [confirmDeleteTitle, setConfirmDeleteTitle] = useState('');
+  const [confirmDeleteMessage, setConfirmDeleteMessage] = useState('');
+
   const [banners, setBanners] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [wholesaleBanners, setWholesaleBanners] = useState<WholesalePromoBanner[]>([]);
@@ -134,7 +142,15 @@ export default function AdminSettingsPage() {
 
   const handleStoreSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    db.updateStoreSettings(storeForm);
+    const cleanedEmbed = extractMapsEmbedUrl(storeForm.googleMapsEmbedUrl);
+    const cleanedApp = extractMapsEmbedUrl(storeForm.googleMapsAppUrl);
+    const updatedPayload = {
+      ...storeForm,
+      googleMapsEmbedUrl: cleanedEmbed,
+      googleMapsAppUrl: cleanedApp,
+    };
+    db.updateStoreSettings(updatedPayload);
+    setStoreForm(updatedPayload);
     setIsSavedStore(true);
     setTimeout(() => setIsSavedStore(false), 2000);
   };
@@ -348,11 +364,11 @@ export default function AdminSettingsPage() {
                   required
                   placeholder="https://www.google.com/maps/embed?pb=..."
                   value={storeForm.googleMapsEmbedUrl}
-                  onChange={(e) => setStoreForm({ ...storeForm, googleMapsEmbedUrl: e.target.value })}
+                  onChange={(e) => setStoreForm({ ...storeForm, googleMapsEmbedUrl: extractMapsEmbedUrl(e.target.value) })}
                   className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-[11px] text-stone-900 bg-white"
                 />
                 <span className="text-[10px] text-stone-500 block mt-1">
-                  💡 <strong>Cara mendapatkan:</strong> Buka Google Maps &gt; Cari Toko FBS &gt; Klik <strong>Bagikan (Share)</strong> &gt; Pilih tab <strong>Sematkan Peta (Embed a map)</strong> &gt; Salin isi atribut <code>src="..."</code>.
+                  💡 <strong>Cara mendapatkan:</strong> Buka Google Maps &gt; Cari Toko FBS &gt; Klik <strong>Bagikan (Share)</strong> &gt; Pilih tab <strong>Sematkan Peta (Embed a map)</strong> &gt; Salin/Tempel kode HTML atau URL src.
                 </span>
               </div>
 
@@ -363,7 +379,7 @@ export default function AdminSettingsPage() {
                   required
                   placeholder="https://maps.google.com/?q=FBS+Bakery+World"
                   value={storeForm.googleMapsAppUrl}
-                  onChange={(e) => setStoreForm({ ...storeForm, googleMapsAppUrl: e.target.value })}
+                  onChange={(e) => setStoreForm({ ...storeForm, googleMapsAppUrl: extractMapsEmbedUrl(e.target.value) })}
                   className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-[11px] text-stone-900 bg-white"
                 />
               </div>
@@ -376,7 +392,7 @@ export default function AdminSettingsPage() {
                 <div className="rounded-2xl overflow-hidden border border-stone-300 shadow-sm bg-stone-900 p-2 space-y-2">
                   <iframe
                     title="Admin Live Maps Preview"
-                    src={storeForm.googleMapsEmbedUrl}
+                    src={extractMapsEmbedUrl(storeForm.googleMapsEmbedUrl) || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy"}
                     width="100%"
                     height="160"
                     style={{ border: 0 }}
@@ -386,7 +402,7 @@ export default function AdminSettingsPage() {
                   />
                   <div className="text-[10px] font-bold text-[#F7E7CE] bg-[#800020] px-3 py-1.5 rounded-xl flex items-center justify-between">
                     <span>📍 Peta Footer Terdeteksi Secara Otomatis!</span>
-                    <a href={storeForm.googleMapsAppUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Uji Coba Buka App &rarr;</a>
+                    <a href={extractMapsEmbedUrl(storeForm.googleMapsAppUrl) || "#"} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Uji Coba Buka App &rarr;</a>
                   </div>
                 </div>
               </div>
@@ -563,9 +579,10 @@ export default function AdminSettingsPage() {
                           type="button"
                           title="Hapus Slot Banner Ini"
                           onClick={() => {
-                            if (confirm(`Apakah Anda yakin ingin menghapus Slot Banner #${bIdx + 1}?`)) {
-                              setBanners(banners.filter(b => b.id !== ban.id));
-                            }
+                            setConfirmDeleteTitle(`Hapus Slot Banner #${bIdx + 1}?`);
+                            setConfirmDeleteMessage('Slot banner ini akan dihapus. Apakah Anda yakin?');
+                            setPendingDeleteAction(() => () => setBanners(banners.filter(b => b.id !== ban.id)));
+                            setConfirmDeleteOpen(true);
                           }}
                           className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-[10px] rounded-lg transition-colors flex items-center gap-1"
                         >
@@ -792,9 +809,10 @@ export default function AdminSettingsPage() {
                         type="button"
                         title="Hapus Banner Grosir Ini"
                         onClick={() => {
-                          if (confirm(`Apakah Anda yakin ingin menghapus Banner Promo Grosir #${wIdx + 1}?`)) {
-                            setWholesaleBanners(wholesaleBanners.filter(wb => wb.id !== wban.id));
-                          }
+                          setConfirmDeleteTitle(`Hapus Banner Promo Grosir #${wIdx + 1}?`);
+                          setConfirmDeleteMessage('Banner promo grosir ini akan dihapus. Apakah Anda yakin?');
+                          setPendingDeleteAction(() => () => setWholesaleBanners(wholesaleBanners.filter(wb => wb.id !== wban.id)));
+                          setConfirmDeleteOpen(true);
                         }}
                         className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-[10px] rounded-lg transition-colors flex items-center gap-1"
                       >
@@ -1239,6 +1257,14 @@ export default function AdminSettingsPage() {
         </form>
       )}
 
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title={confirmDeleteTitle}
+        message={confirmDeleteMessage}
+        type="danger"
+        onConfirm={() => { if (pendingDeleteAction) pendingDeleteAction(); }}
+        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteAction(null); }}
+      />
     </div>
   );
 }

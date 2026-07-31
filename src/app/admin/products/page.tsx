@@ -7,11 +7,13 @@ import { formatMYR } from '@/lib/currency';
 import { useLanguage } from '@/lib/language-context';
 import { Product } from '@/types';
 import { Plus, Search, Edit, Trash2, ShieldCheck, Sparkles, Star } from 'lucide-react';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 
 export default function AdminProductsPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadLiveData = () => {
@@ -34,9 +36,14 @@ export default function AdminProductsPage() {
   );
 
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      db.deleteProduct(id);
+    setDeleteId(id);
+  };
+
+  const executeDelete = () => {
+    if (deleteId) {
+      db.deleteProduct(deleteId);
       setProducts(db.getProducts());
+      setDeleteId(null);
     }
   };
 
@@ -148,6 +155,13 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
+      <ConfirmModal
+        isOpen={deleteId !== null}
+        title={language === 'ID' ? 'Konfirmasi Hapus Produk' : language === 'MS' ? 'Sahkan Padam Produk' : 'Confirm Delete Product'}
+        message={language === 'ID' ? 'Apakah Anda yakin ingin menghapus produk ini dari katalog? Tindakan ini tidak dapat dibatalkan.' : language === 'MS' ? 'Adakah anda pasti mahu memadam produk ini dari katalog? Tindakan ini tidak boleh dibatalkan.' : 'Are you sure you want to delete this product? This action cannot be undone.'}
+        onConfirm={executeDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

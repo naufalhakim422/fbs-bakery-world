@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { Banner, Product } from '@/types';
 import { Plus, Image as ImageIcon, Sparkles, Trash2, Edit, CheckCircle2, X, Eye, EyeOff, Upload, ArrowRight, Link as LinkIcon, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -12,6 +13,8 @@ export default function AdminBannersPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isSavedAll, setIsSavedAll] = useState(false);
   const [activePreviewIndex, setActivePreviewIndex] = useState(0);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     let currentBanners = db.getBanners();
@@ -136,10 +139,16 @@ export default function AdminBannersPage() {
       alert('Minimal harus ada 1 banner slide di sistem.');
       return;
     }
-    if (confirm(t.adminCategories.confirmDelete)) {
-      const updated = banners.filter(b => b.id !== id);
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  };
+
+  const executeDeleteSlot = () => {
+    if (pendingDeleteId) {
+      const updated = banners.filter(b => b.id !== pendingDeleteId);
       setBanners(updated);
-      db.deleteBanner(id);
+      db.deleteBanner(pendingDeleteId);
+      setPendingDeleteId(null);
     }
   };
 
@@ -471,6 +480,14 @@ export default function AdminBannersPage() {
         </div>
       </form>
 
+      <ConfirmModal
+        isOpen={confirmOpen}
+        title="Hapus Banner?"
+        message="Banner yang dihapus tidak dapat dipulihkan. Apakah Anda yakin ingin menghapus banner ini?"
+        type="danger"
+        onConfirm={executeDeleteSlot}
+        onCancel={() => { setConfirmOpen(false); setPendingDeleteId(null); }}
+      />
     </div>
   );
 }

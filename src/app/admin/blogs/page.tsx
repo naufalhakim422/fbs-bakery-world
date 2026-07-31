@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { Blog } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { BookOpen, User, Calendar, Plus, Upload, Trash2, Edit, CheckCircle2, X, Video as VideoIcon, PlayCircle, Sparkles } from 'lucide-react';
@@ -13,6 +14,8 @@ export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: '',
@@ -106,9 +109,15 @@ export default function AdminBlogsPage() {
   };
 
   const handleDeleteBlog = (id: string) => {
-    if (confirm(t.adminCategories.confirmDelete)) {
-      db.deleteBlog(id);
+    setPendingDeleteId(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const executeDeleteBlog = () => {
+    if (pendingDeleteId) {
+      db.deleteBlog(pendingDeleteId);
       setBlogs(db.getBlogs());
+      setPendingDeleteId(null);
     }
   };
 
@@ -368,6 +377,14 @@ export default function AdminBlogsPage() {
         </div>
       )}
 
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title="Hapus Artikel Blog?"
+        message="Artikel blog yang dihapus tidak dapat dipulihkan. Apakah Anda yakin?"
+        type="danger"
+        onConfirm={executeDeleteBlog}
+        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+      />
     </div>
   );
 }

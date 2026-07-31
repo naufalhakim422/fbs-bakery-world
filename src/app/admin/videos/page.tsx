@@ -7,6 +7,7 @@ import { useLanguage } from '@/lib/language-context';
 import { VideoPost } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { Video as VideoIcon, Plus, Upload, Trash2, Edit, CheckCircle2, X, PlayCircle, Search, Film, Clock, Eye } from 'lucide-react';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
 
 export default function AdminVideosPage() {
   const { language, t } = useLanguage();
@@ -14,6 +15,8 @@ export default function AdminVideosPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<VideoPost | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: '',
@@ -107,15 +110,15 @@ export default function AdminVideosPage() {
   };
 
   const handleDeleteVideo = (id: string) => {
-    const confirmMsg = language === 'ID' 
-      ? 'Apakah Anda yakin ingin menghapus video ini?' 
-      : language === 'MS' 
-      ? 'Adakah anda pasti mahu memadam video ini?' 
-      : 'Are you sure you want to delete this video?';
+    setDeleteId(id);
+    setConfirmDeleteOpen(true);
+  };
 
-    if (confirm(confirmMsg)) {
-      db.deleteVideo(id);
+  const executeDeleteVideo = () => {
+    if (deleteId) {
+      db.deleteVideo(deleteId);
       setVideos(db.getVideos());
+      setDeleteId(null);
     }
   };
 
@@ -432,6 +435,14 @@ export default function AdminVideosPage() {
         </div>
       )}
 
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title={language === 'ID' ? 'Hapus Video?' : language === 'MS' ? 'Padam Video?' : 'Delete Video?'}
+        message={language === 'ID' ? 'Video yang dihapus tidak dapat dipulihkan. Apakah Anda yakin?' : language === 'MS' ? 'Video yang dipadam tidak boleh dipulihkan. Adakah anda pasti?' : 'Deleted videos cannot be recovered. Are you sure?'}
+        type="danger"
+        onConfirm={executeDeleteVideo}
+        onCancel={() => { setConfirmDeleteOpen(false); setDeleteId(null); }}
+      />
     </div>
   );
 }
