@@ -31,15 +31,15 @@ export const Footer: React.FC = () => {
   const operatingHours = settings.operatingHours || 'Mon - Fri | 8.30am - 5.30pm';
 
   return (
-    <footer className="bg-[#0A0A0B] text-white pt-12 pb-8 border-t border-stone-800 relative font-sans">
+    <footer className="bg-[#1E0F14] text-[#FFF8F0] pt-12 pb-8 border-t border-[#F7E7CE]/20 relative font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main 3-Column Corporate Layout matching Reference Screenshot */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-10 border-b border-stone-800/80">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-10 border-b border-[#F7E7CE]/15">
           
           {/* Column 1 (Left): Interactive Google Maps iFrame */}
           <div className="lg:col-span-5 w-full space-y-2">
-            <div className="rounded-2xl overflow-hidden border border-stone-800 shadow-2xl bg-stone-900 h-[240px] sm:h-[260px] relative group" suppressHydrationWarning>
+            <div className="rounded-2xl overflow-hidden border border-[#F7E7CE]/30 shadow-2xl bg-[#2B1B1B] h-[240px] sm:h-[260px] relative group" suppressHydrationWarning>
               <iframe
                 title="FBS Bakery World Google Maps Location"
                 src={extractMapsEmbedUrl(settings.googleMapsEmbedUrl, settings.address)}
@@ -56,41 +56,41 @@ export const Footer: React.FC = () => {
 
           {/* Column 2 (Middle): FIND US ON / CARI KAMI */}
           <div className="lg:col-span-4 space-y-5" suppressHydrationWarning>
-            <h3 className="font-sans font-extrabold text-sm sm:text-base uppercase tracking-widest text-white border-b-2 border-white/20 pb-1.5 inline-block">
+            <h3 className="font-sans font-extrabold text-sm sm:text-base uppercase tracking-widest text-[#F7E7CE] border-b-2 border-[#D4AF37]/40 pb-1.5 inline-block">
               {language === 'ID' || language === 'MS' ? 'CARI KAMI DI' : 'FIND US ON'}
             </h3>
 
-            <div className="space-y-4 text-xs sm:text-sm text-stone-300">
+            <div className="space-y-4 text-xs sm:text-sm text-[#E8D5C0]">
               
               {/* ADDRESS & REGISTRATION NAME */}
               <div className="flex items-start gap-3" suppressHydrationWarning>
-                <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                <MapPin className="w-5 h-5 text-[#D4AF37] flex-shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <p className="font-bold text-white leading-snug">{companyName}</p>
-                  <p className="text-stone-300 text-xs leading-relaxed">{settings.address}</p>
+                  <p className="font-bold text-[#F7E7CE] leading-snug">{companyName}</p>
+                  <p className="text-[#C4A882] text-xs leading-relaxed">{settings.address}</p>
                 </div>
               </div>
 
               {/* PHONE NUMBERS */}
               <div className="flex items-center gap-3" suppressHydrationWarning>
-                <Phone className="w-5 h-5 text-white flex-shrink-0" />
-                <div className="flex items-center gap-2 font-mono font-bold text-stone-200 text-xs sm:text-sm flex-wrap">
+                <Phone className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
+                <div className="flex items-center gap-2 font-mono font-bold text-[#F7E7CE] text-xs sm:text-sm flex-wrap">
                   <a 
                     href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber)}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="hover:text-amber-400 transition-colors"
+                    className="hover:text-[#D4AF37] transition-colors"
                   >
                     +{formatWhatsAppNumber(settings.whatsappNumber)}
                   </a>
                   {settings.whatsappNumber2 && (
                     <>
-                      <span className="text-stone-600">|</span>
+                      <span className="text-[#800020]">|</span>
                       <a 
                         href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber2)}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="hover:text-amber-400 transition-colors"
+                        className="hover:text-[#D4AF37] transition-colors"
                       >
                         +{formatWhatsAppNumber(settings.whatsappNumber2)}
                       </a>
@@ -101,10 +101,10 @@ export const Footer: React.FC = () => {
 
               {/* EMAIL */}
               <div className="flex items-center gap-3" suppressHydrationWarning>
-                <Mail className="w-5 h-5 text-white flex-shrink-0" />
+                <Mail className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
                 <a 
                   href={`mailto:${settings.supportEmail}`} 
-                  className="text-stone-300 font-mono hover:text-amber-400 text-xs sm:text-sm transition-colors"
+                  className="text-[#E8D5C0] font-mono hover:text-[#D4AF37] text-xs sm:text-sm transition-colors"
                 >
                   {settings.supportEmail}
                 </a>
@@ -112,8 +112,8 @@ export const Footer: React.FC = () => {
 
               {/* OPERATING HOURS */}
               <div className="flex items-center gap-3" suppressHydrationWarning>
-                <Clock className="w-5 h-5 text-white flex-shrink-0" />
-                <span className="text-stone-200 font-medium text-xs sm:text-sm">
+                <Clock className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
+                <span className="text-[#F7E7CE] font-medium text-xs sm:text-sm">
                   {operatingHours}
                 </span>
               </div>
@@ -123,38 +123,38 @@ export const Footer: React.FC = () => {
 
           {/* Column 3 (Right): HELP & SUPPORT / BANTUAN & DUKUNGAN */}
           <div className="lg:col-span-3 space-y-5">
-            <h3 className="font-sans font-extrabold text-sm sm:text-base uppercase tracking-widest text-white border-b-2 border-white/20 pb-1.5 inline-block">
+            <h3 className="font-sans font-extrabold text-sm sm:text-base uppercase tracking-widest text-[#F7E7CE] border-b-2 border-[#D4AF37]/40 pb-1.5 inline-block">
               {language === 'ID' || language === 'MS' ? 'BANTUAN & DUKUNGAN' : 'HELP & SUPPORT'}
             </h3>
 
-            <ul className="space-y-2 text-xs sm:text-sm text-stone-300 font-medium">
+            <ul className="space-y-2 text-xs sm:text-sm text-[#C4A882] font-medium">
               <li>
-                <Link href="/contact#faq" className="hover:text-white transition-colors block py-0.5">
+                <Link href="/contact#faq" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
                   How To Order
                 </Link>
               </li>
               <li>
-                <Link href="/contact#shipping" className="hover:text-white transition-colors block py-0.5">
+                <Link href="/contact#shipping" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
                   Shipping Terms
                 </Link>
               </li>
               <li>
-                <Link href="/contact#payment" className="hover:text-white transition-colors block py-0.5">
+                <Link href="/contact#payment" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
                   Payment Method
                 </Link>
               </li>
               <li>
-                <Link href="/contact#refund" className="hover:text-white transition-colors block py-0.5">
+                <Link href="/contact#refund" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
                   Return & Refund Policy
                 </Link>
               </li>
               <li>
-                <Link href="/contact#privacy" className="hover:text-white transition-colors block py-0.5">
+                <Link href="/contact#privacy" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/contact#terms" className="hover:text-white transition-colors block py-0.5">
+                <Link href="/contact#terms" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
                   Terms & Conditions
                 </Link>
               </li>
@@ -167,7 +167,7 @@ export const Footer: React.FC = () => {
                 href="https://www.facebook.com/share/1dT9teNY9t/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white hover:bg-stone-200 text-stone-900 flex items-center justify-center transition-all transform hover:scale-110 shadow-md"
+                className="w-9 h-9 rounded-full bg-[#F7E7CE] hover:bg-[#D4AF37] text-[#2B1B1B] flex items-center justify-center transition-all transform hover:scale-110 shadow-md"
                 title="Facebook"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -180,7 +180,7 @@ export const Footer: React.FC = () => {
                 href="https://www.instagram.com/fbsbakery_world?igsh=NGRkaTYzcXg3MDF3"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white hover:bg-stone-200 text-stone-900 flex items-center justify-center transition-all transform hover:scale-110 shadow-md"
+                className="w-9 h-9 rounded-full bg-[#F7E7CE] hover:bg-[#D4AF37] text-[#2B1B1B] flex items-center justify-center transition-all transform hover:scale-110 shadow-md"
                 title="Instagram"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -193,10 +193,10 @@ export const Footer: React.FC = () => {
                 href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white hover:bg-stone-200 text-stone-900 flex items-center justify-center transition-all transform hover:scale-110 shadow-md"
+                className="w-9 h-9 rounded-full bg-[#F7E7CE] hover:bg-[#D4AF37] text-[#2B1B1B] flex items-center justify-center transition-all transform hover:scale-110 shadow-md"
                 title="WhatsApp"
               >
-                <Phone className="w-4 h-4 text-stone-900" />
+                <Phone className="w-4 h-4 text-[#2B1B1B]" />
               </a>
             </div>
 
@@ -205,9 +205,9 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Copyright Bar */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-3">
-          <p>© 2026 FBS BAKERY WORLD. All rights reserved.</p>
-          <p className="text-[11px] text-stone-400">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#8B6F5C] gap-3">
+          <p>© 2026 <strong className="text-[#F7E7CE]">FBS BAKERY WORLD</strong>. All rights reserved.</p>
+          <p className="text-[11px] text-[#A0876F]">
             Certified Halal Baking Supply Partner Malaysia & Indonesia
           </p>
         </div>
