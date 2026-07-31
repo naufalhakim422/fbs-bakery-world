@@ -83,6 +83,8 @@ export interface Customer {
   name: string;
   email: string;
   phone: string;
+  photo?: string;
+  coverPhoto?: string;
   customerType: 'RETAIL' | 'WHOLESALE' | 'VIP';
   provider?: 'GOOGLE' | 'FACEBOOK' | 'EMAIL' | 'PHONE' | 'FORM';
   address: string;
@@ -108,18 +110,34 @@ export interface Recipe {
   createdAt: string;
 }
 
+export interface BlogContentBlock {
+  id: string;
+  image?: string;       // image URL or base64
+  caption?: string;     // image caption
+  text?: string;        // paragraph/description text
+}
+
 export interface Blog {
   id: string;
   title: string;
   slug: string;
+  type: 'ARTICLE' | 'VIDEO';   // post type
   excerpt: string;
-  content: string;
-  image: string;
+  content: string;              // main body text (for ARTICLE)
+  image: string;                // cover image
   galleryImages?: string[];
-  videoUrl?: string; // Optional video URL or Base64 uploaded video file
+  contentBlocks?: BlogContentBlock[]; // multi image+text blocks for ARTICLE
+  embedUrl?: string;            // YouTube/Instagram/TikTok embed URL for VIDEO
+  videoUrl?: string;            // Optional video data URL (uploaded video)
+  videoThumbnail?: string;      // Optional thumbnail for video post
+
+
   author: string;
+  tags?: string[];
   createdAt: string;
 }
+
+
 
 export interface Banner {
   id: string;

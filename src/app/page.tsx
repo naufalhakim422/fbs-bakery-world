@@ -165,41 +165,63 @@ export default function HomePage() {
 
         </section>
 
-        {/* TRUST BADGES SECTION */}
-        <section className="bg-white border-y border-[#EADBC8] py-8 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div className="flex flex-col items-center p-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 text-[#800020] flex items-center justify-center mb-3">
-                  <ShieldCheck className="w-6 h-6" />
+        {/* ULTRA-MODERN & LUXURY TRUST BADGES SECTION */}
+        <section className="bg-gradient-to-b from-[#FFF8F0] via-white to-[#FFF8F0] border-y border-[#EADBC8]/80 py-10 sm:py-12 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              
+              {/* Badge 1: 100% Halal Certified */}
+              <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#800020] transition-all duration-300 group flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-lg flex items-center justify-center mb-4 border border-[#D4AF37]/30 group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="w-7 h-7" />
                 </div>
-                <h4 className="font-serif font-bold text-sm text-[#2B1B1B]">100% Halal Certified</h4>
-                <p className="text-stone-500 text-xs mt-1">Sertifikasi Halal resmi Malaysia & Indonesia</p>
+                <h4 className="font-serif font-extrabold text-base text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
+                  {t.trustBadges.b1Title}
+                </h4>
+                <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-medium">
+                  {t.trustBadges.b1Desc}
+                </p>
               </div>
 
-              <div className="flex flex-col items-center p-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 text-[#800020] flex items-center justify-center mb-3">
-                  <Award className="w-6 h-6" />
+              {/* Badge 2: Premium Import Grade */}
+              <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#800020] transition-all duration-300 group flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-lg flex items-center justify-center mb-4 border border-[#D4AF37]/30 group-hover:scale-110 transition-transform">
+                  <Award className="w-7 h-7" />
                 </div>
-                <h4 className="font-serif font-bold text-sm text-[#2B1B1B]">Impor Grade Premium</h4>
-                <p className="text-stone-500 text-xs mt-1">Langsung dari Italia, Belgia & New Zealand</p>
+                <h4 className="font-serif font-extrabold text-base text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
+                  {t.trustBadges.b2Title}
+                </h4>
+                <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-medium">
+                  {t.trustBadges.b2Desc}
+                </p>
               </div>
 
-              <div className="flex flex-col items-center p-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 text-[#800020] flex items-center justify-center mb-3">
-                  <Truck className="w-6 h-6" />
+              {/* Badge 3: Express Fast Shipping */}
+              <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#800020] transition-all duration-300 group flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-lg flex items-center justify-center mb-4 border border-[#D4AF37]/30 group-hover:scale-110 transition-transform">
+                  <Truck className="w-7 h-7" />
                 </div>
-                <h4 className="font-serif font-bold text-sm text-[#2B1B1B]">Pengiriman Cepat</h4>
-                <p className="text-stone-500 text-xs mt-1">Kirim hari ini ke seluruh MY & ID</p>
+                <h4 className="font-serif font-extrabold text-base text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
+                  {t.trustBadges.b3Title}
+                </h4>
+                <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-medium">
+                  {t.trustBadges.b3Desc}
+                </p>
               </div>
 
-              <div className="flex flex-col items-center p-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 text-[#800020] flex items-center justify-center mb-3">
-                  <MessageCircle className="w-6 h-6 text-[#25D366]" />
+              {/* Badge 4: Wholesale Baker Discount */}
+              <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#800020] transition-all duration-300 group flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#25D366] to-emerald-700 text-white shadow-lg flex items-center justify-center mb-4 border border-white/40 group-hover:scale-110 transition-transform">
+                  <MessageCircle className="w-7 h-7 fill-white" />
                 </div>
-                <h4 className="font-serif font-bold text-sm text-[#2B1B1B]">Diskon Grosir Baker</h4>
-                <p className="text-stone-500 text-xs mt-1">Harga khusus kemasan karung 5kg & 25kg</p>
+                <h4 className="font-serif font-extrabold text-base text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
+                  {t.trustBadges.b4Title}
+                </h4>
+                <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-medium">
+                  {t.trustBadges.b4Desc}
+                </p>
               </div>
+
             </div>
           </div>
         </section>

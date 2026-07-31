@@ -13,6 +13,7 @@ import { hashPassword, checkRateLimit, recordFailedAttempt, resetFailedAttempts 
 import { OtpModal } from '@/components/customer/otp-modal';
 import { User, Lock, Phone, ArrowRight, ShieldCheck, AlertTriangle, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import GoogleButton from '@/components/auth/google-button';
+import FacebookButton from '@/components/auth/facebook-button';
 
 export default function CustomerLoginPage() {
   const router = useRouter();
@@ -149,8 +150,18 @@ export default function CustomerLoginPage() {
               Sign in dengan nomor WhatsApp / email & password Anda.
             </p>
           </div>
-          <p className="text-sm text-stone-600 mb-2 text-center">Masuk dengan Google</p>
-          <GoogleButton />
+          {/* Social Login Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
+              <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>atau masuk dengan</span>
+              <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <GoogleButton />
+              <FacebookButton />
+            </div>
+          </div>
           {rateLimitState.isLocked && (
             <div className="p-4 bg-red-100 border-2 border-red-500 text-red-900 rounded-2xl text-xs space-y-1">
               <div className="flex items-center gap-2 font-bold text-sm text-red-700">

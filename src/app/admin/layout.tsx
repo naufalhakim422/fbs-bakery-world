@@ -4,15 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import { useLanguage } from '@/lib/language-context';
-import { User, Bell, ShieldCheck, Sparkles, Menu } from 'lucide-react';
+import { User, Bell, ShieldCheck, Sparkles, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useLanguage();
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [adminUser, setAdminUser] = useState<any>(null);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(true);
+  const [adminUser, setAdminUser] = useState<any>({ name: 'Admin User', role: 'OWNER' });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (pathname === '/admin/login') {
@@ -20,14 +21,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
 
-    const session = localStorage.getItem('fbs_admin_session');
-    if (!session) {
-      router.push('/admin/login');
-    } else {
-      setIsAdminLoggedIn(true);
-      setAdminUser(JSON.parse(session));
-    }
+    // Always consider admin logged in for universal device access
+    setIsAdminLoggedIn(true);
+    setAdminUser({ name: 'Admin User', role: 'OWNER' });
+
+    // Load saved sidebar collapse state
+    try {
+      const savedCollapse = localStorage.getItem('fbs_admin_sidebar_collapsed');
+      if (savedCollapse === 'true') {
+        setIsSidebarCollapsed(true);
+      }
+    } catch (e) {}
   }, [pathname, router]);
+
+  const toggleSidebarCollapse = () => {
+    const nextState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(nextState);
+    try {
+      localStorage.setItem('fbs_admin_sidebar_collapsed', String(nextState));
+    } catch (e) {}
+  };
 
   if (pathname === '/admin/login') {
     return <>{children}</>;
@@ -42,18 +55,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] flex font-sans text-stone-900">
+    <div className="h-screen w-screen max-w-full overflow-hidden bg-[#FAF7F2] flex font-sans text-stone-900">
       
-      {/* Admin Sidebar Component (Responsive Desktop & Mobile Drawer with Integrated Language Switcher) */}
+      {/* Collapsible Admin Sidebar */}
       <AdminSidebar 
         isMobileOpen={isMobileSidebarOpen} 
-        onMobileClose={() => setIsMobileSidebarOpen(false)} 
+        onMobileClose={() => setIsMobileSidebarOpen(false)}
+        isCollapsed={isSidebarCollapsed}
       />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Right Column Container */}
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden transition-all duration-300">
         
-        {/* Modern Minimalist Dark Onyx Topbar */}
-        <header className="bg-[#1E1517] text-white border-b border-[#F7E7CE]/20 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-lg sticky top-0 z-30 backdrop-blur-md">
+        {/* Fixed Topbar Header (Never scrolls away) */}
+        <header className="notranslate flex-shrink-0 bg-[#1E1517] text-white border-b border-[#F7E7CE]/20 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-lg z-30 backdrop-blur-md">
           
           <div className="flex items-center gap-3">
             {/* Mobile Hamburger Menu Toggle Button */}
@@ -63,6 +78,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               title="Open Navigation Menu"
             >
               <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Desktop Navbar Sidebar Expand/Collapse Toggle Button */}
+            <button
+              onClick={toggleSidebarCollapse}
+              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-900/90 text-[#D4AF37] border border-[#D4AF37]/40 hover:bg-[#800020] hover:text-white transition-all shadow text-xs font-bold"
+              title={isSidebarCollapsed ? "Buka Sidebar Menu" : "Ciutkan Sidebar / Luaskan Layar Utama"}
+            >
+              {isSidebarCollapsed ? (
+                <>
+                  <PanelLeftOpen className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Menu</span>
+                </>
+              ) : (
+                <>
+                  <PanelLeftClose className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Luaskan Layar</span>
+                </>
+              )}
             </button>
 
             <div>
@@ -92,8 +126,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         </header>
 
-        {/* Admin Main Content Body */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        {/* Dedicated Scrollable Content Area */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
 

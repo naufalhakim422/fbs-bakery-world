@@ -324,42 +324,50 @@ let recipesData: Recipe[] = [
 let initialBlogs: Blog[] = [
   {
     id: 'blog-1',
+    type: 'ARTICLE',
     title: '5 Secrets to Baking Soft and Fluffy Cakes Every Time',
     slug: '5-secrets-to-baking-soft-and-fluffy-cakes',
     excerpt: 'Discover how ingredient temperature, flour sifting, and oven precision elevate your bakery creations.',
-    content: `Baking is a science where precision meets culinary art. Whether you are running a home bakery business or preparing desserts for your family, achieving consistent height and soft sponge texture requires mastering key baking fundamentals.
-
-1. Bring Dairy & Eggs to Room Temperature
-Cold butter or eggs can curdle cake batters. Ensure butter is softened at 20-22°C for optimal air emulsification.
-
-2. Always Sift Your Flour & Powders
-Sifting Semolina or Cake Flour aerates the dry ingredients, eliminating lumps and creating a delicate crumb structure.
-
-3. Use High Quality Butter & Cocoa
-Ingredients with higher fat content like Anchor New Zealand Butter or Valrhona Cocoa Powder provide natural moisture that lasts for days without artificial softeners.
-
-4. Avoid Overmixing the Batter
-Once flour meets liquid, gluten begins to form. Fold gently using a silicone spatula just until combined.
-
-5. Measure by Weight, Not Volume
-Using digital scales in grams ensures 100% recipe accuracy every single bake.`,
+    content: `Baking is a science where precision meets culinary art. Whether you are running a home bakery business or preparing desserts for your family, achieving consistent height and soft sponge texture requires mastering key baking fundamentals.`,
     image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800&auto=format&fit=crop',
+    contentBlocks: [
+      { id: 'b1-1', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop', caption: 'Room temperature butter is key', text: '1. Bring Dairy & Eggs to Room Temperature — Cold butter or eggs can curdle cake batters. Ensure butter is softened at 20-22°C for optimal air emulsification.' },
+      { id: 'b1-2', image: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?q=80&w=800&auto=format&fit=crop', caption: 'Always sift your flour', text: '2. Always Sift Your Flour & Powders — Sifting Semolina or Cake Flour aerates the dry ingredients, eliminating lumps and creating a delicate crumb structure.' },
+      { id: 'b1-3', text: '3. Use High Quality Butter & Cocoa — Anchor New Zealand Butter or Valrhona Cocoa Powder provide natural moisture that lasts for days. 4. Avoid Overmixing. 5. Measure by Weight, Not Volume.' },
+    ],
     author: 'Chef Ahmad, FBS Master Baker',
+    tags: ['baking tips', 'flour', 'butter'],
     createdAt: '2026-07-01T08:00:00Z',
   },
   {
     id: 'blog-2',
+    type: 'ARTICLE',
     title: 'Couverture vs Compound Chocolate: The Ultimate Bakery Guide',
     slug: 'couverture-vs-compound-chocolate-guide',
     excerpt: 'Understanding cocoa butter content, tempering techniques, and flavor profiles for professional pastry chefs.',
-    content: `Choosing the right chocolate is one of the most critical decisions for cake designers and pastry shops.
-
-Couverture Chocolate (e.g. Callebaut 70%) contains pure cocoa butter (minimum 31%). It requires tempering but delivers an irresistible snap, high gloss, and luxurious melt-in-mouth mouthfeel suitable for pralines and high-end cake ganaches.
-
-Compound Chocolate replaces cocoa butter with vegetable fats. It requires no tempering and is ideal for quick dipping, chocolate molds in humid climates, and budget-conscious bulk baking.`,
+    content: `Choosing the right chocolate is one of the most critical decisions for cake designers and pastry shops. Couverture Chocolate (e.g. Callebaut 70%) contains pure cocoa butter and requires tempering but delivers irresistible snap and luxurious melt.`,
     image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=800&auto=format&fit=crop',
+    contentBlocks: [
+      { id: 'b2-1', image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=800&auto=format&fit=crop', caption: 'Belgian Couverture Chocolate', text: 'Couverture Chocolate (e.g. Callebaut 70%) contains pure cocoa butter (minimum 31%). It requires tempering but delivers an irresistible snap and high gloss mouthfeel.' },
+      { id: 'b2-2', text: 'Compound Chocolate replaces cocoa butter with vegetable fats. No tempering required, ideal for quick dipping and chocolate molds in humid climates.' },
+    ],
     author: 'FBS Technical Team',
+    tags: ['chocolate', 'couverture', 'pastry'],
     createdAt: '2026-07-15T08:00:00Z',
+  },
+  {
+    id: 'blog-3',
+    type: 'VIDEO',
+    title: 'Viral: Cara Buat Croissant Butter Lapis di Rumah 🥐',
+    slug: 'cara-buat-croissant-butter-lapis',
+    excerpt: 'Tutorial lengkap membuat croissant butter berlapis ala bakery Perancis yang kini viral di TikTok & YouTube.',
+    content: 'Video tutorial membuat croissant berlapis yang viral.',
+    image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800&auto=format&fit=crop',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoThumbnail: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800&auto=format&fit=crop',
+    author: 'FBS Baker Channel',
+    tags: ['viral', 'croissant', 'video tutorial'],
+    createdAt: '2026-07-20T08:00:00Z',
   }
 ];
 
@@ -938,13 +946,18 @@ export const db = {
     }
     const newBlog: Blog = {
       id: `blog-${Date.now()}`,
-      title: blogInput.title || 'New Baking Article',
-      slug: (blogInput.title || 'new-baking-article').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      type: blogInput.type || 'ARTICLE',
+      title: blogInput.title || 'New Update Post',
+      slug: (blogInput.title || 'new-update-post').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
       excerpt: blogInput.excerpt || '',
       content: blogInput.content || '',
       image: blogInput.image || 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800&auto=format&fit=crop',
-      videoUrl: blogInput.videoUrl || '',
-      author: blogInput.author || 'FBS Master Chef',
+      contentBlocks: blogInput.contentBlocks || [],
+      galleryImages: blogInput.galleryImages || [],
+      embedUrl: blogInput.embedUrl || '',
+      videoThumbnail: blogInput.videoThumbnail || '',
+      author: blogInput.author || 'FBS Team',
+      tags: blogInput.tags || [],
       createdAt: new Date().toISOString(),
     };
     blogs.unshift(newBlog);

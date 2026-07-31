@@ -24,17 +24,17 @@ export const AnnouncementBar: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-[#4A0010] text-[#FFF8F0] text-xs py-2 px-4 border-b border-[#D4AF37]/30 shadow-inner relative z-30">
-      <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
+    <div className="bg-[#4A0010] text-[#FFF8F0] text-xs py-2 px-4 border-b border-[#D4AF37]/30 shadow-inner relative z-30 overflow-hidden w-full max-w-full">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-hidden">
         
         {/* Left: Announcement Text */}
-        <div className="flex items-center gap-2 font-medium tracking-wide" suppressHydrationWarning>
-          <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] animate-pulse" />
-          <span suppressHydrationWarning>{settings.announcement}</span>
+        <div className="flex items-center gap-2 font-medium tracking-wide min-w-0 overflow-hidden" suppressHydrationWarning>
+          <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] animate-pulse flex-shrink-0" />
+          <span className="truncate" suppressHydrationWarning>{settings.announcement}</span>
         </div>
 
         {/* Right: Fast Delivery + Halal Status Badge */}
-        <div className="flex items-center gap-3 text-[11px] text-[#D4AF37]">
+        <div className="flex items-center gap-3 text-[11px] text-[#D4AF37] flex-shrink-0">
           <span className="flex items-center gap-1 font-medium">
             <Truck className="w-3.5 h-3.5 text-[#D4AF37]" /> {t.productDetail.fastDelivery}
           </span>

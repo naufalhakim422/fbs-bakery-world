@@ -19,30 +19,37 @@ import {
   ExternalLink,
   Sparkles,
   Globe,
-  X
+  X,
+  Wallet
 } from 'lucide-react';
 
 interface AdminSidebarProps {
   isMobileOpen?: boolean;
   onMobileClose?: () => void;
+  isCollapsed?: boolean;
 }
 
-export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isMobileOpen, onMobileClose }) => {
+export const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
+  isMobileOpen, 
+  onMobileClose,
+  isCollapsed = false
+}) => {
   const pathname = usePathname();
   const router = useRouter();
   const { language, setLanguage, t } = useLanguage();
 
   const menuItems = [
-    { name: t.adminNav.dashboard, href: '/admin', icon: LayoutDashboard },
-    { name: t.adminNav.orders, href: '/admin/orders', icon: ShoppingBag },
-    { name: t.adminNav.products, href: '/admin/products', icon: Package },
-    { name: t.adminNav.categories, href: '/admin/categories', icon: Layers },
-    { name: t.adminNav.recipes, href: '/admin/recipes', icon: ChefHat },
-    { name: t.adminNav.blogs, href: '/admin/blogs', icon: BookOpen },
-    { name: t.adminNav.banners, href: '/admin/banners', icon: ImageIcon },
-    { name: t.adminNav.vouchers, href: '/admin/vouchers', icon: Tag },
-    { name: t.adminNav.customers, href: '/admin/customers', icon: Users },
-    { name: t.adminNav.settings, href: '/admin/settings', icon: Settings },
+    { name: t.adminNav.dashboard, href: '/admin2026', icon: LayoutDashboard },
+    { name: 'Arus Kas (Cashflow)', href: '/admin2026/cashflow', icon: Wallet },
+    { name: t.adminNav.orders, href: '/admin2026/orders', icon: ShoppingBag },
+    { name: t.adminNav.products, href: '/admin2026/products', icon: Package },
+    { name: t.adminNav.categories, href: '/admin2026/categories', icon: Layers },
+    { name: t.adminNav.recipes, href: '/admin2026/recipes', icon: ChefHat },
+    { name: t.adminNav.blogs, href: '/admin2026/blogs', icon: BookOpen },
+    { name: t.adminNav.banners, href: '/admin2026/banners', icon: ImageIcon },
+    { name: t.adminNav.vouchers, href: '/admin2026/vouchers', icon: Tag },
+    { name: t.adminNav.customers, href: '/admin2026/customers', icon: Users },
+    { name: t.adminNav.settings, href: '/admin2026/settings', icon: Settings },
   ];
 
   const languagesList: { code: LanguageCode; label: string }[] = [
@@ -54,7 +61,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isMobileOpen, onMobi
 
   const handleLogout = () => {
     localStorage.removeItem('fbs_admin_session');
-    router.push('/admin/login');
+    router.push('/admin2026/login');
   };
 
   const handleNavClick = () => {
@@ -63,26 +70,37 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isMobileOpen, onMobi
     }
   };
 
-  const SidebarContent = (
+  const renderSidebarContent = (collapsed: boolean) => (
     <div className="flex flex-col justify-between h-full min-h-screen">
       {/* Top Header & Language Selector */}
       <div>
-        <div className="p-5 bg-stone-900/90 border-b border-stone-800/80 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/logo.jpg" 
-              alt="FBS Bakery World Logo" 
-              className="w-9 h-9 rounded-full object-cover border-2 border-[#D4AF37] shadow bg-white" 
-            />
-            <div>
-              <h1 className="font-serif text-base font-bold text-[#F7E7CE] tracking-wider">FBS CMS PORTAL</h1>
-              <span className="text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> MODERN CONTROL
-              </span>
+        {/* Clean Sidebar Header (No cramped duplicate buttons) */}
+        <div className={`p-4 bg-stone-900/90 border-b border-stone-800/80 flex items-center ${collapsed ? 'justify-center py-5' : 'justify-between'}`}>
+          {!collapsed ? (
+            <div className="flex items-center gap-3">
+              <img 
+                src="/logo.jpg" 
+                alt="FBS Bakery World Logo" 
+                className="w-9 h-9 rounded-full object-cover border-2 border-[#D4AF37] shadow bg-white" 
+              />
+              <div>
+                <h1 className="font-serif text-base font-bold text-[#F7E7CE] tracking-wider">FBS CMS PORTAL</h1>
+                <span className="text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" /> MODERN CONTROL
+                </span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center justify-center">
+              <img 
+                src="/logo.jpg" 
+                alt="FBS Logo" 
+                className="w-10 h-10 rounded-full object-cover border-2 border-[#D4AF37] shadow bg-white" 
+              />
+            </div>
+          )}
 
-          {/* Close button for mobile drawer */}
+          {/* Mobile Close Button */}
           {onMobileClose && (
             <button 
               onClick={onMobileClose}
@@ -93,49 +111,74 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isMobileOpen, onMobi
           )}
         </div>
 
-        {/* ULTRA-MODERN SINGLE-TEXT LANGUAGE SELECTOR */}
-        <div className="p-3 mx-4 mt-3 rounded-2xl bg-stone-900/90 border border-stone-800/80 space-y-2">
-          <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1.5">
-            <Globe className="w-3.5 h-3.5 text-[#D4AF37]" /> BAHASA
-          </span>
-          <div className="grid grid-cols-4 gap-1.5 text-xs font-bold">
-            {languagesList.map((lang) => {
-              const isSelected = language === lang.code;
-              return (
+        {/* ULTRA-MODERN LANGUAGE SELECTOR */}
+        {!collapsed ? (
+          <div className="p-3 mx-4 mt-3 rounded-2xl bg-stone-900/90 border border-stone-800/80 space-y-2">
+            <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-[#D4AF37]" /> BAHASA / LANGUAGE
+            </span>
+            <div className="grid grid-cols-4 gap-1.5 text-xs font-bold">
+              {languagesList.map((lang) => {
+                const isSelected = language === lang.code;
+                return (
+                  <button
+                    key={lang.code}
+                    onClick={() => setLanguage(lang.code)}
+                    className={`py-2 text-center rounded-xl border font-black transition-all ${
+                      isSelected
+                        ? 'bg-[#800020] text-[#F7E7CE] border-[#D4AF37]/60 shadow-md scale-105'
+                        : 'bg-stone-800/80 text-stone-400 border-stone-700/60 hover:text-white hover:bg-stone-800'
+                    }`}
+                  >
+                    {lang.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="p-2 my-2 flex flex-col items-center gap-1">
+            <span className="text-[8px] font-black text-[#D4AF37]">LANG</span>
+            <div className="flex flex-col gap-1">
+              {languagesList.map((lang) => (
                 <button
                   key={lang.code}
                   onClick={() => setLanguage(lang.code)}
-                  className={`py-2 text-center rounded-xl border font-black transition-all ${
-                    isSelected
-                      ? 'bg-[#800020] text-[#F7E7CE] border-[#D4AF37]/60 shadow-md scale-105'
-                      : 'bg-stone-800/80 text-stone-400 border-stone-700/60 hover:text-white hover:bg-stone-800'
+                  className={`w-7 h-7 text-[10px] rounded-lg font-bold border transition-all flex items-center justify-center ${
+                    language === lang.code
+                      ? 'bg-[#800020] text-[#F7E7CE] border-[#D4AF37]'
+                      : 'bg-stone-800 text-stone-400 border-stone-700 hover:text-white'
                   }`}
+                  title={`Ganti Bahasa ke ${lang.label}`}
                 >
                   {lang.label}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Menu Navigation List */}
-        <nav className="p-4 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-230px)]">
+        <nav className={`p-3 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-230px)] ${collapsed ? 'flex flex-col items-center' : ''}`}>
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || pathname === item.href.replace('/admin2026', '/admin');
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={handleNavClick}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl transition-all ${
+                title={item.name}
+                className={`flex items-center gap-3 py-3 rounded-2xl transition-all ${
+                  collapsed ? 'px-3 justify-center w-11 h-11' : 'px-3.5 w-full'
+                } ${
                   isActive
                     ? 'bg-[#800020] text-[#F7E7CE] font-bold shadow-lg border border-[#D4AF37]/50'
                     : 'text-stone-400 hover:bg-stone-900/60 hover:text-white'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#D4AF37]' : 'text-stone-400'}`} />
-                <span>{item.name}</span>
+                <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#D4AF37]' : 'text-stone-400'}`} />
+                {!collapsed && <span className="line-clamp-1">{item.name}</span>}
               </Link>
             );
           })}
@@ -143,22 +186,28 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isMobileOpen, onMobi
       </div>
 
       {/* Bottom Footer Actions */}
-      <div className="p-4 bg-stone-900/90 border-t border-stone-800 space-y-2">
+      <div className="p-3 bg-stone-900/90 border-t border-stone-800 space-y-2">
         <Link 
           href="/" 
           target="_blank"
           onClick={handleNavClick}
-          className="flex items-center justify-between px-3.5 py-2.5 bg-[#800020]/70 hover:bg-[#800020] text-[#F7E7CE] text-xs font-bold rounded-xl border border-[#D4AF37]/30 transition-all shadow-sm group"
+          title={t.adminNav.openStore}
+          className={`flex items-center bg-[#800020]/70 hover:bg-[#800020] text-[#F7E7CE] text-xs font-bold rounded-xl border border-[#D4AF37]/30 transition-all shadow-sm group ${
+            collapsed ? 'p-2.5 justify-center' : 'px-3.5 py-2.5 justify-between'
+          }`}
         >
-          <span>{t.adminNav.openStore}</span>
-          <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          {!collapsed && <span>{t.adminNav.openStore}</span>}
+          <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
         </Link>
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 bg-red-950/60 hover:bg-red-900 text-red-200 text-xs font-bold rounded-xl transition-colors"
+          title={t.adminNav.signOut}
+          className={`w-full flex items-center justify-center gap-2 bg-red-950/60 hover:bg-red-900 text-red-200 text-xs font-bold rounded-xl transition-colors ${
+            collapsed ? 'p-2.5' : 'px-3.5 py-2.5'
+          }`}
         >
-          <LogOut className="w-4 h-4" /> {t.adminNav.signOut}
+          <LogOut className="w-4 h-4" /> {!collapsed && <span>{t.adminNav.signOut}</span>}
         </button>
       </div>
     </div>
@@ -166,14 +215,16 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isMobileOpen, onMobi
 
   return (
     <>
-      {/* DESKTOP SIDEBAR (Hidden on mobile) */}
-      <aside className="hidden lg:flex w-64 bg-[#181113] text-[#FFF8F0] border-r border-[#F7E7CE]/15 shadow-2xl flex-shrink-0 min-h-screen sticky top-0 h-screen">
-        {SidebarContent}
+      {/* DESKTOP SIDEBAR WITH SMOOTH COLLAPSIBLE TRANSITION */}
+      <aside className={`notranslate hidden lg:flex bg-[#181113] text-[#FFF8F0] border-r border-[#F7E7CE]/15 shadow-2xl flex-shrink-0 h-full overflow-y-auto transition-all duration-300 ${
+        isCollapsed ? 'w-20' : 'w-64'
+      }`}>
+        {renderSidebarContent(isCollapsed)}
       </aside>
 
       {/* MOBILE DRAWER MODAL OVERLAY */}
       {isMobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
+        <div className="notranslate fixed inset-0 z-50 lg:hidden flex">
           {/* Backdrop Blur */}
           <div 
             className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" 
@@ -182,7 +233,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isMobileOpen, onMobi
 
           {/* Sliding Drawer */}
           <div className="relative w-72 max-w-[85vw] bg-[#181113] text-[#FFF8F0] shadow-2xl z-10 flex flex-col h-full overflow-hidden animate-slide-in">
-            {SidebarContent}
+            {renderSidebarContent(false)}
           </div>
         </div>
       )}

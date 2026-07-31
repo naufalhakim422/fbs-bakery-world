@@ -30,7 +30,14 @@ import {
   X,
   BarChart3,
   PieChart,
-  MessageCircle
+  MessageCircle,
+  TrendingDown,
+  Wallet,
+  Receipt,
+  ArrowUpRight,
+  ArrowDownRight,
+  PlusCircle,
+  Trash2
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -58,6 +65,21 @@ export default function AdminDashboardPage() {
     ordersList: typeof orders;
   } | null>(null);
 
+  // Cashflow State
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [newExpTitle, setNewExpTitle] = useState('');
+  const [newExpAmount, setNewExpAmount] = useState('');
+  const [newExpCategory, setNewExpCategory] = useState('Pembelian Stok (HPP)');
+  const [newExpDate, setNewExpDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const defaultExpenses = [
+    { id: 'exp-1', date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Pembelian Stok (HPP)', title: 'Restok Tepung Semolina Durum 25kg (10 Sak)', amount: 1800 },
+    { id: 'exp-2', date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Pembelian Stok (HPP)', title: 'Impor Kyoto Uji Matcha Powder Grade A (5kg)', amount: 950 },
+    { id: 'exp-3', date: new Date(Date.now() - 3 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Biaya Packaging', title: 'Beli Kraft Bakery Box Window 8x8 (200 Pcs)', amount: 260 },
+    { id: 'exp-4', date: new Date(Date.now() - 4 * 86400000).toISOString().split('T')[0], type: 'OPERASIONAL', category: 'Operasional Gudang', title: 'Listrik & Pendingin Gudang Shah Alam', amount: 320 },
+  ];
+
   useEffect(() => {
     const loadLiveData = () => {
       setOrders(db.getOrders());
@@ -65,6 +87,18 @@ export default function AdminDashboardPage() {
       setCustomers(db.getCustomers());
       setCategories(db.getCategories());
       setRecipes(db.getRecipes());
+
+      try {
+        const saved = localStorage.getItem('fbs_cashflow_expenses');
+        if (saved) {
+          setExpenses(JSON.parse(saved));
+        } else {
+          setExpenses(defaultExpenses);
+          localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(defaultExpenses));
+        }
+      } catch (e) {
+        setExpenses(defaultExpenses);
+      }
     };
     loadLiveData();
 
@@ -75,6 +109,45 @@ export default function AdminDashboardPage() {
       window.removeEventListener('fbs_db_updated', loadLiveData);
     };
   }, []);
+
+  const handleAddExpense = (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = parseFloat(newExpAmount);
+    if (!newExpTitle || isNaN(amt) || amt <= 0) {
+      alert('Masukkan deskripsi dan jumlah pengeluaran kas yang valid.');
+      return;
+    }
+
+    const newItem = {
+      id: `exp-${Date.now()}`,
+      date: newExpDate,
+      type: 'OUTFLOW',
+      category: newExpCategory,
+      title: newExpTitle,
+      amount: amt,
+    };
+
+    const updated = [newItem, ...expenses];
+    setExpenses(updated);
+    localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(updated));
+    setShowExpenseModal(false);
+    setNewExpTitle('');
+    setNewExpAmount('');
+  };
+
+  const handleDeleteExpense = (id: string) => {
+    if (confirm('Hapus pencatatan pengeluaran kas ini?')) {
+      const updated = expenses.filter(e => e.id !== id);
+      setExpenses(updated);
+      localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(updated));
+    }
+  };
+
+  // Cashflow Totals
+  const totalInflow = orders.reduce((acc, o) => acc + o.totalAmount, 0);
+  const totalOutflow = expenses.reduce((acc, e) => acc + e.amount, 0);
+  const netCashflow = totalInflow - totalOutflow;
+  const profitMarginPct = totalInflow > 0 ? Math.round((netCashflow / totalInflow) * 100) : 0;
 
   const totalSalesEstimate = orders.reduce((acc, o) => acc + o.totalAmount, 0);
   const pendingOrders = orders.filter(o => o.orderStatus === 'NEW' || o.orderStatus === 'CONFIRMED');
@@ -601,6 +674,26 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* SHORTCUT LINK CARD TO DEDICATED CASHFLOW PAGE */}
+      <div className="p-6 bg-gradient-to-r from-stone-900 to-[#2A0810] text-[#FFF8F0] rounded-3xl border border-[#D4AF37]/30 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center border border-[#D4AF37]/40 flex-shrink-0">
+            <Wallet className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="font-serif font-extrabold text-lg text-white">Laporan Arus Kas & Analisis Keuangan (Cashflow)</h3>
+            <p className="text-stone-300 text-xs mt-0.5">Kelola jurnal kas masuk, pengeluaran HPP, operasional gudang, dan laba bersih di halaman menu terpisah.</p>
+          </div>
+        </div>
+
+        <Link
+          href="/admin/cashflow"
+          className="px-5 py-3 bg-[#D4AF37] hover:bg-amber-400 text-[#800020] font-black text-xs rounded-2xl shadow-md transition-transform active:scale-95 flex items-center gap-2 whitespace-nowrap self-start sm:self-auto"
+        >
+          Buka Laporan Arus Kas <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {/* Action Needed Alert Bar */}

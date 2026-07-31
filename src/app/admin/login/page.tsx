@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
           role: 'OWNER',
           loginAt: new Date().toISOString()
         }));
-        router.push('/admin');
+        router.push('/admin2026');
       } else {
         setError(`Username atau Password salah. (Default / Active: ${activeCreds.email} / ${activeCreds.password})`);
         setLoading(false);
@@ -62,9 +62,9 @@ export default function AdminLoginPage() {
             FBS BAKERY WORLD CMS
           </span>
           <h1 className="font-serif text-2xl font-bold text-[#800020]">
-            Admin Portal Login
+            Masuk Portal Admin
           </h1>
-          <p className="text-stone-500 text-xs mt-1">Enter your credentials to access store management dashboard.</p>
+          <p className="text-stone-500 text-xs mt-1">Masukkan kredensial Anda untuk mengakses dashboard manajemen toko.</p>
         </div>
 
         {error && (

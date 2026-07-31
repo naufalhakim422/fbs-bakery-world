@@ -95,6 +95,40 @@ export interface Translations {
     productsCount: string;
     noResults: string;
   };
+  trustBadges: {
+    b1Title: string;
+    b1Desc: string;
+    b2Title: string;
+    b2Desc: string;
+    b3Title: string;
+    b3Desc: string;
+    b4Title: string;
+    b4Desc: string;
+  };
+  adminCashflow: {
+    title: string;
+    subtitle: string;
+    addExpenseBtn: string;
+    card1Label: string;
+    card1Sub: string;
+    card2Label: string;
+    card2Sub: string;
+    card3Label: string;
+    card3Sub: string;
+    card4Label: string;
+    card4Sub: string;
+    journalTitle: string;
+    filterLabel: string;
+    filterAll: string;
+    thDate: string;
+    thType: string;
+    thCategory: string;
+    thDesc: string;
+    thAmount: string;
+    thAction: string;
+    inflowTag: string;
+    outflowTag: string;
+  };
 }
 
 const dictionaries: Record<LanguageCode, Translations> = {
@@ -189,6 +223,40 @@ const dictionaries: Record<LanguageCode, Translations> = {
       productsCount: 'Produk Ditemui',
       noResults: 'Tiada produk ditemui',
     },
+    trustBadges: {
+      b1Title: '100% Diiktiraf Halal',
+      b1Desc: 'Sijil Halal rasmi Malaysia & Indonesia',
+      b2Title: 'Import Gred Premium',
+      b2Desc: 'Terus dari Italy, Belgium & New Zealand',
+      b3Title: 'Penghantaran Pantas',
+      b3Desc: 'Kirim hari ini ke seluruh MY & ID',
+      b4Title: 'Diskaun Borong Baker',
+      b4Desc: 'Harga khas kemasan guni 5kg & 25kg',
+    },
+    adminCashflow: {
+      title: 'Laporan Aliran Tunai (Cashflow Ledger)',
+      subtitle: 'Modul kewangan khas untuk mencatat tunai masuk (jualan), tunai keluar (HPP & operasional), untung bersih, serta penyata kewangan real-time.',
+      addExpenseBtn: 'Catat Perbelanjaan Tunai Baru',
+      card1Label: '1. TUNAI MASUK (INFLOW)',
+      card1Sub: 'Carta Jualan Harian',
+      card2Label: '2. TUNAI KELUAR (OUTFLOW)',
+      card2Sub: 'Carta Pecahan Kategori',
+      card3Label: '3. UNTUNG BERSIH (NET)',
+      card3Sub: 'Carta Perbandingan Masuk vs Keluar',
+      card4Label: '4. MARGIN UNTUNG (%)',
+      card4Sub: 'Carta Sasaran & Kecekapan',
+      journalTitle: 'Jurnal Transaksi Aliran Tunai',
+      filterLabel: 'Tapis Kategori:',
+      filterAll: 'Semua Kategori',
+      thDate: 'TARIKH',
+      thType: 'JENIS TUNAI',
+      thCategory: 'KATEGORI',
+      thDesc: 'KETERANGAN TRANSAKSI',
+      thAmount: 'JUMLAH (MYR)',
+      thAction: 'TINDAKAN',
+      inflowTag: 'TUNAI MASUK',
+      outflowTag: 'TUNAI KELUAR',
+    },
   },
   ID: {
     flag: '🇮🇩',
@@ -280,6 +348,40 @@ const dictionaries: Record<LanguageCode, Translations> = {
       reset: 'Riset Filter',
       productsCount: 'Produk Ditemukan',
       noResults: 'Tidak ada produk ditemukan',
+    },
+    trustBadges: {
+      b1Title: '100% Sertifikat Halal',
+      b1Desc: 'Sertifikasi Halal resmi Malaysia & Indonesia',
+      b2Title: 'Impor Grade Premium',
+      b2Desc: 'Langsung dari Italia, Belgia & New Zealand',
+      b3Title: 'Pengiriman Cepat Express',
+      b3Desc: 'Kirim hari ini ke seluruh MY & ID',
+      b4Title: 'Diskon Grosir Baker',
+      b4Desc: 'Harga khusus kemasan karung 5kg & 25kg',
+    },
+    adminCashflow: {
+      title: 'Laporan Arus Kas (Cashflow Ledger)',
+      subtitle: 'Modul keuangan khusus untuk mencatat kas masuk (omset penjualan), kas keluar (HPP & operasional), laba bersih, serta neraca keuangan real-time.',
+      addExpenseBtn: 'Catat Pengeluaran Kas Baru',
+      card1Label: '1. KAS MASUK (INFLOW)',
+      card1Sub: 'Grafik Penjualan Harian',
+      card2Label: '2. KAS KELUAR (OUTFLOW)',
+      card2Sub: 'Grafik Breakdown Kategori',
+      card3Label: '3. LABA BERSIH (NET)',
+      card3Sub: 'Grafik Komparasi Masuk vs Keluar',
+      card4Label: '4. MARGIN PROFIT (%)',
+      card4Sub: 'Grafik Target & Efisiensi',
+      journalTitle: 'Jurnal Transaksi Arus Kas',
+      filterLabel: 'Filter Kategori:',
+      filterAll: 'Semua Kategori',
+      thDate: 'TANGGAL',
+      thType: 'JENIS KAS',
+      thCategory: 'KATEGORI',
+      thDesc: 'KETERANGAN TRANSAKSI',
+      thAmount: 'JUMLAH (MYR)',
+      thAction: 'AKSI',
+      inflowTag: 'KAS MASUK',
+      outflowTag: 'KAS KELUAR',
     },
   },
   EN: {
@@ -373,6 +475,40 @@ const dictionaries: Record<LanguageCode, Translations> = {
       productsCount: 'Products Found',
       noResults: 'No baking items found',
     },
+    trustBadges: {
+      b1Title: '100% Halal Certified',
+      b1Desc: 'Official Halal certification for MY & ID',
+      b2Title: 'Premium Imported Grade',
+      b2Desc: 'Direct from Italy, Belgium & New Zealand',
+      b3Title: 'Express Fast Delivery',
+      b3Desc: 'Dispatched today across MY & ID',
+      b4Title: 'Baker Wholesale Discount',
+      b4Desc: 'Special rates for 5kg & 25kg bulk sacks',
+    },
+    adminCashflow: {
+      title: 'Cashflow Statement & Ledger',
+      subtitle: 'Financial statement module tracking cash inflow (sales revenue), cash outflow (COGS & operations), net profit, and real-time ledger.',
+      addExpenseBtn: 'Record New Cash Expense',
+      card1Label: '1. CASH INFLOW',
+      card1Sub: 'Daily Sales Chart',
+      card2Label: '2. CASH OUTFLOW',
+      card2Sub: 'Category Breakdown Chart',
+      card3Label: '3. NET PROFIT',
+      card3Sub: 'Inflow vs Outflow Comparison',
+      card4Label: '4. PROFIT MARGIN (%)',
+      card4Sub: 'Target & Efficiency Meter',
+      journalTitle: 'Cashflow Ledger Journal',
+      filterLabel: 'Filter Category:',
+      filterAll: 'All Categories',
+      thDate: 'DATE',
+      thType: 'CASH TYPE',
+      thCategory: 'CATEGORY',
+      thDesc: 'TRANSACTION DESCRIPTION',
+      thAmount: 'AMOUNT (MYR)',
+      thAction: 'ACTION',
+      inflowTag: 'CASH INFLOW',
+      outflowTag: 'CASH OUTFLOW',
+    },
   },
   ZH: {
     flag: '🇨🇳',
@@ -465,6 +601,40 @@ const dictionaries: Record<LanguageCode, Translations> = {
       productsCount: '找到的商品',
       noResults: '未找到相关烘焙原料',
     },
+    trustBadges: {
+      b1Title: '100% 清真认证保证',
+      b1Desc: '官方清真认证（马来西亚与印尼）',
+      b2Title: '原装进口顶级品质',
+      b2Desc: '直采自意大利、比利时与新西兰',
+      b3Title: '全马与印尼快速发货',
+      b3Desc: '今日下单即刻发货',
+      b4Title: '烘焙商商业批发特惠',
+      b4Desc: '5kg 及 25kg 大包装专享批发价',
+    },
+    adminCashflow: {
+      title: '现金流财务账目 (Cashflow Ledger)',
+      subtitle: '跟踪现金流入（销售收入）、现金流出（成本与运营）、净利润及实时财务账目的专用模块。',
+      addExpenseBtn: '记录新现金支出',
+      card1Label: '1. 现金流入 (INFLOW)',
+      card1Sub: '每日销售图表',
+      card2Label: '2. 现金流出 (OUTFLOW)',
+      card2Sub: '费用分类图表',
+      card3Label: '3. 净利润 (NET PROFIT)',
+      card3Sub: '流入与流出对比图',
+      card4Label: '4. 利润率 (%)',
+      card4Sub: '目标与效率仪表盘',
+      journalTitle: '现金流交易明细账目',
+      filterLabel: '筛选分类:',
+      filterAll: '所有分类',
+      thDate: '日期',
+      thType: '现金类型',
+      thCategory: '分类',
+      thDesc: '交易说明',
+      thAmount: '金额 (MYR)',
+      thAction: '操作',
+      inflowTag: '现金流入',
+      outflowTag: '现金流出',
+    },
   },
 };
 
@@ -483,6 +653,7 @@ const LanguageContext = createContext<LanguageContextProps>({
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLangState] = useState<LanguageCode>('MS');
 
+  // Load saved language on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem('fbs_language');
@@ -492,12 +663,26 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (e) {}
   }, []);
 
+  // Sync across tabs/windows
+  useEffect(() => {
+    const handleStorageEvent = (e: StorageEvent) => {
+      if (e.key === 'fbs_language' && e.newValue) {
+        const lang = e.newValue as LanguageCode;
+        if (['MS', 'ID', 'EN', 'ZH'].includes(lang)) {
+          setLangState(lang);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageEvent);
+    return () => window.removeEventListener('storage', handleStorageEvent);
+  }, []);
+
   const setLanguage = (lang: LanguageCode) => {
     setLangState(lang);
     try {
       localStorage.setItem('fbs_language', lang);
-      window.dispatchEvent(new Event('storage'));
-      window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { lang } }));
+      // Notify other tabs
+      window.dispatchEvent(new StorageEvent('storage', { key: 'fbs_language', newValue: lang }));
     } catch (e) {}
   };
 
@@ -509,3 +694,5 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 };
 
 export const useLanguage = () => useContext(LanguageContext);
+
+

@@ -88,6 +88,7 @@ export default function AdminBlogsPage() {
       videoUrl: b.videoUrl || '',
     });
     setVideoPreview(b.videoUrl || '');
+    setBlogGallery(b.galleryImages || []);
     setIsModalOpen(true);
   };
 
@@ -96,6 +97,7 @@ export default function AdminBlogsPage() {
     db.saveBlog({
       id: editingBlog?.id,
       ...form,
+      galleryImages: blogGallery,
     });
     setBlogs(db.getBlogs());
     setIsModalOpen(false);
