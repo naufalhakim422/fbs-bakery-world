@@ -494,6 +494,7 @@ let initialVouchers: Voucher[] = [
 
 let storeSettingData: StoreSetting = {
   whatsappNumber: '60123456789',
+  whatsappNumber2: '60168765432',
   whatsappBusinessName: 'FBS Bakery World Support',
   storeName: 'FBS Bakery World',
   currency: 'RM',

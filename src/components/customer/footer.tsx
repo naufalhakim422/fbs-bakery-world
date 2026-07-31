@@ -187,57 +187,58 @@ export const Footer: React.FC = () => {
             <h4 className="font-sans font-bold text-xs uppercase tracking-[0.15em] text-[#F7E7CE]">
               KAPASITAS & LOKASI
             </h4>
-            <div className="space-y-3 text-xs text-stone-400" suppressHydrationWarning>
+            <div className="space-y-3.5 text-xs text-stone-400" suppressHydrationWarning>
               <div className="flex items-start gap-2.5" suppressHydrationWarning>
-                <MapPin className="w-4 h-4 text-[#F7E7CE] flex-shrink-0 mt-0.5" />
-                <span className="leading-snug text-stone-300" suppressHydrationWarning>{settings.address}</span>
+                <MapPin className="w-4 h-4 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed text-stone-300 font-sans" suppressHydrationWarning>{settings.address}</span>
               </div>
+
+              {/* WHATSAPP SUPPORT NUMBER 1 */}
               <div className="flex items-center gap-2.5" suppressHydrationWarning>
-                <Phone className="w-4 h-4 text-[#F7E7CE] flex-shrink-0" />
-                <a 
-                  href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber)}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="hover:text-[#F7E7CE] font-mono text-stone-300 transition-colors" 
-                  suppressHydrationWarning
-                >
-                  +{settings.whatsappNumber}
-                </a>
+                <Phone className="w-4 h-4 text-[#25D366] flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-stone-400 font-bold uppercase">WhatsApp CS 1 (Ritel & Layanan):</span>
+                  <a 
+                    href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber)}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-[#F7E7CE] font-mono text-stone-200 font-bold transition-colors" 
+                    suppressHydrationWarning
+                  >
+                    +{formatWhatsAppNumber(settings.whatsappNumber)}
+                  </a>
+                </div>
               </div>
+
+              {/* WHATSAPP SUPPORT NUMBER 2 (SEKUNDER / GROSIR) */}
               <div className="flex items-center gap-2.5" suppressHydrationWarning>
-                <Mail className="w-4 h-4 text-[#F7E7CE] flex-shrink-0" />
-                <span className="text-stone-300" suppressHydrationWarning>{settings.supportEmail}</span>
+                <Phone className="w-4 h-4 text-[#25D366] flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-stone-400 font-bold uppercase">WhatsApp CS 2 (Grosir & Komersial):</span>
+                  <a 
+                    href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber2 || settings.whatsappNumber)}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-[#F7E7CE] font-mono text-stone-200 font-bold transition-colors" 
+                    suppressHydrationWarning
+                  >
+                    +{formatWhatsAppNumber(settings.whatsappNumber2 || settings.whatsappNumber)}
+                  </a>
+                </div>
+              </div>
+
+              {/* EMAIL SUPPORT */}
+              <div className="flex items-center gap-2.5" suppressHydrationWarning>
+                <Mail className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-stone-400 font-bold uppercase">Email Bantuan & Kerjasama:</span>
+                  <span className="text-stone-300 font-mono" suppressHydrationWarning>{settings.supportEmail}</span>
+                </div>
               </div>
               
               <div className="pt-2">
-                <div className="px-3 py-1.5 rounded-xl bg-stone-900/80 border border-stone-800 text-[11px] text-[#F7E7CE] font-semibold inline-flex items-center gap-2 mb-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> 100% Halal Guaranteed Ingredients
-                </div>
-
-                {/* EMBEDDED GOOGLE MAPS STORE LOCATION WIDGET */}
-                <div className="rounded-2xl overflow-hidden border border-[#F7E7CE]/30 shadow-lg bg-stone-900/90 p-1.5 space-y-1.5" suppressHydrationWarning>
-                  <iframe
-                    title="FBS Bakery World Google Maps Location"
-                    src={extractMapsEmbedUrl(settings.googleMapsEmbedUrl, settings.address) || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy"}
-                    width="100%"
-                    height="120"
-                    style={{ border: 0 }}
-                    allowFullScreen={false}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="rounded-xl w-full"
-                  />
-                  <a
-                    href={extractMapsAppUrl(settings.googleMapsAppUrl, settings.googleMapsEmbedUrl, settings.address)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    suppressHydrationWarning
-                    className="w-full py-1.5 px-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#F7E7CE] text-[10px] font-bold rounded-xl transition-all flex items-center justify-center gap-1 group shadow-sm"
-                  >
-                    <MapPin className="w-3 h-3 text-[#D4AF37]" />
-                    <span>Buka di Google Maps App</span>
-                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </a>
+                <div className="px-3 py-2 rounded-xl bg-stone-900/90 border border-[#D4AF37]/30 text-[11px] text-[#F7E7CE] font-semibold flex items-center gap-2 shadow-sm">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" /> 100% Halal Guaranteed Ingredients
                 </div>
               </div>
             </div>

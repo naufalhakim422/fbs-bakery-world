@@ -165,6 +165,7 @@ export interface Voucher {
 
 export interface StoreSetting {
   whatsappNumber: string;
+  whatsappNumber2?: string;
   whatsappBusinessName: string;
   storeName: string;
   currency: string;

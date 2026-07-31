@@ -20,14 +20,15 @@ export default function AdminSettingsPage() {
 
   const [storeForm, setStoreForm] = useState({
     whatsappNumber: currentStore.whatsappNumber,
+    whatsappNumber2: currentStore.whatsappNumber2 || '60168765432',
     whatsappBusinessName: currentStore.whatsappBusinessName,
     storeName: currentStore.storeName,
     currency: currentStore.currency,
     announcement: currentStore.announcement,
     supportEmail: currentStore.supportEmail,
     address: currentStore.address,
-    googleMapsEmbedUrl: currentStore.googleMapsEmbedUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy',
-    googleMapsAppUrl: currentStore.googleMapsAppUrl || 'https://maps.google.com/?q=FBS+Bakery+World+Malaysia',
+    googleMapsEmbedUrl: currentStore.googleMapsEmbedUrl || '',
+    googleMapsAppUrl: currentStore.googleMapsAppUrl || '',
   });
 
   const [aboutForm, setAboutForm] = useState({
@@ -142,15 +143,7 @@ export default function AdminSettingsPage() {
 
   const handleStoreSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanedEmbed = extractMapsEmbedUrl(storeForm.googleMapsEmbedUrl);
-    const cleanedApp = extractMapsEmbedUrl(storeForm.googleMapsAppUrl);
-    const updatedPayload = {
-      ...storeForm,
-      googleMapsEmbedUrl: cleanedEmbed,
-      googleMapsAppUrl: cleanedApp,
-    };
-    db.updateStoreSettings(updatedPayload);
-    setStoreForm(updatedPayload);
+    db.updateStoreSettings(storeForm);
     setIsSavedStore(true);
     setTimeout(() => setIsSavedStore(false), 2000);
   };
@@ -276,7 +269,7 @@ export default function AdminSettingsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">WhatsApp Admin Number (Malaysia)</label>
+              <label className="block font-bold text-stone-700 uppercase mb-1">Nomor WhatsApp Admin 1 (Ritel & Layanan)</label>
               <input 
                 type="text"
                 required
@@ -285,19 +278,31 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setStoreForm({ ...storeForm, whatsappNumber: e.target.value })}
                 className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-stone-900"
               />
-              <span className="text-[10px] text-stone-500 block mt-1">Format: 60123456789 (without + sign or hyphens)</span>
+              <span className="text-[10px] text-stone-500 block mt-1">Format: 60123456789 atau 08123456789 (tanpa tanda +)</span>
             </div>
 
             <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">WhatsApp Business Name</label>
+              <label className="block font-bold text-stone-700 uppercase mb-1">Nomor WhatsApp Admin 2 (Grosir & Komersial)</label>
               <input 
                 type="text"
-                required
-                value={storeForm.whatsappBusinessName}
-                onChange={(e) => setStoreForm({ ...storeForm, whatsappBusinessName: e.target.value })}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
+                placeholder="e.g. 60168765432"
+                value={storeForm.whatsappNumber2 || ''}
+                onChange={(e) => setStoreForm({ ...storeForm, whatsappNumber2: e.target.value })}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-stone-900"
               />
+              <span className="text-[10px] text-stone-500 block mt-1">Nomor opsional untuk penawaran grosir / komersial</span>
             </div>
+          </div>
+
+          <div>
+            <label className="block font-bold text-stone-700 uppercase mb-1">Nama Bisnis WhatsApp</label>
+            <input 
+              type="text"
+              required
+              value={storeForm.whatsappBusinessName}
+              onChange={(e) => setStoreForm({ ...storeForm, whatsappBusinessName: e.target.value })}
+              className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
+            />
           </div>
 
           <h2 className="font-serif text-lg font-bold text-[#800020] border-b border-stone-100 pb-2 pt-4 flex items-center gap-2">
@@ -349,63 +354,6 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setStoreForm({ ...storeForm, address: e.target.value })}
                 className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
               />
-            </div>
-
-            {/* DYNAMIC GOOGLE MAPS EMBED CONFIGURATION FOR STAFF */}
-            <div className="pt-3 space-y-4 bg-stone-50 p-4 sm:p-5 rounded-2xl border border-stone-200">
-              <h3 className="font-serif text-sm font-bold text-[#800020] uppercase tracking-wider flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#D4AF37]" /> Informasikan Peta Google Maps Toko (Otomatis Terdeteksi Di Footer)
-              </h3>
-
-              <div>
-                <label className="block font-bold text-stone-700 uppercase mb-1">Link Embed Google Maps (iFrame URL)</label>
-                <input 
-                  type="text"
-                  required
-                  placeholder="https://www.google.com/maps/embed?pb=..."
-                  value={storeForm.googleMapsEmbedUrl}
-                  onChange={(e) => setStoreForm({ ...storeForm, googleMapsEmbedUrl: extractMapsEmbedUrl(e.target.value) })}
-                  className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-[11px] text-stone-900 bg-white"
-                />
-                <span className="text-[10px] text-stone-500 block mt-1">
-                  💡 <strong>Cara mendapatkan:</strong> Buka Google Maps &gt; Cari Toko FBS &gt; Klik <strong>Bagikan (Share)</strong> &gt; Pilih tab <strong>Sematkan Peta (Embed a map)</strong> &gt; Salin/Tempel kode HTML atau URL src.
-                </span>
-              </div>
-
-              <div>
-                <label className="block font-bold text-stone-700 uppercase mb-1">Link Aplikasi Google Maps (Share Link Aplikasi HP / Petunjuk Arah)</label>
-                <input 
-                  type="text"
-                  required
-                  placeholder="https://maps.google.com/?q=FBS+Bakery+World"
-                  value={storeForm.googleMapsAppUrl}
-                  onChange={(e) => setStoreForm({ ...storeForm, googleMapsAppUrl: extractMapsEmbedUrl(e.target.value) })}
-                  className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-[11px] text-stone-900 bg-white"
-                />
-              </div>
-
-              {/* LIVE MAP PREVIEW BOX IN ADMIN */}
-              <div className="pt-2">
-                <span className="block font-bold text-stone-700 uppercase mb-1.5 text-[11px]">
-                  📌 Live Preview Tampilan Peta Google Maps:
-                </span>
-                <div className="rounded-2xl overflow-hidden border border-stone-300 shadow-sm bg-stone-900 p-2 space-y-2">
-                  <iframe
-                    title="Admin Live Maps Preview"
-                    src={extractMapsEmbedUrl(storeForm.googleMapsEmbedUrl, storeForm.address) || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy"}
-                    width="100%"
-                    height="160"
-                    style={{ border: 0 }}
-                    allowFullScreen={false}
-                    loading="lazy"
-                    className="rounded-xl w-full"
-                  />
-                  <div className="text-[10px] font-bold text-[#F7E7CE] bg-[#800020] px-3 py-1.5 rounded-xl flex items-center justify-between">
-                    <span>📍 Peta Footer Terdeteksi Secara Otomatis!</span>
-                    <a href={extractMapsAppUrl(storeForm.googleMapsAppUrl, storeForm.googleMapsEmbedUrl, storeForm.address)} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Uji Coba Buka App &rarr;</a>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
