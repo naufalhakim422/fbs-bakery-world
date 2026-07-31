@@ -1150,7 +1150,13 @@ export const db = {
 
   // Store Settings with persistent localStorage sync
   getStoreSettings: (): StoreSetting => {
-    return loadFromStorage<StoreSetting>('fbs_store_settings', storeSettingData);
+    const res = loadFromStorage<StoreSetting>('fbs_store_settings', storeSettingData);
+    return {
+      ...storeSettingData,
+      ...res,
+      googleMapsEmbedUrl: (res.googleMapsEmbedUrl && res.googleMapsEmbedUrl.trim()) ? res.googleMapsEmbedUrl : storeSettingData.googleMapsEmbedUrl,
+      googleMapsAppUrl: (res.googleMapsAppUrl && res.googleMapsAppUrl.trim()) ? res.googleMapsAppUrl : storeSettingData.googleMapsAppUrl,
+    };
   },
 
   updateStoreSettings: (newSettings: Partial<StoreSetting>) => {
