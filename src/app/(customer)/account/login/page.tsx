@@ -91,8 +91,8 @@ export default function CustomerLoginPage() {
       return;
     }
 
-    // Trigger 2-Step OTP Verification
-    setShowOtpModal(true);
+    // Trigger Firebase Phone Auth SMS OTP Modal
+    setShowPhoneOtpModal(true);
   };
 
   const handleOtpVerifySuccess = async () => {

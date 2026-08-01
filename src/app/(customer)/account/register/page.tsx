@@ -57,8 +57,8 @@ export default function CustomerRegisterPage() {
       return;
     }
 
-    // Trigger 2-Step Verification Modal
-    setShowOtpModal(true);
+    // Trigger Firebase Phone Auth SMS OTP Modal
+    setShowPhoneOtpModal(true);
   };
 
   const handleOtpVerifySuccess = async () => {
