@@ -25,10 +25,10 @@ import {
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 
 // ─── Helper: generate daily data points between two dates ───────────────────
-function generateDailyData(startDate: string, endDate: string) {
+function generateDailyData(startDate: string, endDate: string, orders: any[], expenses: any[]) {
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const days: { label: string; inVal: number; outVal: number }[] = [];
+  const days: { label: string; dateStr: string; inVal: number; outVal: number }[] = [];
   const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
   const monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
@@ -36,39 +36,69 @@ function generateDailyData(startDate: string, endDate: string) {
   const diffDays = Math.max(1, Math.round(diffMs / 86400000));
 
   if (diffDays <= 14) {
-    // Daily granularity
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
       const dayOfWeek = d.getDay();
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const baseIn = isWeekend ? 1800 + Math.round(Math.random() * 600) : 1000 + Math.round(Math.random() * 700);
-      const baseOut = Math.round(baseIn * (0.3 + Math.random() * 0.2));
+      
+      const inVal = orders
+        .filter(o => o.createdAt && o.createdAt.startsWith(dateStr))
+        .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+        
+      const outVal = expenses
+        .filter(e => e.date === dateStr)
+        .reduce((sum, e) => sum + (e.amount || 0), 0);
+
       days.push({
         label: dayNames[dayOfWeek] + ' ' + d.getDate(),
-        inVal: baseIn,
-        outVal: baseOut,
+        dateStr,
+        inVal,
+        outVal,
       });
     }
   } else if (diffDays <= 90) {
-    // Weekly granularity
     let weekNum = 1;
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 7)) {
-      const baseIn = 7000 + Math.round(Math.random() * 4000);
+      const wEnd = new Date(d);
+      wEnd.setDate(d.getDate() + 6);
+      
+      const inVal = orders.filter(o => {
+        if (!o.createdAt) return false;
+        const oDate = new Date(o.createdAt);
+        return oDate >= d && oDate <= wEnd;
+      }).reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
+      const outVal = expenses.filter(e => {
+        if (!e.date) return false;
+        const eDate = new Date(e.date);
+        return eDate >= d && eDate <= wEnd;
+      }).reduce((sum, e) => sum + (e.amount || 0), 0);
+
       days.push({
         label: 'Minggu ' + weekNum++,
-        inVal: baseIn,
-        outVal: Math.round(baseIn * (0.30 + Math.random() * 0.15)),
+        dateStr: `${d.getDate()} - ${wEnd.getDate()}`,
+        inVal,
+        outVal,
       });
     }
   } else {
-    // Monthly granularity
     let cur = new Date(start.getFullYear(), start.getMonth(), 1);
     const endMonth = new Date(end.getFullYear(), end.getMonth(), 1);
     while (cur <= endMonth) {
-      const baseIn = 28000 + Math.round(Math.random() * 22000);
+      const yearMonthStr = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`;
+      
+      const inVal = orders
+        .filter(o => o.createdAt && o.createdAt.startsWith(yearMonthStr))
+        .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+        
+      const outVal = expenses
+        .filter(e => e.date && e.date.startsWith(yearMonthStr))
+        .reduce((sum, e) => sum + (e.amount || 0), 0);
+
       days.push({
         label: monthNames[cur.getMonth()] + ' ' + String(cur.getFullYear()).slice(2),
-        inVal: baseIn,
-        outVal: Math.round(baseIn * (0.28 + Math.random() * 0.18)),
+        dateStr: yearMonthStr,
+        inVal,
+        outVal,
       });
       cur.setMonth(cur.getMonth() + 1);
     }
@@ -100,26 +130,21 @@ export default function AdminCashflowPage() {
   const [newExpCategory, setNewExpCategory] = useState('Pembelian Stok (HPP)');
   const [newExpDate, setNewExpDate] = useState(today);
 
-  const defaultExpenses = [
-    { id: 'exp-1', date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Pembelian Stok (HPP)', title: 'Restok Tepung Semolina Durum 25kg (10 Sak)', amount: 1800 },
-    { id: 'exp-2', date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Pembelian Stok (HPP)', title: 'Impor Kyoto Uji Matcha Powder Grade A (5kg)', amount: 950 },
-    { id: 'exp-3', date: new Date(Date.now() - 3 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Biaya Packaging', title: 'Beli Kraft Bakery Box Window 8x8 (200 Pcs)', amount: 260 },
-    { id: 'exp-4', date: new Date(Date.now() - 4 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Operasional Gudang', title: 'Listrik & Pendingin Gudang Shah Alam', amount: 320 },
-  ];
+  const defaultExpenses: any[] = [];
 
   useEffect(() => {
     const loadData = () => {
       setOrders(db.getOrders());
       try {
         const saved = localStorage.getItem('fbs_cashflow_expenses');
-        if (saved) {
+        if (saved && saved !== '[]') {
           setExpenses(JSON.parse(saved));
         } else {
-          setExpenses(defaultExpenses);
-          localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(defaultExpenses));
+          setExpenses([]);
+          localStorage.setItem('fbs_cashflow_expenses', JSON.stringify([]));
         }
       } catch {
-        setExpenses(defaultExpenses);
+        setExpenses([]);
       }
     };
     loadData();
@@ -140,9 +165,9 @@ export default function AdminCashflowPage() {
     setEndDate(today);
   };
 
-  // ─── Dynamically generated chart TREND data (visual only) ─────────────────
-  const chartData = useMemo(() => generateDailyData(startDate, endDate), [startDate, endDate]);
-  const maxInValue = Math.max(...chartData.map(d => d.inVal), 1);
+  // ─── Dynamically generated chart TREND data (REAL) ─────────────────────────
+  const chartData = useMemo(() => generateDailyData(startDate, endDate, orders, expenses), [startDate, endDate, orders, expenses]);
+  const maxInValue = Math.max(...chartData.map(d => Math.max(d.inVal, d.outVal)), 1);
 
   // ─── Period label string ───────────────────────────────────────────────────
   const periodLabel = timePeriod === '7D' ? '7 Hari Lalu' 
@@ -164,23 +189,15 @@ export default function AdminCashflowPage() {
 
   // totalOutflow = SUM of all real expense entries within date range
   const totalOutflow = useMemo(() => 
-    expensesInRange.reduce((sum, e) => sum + e.amount, 0),
+    expensesInRange.reduce((sum, e) => sum + (e.amount || 0), 0),
     [expensesInRange]
   );
 
-  // totalInflow = SUM of real orders + base sales estimate within date range
-  const realOrderInflow = useMemo(() =>
-    ordersInRange.reduce((sum, o) => sum + o.totalAmount, 0),
+  // totalInflow = SUM of real orders within date range
+  const totalInflow = useMemo(() =>
+    ordersInRange.reduce((sum, o) => sum + (o.totalAmount || 0), 0),
     [ordersInRange]
   );
-  // Base inflow estimate (simulates daily sales per day count in range)
-  const dayCount = useMemo(() => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    return Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
-  }, [startDate, endDate]);
-  const baseDailySales = 1280; // baseline daily sales MYR
-  const totalInflow = realOrderInflow + (baseDailySales * dayCount);
 
   const netCashflow = totalInflow - totalOutflow;
   const profitMarginPct = totalInflow > 0 ? Math.round((netCashflow / totalInflow) * 100) : 0;
