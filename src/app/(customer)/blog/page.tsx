@@ -72,16 +72,16 @@ export default function BlogListPage() {
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         
-        {/* Ultra-Minimalist Header (No Box Container) */}
-        <div className="text-center py-4 mb-6">
-          <BookOpen className="w-10 h-10 text-[#800020] mx-auto mb-2" />
-          <span className="text-[11px] font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
-            FBS BAKING EDUCATION & VIDEOS
-          </span>
-          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900">
-            {langTexts.title}
+        {/* High-End Modern Header */}
+        <div className="text-center pt-2 pb-6 mb-4 space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#800020]/10 border border-[#800020]/15 text-[#800020] text-[11px] font-extrabold tracking-widest uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></span>
+            FBS Baking Education & Videos
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
+            Pusat Pengetahuan <span className="bg-gradient-to-r from-[#800020] via-[#A01B35] to-[#D4AF37] bg-clip-text text-transparent">Baking</span>
           </h1>
-          <p className="text-stone-500 text-xs sm:text-sm mt-1 max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-stone-500 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed font-medium">
             {langTexts.subtitle}
           </p>
         </div>
