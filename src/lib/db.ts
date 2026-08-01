@@ -976,9 +976,12 @@ export const db = {
   // Videos
   getVideos: (): VideoPost[] => {
     const list = loadFromStorage<VideoPost[]>('fbs_videos', initialVideos);
+    let hasCorruptedEntry = false;
+
     // Sanitize any legacy corrupted entries with single letter titles (e.g. "V")
-    return list.map(v => {
+    const sanitizedList = list.map(v => {
       if (v.title === 'V' || !v.title || v.title.trim().length <= 1) {
+        hasCorruptedEntry = true;
         return {
           ...v,
           title: 'NEW MENU CAKE : ICEBERG CHEESE CAKE 🍰',
@@ -986,6 +989,13 @@ export const db = {
       }
       return v;
     });
+
+    // If corrupted entry was detected, overwrite localStorage permanently so it never reverts on refresh
+    if (hasCorruptedEntry) {
+      saveToStorage('fbs_videos', sanitizedList);
+    }
+
+    return sanitizedList;
   },
 
   getVideoById: (id: string) => {
