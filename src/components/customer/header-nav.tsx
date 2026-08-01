@@ -230,7 +230,7 @@ export const HeaderNav: React.FC = () => {
             </div>
 
             {/* Desktop / Laptop / Tablet Quick Language Switcher Pills */}
-            <div className="flex items-center gap-1 bg-stone-900/90 px-2.5 py-1 rounded-full border border-[#D4AF37]/40 shadow-inner">
+            <div className="notranslate flex items-center gap-1 bg-stone-900/90 px-2.5 py-1 rounded-full border border-[#D4AF37]/40 shadow-inner" translate="no">
               <Globe className="w-3.5 h-3.5 text-[#D4AF37] ml-0.5 mr-1" />
               {languagesList.map((lang) => {
                 const isSelected = language === lang.code;
@@ -273,7 +273,7 @@ export const HeaderNav: React.FC = () => {
             </form>
 
             {/* INTEGRATED LANGUAGE SWITCHER INSIDE MOBILE MENU DRAWER */}
-            <div className="bg-stone-900/90 p-3.5 rounded-2xl border border-stone-800 space-y-2.5">
+            <div className="notranslate bg-stone-900/90 p-3.5 rounded-2xl border border-stone-800 space-y-2.5" translate="no">
               <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-[#D4AF37]" /> PILIH BAHASA / SELECT LANGUAGE
               </span>
