@@ -975,7 +975,17 @@ export const db = {
 
   // Videos
   getVideos: (): VideoPost[] => {
-    return loadFromStorage<VideoPost[]>('fbs_videos', initialVideos);
+    const list = loadFromStorage<VideoPost[]>('fbs_videos', initialVideos);
+    // Sanitize any legacy corrupted entries with single letter titles (e.g. "V")
+    return list.map(v => {
+      if (v.title === 'V' || !v.title || v.title.trim().length <= 1) {
+        return {
+          ...v,
+          title: 'NEW MENU CAKE : ICEBERG CHEESE CAKE 🍰',
+        };
+      }
+      return v;
+    });
   },
 
   getVideoById: (id: string) => {
