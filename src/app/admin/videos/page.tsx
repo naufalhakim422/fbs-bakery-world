@@ -304,6 +304,7 @@ export default function AdminVideosPage() {
                   >
                     <option value="YOUTUBE">YouTube</option>
                     <option value="TIKTOK">TikTok</option>
+                    <option value="FACEBOOK">Facebook</option>
                     <option value="FBS">Video Promosi / Direct Upload MP4</option>
                   </select>
                 </div>

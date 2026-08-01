@@ -69,6 +69,16 @@ export function getEmbedVideoUrl(url: string, platform?: string): { isDirectVide
     }
   }
 
+  // 5. Facebook Video URLs (Horizontal 16:9)
+  if (cleanUrl.includes('facebook.com') || cleanUrl.includes('fb.watch') || platform === 'FACEBOOK') {
+    const encodedUrl = encodeURIComponent(cleanUrl);
+    return {
+      isDirectVideo: false,
+      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&autoplay=true`,
+      aspectRatio: '16/9',
+    };
+  }
+
   // Fallback for standard iframe URLs
   const isVertical = platform === 'TIKTOK';
   return { isDirectVideo: false, embedUrl: cleanUrl, aspectRatio: isVertical ? '9/16' : '16/9' };
