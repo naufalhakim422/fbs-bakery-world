@@ -230,7 +230,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   return (
     <>
       {/* DESKTOP SIDEBAR WITH SMOOTH COLLAPSIBLE TRANSITION */}
-      <aside className={`notranslate hidden lg:flex bg-[#181113] text-[#FFF8F0] border-r border-[#F7E7CE]/15 shadow-2xl flex-shrink-0 h-full overflow-y-auto transition-all duration-300 ${
+      <aside className={`hidden lg:flex bg-[#181113] text-[#FFF8F0] border-r border-[#F7E7CE]/15 shadow-2xl flex-shrink-0 h-full overflow-y-auto transition-all duration-300 ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}>
         {renderSidebarContent(isCollapsed)}
@@ -238,7 +238,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
       {/* MOBILE DRAWER MODAL OVERLAY */}
       {isMobileOpen && (
-        <div className="notranslate fixed inset-0 z-50 lg:hidden flex">
+        <div className="fixed inset-0 z-50 lg:hidden flex">
           {/* Backdrop Blur */}
           <div 
             className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" 

@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden transition-all duration-300">
         
         {/* Fixed Topbar Header (Never scrolls away) */}
-        <header className="notranslate flex-shrink-0 bg-[#1E1517] text-white border-b border-[#F7E7CE]/20 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-lg z-30 backdrop-blur-md">
+        <header className="flex-shrink-0 bg-[#1E1517] text-white border-b border-[#F7E7CE]/20 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-lg z-30 backdrop-blur-md">
           
           <div className="flex items-center gap-3">
             {/* Mobile Hamburger Menu Toggle Button */}
