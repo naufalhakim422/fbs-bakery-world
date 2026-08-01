@@ -107,6 +107,10 @@ export default function AdminVideosPage() {
     });
     setVideos(db.getVideos());
     setIsModalOpen(false);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_videos' } }));
+    }
   };
 
   const handleDeleteVideo = (id: string) => {
@@ -119,6 +123,10 @@ export default function AdminVideosPage() {
       db.deleteVideo(deleteId);
       setVideos(db.getVideos());
       setDeleteId(null);
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_videos' } }));
+      }
     }
   };
 
