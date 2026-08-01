@@ -76,12 +76,7 @@ export default function AdminDashboardPage() {
   const [newExpCategory, setNewExpCategory] = useState('Pembelian Stok (HPP)');
   const [newExpDate, setNewExpDate] = useState(new Date().toISOString().split('T')[0]);
 
-  const defaultExpenses = [
-    { id: 'exp-1', date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Pembelian Stok (HPP)', title: 'Restok Tepung Semolina Durum 25kg (10 Sak)', amount: 1800 },
-    { id: 'exp-2', date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Pembelian Stok (HPP)', title: 'Impor Kyoto Uji Matcha Powder Grade A (5kg)', amount: 950 },
-    { id: 'exp-3', date: new Date(Date.now() - 3 * 86400000).toISOString().split('T')[0], type: 'OUTFLOW', category: 'Biaya Packaging', title: 'Beli Kraft Bakery Box Window 8x8 (200 Pcs)', amount: 260 },
-    { id: 'exp-4', date: new Date(Date.now() - 4 * 86400000).toISOString().split('T')[0], type: 'OPERASIONAL', category: 'Operasional Gudang', title: 'Listrik & Pendingin Gudang Shah Alam', amount: 320 },
-  ];
+  const defaultExpenses: any[] = [];
 
   useEffect(() => {
     const loadLiveData = () => {
@@ -93,14 +88,14 @@ export default function AdminDashboardPage() {
 
       try {
         const saved = localStorage.getItem('fbs_cashflow_expenses');
-        if (saved) {
+        if (saved && saved !== '[]') {
           setExpenses(JSON.parse(saved));
         } else {
-          setExpenses(defaultExpenses);
-          localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(defaultExpenses));
+          setExpenses([]);
+          localStorage.setItem('fbs_cashflow_expenses', JSON.stringify([]));
         }
       } catch (e) {
-        setExpenses(defaultExpenses);
+        setExpenses([]);
       }
     };
     loadLiveData();
