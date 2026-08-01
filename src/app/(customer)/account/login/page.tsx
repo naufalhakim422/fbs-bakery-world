@@ -176,7 +176,7 @@ export default function CustomerLoginPage() {
             </p>
           </div>
 
-          {/* Social & Phone Login Buttons */}
+          {/* Social Login Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
             <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
@@ -187,15 +187,6 @@ export default function CustomerLoginPage() {
               <GoogleButton />
               <FacebookButton />
             </div>
-            
-            <button
-              type="button"
-              onClick={() => setShowPhoneOtpModal(true)}
-              className="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
-            >
-              <Phone className="w-4 h-4 text-emerald-200" />
-              <span>Login via SMS OTP (Firebase)</span>
-            </button>
           </div>
 
           {rateLimitState.isLocked && (
