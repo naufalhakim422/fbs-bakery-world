@@ -320,28 +320,46 @@ export default function AdminVideosPage() {
                 </div>
               </div>
 
-              {/* Embed / Video Link */}
+              {/* Embed / Video Link or File Upload */}
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">{labels.formEmbedUrl} *</label>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <input 
                     type="text"
                     required
-                    placeholder={form.platform === 'FBS' ? 'Direct MP4/WebM URL or upload below' : 'e.g. https://www.youtube.com/embed/dQw4w9WgXcQ'}
-                    value={form.embedUrl}
+                    placeholder="Contoh link: https://www.youtube.com/watch?v=... atau https://vt.tiktok.com/..."
+                    value={form.embedUrl.startsWith('data:video/') ? '[FILE VIDEO MP4 TER-UPLOAD]' : form.embedUrl}
                     onChange={(e) => setForm({ ...form, embedUrl: e.target.value })}
                     className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-mono text-[11px] focus:outline-none focus:border-[#800020]"
                   />
-                  {form.platform === 'FBS' && (
-                    <div className="border-2 border-dashed border-stone-300 rounded-xl p-3 bg-stone-50 text-center relative">
-                      <input
-                        type="file"
-                        accept="video/*"
-                        onChange={handleVideoUpload}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      />
-                      <Upload className="w-5 h-5 text-stone-500 mx-auto mb-1" />
-                      <span className="text-[10px] font-bold text-stone-700">Upload Video Promosi MP4 (Base64)</span>
+
+                  {/* Dual Upload Box: Supports File Upload directly */}
+                  <div className="border-2 border-dashed border-[#800020]/40 hover:border-[#800020] rounded-2xl p-4 bg-[#FFF8F0] text-center relative transition-all group cursor-pointer">
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={handleVideoUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <Upload className="w-6 h-6 text-[#800020] mx-auto mb-1 group-hover:scale-110 transition-transform" />
+                    <span className="font-bold text-[#800020] block text-xs">
+                      📁 ATAU KLIK UNTUK UPLOAD FILE VIDEO (MP4 / WEBM)
+                    </span>
+                    <span className="text-[10px] text-stone-500 block mt-0.5">
+                      Pilih berkas video dari Laptop/HP Anda untuk langsung di-upload tanpa perlu link YouTube.
+                    </span>
+                  </div>
+
+                  {form.embedUrl.startsWith('data:video/') && (
+                    <div className="p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold flex items-center justify-between">
+                      <span>✓ File Video Berhasil Di-upload!</span>
+                      <button 
+                        type="button" 
+                        onClick={() => setForm({ ...form, embedUrl: '' })}
+                        className="text-red-600 hover:underline text-[11px]"
+                      >
+                        Hapus Video
+                      </button>
                     </div>
                   )}
                 </div>
