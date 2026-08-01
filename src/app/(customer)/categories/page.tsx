@@ -37,16 +37,16 @@ export default function CategoriesPage() {
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         
-        {/* High-End Modern Header */}
-        <div className="text-center pt-2 pb-6 mb-4 space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#800020]/10 border border-[#800020]/15 text-[#800020] text-[11px] font-extrabold tracking-widest uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></span>
-            FBS Bakery Collections
+        {/* Ultra-Minimalist Full Black Left-Aligned Header */}
+        <div className="text-left pt-2 pb-6 mb-4 space-y-1.5 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 border border-black/10 text-black text-[11px] font-extrabold tracking-widest uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
+            FBS BAKERY COLLECTIONS
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
-            Kategori <span className="bg-gradient-to-r from-[#800020] via-[#A01B35] to-[#D4AF37] bg-clip-text text-transparent">Produk Pilihan</span>
+          <h1 className="font-serif text-3xl sm:text-4xl font-black text-black tracking-tight">
+            Kategori Produk Pilihan
           </h1>
-          <p className="text-stone-500 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed">
+          <p className="text-stone-700 text-xs sm:text-sm leading-relaxed font-medium">
             Telusuri bahan kue dan peralatan bakery berdasarkan spesialisasi: tepung pilihan, cokelat couverture, mentega impor, hiasan kue, hingga kemasan food-grade.
           </p>
         </div>

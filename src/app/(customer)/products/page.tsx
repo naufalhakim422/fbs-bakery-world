@@ -99,31 +99,31 @@ function CatalogContent() {
 
   return (
     <>
-      {/* HIGH-END MODERN & MINIMALIST HERO HEADER */}
+      {/* ULTRA-MINIMALIST FULL BLACK LEFT-ALIGNED HEADER */}
       <div className="pt-2 pb-6 mb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative">
-        <div className="space-y-1.5 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#800020]/10 border border-[#800020]/15 text-[#800020] text-[11px] font-extrabold tracking-widest uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></span>
-            Katalog Toko Roti FBS
+        <div className="space-y-1.5 max-w-2xl text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 border border-black/10 text-black text-[11px] font-extrabold tracking-widest uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
+            KATALOG TOKO ROTI FBS
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight leading-tight">
-            Perlengkapan & <span className="bg-gradient-to-r from-[#800020] via-[#A01B35] to-[#D4AF37] bg-clip-text text-transparent">Bahan Kue</span>
+          <h1 className="font-serif text-3xl sm:text-4xl font-black text-black tracking-tight leading-tight">
+            Perlengkapan & Bahan Kue
           </h1>
-          <p className="text-stone-500 text-xs sm:text-sm leading-relaxed">
+          <p className="text-stone-700 text-xs sm:text-sm leading-relaxed font-medium">
             Telusuri pilihan lengkap kami yang terdiri dari tepung, cokelat, mentega, hiasan, dan peralatan dengan berbagai pilihan berat.
           </p>
         </div>
 
-        {/* Sleek Floating Search Bar */}
+        {/* Minimalist Search Input Bar */}
         <div className="w-full md:w-80 relative group">
           <input 
             type="text"
             placeholder="Cari produk, merek, atau bahan..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white/80 backdrop-blur-md border border-stone-200/90 rounded-2xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#800020] focus:ring-2 focus:ring-[#800020]/10 shadow-sm hover:shadow-md transition-all duration-300"
+            className="w-full pl-11 pr-4 py-3 bg-white border border-black/20 rounded-2xl text-xs text-black placeholder-stone-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black/20 shadow-sm transition-all duration-300"
           />
-          <Search className="w-4 h-4 text-stone-400 group-focus-within:text-[#800020] absolute left-4 top-3.5 transition-colors" />
+          <Search className="w-4 h-4 text-stone-400 group-focus-within:text-black absolute left-4 top-3.5 transition-colors" />
         </div>
       </div>
 
