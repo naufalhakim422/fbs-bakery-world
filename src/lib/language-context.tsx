@@ -2608,6 +2608,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Notify other tabs & components
       window.dispatchEvent(new StorageEvent('storage', { key: 'fbs_language', newValue: lang }));
       window.dispatchEvent(new CustomEvent('fbs_language_changed', { detail: { lang } }));
+
+      // Reload page immediately so Google Translate instantly translates 100% of all text on current page
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (e) {}
   };
 
