@@ -85,7 +85,6 @@ export const HeaderNav: React.FC = () => {
     { code: 'MS', label: 'Bahasa Melayu', flag: '🇲🇾' },
     { code: 'ID', label: 'Bahasa Indonesia', flag: '🇮🇩' },
     { code: 'EN', label: 'English', flag: '🇬🇧' },
-    { code: 'ZH', label: '中文', flag: '🇨🇳' },
   ];
 
   return (
@@ -252,7 +251,7 @@ export const HeaderNav: React.FC = () => {
                         : 'text-stone-400 hover:text-white'
                     }`}
                   >
-                    {lang.code === 'MS' ? 'MY' : lang.code === 'ID' ? 'ID' : lang.code === 'EN' ? 'EN' : 'CH'}
+                    {lang.code === 'MS' ? 'MY' : lang.code === 'ID' ? 'ID' : 'EN'}
                   </button>
                 );
               })}

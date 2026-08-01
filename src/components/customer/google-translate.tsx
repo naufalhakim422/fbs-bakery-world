@@ -74,7 +74,7 @@ export const GoogleTranslateScript: React.FC = () => {
             new (window as any).google.translate.TranslateElement(
               {
                 pageLanguage: 'ms',
-                includedLanguages: 'ms,id,en,zh-CN',
+                includedLanguages: 'ms,id,en',
                 layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
                 autoDisplay: false,
               },
@@ -84,7 +84,7 @@ export const GoogleTranslateScript: React.FC = () => {
             // Sync translation immediately after init
             setTimeout(() => {
               const savedLang = localStorage.getItem('fbs_language') || 'MS';
-              const gtLangMap: Record<string, string> = { MS: 'ms', ID: 'id', EN: 'en', ZH: 'zh-CN' };
+              const gtLangMap: Record<string, string> = { MS: 'ms', ID: 'id', EN: 'en' };
               const targetGtLang = gtLangMap[savedLang] || 'ms';
               const gtCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
               if (gtCombo && gtCombo.value !== targetGtLang) {

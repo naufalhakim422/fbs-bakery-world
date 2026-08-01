@@ -56,18 +56,18 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     if (confirmText) return confirmText;
     switch (type) {
       case 'logout':
-        return language === 'ID' ? 'Ya, Keluar' : language === 'MS' ? 'Ya, Keluar' : language === 'ZH' ? '是，登出' : 'Yes, Logout';
+        return language === 'ID' ? 'Ya, Keluar' : language === 'MS' ? 'Ya, Keluar' : 'Yes, Logout';
       case 'save':
-        return language === 'ID' ? 'Ya, Simpan' : language === 'MS' ? 'Ya, Simpan' : language === 'ZH' ? '是，保存' : 'Yes, Save';
+        return language === 'ID' ? 'Ya, Simpan' : language === 'MS' ? 'Ya, Simpan' : 'Yes, Save';
       case 'upload':
-        return language === 'ID' ? 'Ya, Unggah' : language === 'MS' ? 'Ya, Muat Naik' : language === 'ZH' ? '是，上传' : 'Yes, Upload';
+        return language === 'ID' ? 'Ya, Unggah' : language === 'MS' ? 'Ya, Muat Naik' : 'Yes, Upload';
       default:
-        return language === 'ID' ? 'Ya, Hapus' : language === 'MS' ? 'Ya, Padam' : language === 'ZH' ? '是，删除' : 'Yes, Delete';
+        return language === 'ID' ? 'Ya, Hapus' : language === 'MS' ? 'Ya, Padam' : 'Yes, Delete';
     }
   };
 
   const defaultCancelText = cancelText || (
-    language === 'ID' ? 'Batal' : language === 'MS' ? 'Batal' : language === 'ZH' ? '取消' : 'Cancel'
+    language === 'ID' ? 'Batal' : language === 'MS' ? 'Batal' : 'Cancel'
   );
 
   // Theme styles based on type

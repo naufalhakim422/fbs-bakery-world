@@ -66,7 +66,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { code: 'MS', label: 'MY' },
     { code: 'ID', label: 'ID' },
     { code: 'EN', label: 'EN' },
-    { code: 'ZH', label: 'CH' },
   ];
 
   const handleLogout = () => {
@@ -131,7 +130,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-[#D4AF37]" /> BAHASA / LANGUAGE
             </span>
-            <div className="grid grid-cols-4 gap-1.5 text-xs font-bold">
+            <div className="grid grid-cols-3 gap-1.5 text-xs font-bold">
               {languagesList.map((lang) => {
                 const isSelected = language === lang.code;
                 return (
