@@ -80,6 +80,18 @@ export const GoogleTranslateScript: React.FC = () => {
               },
               'google_translate_element'
             );
+
+            // Sync translation immediately after init
+            setTimeout(() => {
+              const savedLang = localStorage.getItem('fbs_language') || 'MS';
+              const gtLangMap: Record<string, string> = { MS: 'ms', ID: 'id', EN: 'en', ZH: 'zh-CN' };
+              const targetGtLang = gtLangMap[savedLang] || 'ms';
+              const gtCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+              if (gtCombo && gtCombo.value !== targetGtLang) {
+                gtCombo.value = targetGtLang;
+                gtCombo.dispatchEvent(new Event('change'));
+              }
+            }, 300);
           }
         } catch (err) {}
       };

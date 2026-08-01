@@ -2538,11 +2538,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const targetGtLang = gtLangMap[lang] || 'ms';
       const googTarget = googTransMap[lang] || '/ms/ms';
 
-      // Set cookies for Google Translate widget
+      // Set cookies for Google Translate widget across root and domain
       document.cookie = `googtrans=${googTarget}; path=/; max-age=31536000;`;
-      if (window.location.hostname) {
-        document.cookie = `googtrans=${googTarget}; path=/; domain=${window.location.hostname}; max-age=31536000;`;
+      const domainParts = window.location.hostname.split('.');
+      if (domainParts.length >= 2) {
+        const rootDomain = '.' + domainParts.slice(-2).join('.');
+        document.cookie = `googtrans=${googTarget}; path=/; domain=${rootDomain}; max-age=31536000;`;
       }
+      document.cookie = `googtrans=${googTarget}; path=/; domain=${window.location.hostname}; max-age=31536000;`;
 
       // Update Google Translate select element if loaded in DOM
       const gtCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
