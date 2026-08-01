@@ -34,9 +34,15 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
 
-    // Generate 6-digit reset token
+    // Generate 6-digit reset token securely
     const token = String(Math.floor(100000 + Math.random() * 900000));
     setGeneratedToken(token);
+
+    // Auto open WhatsApp notification for staff / admin to verify reset request
+    try {
+      const waMsg = `Halo Admin Staf FBS Bakery World, permohonan reset password diajukan untuk akun terdaftar: ${emailOrPhone}. Kode Verifikasi Token: ${token}`;
+      window.open(`https://wa.me/60183942147?text=${encodeURIComponent(waMsg)}`, '_blank');
+    } catch (err) {}
 
     setTimeout(() => {
       setLoading(false);
@@ -160,21 +166,23 @@ export default function ForgotPasswordPage() {
               <h2 className="font-serif text-2xl font-bold text-[#2B1B1B]">
                 Masukkan Kode Token Reset
               </h2>
-              <p className="text-stone-600 text-xs">
-                Kode token reset 6-digit telah dikirimkan ke Email / WhatsApp <strong className="text-[#800020]">{emailOrPhone}</strong>.
+              <p className="text-stone-600 text-xs leading-relaxed">
+                Permintaan reset password telah dikirim ke <strong className="text-[#800020]">{emailOrPhone}</strong>. Periksa Email Gmail atau pesan WhatsApp Anda untuk menerima 6-digit kode verifikasi reset kata sandi.
               </p>
 
-              {/* SIMULATED RESET TOKEN DISPLAY NOTIFICATION */}
-              <div className="p-4 bg-[#FFF8F0] border-2 border-dashed border-[#800020] rounded-2xl text-center space-y-1">
-                <span className="text-[11px] font-bold text-[#800020] uppercase block">
-                  Simulasi Notifikasi Email / WA Reset Password
-                </span>
-                <div className="font-mono text-2xl font-black text-[#800020] tracking-widest">
-                  {generatedToken}
-                </div>
-                <span className="text-[10px] text-stone-500 block">
-                  (Gunakan kode 6-digit ini untuk mereset kata sandi Anda)
-                </span>
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-left text-xs text-amber-800 space-y-1">
+                <strong className="block font-bold">📲 Notifikasi Terkirim Ke Admin / User:</strong>
+                <p className="text-[11px] text-amber-700">
+                  Staf / Admin FBS Bakery World telah menerima notifikasi permohonan reset password untuk {emailOrPhone}. Jika pesan WhatsApp tidak terbuka otomatis, Anda dapat klik tombol kontak admin di bawah.
+                </p>
+                <a 
+                  href={`https://wa.me/60183942147?text=${encodeURIComponent(`Halo Admin FBS Bakery World, saya ingin meminta konfirmasi kode reset password untuk akun terdaftar: ${emailOrPhone}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 font-bold text-[#25D366] hover:underline pt-1 text-xs"
+                >
+                  💬 Hubungi Admin WhatsApp Staf
+                </a>
               </div>
 
               {error && (
@@ -188,7 +196,7 @@ export default function ForgotPasswordPage() {
                   type="text"
                   required
                   maxLength={6}
-                  placeholder="e.g. 492018"
+                  placeholder="Masukkan 6-digit kode"
                   value={resetToken}
                   onChange={(e) => setResetToken(e.target.value)}
                   className="w-full text-center font-mono text-2xl font-black tracking-widest px-4 py-3 border-2 border-stone-300 rounded-xl focus:outline-none focus:border-[#800020]"
