@@ -91,15 +91,7 @@ export default function CustomerLoginPage() {
       return;
     }
 
-    // Trigger Firebase Phone Auth SMS OTP Modal
-    setShowPhoneOtpModal(true);
-  };
-
-  const handleOtpVerifySuccess = async () => {
-    setShowOtpModal(false);
     setLoading(true);
-
-    const identifier = phoneOrEmail.trim();
     resetFailedAttempts(identifier);
 
     const inputClean = identifier;
@@ -112,10 +104,10 @@ export default function CustomerLoginPage() {
       phone: isEmail ? '' : inputClean,
       customerType: 'RETAIL' as const,
       provider: isEmail ? ('EMAIL' as const) : ('PHONE' as const),
-      address: 'Shah Alam, Selangor',
-      city: 'Shah Alam',
-      state: 'Selangor',
-      postcode: '40000',
+      address: 'Chukai, Terengganu',
+      city: 'Chukai',
+      state: 'Terengganu',
+      postcode: '24000',
       createdAt: new Date().toISOString(),
       loginAt: new Date().toISOString(),
     };
@@ -298,23 +290,6 @@ export default function CustomerLoginPage() {
           </div>
         </div>
       </main>
-
-      {/* 2-STEP OTP VERIFICATION MODAL */}
-      <OtpModal
-        isOpen={showOtpModal}
-        onClose={() => setShowOtpModal(false)}
-        targetDestination={phoneOrEmail}
-        onVerifySuccess={handleOtpVerifySuccess}
-        title={t.customerAccount.verifyIdentity}
-      />
-
-      {/* FIREBASE PHONE AUTH SMS OTP MODAL */}
-      <PhoneOtpModal
-        isOpen={showPhoneOtpModal}
-        onClose={() => setShowPhoneOtpModal(false)}
-        defaultPhone={phoneOrEmail.startsWith('+') ? phoneOrEmail : ''}
-        onSuccess={handlePhoneAuthSuccess}
-      />
 
       <Footer />
       <FloatingWhatsApp />

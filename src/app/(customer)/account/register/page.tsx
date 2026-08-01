@@ -57,14 +57,7 @@ export default function CustomerRegisterPage() {
       return;
     }
 
-    // Trigger Firebase Phone Auth SMS OTP Modal
-    setShowPhoneOtpModal(true);
-  };
-
-  const handleOtpVerifySuccess = async () => {
-    setShowOtpModal(false);
     setLoading(true);
-
     const hashedPassword = await hashPassword(form.password);
 
     setTimeout(() => {
@@ -76,10 +69,10 @@ export default function CustomerRegisterPage() {
         customerType: 'RETAIL' as const,
         provider: 'FORM' as const,
         hashedPassword: hashedPassword,
-        address: 'Shah Alam, Selangor',
-        city: 'Shah Alam',
-        state: 'Selangor',
-        postcode: '40000',
+        address: 'Chukai, Terengganu',
+        city: 'Chukai',
+        state: 'Terengganu',
+        postcode: '24000',
         createdAt: new Date().toISOString(),
         loginAt: new Date().toISOString(),
       };
@@ -105,7 +98,7 @@ export default function CustomerRegisterPage() {
 
       setLoading(false);
       router.push('/account');
-    }, 500);
+    }, 400);
   };
 
   return (
@@ -292,58 +285,6 @@ export default function CustomerRegisterPage() {
           </div>
         </div>
       </main>
-
-      <OtpModal
-        isOpen={showOtpModal}
-        onClose={() => setShowOtpModal(false)}
-        targetDestination={form.phone || form.email}
-        onVerifySuccess={handleOtpVerifySuccess}
-        title={t.customerAccount.verifyIdentity}
-      />
-
-      <PhoneOtpModal
-        isOpen={showPhoneOtpModal}
-        onClose={() => setShowPhoneOtpModal(false)}
-        defaultPhone={form.phone.startsWith('+') ? form.phone : ''}
-        onSuccess={(firebaseUser) => {
-          setShowPhoneOtpModal(false);
-          setLoading(true);
-          const userPhone = firebaseUser.phoneNumber || form.phone || '+628123456789';
-          const customerSession = {
-            id: firebaseUser.uid || `cust-${Date.now()}`,
-            name: form.fullName || `User ${userPhone.slice(-4)}`,
-            email: form.email || `${userPhone.replace(/[^0-9]/g, '')}@fbsbakeryworld.com`,
-            phone: userPhone,
-            customerType: 'RETAIL' as const,
-            provider: 'PHONE' as const,
-            address: 'Chukai, Terengganu',
-            city: 'Chukai',
-            state: 'Terengganu',
-            postcode: '24000',
-            createdAt: new Date().toISOString(),
-            loginAt: new Date().toISOString(),
-          };
-
-          const existingCustomers = db.getCustomers();
-          existingCustomers.unshift({
-            id: customerSession.id,
-            name: customerSession.name,
-            email: customerSession.email,
-            phone: customerSession.phone,
-            customerType: 'RETAIL',
-            address: customerSession.address,
-            city: customerSession.city,
-            state: customerSession.state,
-            postcode: customerSession.postcode,
-            createdAt: new Date().toISOString(),
-          });
-          localStorage.setItem('fbs_customers', JSON.stringify(existingCustomers));
-          localStorage.setItem('fbs_customer_session', JSON.stringify(customerSession));
-
-          setLoading(false);
-          router.push('/account');
-        }}
-      />
 
       <Footer />
       <FloatingWhatsApp />
