@@ -227,56 +227,59 @@ export default function BlogListPage() {
       {/* POPUP/MODAL VIDEO PLAYER */}
       {selectedVideo && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#181113] rounded-3xl max-w-3xl w-full p-4 sm:p-6 space-y-4 shadow-2xl border border-[#D4AF37]/30 animate-scale-up relative">
-            
-            <button 
-              onClick={() => setSelectedVideo(null)} 
-              className="absolute -top-3 -right-3 sm:top-4 sm:right-4 p-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] rounded-full border border-[#D4AF37]/40 shadow-lg transition-colors z-50"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          {(() => {
+            const parsed = getEmbedVideoUrl(selectedVideo.embedUrl, selectedVideo.platform);
+            const isVertical = parsed.aspectRatio === '9/16';
+            return (
+              <div className={`bg-[#181113] rounded-3xl w-full p-4 sm:p-6 space-y-4 shadow-2xl border border-[#D4AF37]/30 animate-scale-up relative ${
+                isVertical ? 'max-w-md' : 'max-w-3xl'
+              }`}>
+                <button 
+                  onClick={() => setSelectedVideo(null)} 
+                  className="absolute -top-3 -right-3 sm:top-4 sm:right-4 p-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] rounded-full border border-[#D4AF37]/40 shadow-lg transition-colors z-50"
+                >
+                  <X className="w-5 h-5" />
+                </button>
 
-            {/* Title / Header */}
-            <div>
-              <span className="text-[10px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">
-                {selectedVideo.category} • {selectedVideo.platform} VIDEO
-              </span>
-              <h2 className="font-serif text-lg sm:text-2xl font-bold text-white leading-snug">
-                {selectedVideo.title}
-              </h2>
-            </div>
+                {/* Title / Header */}
+                <div>
+                  <span className="text-[10px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">
+                    {selectedVideo.category} • {selectedVideo.platform} VIDEO
+                  </span>
+                  <h2 className="font-serif text-lg sm:text-2xl font-bold text-white leading-snug">
+                    {selectedVideo.title}
+                  </h2>
+                </div>
 
-            {/* Video Frame */}
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-stone-800 shadow-inner">
-              {(() => {
-                const parsed = getEmbedVideoUrl(selectedVideo.embedUrl, selectedVideo.platform);
-                if (parsed.isDirectVideo) {
-                  return (
+                {/* Video Frame */}
+                <div className={`relative w-full mx-auto rounded-2xl overflow-hidden bg-black border border-stone-800 shadow-inner flex items-center justify-center ${
+                  isVertical ? 'max-w-[340px] aspect-[9/16] h-[540px]' : 'aspect-video'
+                }`}>
+                  {parsed.isDirectVideo ? (
                     <video 
                       src={parsed.embedUrl} 
                       controls 
                       autoPlay 
                       className="w-full h-full object-contain bg-black"
                     />
-                  );
-                }
-                return (
-                  <iframe
-                    src={parsed.embedUrl}
-                    title={selectedVideo.title}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                );
-              })()}
-            </div>
+                  ) : (
+                    <iframe
+                      src={parsed.embedUrl}
+                      title={selectedVideo.title}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  )}
+                </div>
 
-            {/* Description */}
-            <p className="text-stone-300 text-xs sm:text-sm leading-relaxed max-h-24 overflow-y-auto pr-2">
-              {selectedVideo.description}
-            </p>
-          </div>
+                {/* Description */}
+                <p className="text-stone-300 text-xs sm:text-sm leading-relaxed max-h-24 overflow-y-auto pr-2">
+                  {selectedVideo.description}
+                </p>
+              </div>
+            );
+          })()}
         </div>
       )}
 

@@ -2,9 +2,9 @@
  * Helper to parse various video URLs (YouTube, TikTok, Facebook, Google Drive, Direct MP4/Base64)
  * and return the proper embed URL or HTML structure for clean playback without broken frames.
  */
-export function getEmbedVideoUrl(url: string, platform?: string): { isDirectVideo: boolean; embedUrl: string } {
+export function getEmbedVideoUrl(url: string, platform?: string): { isDirectVideo: boolean; embedUrl: string; aspectRatio: '16/9' | '9/16' } {
   if (!url || typeof url !== 'string') {
-    return { isDirectVideo: false, embedUrl: '' };
+    return { isDirectVideo: false, embedUrl: '', aspectRatio: '16/9' };
   }
 
   const cleanUrl = url.trim();
@@ -16,17 +16,27 @@ export function getEmbedVideoUrl(url: string, platform?: string): { isDirectVide
     /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(cleanUrl) ||
     platform === 'FBS'
   ) {
-    return { isDirectVideo: true, embedUrl: cleanUrl };
+    return { isDirectVideo: true, embedUrl: cleanUrl, aspectRatio: '16/9' };
   }
 
-  // 2. YouTube URLs (watch, shorts, embed, youtu.be)
+  // 2. YouTube Shorts (Vertical 9:16)
+  if (cleanUrl.includes('youtube.com/shorts/')) {
+    const videoId = cleanUrl.split('youtube.com/shorts/')[1]?.split('?')[0] || '';
+    if (videoId) {
+      return {
+        isDirectVideo: false,
+        embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`,
+        aspectRatio: '9/16',
+      };
+    }
+  }
+
+  // 3. YouTube Standard URLs (Horizontal 16:9)
   if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
     let videoId = '';
     
     if (cleanUrl.includes('youtu.be/')) {
       videoId = cleanUrl.split('youtu.be/')[1]?.split('?')[0] || '';
-    } else if (cleanUrl.includes('youtube.com/shorts/')) {
-      videoId = cleanUrl.split('youtube.com/shorts/')[1]?.split('?')[0] || '';
     } else if (cleanUrl.includes('youtube.com/watch')) {
       try {
         const urlObj = new URL(cleanUrl);
@@ -42,21 +52,24 @@ export function getEmbedVideoUrl(url: string, platform?: string): { isDirectVide
       return {
         isDirectVideo: false,
         embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`,
+        aspectRatio: '16/9',
       };
     }
   }
 
-  // 3. TikTok URLs (video ID conversion to embed player)
-  if (cleanUrl.includes('tiktok.com')) {
+  // 4. TikTok URLs (Vertical 9:16)
+  if (cleanUrl.includes('tiktok.com') || platform === 'TIKTOK') {
     const match = cleanUrl.match(/\/video\/(\d+)/);
     if (match && match[1]) {
       return {
         isDirectVideo: false,
         embedUrl: `https://www.tiktok.com/embed/v2/${match[1]}`,
+        aspectRatio: '9/16',
       };
     }
   }
 
   // Fallback for standard iframe URLs
-  return { isDirectVideo: false, embedUrl: cleanUrl };
+  const isVertical = platform === 'TIKTOK';
+  return { isDirectVideo: false, embedUrl: cleanUrl, aspectRatio: isVertical ? '9/16' : '16/9' };
 }
