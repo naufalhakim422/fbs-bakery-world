@@ -191,13 +191,21 @@ export const HeaderNav: React.FC = () => {
                 </span>
               </Link>
 
-              {/* Mobile Menu Hamburger Button (ONLY SHOWN ON MOBILE HP, HIDDEN ON PC/LAPTOP/TABLET) */}
+              {/* Mobile Menu Hamburger Button (PROMINENT HIGH-VISIBILITY BUTTON FOR HP DEVICE) */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 bg-white/10 hover:bg-white/20 text-[#F7E7CE] hover:text-white rounded-full border border-[#D4AF37]/40 transition-all flex items-center justify-center"
-                title="Toggle Mobile Menu"
+                className="md:hidden p-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] active:scale-95 rounded-xl border border-[#D4AF37]/50 shadow-md transition-all flex items-center justify-center gap-1"
+                title="Buka Menu Navigasi"
+                aria-label="Buka Menu Navigasi"
               >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5 text-[#D4AF37]" />}
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5 text-white" />
+                ) : (
+                  <>
+                    <Menu className="w-5 h-5 text-[#D4AF37]" />
+                    <span className="text-[10px] font-black uppercase text-[#F7E7CE]">Menu</span>
+                  </>
+                )}
               </button>
 
             </div>
