@@ -557,33 +557,37 @@ export default function HomePage() {
 
       {/* POPUP/MODAL VIDEO PLAYER */}
       {selectedVideo && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
           {(() => {
             const parsed = getEmbedVideoUrl(selectedVideo.embedUrl, selectedVideo.platform);
             const isVertical = parsed.aspectRatio === '9/16';
             return (
-              <div className={`bg-[#181113] rounded-3xl w-full p-4 sm:p-6 space-y-4 shadow-2xl border border-[#D4AF37]/30 animate-scale-up relative ${
-                isVertical ? 'max-w-md' : 'max-w-3xl'
+              <div className={`bg-[#120C0E]/95 rounded-3xl w-full p-5 sm:p-7 shadow-2xl border border-[#D4AF37]/35 animate-scale-up relative flex flex-col gap-4 my-auto ${
+                isVertical ? 'max-w-md' : 'max-w-4xl'
               }`}>
+                {/* Minimalist Close Button */}
                 <button 
                   onClick={() => setSelectedVideo(null)} 
-                  className="absolute -top-3 -right-3 sm:top-4 sm:right-4 p-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] rounded-full border border-[#D4AF37]/40 shadow-lg transition-colors z-50"
+                  className="absolute top-4 right-4 p-2 bg-stone-900/90 hover:bg-[#800020] text-stone-300 hover:text-[#D4AF37] rounded-full border border-stone-800 hover:border-[#D4AF37]/50 shadow-xl transition-all z-50 group"
+                  title="Close Video"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
                 </button>
 
-                {/* Title / Header */}
-                <div>
-                  <span className="text-[10px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">
-                    {selectedVideo.category} • {selectedVideo.platform} VIDEO
-                  </span>
-                  <h2 className="font-serif text-lg sm:text-2xl font-bold text-white leading-snug">
+                {/* Header Badge & Title */}
+                <div className="pr-8 space-y-1">
+                  <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/25 text-[#D4AF37] text-[10px] font-extrabold tracking-widest uppercase">
+                    <Sparkles className="w-3 h-3 text-[#D4AF37]" />
+                    {selectedVideo.category} • {selectedVideo.platform}
+                  </div>
+                  <h2 className="font-serif text-lg sm:text-2xl font-bold text-white leading-snug tracking-tight">
                     {selectedVideo.title}
                   </h2>
                 </div>
 
-                <div className={`relative w-full mx-auto rounded-2xl overflow-hidden bg-black border border-stone-800 shadow-inner flex items-center justify-center ${
-                  isVertical ? 'max-w-[340px] aspect-[9/16] h-[540px]' : 'aspect-video'
+                {/* Premium Video Frame Container */}
+                <div className={`relative w-full mx-auto rounded-2xl overflow-hidden bg-black border border-stone-800/80 shadow-2xl flex items-center justify-center ${
+                  isVertical ? 'max-w-[340px] aspect-[9/16] h-[520px]' : 'aspect-video'
                 }`}>
                   {parsed.isDirectVideo ? (
                     <video 
@@ -603,9 +607,11 @@ export default function HomePage() {
                   )}
                 </div>
 
-                <p className="text-stone-300 text-xs sm:text-sm leading-relaxed max-h-24 overflow-y-auto pr-2">
-                  {selectedVideo.description}
-                </p>
+                {/* Minimalist Luxury Description Card */}
+                <div className="bg-stone-900/60 p-4 rounded-2xl border border-stone-800/80 text-xs sm:text-sm text-stone-300 leading-relaxed max-h-32 overflow-y-auto space-y-1 backdrop-blur-sm">
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Description</span>
+                  <p className="whitespace-pre-line text-stone-200">{selectedVideo.description}</p>
+                </div>
               </div>
             );
           })()}
