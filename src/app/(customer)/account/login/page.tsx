@@ -12,6 +12,7 @@ import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { BotChallenge } from '@/components/customer/bot-challenge';
 import { hashPassword, checkRateLimit, recordFailedAttempt, resetFailedAttempts } from '@/lib/auth-security';
 import { OtpModal } from '@/components/customer/otp-modal';
+import { PhoneOtpModal } from '@/components/auth/phone-otp-modal';
 import { User, Lock, Phone, ArrowRight, ShieldCheck, AlertTriangle, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
@@ -26,6 +27,7 @@ export default function CustomerLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [showPhoneOtpModal, setShowPhoneOtpModal] = useState(false);
 
   // Rate Limiting & Security State
   const [rateLimitState, setRateLimitState] = useState({
@@ -125,6 +127,31 @@ export default function CustomerLoginPage() {
     }, 400);
   };
 
+  const handlePhoneAuthSuccess = (firebaseUser: any) => {
+    setShowPhoneOtpModal(false);
+    setLoading(true);
+
+    const userPhone = firebaseUser.phoneNumber || phoneOrEmail || '+628123456789';
+    const customerSession = {
+      id: firebaseUser.uid || `cust-${Date.now()}`,
+      name: `User ${userPhone.slice(-4)}`,
+      email: `${userPhone.replace(/[^0-9]/g, '')}@fbsbakeryworld.com`,
+      phone: userPhone,
+      customerType: 'RETAIL' as const,
+      provider: 'PHONE' as const,
+      address: 'Chukai, Terengganu',
+      city: 'Chukai',
+      state: 'Terengganu',
+      postcode: '24000',
+      createdAt: new Date().toISOString(),
+      loginAt: new Date().toISOString(),
+    };
+
+    saveCustomerToDB(customerSession);
+    setLoading(false);
+    router.push('/account');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
       <AnnouncementBar />
@@ -149,7 +176,7 @@ export default function CustomerLoginPage() {
             </p>
           </div>
 
-          {/* Social Login Buttons */}
+          {/* Social & Phone Login Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
             <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
@@ -160,6 +187,15 @@ export default function CustomerLoginPage() {
               <GoogleButton />
               <FacebookButton />
             </div>
+            
+            <button
+              type="button"
+              onClick={() => setShowPhoneOtpModal(true)}
+              className="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+            >
+              <Phone className="w-4 h-4 text-emerald-200" />
+              <span>Login via SMS OTP (Firebase)</span>
+            </button>
           </div>
 
           {rateLimitState.isLocked && (
@@ -279,6 +315,14 @@ export default function CustomerLoginPage() {
         targetDestination={phoneOrEmail}
         onVerifySuccess={handleOtpVerifySuccess}
         title={t.customerAccount.verifyIdentity}
+      />
+
+      {/* FIREBASE PHONE AUTH SMS OTP MODAL */}
+      <PhoneOtpModal
+        isOpen={showPhoneOtpModal}
+        onClose={() => setShowPhoneOtpModal(false)}
+        defaultPhone={phoneOrEmail.startsWith('+') ? phoneOrEmail : ''}
+        onSuccess={handlePhoneAuthSuccess}
       />
 
       <Footer />

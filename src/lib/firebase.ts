@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, FacebookAuthProvider, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCFrKB0fVX3T3fCKeS51VFYFZsBpGakPKQ",
@@ -19,4 +19,5 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 const facebookProvider = new FacebookAuthProvider();
 
-export { app, auth, googleProvider, facebookProvider };
+export { app, auth, googleProvider, facebookProvider, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult };
+

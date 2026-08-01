@@ -12,6 +12,7 @@ import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { BotChallenge } from '@/components/customer/bot-challenge';
 import { hashPassword, validatePassword } from '@/lib/auth-security';
 import { OtpModal } from '@/components/customer/otp-modal';
+import { PhoneOtpModal } from '@/components/auth/phone-otp-modal';
 import { User, Lock, Phone, Mail, ArrowRight, ShieldCheck, UserPlus, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
@@ -33,6 +34,7 @@ export default function CustomerRegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [showPhoneOtpModal, setShowPhoneOtpModal] = useState(false);
 
   const passwordValidation = validatePassword(form.password);
 
@@ -129,7 +131,7 @@ export default function CustomerRegisterPage() {
               {t.customerAccount.registerSubtitle}
             </p>
           </div>
-          {/* Social Login Buttons */}
+          {/* Social & Phone Register Buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
             <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
@@ -140,6 +142,15 @@ export default function CustomerRegisterPage() {
               <GoogleButton />
               <FacebookButton />
             </div>
+
+            <button
+              type="button"
+              onClick={() => setShowPhoneOtpModal(true)}
+              className="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+            >
+              <Phone className="w-4 h-4 text-emerald-200" />
+              <span>Daftar / Login via SMS OTP (Firebase)</span>
+            </button>
           </div>
 
           {error && (
@@ -161,9 +172,25 @@ export default function CustomerRegisterPage() {
                   placeholder="e.g. Ahmad Naufal"
                   value={form.fullName}
                   onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                  className="w-full pl-10 pr-4 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
                 />
-                <User className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                <User className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-bold text-stone-700 uppercase mb-1">
+                {t.customerAccount.emailAddress}
+              </label>
+              <div className="relative">
+                <input 
+                  type="email"
+                  placeholder="e.g. naufal@example.com"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="w-full pl-10 pr-4 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                />
+                <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
               </div>
             </div>
 
@@ -175,82 +202,79 @@ export default function CustomerRegisterPage() {
                 <input 
                   type="tel"
                   required
-                  placeholder="e.g. +60129876543"
+                  placeholder="e.g. +60123456789"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                  className="w-full pl-10 pr-4 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
                 />
-                <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
               </div>
             </div>
 
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
-                {t.customerAccount.emailAddress} ({t.common.optional})
+                {t.customerAccount.password} <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input 
-                  type="email"
-                  placeholder="e.g. naufal@example.com"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="w-full pl-10 pr-10 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
                 />
-                <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3.5 text-stone-400 hover:text-[#800020] transition-colors"
+                  title={showPassword ? t.customerAccount.hidePassword : t.customerAccount.showPassword}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
+
+              {form.password.length > 0 && (
+                <div className="mt-1.5 space-y-1">
+                  <span className={`text-[10px] font-bold block ${
+                    passwordValidation.valid ? 'text-emerald-600' : 'text-stone-500'
+                  }`}>
+                    {passwordValidation.valid ? '✓ Password memenuhi syarat keamanan (8-12+ karakter)' : 'Kriteria password:'}
+                  </span>
+                  {!passwordValidation.valid && (
+                    <p className="text-[10px] text-stone-500">
+                      Minimal 8-12 karakter (disarankan huruf besar & angka).
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block font-bold text-stone-700 uppercase mb-1">
-                  {t.customerAccount.password} <span className="text-red-600">*</span>
-                </label>
-                <div className="relative">
-                  <input 
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    placeholder="e.g. Baker@2026"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="w-full pl-10 pr-10 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
-                  />
-                  <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
-                  
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-stone-400 hover:text-[#800020] transition-colors"
-                    title={showPassword ? t.customerAccount.hidePassword : t.customerAccount.showPassword}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
+            <div>
+              <label className="block font-bold text-stone-700 uppercase mb-1">
+                {t.customerAccount.confirmPassword} <span className="text-red-600">*</span>
+              </label>
+              <div className="relative">
+                <input 
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••"
+                  value={form.confirmPassword}
+                  onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                  className="w-full pl-10 pr-10 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                />
+                <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
 
-              <div>
-                <label className="block font-bold text-stone-700 uppercase mb-1">
-                  {t.customerAccount.confirmPassword} <span className="text-red-600">*</span>
-                </label>
-                <div className="relative">
-                  <input 
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    required
-                    placeholder="••••••••"
-                    value={form.confirmPassword}
-                    onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                    className="w-full pl-10 pr-10 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
-                  />
-                  <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
-                  
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-3 text-stone-400 hover:text-[#800020] transition-colors"
-                    title={showConfirmPassword ? t.customerAccount.hidePassword : t.customerAccount.showPassword}
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3.5 text-stone-400 hover:text-[#800020] transition-colors"
+                  title={showConfirmPassword ? t.customerAccount.hidePassword : t.customerAccount.showPassword}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -284,6 +308,50 @@ export default function CustomerRegisterPage() {
         targetDestination={form.phone || form.email}
         onVerifySuccess={handleOtpVerifySuccess}
         title={t.customerAccount.verifyIdentity}
+      />
+
+      <PhoneOtpModal
+        isOpen={showPhoneOtpModal}
+        onClose={() => setShowPhoneOtpModal(false)}
+        defaultPhone={form.phone.startsWith('+') ? form.phone : ''}
+        onSuccess={(firebaseUser) => {
+          setShowPhoneOtpModal(false);
+          setLoading(true);
+          const userPhone = firebaseUser.phoneNumber || form.phone || '+628123456789';
+          const customerSession = {
+            id: firebaseUser.uid || `cust-${Date.now()}`,
+            name: form.fullName || `User ${userPhone.slice(-4)}`,
+            email: form.email || `${userPhone.replace(/[^0-9]/g, '')}@fbsbakeryworld.com`,
+            phone: userPhone,
+            customerType: 'RETAIL' as const,
+            provider: 'PHONE' as const,
+            address: 'Chukai, Terengganu',
+            city: 'Chukai',
+            state: 'Terengganu',
+            postcode: '24000',
+            createdAt: new Date().toISOString(),
+            loginAt: new Date().toISOString(),
+          };
+
+          const existingCustomers = db.getCustomers();
+          existingCustomers.unshift({
+            id: customerSession.id,
+            name: customerSession.name,
+            email: customerSession.email,
+            phone: customerSession.phone,
+            customerType: 'RETAIL',
+            address: customerSession.address,
+            city: customerSession.city,
+            state: customerSession.state,
+            postcode: customerSession.postcode,
+            createdAt: new Date().toISOString(),
+          });
+          localStorage.setItem('fbs_customers', JSON.stringify(existingCustomers));
+          localStorage.setItem('fbs_customer_session', JSON.stringify(customerSession));
+
+          setLoading(false);
+          router.push('/account');
+        }}
       />
 
       <Footer />
