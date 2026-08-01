@@ -129,38 +129,38 @@ export const Footer: React.FC = () => {
 
             <ul className="space-y-2 text-xs sm:text-sm text-[#C4A882] font-medium">
               <li>
-                <Link href="/contact#faq" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
-                  How To Order
+                <Link href="/contact#faq" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
+                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Cara Memesan' : 'How To Order'}
                 </Link>
               </li>
               <li>
-                <Link href="/contact#shipping" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
-                  Shipping Terms
+                <Link href="/contact#shipping" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
+                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Ketentuan Pengiriman' : 'Shipping Terms'}
                 </Link>
               </li>
               <li>
-                <Link href="/contact#payment" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
-                  Payment Method
+                <Link href="/contact#payment" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
+                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Metode Pembayaran' : 'Payment Method'}
                 </Link>
               </li>
               <li>
-                <Link href="/contact#refund" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
-                  Return & Refund Policy
+                <Link href="/track-order" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
+                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Lacak Pesanan (Tracking)' : 'Track Order Status'}
                 </Link>
               </li>
               <li>
-                <Link href="/contact#privacy" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
-                  Privacy Policy
+                <Link href="/contact#refund" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
+                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Kebijakan Pengembalian' : 'Return & Refund Policy'}
                 </Link>
               </li>
               <li>
-                <Link href="/contact#terms" className="hover:text-[#F7E7CE] transition-colors block py-0.5">
-                  Terms & Conditions
+                <Link href="/faq" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
+                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Pertanyaan Umum (FAQ)' : 'Frequently Asked Questions'}
                 </Link>
               </li>
             </ul>
 
-            {/* ROUND WHITE SOCIAL MEDIA BUTTONS MATCHING REFERENCE SCREENSHOT */}
+            {/* ROUND WHITE SOCIAL MEDIA BUTTONS: FACEBOOK, INSTAGRAM, TIKTOK */}
             <div className="pt-2 flex items-center gap-3">
               {/* FACEBOOK */}
               <a
@@ -188,15 +188,17 @@ export const Footer: React.FC = () => {
                 </svg>
               </a>
 
-              {/* WHATSAPP */}
+              {/* TIKTOK */}
               <a
-                href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber)}`}
+                href="https://www.tiktok.com/@fbsbakeryworld"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-[#F7E7CE] hover:bg-[#D4AF37] text-[#2B1B1B] flex items-center justify-center transition-all transform hover:scale-110 shadow-md"
-                title="WhatsApp"
+                title="TikTok"
               >
-                <Phone className="w-4 h-4 text-[#2B1B1B]" />
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.82.55-1.36 1.48-1.41 2.47-.04.9.36 1.81 1.05 2.37.74.62 1.77.83 2.7.59 1.05-.24 1.94-.98 2.32-1.97.16-.48.23-.99.23-1.5V.02z"/>
+                </svg>
               </a>
             </div>
 
