@@ -72,8 +72,8 @@ export default function BlogListPage() {
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         
-        {/* Modern Minimalist Banner Header */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl mb-8 shadow-sm border border-stone-200/80 text-center relative overflow-hidden">
+        {/* Ultra-Minimalist Header (No Box Container) */}
+        <div className="text-center py-4 mb-6">
           <BookOpen className="w-10 h-10 text-[#800020] mx-auto mb-2" />
           <span className="text-[11px] font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
             FBS BAKING EDUCATION & VIDEOS

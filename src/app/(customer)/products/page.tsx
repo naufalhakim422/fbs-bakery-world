@@ -99,8 +99,8 @@ function CatalogContent() {
 
   return (
     <>
-      {/* ULTRA-MODERN & MINIMALIST PAGE HEADER */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl mb-6 shadow-sm border border-stone-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      {/* ULTRA-MINIMALIST CLEAN PAGE HEADER (NO BOX CONTAINER) */}
+      <div className="py-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <span className="text-[11px] font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
             KATALOG TOKO ROTI FBS
@@ -120,7 +120,7 @@ function CatalogContent() {
             placeholder="Cari produk, merek, atau bahan..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-2xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#800020] focus:bg-white transition-all shadow-inner"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-200 rounded-2xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#800020] shadow-sm transition-all"
           />
           <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
         </div>
