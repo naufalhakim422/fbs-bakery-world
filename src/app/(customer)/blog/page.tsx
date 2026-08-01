@@ -249,7 +249,7 @@ export default function BlogListPage() {
                     <Sparkles className="w-3 h-3 text-[#D4AF37]" />
                     {selectedVideo.category} • {selectedVideo.platform}
                   </div>
-                  <h2 className="font-serif text-lg sm:text-2xl font-bold text-white leading-snug tracking-tight">
+                  <h2 className="font-serif text-lg sm:text-2xl font-bold text-white leading-snug tracking-tight break-words">
                     {selectedVideo.title}
                   </h2>
                 </div>
