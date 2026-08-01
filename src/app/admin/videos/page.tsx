@@ -198,9 +198,6 @@ export default function AdminVideosPage() {
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                   <PlayCircle className="w-12 h-12 text-white/90 drop-shadow-lg" />
                 </div>
-                <span className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/75 text-white text-[10px] font-mono rounded">
-                  {video.duration}
-                </span>
                 {video.isFeatured && (
                   <span className="absolute top-2 left-2 px-2.5 py-0.5 bg-[#800020] text-[#D4AF37] text-[10px] font-bold rounded-full border border-[#D4AF37]/30">
                     FEATURED
@@ -296,8 +293,8 @@ export default function AdminVideosPage() {
                 </div>
               </div>
 
-              {/* Platform & Duration */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Platform & Status */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">{labels.formPlatform} *</label>
                   <select
@@ -307,19 +304,8 @@ export default function AdminVideosPage() {
                   >
                     <option value="YOUTUBE">YouTube</option>
                     <option value="TIKTOK">TikTok</option>
-                    <option value="FBS">Video Promosi FBS (Upload/Direct Link)</option>
+                    <option value="FBS">Video Promosi / Direct Upload MP4</option>
                   </select>
-                </div>
-                <div>
-                  <label className="block font-bold text-stone-700 uppercase mb-1">{labels.formDuration} *</label>
-                  <input 
-                    type="text"
-                    required
-                    placeholder="e.g. 12:45"
-                    value={form.duration}
-                    onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
-                  />
                 </div>
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">Status *</label>

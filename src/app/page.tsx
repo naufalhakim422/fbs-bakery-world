@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { VideoPost } from '@/types';
+import { getEmbedVideoUrl } from '@/lib/video-utils';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
@@ -576,24 +577,28 @@ export default function HomePage() {
             </div>
 
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-stone-800 shadow-inner">
-              {selectedVideo.platform === 'FBS' ? (
-                <video 
-                  src={selectedVideo.embedUrl} 
-                  controls 
-                  autoPlay 
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <iframe
-                  src={selectedVideo.embedUrl.includes('youtube.com') && !selectedVideo.embedUrl.includes('embed/')
-                    ? selectedVideo.embedUrl.replace('watch?v=', 'embed/')
-                    : selectedVideo.embedUrl}
-                  title={selectedVideo.title}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              )}
+              {(() => {
+                const parsed = getEmbedVideoUrl(selectedVideo.embedUrl, selectedVideo.platform);
+                if (parsed.isDirectVideo) {
+                  return (
+                    <video 
+                      src={parsed.embedUrl} 
+                      controls 
+                      autoPlay 
+                      className="w-full h-full object-contain bg-black"
+                    />
+                  );
+                }
+                return (
+                  <iframe
+                    src={parsed.embedUrl}
+                    title={selectedVideo.title}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                );
+              })()}
             </div>
 
             <p className="text-stone-300 text-xs sm:text-sm leading-relaxed max-h-24 overflow-y-auto pr-2">

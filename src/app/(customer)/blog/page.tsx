@@ -9,6 +9,7 @@ import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { VideoPost } from '@/types';
+import { getEmbedVideoUrl } from '@/lib/video-utils';
 import { BookOpen, Calendar, User, ArrowRight, Film, Play, X, Clock, PlayCircle } from 'lucide-react';
 
 export default function BlogListPage() {
@@ -186,9 +187,6 @@ export default function BlogListPage() {
                         <Play className="w-5 h-5 fill-[#D4AF37] ml-0.5" />
                       </div>
                     </div>
-                    <span className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/85 text-white text-[10px] font-mono rounded font-semibold flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#D4AF37]" /> {video.duration}
-                    </span>
                     <span className="absolute top-2 left-2 px-2 py-0.5 bg-stone-900/90 text-[#D4AF37] text-[9px] font-extrabold rounded border border-[#D4AF37]/30 uppercase">
                       {video.platform}
                     </span>
@@ -250,24 +248,28 @@ export default function BlogListPage() {
 
             {/* Video Frame */}
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-stone-800 shadow-inner">
-              {selectedVideo.platform === 'FBS' ? (
-                <video 
-                  src={selectedVideo.embedUrl} 
-                  controls 
-                  autoPlay 
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <iframe
-                  src={selectedVideo.embedUrl.includes('youtube.com') && !selectedVideo.embedUrl.includes('embed/')
-                    ? selectedVideo.embedUrl.replace('watch?v=', 'embed/')
-                    : selectedVideo.embedUrl}
-                  title={selectedVideo.title}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              )}
+              {(() => {
+                const parsed = getEmbedVideoUrl(selectedVideo.embedUrl, selectedVideo.platform);
+                if (parsed.isDirectVideo) {
+                  return (
+                    <video 
+                      src={parsed.embedUrl} 
+                      controls 
+                      autoPlay 
+                      className="w-full h-full object-contain bg-black"
+                    />
+                  );
+                }
+                return (
+                  <iframe
+                    src={parsed.embedUrl}
+                    title={selectedVideo.title}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                );
+              })()}
             </div>
 
             {/* Description */}
