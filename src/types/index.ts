@@ -243,7 +243,7 @@ export interface VideoPost {
   id: string;
   title: string;
   description: string;
-  platform: 'YOUTUBE' | 'TIKTOK' | 'FBS';
+  platform: 'YOUTUBE' | 'TIKTOK' | 'FACEBOOK' | 'FBS';
   embedUrl: string;
   thumbnail: string;
   duration: string;

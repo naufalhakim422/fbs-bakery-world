@@ -21,7 +21,7 @@ export default function AdminVideosPage() {
   const [form, setForm] = useState({
     title: '',
     description: '',
-    platform: 'YOUTUBE' as 'YOUTUBE' | 'TIKTOK' | 'FBS',
+    platform: 'YOUTUBE' as 'YOUTUBE' | 'TIKTOK' | 'FACEBOOK' | 'FBS',
     embedUrl: '',
     thumbnail: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800&auto=format&fit=crop',
     duration: '',
