@@ -175,14 +175,12 @@ export default function AdminDashboardPage() {
         
         const matchingOrders = orders.filter(o => o.createdAt && o.createdAt.startsWith(dateStr));
         const realOmset = matchingOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-        const demoOmset = [280, 420, 390, 550, 780, 990, 1420][6 - i] + realOmset;
-        const demoOrders = matchingOrders.length > 0 ? matchingOrders.length : Math.floor(demoOmset / 85);
 
         days.push({
           label: dayLabel,
           dateStr,
-          omset: demoOmset,
-          ordersCount: demoOrders,
+          omset: realOmset,
+          ordersCount: matchingOrders.length,
           ordersList: matchingOrders,
           active: i === 0,
         });
@@ -207,14 +205,12 @@ export default function AdminDashboardPage() {
         });
         
         const realOmset = matchingOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-        const demoOmset = [1850, 3200, 4100, 6850, 8200, 11950][5 - i] + realOmset;
-        const demoOrders = matchingOrders.length > 0 ? matchingOrders.length : Math.floor(demoOmset / 78);
 
         periods.push({
           label: periodLabel,
           dateStr: periodLabel,
-          omset: demoOmset,
-          ordersCount: demoOrders,
+          omset: realOmset,
+          ordersCount: matchingOrders.length,
           ordersList: matchingOrders,
           active: i === 0,
         });
@@ -232,14 +228,12 @@ export default function AdminDashboardPage() {
 
         const matchingOrders = orders.filter(o => o.createdAt && o.createdAt.startsWith(yearMonthStr));
         const realOmset = matchingOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-        const demoOmset = [1800, 2450, 3100, 4800, 5900, 6500, 7800, 8400, 9200, 10100, 12500, 15800][11 - i] + realOmset;
-        const demoOrders = matchingOrders.length > 0 ? matchingOrders.length : Math.floor(demoOmset / 80);
 
         months.push({
           label: monthNames[d.getMonth()],
           dateStr: mLabel,
-          omset: demoOmset,
-          ordersCount: demoOrders,
+          omset: realOmset,
+          ordersCount: matchingOrders.length,
           ordersList: matchingOrders,
           active: i === 0,
         });
@@ -267,14 +261,12 @@ export default function AdminDashboardPage() {
       });
 
       const realOmset = matchingOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-      const demoOmset = Math.round(750 + (i + 1) * 850 + realOmset);
-      const demoOrders = matchingOrders.length > 0 ? matchingOrders.length : Math.floor(demoOmset / 75);
 
       customPoints.push({
         label: pLabel,
         dateStr: `${curStart.toISOString().split('T')[0]} - ${curEnd.toISOString().split('T')[0]}`,
-        omset: demoOmset,
-        ordersCount: demoOrders,
+        omset: realOmset,
+        ordersCount: matchingOrders.length,
         ordersList: matchingOrders,
         active: i === 5,
       });

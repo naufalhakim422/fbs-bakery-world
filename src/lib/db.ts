@@ -579,53 +579,7 @@ let adminCredentialData: AdminCredentialSetting = {
   password: 'admin123',
 };
 
-let initialOrders: Order[] = [
-  {
-    id: 'ord-1001',
-    orderNumber: '#FBS-20260728-101',
-    customerId: 'cust-1',
-    customerName: 'Siti Nurhaliza',
-    customerPhone: '+60129876543',
-    address: 'No 12, Jalan Bunga Raya, Section 7',
-    city: 'Shah Alam',
-    state: 'Selangor',
-    postcode: '40000',
-    notes: 'Please pack carefully in bubble wrap.',
-    totalAmount: 110.00,
-    orderStatus: 'SHIPPED',
-    courierName: 'J&T Express',
-    trackingNumber: 'JT882910293MY',
-    shippedAt: '2026-07-28T09:00:00Z',
-    items: [
-      {
-        id: 'oi-1',
-        orderId: 'ord-1001',
-        productId: 'prod-1',
-        productVariantId: 'var-1-2',
-        productName: 'Semolina Flour Premium Grade',
-        variantName: '1kg',
-        price: 15.00,
-        quantity: 2,
-        subtotal: 30.00,
-        mainImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
-      },
-      {
-        id: 'oi-2',
-        orderId: 'ord-1001',
-        productId: 'prod-2',
-        productVariantId: 'var-2-2',
-        productName: 'Uji Matcha Powder Grade A',
-        variantName: '250g Pack',
-        price: 75.00,
-        quantity: 1,
-        subtotal: 75.00,
-        mainImage: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop',
-      }
-    ],
-    createdAt: '2026-07-28T08:30:00Z',
-    updatedAt: '2026-07-28T09:00:00Z',
-  }
-];
+let initialOrders: Order[] = [];
 
 let initialCustomers: Customer[] = [
   {
