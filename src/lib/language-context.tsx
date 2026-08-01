@@ -2559,14 +2559,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Load saved language on mount from localStorage or cookie
   useEffect(() => {
     try {
-      let saved = localStorage.getItem('fbs_language');
-      if (!saved) {
+      const isAdminPath = typeof window !== 'undefined' && (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/admin2026'));
+      const storageKey = isAdminPath ? 'fbs_admin_language' : 'fbs_language';
+      
+      let saved = localStorage.getItem(storageKey);
+      if (!saved && !isAdminPath) {
         const match = document.cookie.match(/(?:^|; )fbs_language=([^;]*)/);
         if (match) saved = match[1];
       }
       if (saved && (saved === 'MS' || saved === 'ID' || saved === 'EN' || saved === 'ZH')) {
         setLangState(saved as LanguageCode);
-        syncGoogleTranslate(saved as LanguageCode);
+        if (!isAdminPath) {
+          syncGoogleTranslate(saved as LanguageCode);
+        }
       }
     } catch (e) {}
   }, []);
@@ -2574,11 +2579,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Sync across tabs/windows & custom events
   useEffect(() => {
     const handleStorageEvent = (e: StorageEvent) => {
-      if (e.key === 'fbs_language' && e.newValue) {
+      const isAdminPath = typeof window !== 'undefined' && (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/admin2026'));
+      const expectedKey = isAdminPath ? 'fbs_admin_language' : 'fbs_language';
+      
+      if (e.key === expectedKey && e.newValue) {
         const lang = e.newValue as LanguageCode;
         if (['MS', 'ID', 'EN', 'ZH'].includes(lang)) {
           setLangState(lang);
-          syncGoogleTranslate(lang);
+          if (!isAdminPath) {
+            syncGoogleTranslate(lang);
+          }
         }
       }
     };
@@ -2600,19 +2610,26 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const setLanguage = (lang: LanguageCode) => {
     setLangState(lang);
     try {
-      localStorage.setItem('fbs_language', lang);
-      document.cookie = `fbs_language=${lang}; path=/; max-age=31536000;`;
+      const isAdminPath = typeof window !== 'undefined' && (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/admin2026'));
       
-      syncGoogleTranslate(lang);
+      if (isAdminPath) {
+        // Admin Dashboard only uses internal React state & separate storage
+        localStorage.setItem('fbs_admin_language', lang);
+        window.dispatchEvent(new StorageEvent('storage', { key: 'fbs_admin_language', newValue: lang }));
+        window.dispatchEvent(new CustomEvent('fbs_language_changed', { detail: { lang } }));
+      } else {
+        // Customer Website uses fbs_language, googtrans cookies & Google Translate
+        localStorage.setItem('fbs_language', lang);
+        document.cookie = `fbs_language=${lang}; path=/; max-age=31536000;`;
+        syncGoogleTranslate(lang);
 
-      // Notify other tabs & components
-      window.dispatchEvent(new StorageEvent('storage', { key: 'fbs_language', newValue: lang }));
-      window.dispatchEvent(new CustomEvent('fbs_language_changed', { detail: { lang } }));
+        window.dispatchEvent(new StorageEvent('storage', { key: 'fbs_language', newValue: lang }));
+        window.dispatchEvent(new CustomEvent('fbs_language_changed', { detail: { lang } }));
 
-      // Reload page immediately so Google Translate instantly translates 100% of all text on current page
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      }
     } catch (e) {}
   };
 

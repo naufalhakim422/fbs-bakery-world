@@ -127,7 +127,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
         {/* ULTRA-MODERN LANGUAGE SELECTOR */}
         {!collapsed ? (
-          <div className="p-3 mx-4 mt-3 rounded-2xl bg-stone-900/90 border border-stone-800/80 space-y-2">
+          <div className="notranslate p-3 mx-4 mt-3 rounded-2xl bg-stone-900/90 border border-stone-800/80 space-y-2" translate="no">
             <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-[#D4AF37]" /> BAHASA / LANGUAGE
             </span>
@@ -151,7 +151,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             </div>
           </div>
         ) : (
-          <div className="p-2 my-2 flex flex-col items-center gap-1">
+          <div className="notranslate p-2 my-2 flex flex-col items-center gap-1" translate="no">
             <span className="text-[8px] font-black text-[#D4AF37]">LANG</span>
             <div className="flex flex-col gap-1">
               {languagesList.map((lang) => (
