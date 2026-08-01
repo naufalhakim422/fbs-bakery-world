@@ -49,7 +49,7 @@ export const formatWhatsAppNumber = (phoneStr: string): string => {
 };
 
 export const extractMapsEmbedUrl = (input?: string, fallbackAddress?: string): string => {
-  const defaultEmbed = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy";
+  const defaultEmbed = "https://maps.google.com/maps?q=FBS%20Bakery%20World%2C%20K9694%2CK9695%2CK9696%20%26%20K9697%2C%20Taman%20Pajak%20Utama%2C%2024000%20Chukai%2C%20Terengganu%2C%20Malaysia&t=&z=15&ie=UTF8&iwloc=&output=embed";
 
   if (!input || !input.trim()) {
     if (fallbackAddress && fallbackAddress.trim()) {
@@ -74,14 +74,34 @@ export const extractMapsEmbedUrl = (input?: string, fallbackAddress?: string): s
   // Replace &amp; with &
   trimmed = trimmed.replace(/&amp;/g, '&');
 
-  // If already an embed URL (has /maps/embed or output=embed), return as is
+  // Sanitize old dummy Kuala Lumpur embed URLs or old pb parameters
+  if (trimmed.includes('Kuala%20Lumpur') || trimmed.includes('0x31cc362807480d39') || trimmed.includes('101.686855') || trimmed.includes('Shah%20Alam')) {
+    if (fallbackAddress && fallbackAddress.trim()) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackAddress.trim())}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    }
+    return defaultEmbed;
+  }
+
+  // If it's a standard Google Maps embed URL with /maps/embed or pb= parameter, return as clean HTTPS URL
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     if (trimmed.includes('/maps/embed') || trimmed.includes('output=embed')) {
       return trimmed;
     }
+    // Handle standard Google Maps place/search URLs or maps.google.com URLs that aren't formatted as embed
+    if (trimmed.includes('google.com/maps') || trimmed.includes('maps.google.com')) {
+      // Check if there's a place query or pb parameter
+      const pbMatch = trimmed.match(/pb=([^&]+)/);
+      if (pbMatch) {
+        return `https://www.google.com/maps/embed?pb=${pbMatch[1]}`;
+      }
+      const qMatch = trimmed.match(/[?&]q=([^&]+)/) || trimmed.match(/\/place\/([^/]+)/);
+      if (qMatch && qMatch[1]) {
+        return `https://maps.google.com/maps?q=${encodeURIComponent(decodeURIComponent(qMatch[1]))}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+      }
+    }
   }
 
-  // Shortlinks like maps.app.goo.gl or goo.gl/maps cannot be embedded directly in iframes
+  // Shortlinks like maps.app.goo.gl or goo.gl/maps cannot be embedded directly in iframes across devices/browsers
   // Fallback to searching the warehouse address if available
   if (trimmed.includes('maps.app.goo.gl') || trimmed.includes('goo.gl')) {
     if (fallbackAddress && fallbackAddress.trim()) {

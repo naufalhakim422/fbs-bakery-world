@@ -99,30 +99,30 @@ function CatalogContent() {
 
   return (
     <>
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-[#800020] to-[#5A0015] text-[#FFF8F0] p-6 sm:p-8 rounded-3xl mb-6 shadow-xl border border-[#D4AF37]/30 flex flex-col md:flex-row justify-between items-center gap-6">
+      {/* ULTRA-MODERN & MINIMALIST PAGE HEADER */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl mb-6 shadow-sm border border-stone-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-widest block mb-1">
-            FBS BAKERY CATALOG
+          <span className="text-[11px] font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
+            KATALOG TOKO ROTI FBS
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-white">
-            Baking Supplies & Ingredients
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+            Perlengkapan & Bahan Kue
           </h1>
-          <p className="text-stone-300 text-xs sm:text-sm mt-1 max-w-xl">
-            Browse our complete selection of flours, chocolates, butter, decorations, and tools with multiple weight options.
+          <p className="text-stone-500 text-xs sm:text-sm mt-1 max-w-xl leading-relaxed">
+            Telusuri pilihan lengkap kami yang terdiri dari tepung, cokelat, mentega, hiasan, dan peralatan dengan berbagai pilihan berat.
           </p>
         </div>
 
-        {/* Search Input Bar inside Catalog */}
+        {/* Minimalist Search Input Bar */}
         <div className="w-full md:w-80 relative">
           <input 
             type="text"
             placeholder="Cari produk, merek, atau bahan..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-stone-900/80 border border-[#D4AF37]/40 rounded-2xl text-xs text-white placeholder-stone-400 focus:outline-none focus:border-[#D4AF37] backdrop-blur-md shadow-inner"
+            className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-2xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#800020] focus:bg-white transition-all shadow-inner"
           />
-          <Search className="w-4 h-4 text-[#D4AF37] absolute left-3.5 top-3.5" />
+          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
         </div>
       </div>
 

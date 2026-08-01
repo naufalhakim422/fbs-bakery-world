@@ -35,17 +35,17 @@ export default function RecipeCenterPage() {
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         
-        {/* Header */}
-        <div className="bg-gradient-to-r from-[#800020] to-[#5A0015] text-[#FFF8F0] p-8 sm:p-12 rounded-3xl mb-12 shadow-xl border border-[#D4AF37]/30 text-center">
-          <ChefHat className="w-12 h-12 text-[#D4AF37] mx-auto mb-3" />
-          <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-widest block mb-1">
+        {/* Modern Minimalist Header */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl mb-8 shadow-sm border border-stone-200/80 text-center">
+          <ChefHat className="w-10 h-10 text-[#800020] mx-auto mb-2" />
+          <span className="text-[11px] font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
             FBS BAKER'S KITCHEN
           </span>
-          <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-white">
-            Baking Recipe Center & Tutorials
+          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900">
+            Resep & Tutorial Baking
           </h1>
-          <p className="text-stone-300 text-xs sm:text-sm mt-2 max-w-2xl mx-auto leading-relaxed">
-            Step-by-step baking recipes tested by master bakers. Click any recipe to view required ingredients and instantly shop them for your kitchen!
+          <p className="text-stone-500 text-xs sm:text-sm mt-1 max-w-2xl mx-auto leading-relaxed">
+            Panduan resep langkah-demi-langkah dari master baker. Klik resep untuk melihat bahan yang dibutuhkan dan pesan langsung ke dapur Anda!
           </p>
         </div>
 

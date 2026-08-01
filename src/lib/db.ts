@@ -493,18 +493,18 @@ let initialVouchers: Voucher[] = [
 ];
 
 let storeSettingData: StoreSetting = {
-  whatsappNumber: '60123456789',
+  whatsappNumber: '60103574196',
   whatsappNumber2: '60168765432',
   whatsappBusinessName: 'FBS Bakery World Support',
   storeName: 'FBS Bakery World',
   companyRegistrationName: 'FBS Bakery World (M) Sdn. Bhd. (1080422-V)',
-  operatingHours: 'Mon - Fri | 8.30am - 5.30pm',
+  operatingHours: 'Senin - Jumat | 08.30 - 17.30',
   currency: 'RM',
   announcement: '✨ Free Shipping For Orders Above RM150! | Premium Baking Supply Partner Malaysia ✨',
   supportEmail: 'order@fbsbakeryworld.com',
-  address: 'No 45, Jalan Baking World 1, Industrial Park, 40000 Shah Alam, Selangor, Malaysia',
-  googleMapsEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy',
-  googleMapsAppUrl: 'https://maps.google.com/?q=FBS+Bakery+World+Malaysia',
+  address: 'K9694,K9695,K9696 & K9697, Taman Pajak Utama, 24000 Chukai, Terengganu, Malaysia',
+  googleMapsEmbedUrl: 'https://maps.google.com/maps?q=FBS%20Bakery%20World%2C%20K9694%2CK9695%2CK9696%20%26%20K9697%2C%20Taman%20Pajak%20Utama%2C%2024000%20Chukai%2C%20Terengganu%2C%20Malaysia&t=&z=15&ie=UTF8&iwloc=&output=embed',
+  googleMapsAppUrl: 'https://maps.google.com/?q=FBS+Bakery+World+Chukai+Terengganu',
 };
 
 let aboutSettingData: AboutSetting = {
@@ -1153,13 +1153,28 @@ export const db = {
   // Store Settings with persistent localStorage sync
   getStoreSettings: (): StoreSetting => {
     const res = loadFromStorage<StoreSetting>('fbs_store_settings', storeSettingData);
+    const fallbackUrl = storeSettingData.googleMapsEmbedUrl || '';
+    const savedUrl = res?.googleMapsEmbedUrl;
+    let embedUrl = (typeof savedUrl === 'string' && savedUrl.trim() !== '') ? savedUrl : fallbackUrl;
+    
+    // If stored embedUrl is the old default Kuala Lumpur / Shah Alam map URL, update to Chukai Terengganu
+    if (embedUrl && (embedUrl.includes('Kuala%20Lumpur') || embedUrl.includes('0x31cc362807480d39') || embedUrl.includes('101.686855') || embedUrl.includes('Shah%20Alam'))) {
+      embedUrl = fallbackUrl;
+    }
+
+    let address = res?.address || storeSettingData.address;
+    if (address && address.includes('Shah Alam')) {
+      address = storeSettingData.address;
+    }
+
     return {
       ...storeSettingData,
       ...res,
-      companyRegistrationName: res.companyRegistrationName || storeSettingData.companyRegistrationName,
-      operatingHours: res.operatingHours || storeSettingData.operatingHours,
-      googleMapsEmbedUrl: (res.googleMapsEmbedUrl && res.googleMapsEmbedUrl.trim()) ? res.googleMapsEmbedUrl : storeSettingData.googleMapsEmbedUrl,
-      googleMapsAppUrl: (res.googleMapsAppUrl && res.googleMapsAppUrl.trim()) ? res.googleMapsAppUrl : storeSettingData.googleMapsAppUrl,
+      address,
+      companyRegistrationName: res?.companyRegistrationName || storeSettingData.companyRegistrationName,
+      operatingHours: res?.operatingHours || storeSettingData.operatingHours,
+      googleMapsEmbedUrl: embedUrl,
+      googleMapsAppUrl: (res?.googleMapsAppUrl && res.googleMapsAppUrl.trim()) ? res.googleMapsAppUrl : storeSettingData.googleMapsAppUrl,
     };
   },
 

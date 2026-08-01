@@ -37,17 +37,17 @@ export default function CategoriesPage() {
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         
-        {/* Header Banner */}
-        <div className="bg-gradient-to-r from-[#800020] to-[#5A0015] text-[#FFF8F0] p-8 sm:p-12 rounded-3xl mb-12 shadow-xl border border-[#D4AF37]/30 text-center">
-          <Layers className="w-12 h-12 text-[#D4AF37] mx-auto mb-3" />
-          <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-widest block mb-1">
+        {/* Modern Minimalist Header Banner */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl mb-8 shadow-sm border border-stone-200/80 text-center">
+          <Layers className="w-10 h-10 text-[#800020] mx-auto mb-2" />
+          <span className="text-[11px] font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
             FBS BAKERY COLLECTIONS
           </span>
-          <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-white">
-            Product Categories Showcase
+          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900">
+            Kategori Produk
           </h1>
-          <p className="text-stone-300 text-xs sm:text-sm mt-2 max-w-2xl mx-auto leading-relaxed">
-            Browse baking supplies organized by specialty: premium flours, couverture chocolates, New Zealand dairy butter, cake decorations, commercial tools, and packaging.
+          <p className="text-stone-500 text-xs sm:text-sm mt-1 max-w-2xl mx-auto leading-relaxed">
+            Telusuri bahan kue dan peralatan bakery berdasarkan spesialisasi: tepung pilihan, cokelat couverture, mentega impor, hiasan kue, hingga kemasan food-grade.
           </p>
         </div>
 

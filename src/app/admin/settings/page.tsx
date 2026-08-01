@@ -29,8 +29,8 @@ export default function AdminSettingsPage() {
     announcement: currentStore.announcement,
     supportEmail: currentStore.supportEmail,
     address: currentStore.address,
-    googleMapsEmbedUrl: currentStore.googleMapsEmbedUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15935.26798188147!2d101.686855!3d3.139003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362807480d39%3A0x8c3a3b0487042a98!2sKuala%20Lumpur%2C%20Federal%20Territory%20of%20Kuala%20Lumpur%2C%20Malaysia!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy',
-    googleMapsAppUrl: currentStore.googleMapsAppUrl || 'https://maps.google.com/?q=FBS+Bakery+World+Malaysia',
+    googleMapsEmbedUrl: currentStore.googleMapsEmbedUrl || 'https://maps.google.com/maps?q=FBS%20Bakery%20World%2C%20K9694%2CK9695%2CK9696%20%26%20K9697%2C%20Taman%20Pajak%20Utama%2C%2024000%20Chukai%2C%20Terengganu%2C%20Malaysia&t=&z=15&ie=UTF8&iwloc=&output=embed',
+    googleMapsAppUrl: currentStore.googleMapsAppUrl || 'https://maps.google.com/?q=FBS+Bakery+World+Chukai+Terengganu',
   });
 
   const [aboutForm, setAboutForm] = useState({
