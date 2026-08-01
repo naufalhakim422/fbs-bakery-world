@@ -69,17 +69,26 @@ export function getEmbedVideoUrl(url: string, platform?: string): { isDirectVide
     }
   }
 
-  // 5. Facebook Video URLs (Horizontal 16:9)
-  if (cleanUrl.includes('facebook.com') || cleanUrl.includes('fb.watch') || platform === 'FACEBOOK') {
-    const encodedUrl = encodeURIComponent(cleanUrl);
+  // 5. Facebook Video URLs (Reels, Watch, Video Posts, Share links)
+  if (cleanUrl.includes('facebook.com') || cleanUrl.includes('fb.watch') || cleanUrl.includes('fb.gg') || platform === 'FACEBOOK') {
+    let targetUrl = cleanUrl;
+
+    // Handle fb.watch short links if provided directly or standard facebook link
+    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+      targetUrl = cleanUrl;
+    } else {
+      targetUrl = `https://www.facebook.com/${cleanUrl}`;
+    }
+
+    const encodedUrl = encodeURIComponent(targetUrl);
     return {
       isDirectVideo: false,
       embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&autoplay=true`,
-      aspectRatio: '16/9',
+      aspectRatio: cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/') ? '9/16' : '16/9',
     };
   }
 
-  // Fallback for standard iframe URLs
+  // Fallback for standard iframe URLs or generic embed URLs
   const isVertical = platform === 'TIKTOK';
   return { isDirectVideo: false, embedUrl: cleanUrl, aspectRatio: isVertical ? '9/16' : '16/9' };
 }

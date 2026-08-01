@@ -276,6 +276,21 @@ export default function BlogListPage() {
                   )}
                 </div>
 
+                {/* Direct Link Banner if Video requires permissions or external viewing */}
+                {selectedVideo.embedUrl.startsWith('http') && !parsed.isDirectVideo && (
+                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#800020]/30 border border-[#D4AF37]/30 text-stone-200 text-xs">
+                    <span>Video tidak bisa diputar? Tonton langsung di {selectedVideo.platform}:</span>
+                    <a
+                      href={selectedVideo.embedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1 bg-[#D4AF37] text-[#800020] font-bold rounded-lg hover:brightness-110 transition-all text-[11px] flex items-center gap-1 shrink-0"
+                    >
+                      Buka Video ↗
+                    </a>
+                  </div>
+                )}
+
                 {/* Minimalist Luxury Description Card */}
                 <div className="bg-stone-900/60 p-4 rounded-2xl border border-stone-800/80 text-xs sm:text-sm text-stone-300 leading-relaxed max-h-32 overflow-y-auto space-y-1 backdrop-blur-sm">
                   <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Description</span>
