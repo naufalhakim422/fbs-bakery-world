@@ -97,30 +97,30 @@ export const HeaderNav: React.FC = () => {
           <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
             
             {/* Left: Brand Logo & Typography */}
-            <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group flex-shrink-0">
               <img 
                 src="/logo.jpg" 
                 alt="FBS Bakery World Logo" 
-                className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-md border-2 border-[#D4AF37] group-hover:scale-105 transition-transform bg-white"
+                className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full object-cover shadow-md border-2 border-[#D4AF37] group-hover:scale-105 transition-transform bg-white"
               />
               <div className="flex flex-col">
-                <span className="font-sans font-black text-base sm:text-xl tracking-wider text-[#F7E7CE] uppercase leading-none">
+                <span className="font-sans font-black text-sm sm:text-lg md:text-xl tracking-wider text-[#F7E7CE] uppercase leading-none">
                   FBS BAKERY WORLD
                 </span>
-                <span className="hidden sm:block text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-[#F7E7CE]/80 font-medium mt-1">
+                <span className="hidden sm:block text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.18em] uppercase text-[#F7E7CE]/80 font-medium mt-1">
                   PREMIUM BAKING SUPPLY MALAYSIA
                 </span>
               </div>
             </Link>
 
-            {/* Middle: Integrated Search Bar (Desktop/Laptop/Tablet) */}
-            <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-sm relative mx-4">
+            {/* Middle: Integrated Search Bar (Tablet & Desktop - md and up) */}
+            <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xs lg:max-w-sm relative mx-2 lg:mx-4">
               <input
                 type="text"
                 placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-10 py-2 bg-stone-900/80 border border-[#D4AF37]/40 rounded-full text-xs text-white placeholder-stone-400 focus:outline-none focus:border-[#D4AF37] transition-all backdrop-blur-md"
+                className="w-full pl-9 pr-8 py-2 bg-stone-900/80 border border-[#D4AF37]/40 rounded-full text-xs text-white placeholder-stone-400 focus:outline-none focus:border-[#D4AF37] transition-all backdrop-blur-md"
               />
               <button 
                 type="submit" 
@@ -140,13 +140,13 @@ export const HeaderNav: React.FC = () => {
               )}
             </form>
 
-            {/* Right: Actions & User Buttons */}
-            <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+            {/* Right: Actions & User Buttons (Optimized for Mobile, Tablet & Desktop) */}
+            <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
               
-              {/* Order Tracking Pill Button (Desktop/Laptop/Tablet) */}
+              {/* Order Tracking Pill Button (Tablet & Desktop) */}
               <Link 
                 href="/track-order" 
-                className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-[#4A1313] hover:bg-[#3D0F0F] text-[#D4AF37] rounded-full text-xs font-bold border border-[#D4AF37]/40 transition-all hover:scale-105"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-[#4A1313] hover:bg-[#3D0F0F] text-[#D4AF37] rounded-full text-xs font-bold border border-[#D4AF37]/40 transition-all hover:scale-105"
               >
                 <PackageCheck className="w-4 h-4 text-[#D4AF37]" />
                 <span>{t.nav.trackOrder}</span>
@@ -155,12 +155,12 @@ export const HeaderNav: React.FC = () => {
               {/* Wishlist Link */}
               <Link 
                 href={customerSession ? "/account" : "/account/login"} 
-                className="relative p-2 text-stone-200 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/5" 
+                className="relative p-1.5 sm:p-2 text-stone-200 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/5" 
                 title="Wishlist"
               >
-                <Heart className="w-5 h-5" />
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
                 {wishlist.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#800020] text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md">
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#800020] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md">
                     {wishlist.length}
                   </span>
                 )}
@@ -169,12 +169,12 @@ export const HeaderNav: React.FC = () => {
               {/* Shopping Cart Button */}
               <button 
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 sm:px-3.5 sm:py-2 bg-gradient-to-r from-[#4A1313] to-[#800020] hover:brightness-110 text-[#FFF8F0] rounded-full border border-[#D4AF37]/50 transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                className="relative p-1.5 sm:px-3 sm:py-1.5 lg:px-3.5 lg:py-2 bg-gradient-to-r from-[#4A1313] to-[#800020] hover:brightness-110 text-[#FFF8F0] rounded-full border border-[#D4AF37]/50 transition-all active:scale-95 shadow-md flex items-center gap-1.5"
                 title="Shopping Cart"
               >
-                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
+                <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-[#D4AF37]" />
                 <span className="hidden sm:inline text-xs font-extrabold tracking-wide">{t.nav.cart}</span>
-                <span className="bg-[#D4AF37] text-[#800020] text-[11px] font-black px-1.5 py-0.2 rounded-full shadow">
+                <span className="bg-[#D4AF37] text-[#800020] text-[10px] sm:text-[11px] font-black px-1.5 py-0.2 rounded-full shadow">
                   {totalItems}
                 </span>
               </button>
@@ -182,28 +182,28 @@ export const HeaderNav: React.FC = () => {
               {/* Customer Account or Login Button */}
               <Link 
                 href={customerSession ? "/account" : "/account/login"} 
-                className="p-2 sm:px-3.5 sm:py-1.5 bg-white/10 hover:bg-white/20 text-[#FFF8F0] hover:text-[#D4AF37] rounded-full border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5"
+                className="p-1.5 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/20 text-[#FFF8F0] hover:text-[#D4AF37] rounded-full border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5"
                 title={customerSession ? `Halo, ${customerSession.name}` : t.nav.signIn}
               >
                 <User className="w-4 h-4 text-[#D4AF37]" />
-                <span className="hidden sm:inline">
-                  {customerSession ? `Halo, ${customerSession.name.split(' ')[0]}` : t.nav.signIn}
+                <span className="hidden md:inline text-xs">
+                  {customerSession ? customerSession.name.split(' ')[0] : t.nav.signIn}
                 </span>
               </Link>
 
-              {/* Mobile Menu Hamburger Button (PROMINENT HIGH-VISIBILITY BUTTON FOR HP DEVICE) */}
+              {/* Mobile & Tablet Menu Hamburger Button (Shown on screens smaller than lg) */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] active:scale-95 rounded-xl border border-[#D4AF37]/50 shadow-md transition-all flex items-center justify-center gap-1"
+                className="lg:hidden p-2 sm:p-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] active:scale-95 rounded-xl border border-[#D4AF37]/50 shadow-md transition-all flex items-center justify-center gap-1"
                 title="Buka Menu Navigasi"
                 aria-label="Buka Menu Navigasi"
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-5 h-5 text-white" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 ) : (
                   <>
-                    <Menu className="w-5 h-5 text-[#D4AF37]" />
-                    <span className="text-[10px] font-black uppercase text-[#F7E7CE]">Menu</span>
+                    <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
+                    <span className="text-[10px] sm:text-xs font-black uppercase text-[#F7E7CE]">Menu</span>
                   </>
                 )}
               </button>
@@ -211,11 +211,11 @@ export const HeaderNav: React.FC = () => {
             </div>
           </div>
 
-          {/* Desktop / Laptop / Tablet Navigation Bar (SHOWN ON PC/LAPTOP/IPAD, HIDDEN ON HP) */}
-          <div className="hidden md:flex items-center justify-between py-2.5 border-t border-white/10 text-xs font-bold tracking-wide">
+          {/* Desktop Navigation Bar (Shown on lg screens and up) */}
+          <div className="hidden lg:flex items-center justify-between py-2.5 border-t border-white/10 text-xs font-bold tracking-wide">
             
             {/* Inline Navigation Links */}
-            <div className="flex items-center gap-6 lg:gap-8">
+            <div className="flex items-center gap-5 xl:gap-8">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (
@@ -237,7 +237,7 @@ export const HeaderNav: React.FC = () => {
               })}
             </div>
 
-            {/* Desktop / Laptop / Tablet Quick Language Switcher Pills */}
+            {/* Desktop Quick Language Switcher Pills */}
             <div className="notranslate flex items-center gap-1 bg-stone-900/90 px-2.5 py-1 rounded-full border border-[#D4AF37]/40 shadow-inner" translate="no">
               <Globe className="w-3.5 h-3.5 text-[#D4AF37] ml-0.5 mr-1" />
               {languagesList.map((lang) => {
@@ -262,12 +262,12 @@ export const HeaderNav: React.FC = () => {
 
         </div>
 
-        {/* Mobile Expanded Menu Drawer (ONLY SHOWN ON MOBILE HP WHEN HAMBURGER TAPPED) */}
+        {/* Mobile & Tablet Expanded Menu Drawer */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-[#181113] border-t border-[#F7E7CE]/20 px-5 pt-5 pb-7 space-y-5 animate-fade-in shadow-2xl">
+          <div className="lg:hidden bg-[#181113] border-t border-[#F7E7CE]/20 px-4 sm:px-6 pt-4 pb-6 space-y-4 animate-fade-in shadow-2xl">
             
-            {/* Mobile Search Form */}
-            <form onSubmit={handleSearchSubmit} className="relative">
+            {/* Mobile Search Form (Shown on screens where search isn't in main header) */}
+            <form onSubmit={handleSearchSubmit} className="relative md:hidden">
               <input
                 type="text"
                 placeholder={t.searchPlaceholder}
