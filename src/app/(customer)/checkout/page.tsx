@@ -154,7 +154,7 @@ export default function CheckoutPage() {
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0) return;
+    if (isSubmitting || cart.length === 0) return;
 
     setIsSubmitting(true);
 
