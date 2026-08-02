@@ -51,8 +51,29 @@ export default function RecipeDetailPage() {
     setTimeout(() => setAddedAll(false), 2500);
   };
 
+  const recipeJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Recipe',
+    name: recipe.title,
+    image: recipe.coverImage,
+    description: recipe.description,
+    prepTime: `PT${recipe.cookingTime}M`,
+    cookTime: `PT${recipe.cookingTime}M`,
+    totalTime: `PT${recipe.cookingTime}M`,
+    recipeIngredient: recipe.ingredients,
+    recipeInstructions: recipe.instructions.map((step, idx) => ({
+      '@type': 'HowToStep',
+      name: `Step ${idx + 1}`,
+      text: step,
+    })),
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(recipeJsonLd) }}
+      />
       <AnnouncementBar />
       <HeaderNav />
 

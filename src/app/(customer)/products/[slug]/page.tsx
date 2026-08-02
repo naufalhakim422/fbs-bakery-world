@@ -246,11 +246,40 @@ export default function ProductDetailPage() {
     } : undefined,
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://fbsbakeryworld.com',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Products',
+        item: 'https://fbsbakeryworld.com/products',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.productName,
+        item: `https://fbsbakeryworld.com/products/${product.slug}`,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <AnnouncementBar />
       <HeaderNav />

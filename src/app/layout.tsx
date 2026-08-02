@@ -62,6 +62,33 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const orgJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'FBS Bakery World',
+    url: 'https://fbsbakeryworld.com',
+    logo: 'https://fbsbakeryworld.com/logo.jpg',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+60183942147',
+      contactType: 'customer service',
+      areaServed: ['MY', 'ID'],
+      availableLanguage: ['English', 'Malay', 'Indonesian'],
+    },
+  };
+
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'FBS Bakery World',
+    url: 'https://fbsbakeryworld.com',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://fbsbakeryworld.com/products?search={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <html lang="en" className="overflow-x-hidden max-w-full">
       <head>
@@ -69,6 +96,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
       </head>
       <body className="antialiased selection:bg-[#800020] selection:text-[#D4AF37] overflow-x-hidden max-w-full w-full font-satoshi">
         <LanguageProvider>
