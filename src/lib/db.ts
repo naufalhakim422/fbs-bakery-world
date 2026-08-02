@@ -763,18 +763,24 @@ export const db = {
     orders.unshift(newOrder);
     saveToStorage('fbs_orders', orders);
 
-    // AUTO-INCREMENT TOTAL SOLD COUNTER ON PRODUCTS
+    // AUTO-INCREMENT TOTAL SOLD & DEDUCT VARIANT STOCK ON ORDER PLACED
     try {
       const products = loadFromStorage<Product[]>('fbs_products', initialProducts);
       orderInput.items.forEach(item => {
         const pIdx = products.findIndex(p => p.id === item.productId || p.productName.toLowerCase() === item.productName.toLowerCase());
         if (pIdx !== -1) {
           products[pIdx].totalSold = (products[pIdx].totalSold || 0) + (item.quantity || 1);
+          if (products[pIdx].variants) {
+            const vIdx = products[pIdx].variants.findIndex(v => v.variantName === item.variantName);
+            if (vIdx !== -1) {
+              products[pIdx].variants[vIdx].stock = Math.max(0, products[pIdx].variants[vIdx].stock - (item.quantity || 1));
+            }
+          }
         }
       });
       saveToStorage('fbs_products', products);
     } catch (err) {
-      console.error('Error auto-incrementing totalSold:', err);
+      console.error('Error auto-updating stock on createOrder:', err);
     }
 
     const cleanPhone = orderInput.customerPhone.replace(/[^0-9]/g, '');
@@ -810,6 +816,7 @@ export const db = {
     const idx = orders.findIndex(o => o.id === id || o.orderNumber === id);
 
     if (idx !== -1) {
+      const previousStatus = orders[idx].orderStatus;
       orders[idx].orderStatus = status;
       if (courierName) orders[idx].courierName = courierName;
       if (trackingNumber) orders[idx].trackingNumber = trackingNumber;
@@ -817,6 +824,26 @@ export const db = {
       orders[idx].updatedAt = new Date().toISOString();
       
       saveToStorage('fbs_orders', orders);
+
+      // AUTO-RESTORE VARIANT STOCK IF ORDER IS CANCELLED
+      if (status === 'CANCELLED' && previousStatus !== 'CANCELLED') {
+        try {
+          const products = loadFromStorage<Product[]>('fbs_products', initialProducts);
+          orders[idx].items.forEach(item => {
+            const pIdx = products.findIndex(p => p.id === item.productId || p.productName.toLowerCase() === item.productName.toLowerCase());
+            if (pIdx !== -1 && products[pIdx].variants) {
+              const vIdx = products[pIdx].variants.findIndex(v => v.variantName === item.variantName);
+              if (vIdx !== -1) {
+                products[pIdx].variants[vIdx].stock += (item.quantity || 1);
+              }
+            }
+          });
+          saveToStorage('fbs_products', products);
+        } catch (err) {
+          console.error('Error restoring stock on order cancel:', err);
+        }
+      }
+
       return orders[idx];
     }
     return null;
