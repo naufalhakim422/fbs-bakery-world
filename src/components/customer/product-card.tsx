@@ -15,7 +15,7 @@ interface ProductCardProps {
   viewMode?: 'grid' | 'list';
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' }) => {
+export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, viewMode = 'grid' }) => {
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const { t } = useLanguage();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
@@ -348,4 +348,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'g
       </div>
     </div>
   );
-};
+});
