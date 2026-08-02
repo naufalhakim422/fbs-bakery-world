@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
@@ -33,7 +33,8 @@ import {
   X,
   MessageSquare,
   ThumbsUp,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Sparkles
 } from 'lucide-react';
 
 export default function ProductDetailPage() {
@@ -135,7 +136,19 @@ export default function ProductDetailPage() {
     );
   }
 
-  const relatedProducts = db.getProducts({ category: product.categoryId }).filter(p => p.id !== product.id).slice(0, 4);
+  const relatedProducts = useMemo(() => {
+    if (!product) return [];
+    return db.getProducts({ category: product.categoryId }).filter(p => p.id !== product.id).slice(0, 4);
+  }, [product]);
+
+  const frequentlyBoughtTogether = useMemo(() => {
+    if (!product) return [];
+    const allProds = db.getProducts();
+    return allProds
+      .filter(p => p.id !== product.id && (p.categoryId === product.categoryId || p.brand === product.brand || p.isBestSeller))
+      .slice(0, 2);
+  }, [product]);
+
   const isFavorite = isInWishlist(product.id);
 
   const handleAddToCart = () => {
@@ -524,6 +537,22 @@ export default function ProductDetailPage() {
 
         </div>
 
+        {/* Frequently Bought Together Recommendation Section */}
+        {frequentlyBoughtTogether.length > 0 && (
+          <div className="bg-[#800020]/5 p-6 sm:p-8 rounded-3xl border border-[#800020]/20 shadow-sm mb-12">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-[#800020]" />
+              <h3 className="font-serif text-xl font-bold text-[#800020]">Frequently Bought Together</h3>
+            </div>
+            <p className="text-stone-600 text-xs mb-6">Baking professionals and customers often order these complementary ingredients together for optimal results.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {frequentlyBoughtTogether.map((p: Product) => (
+                <ProductCard key={`fbt-${p.id}`} product={p} viewMode="list" />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Full Detailed Description Section */}
         <div className="bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-sm mb-12">
           <h2 className="font-serif text-2xl font-bold text-[#800020] mb-4 border-b border-stone-200 pb-3 flex items-center gap-2">
@@ -666,7 +695,7 @@ export default function ProductDetailPage() {
               You May Also Need
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map((p) => (
+              {relatedProducts.map((p: Product) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
