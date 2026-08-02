@@ -156,6 +156,7 @@ export default function HomePage() {
                       fetchPriority="high"
                       loading="eager"
                       decoding="async"
+                      sizes="100vw"
                       className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
                     />
                   )}
