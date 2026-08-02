@@ -7,11 +7,12 @@ import { compressImageFile } from '@/lib/image-compressor';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { extractMapsEmbedUrl, extractMapsAppUrl } from '@/lib/whatsapp';
 import { Banner, Product, WholesalePromoBanner } from '@/types';
-import { Settings, Save, CheckCircle2, MessageCircle, FileText, Upload, X, Image as ImageIcon, Sparkles, Layout, Home, Key, ShieldCheck, Eye, EyeOff, Search } from 'lucide-react';
+import { createAndDownloadBackup, validateAndRestoreBackup } from '@/lib/backup';
+import { Settings, Save, CheckCircle2, MessageCircle, FileText, Upload, X, Image as ImageIcon, Sparkles, Layout, Home, Key, ShieldCheck, Eye, EyeOff, Search, Database, Download, AlertTriangle } from 'lucide-react';
 
 export default function AdminSettingsPage() {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'store' | 'about' | 'home' | 'security'>('store');
+  const [activeTab, setActiveTab] = useState<'store' | 'about' | 'home' | 'security' | 'backup'>('store');
 
   const currentStore = db.getStoreSettings();
   const currentAbout = db.getAboutSettings();
@@ -98,6 +99,24 @@ export default function AdminSettingsPage() {
   const [banners, setBanners] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [wholesaleBanners, setWholesaleBanners] = useState<WholesalePromoBanner[]>([]);
+
+  const [backupStatus, setBackupStatus] = useState<{ success: boolean; message: string; details?: any } | null>(null);
+
+  const handleRestoreFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      if (!text) return;
+
+      const res = validateAndRestoreBackup(text);
+      setBackupStatus(res);
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  };
   const [productSearchTerms, setProductSearchTerms] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
@@ -279,6 +298,14 @@ export default function AdminSettingsPage() {
             }`}
           >
             <Key className="w-4 h-4" /> Admin Password
+          </button>
+          <button
+            onClick={() => setActiveTab('backup')}
+            className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+              activeTab === 'backup' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            <Database className="w-4 h-4" /> Backup & Restore
           </button>
         </div>
       </div>
@@ -1314,6 +1341,91 @@ export default function AdminSettingsPage() {
           </button>
 
         </form>
+      )}
+
+      {/* TAB 5: BACKUP & RESTORE DATABASE */}
+      {activeTab === 'backup' && (
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6 text-xs animate-fade-in">
+          <div className="border-b border-stone-100 pb-3 flex items-center justify-between">
+            <h2 className="font-serif text-lg font-bold text-[#800020] flex items-center gap-2">
+              <Database className="w-5 h-5" /> Backup & Restore System Database
+            </h2>
+            <span className="px-2.5 py-1 bg-[#800020]/10 text-[#800020] text-[10px] font-bold rounded-full">
+              Full System Safeguard
+            </span>
+          </div>
+
+          <p className="text-stone-600 leading-relaxed font-medium">
+            Unduh seluruh cadangan data e-dagang (Produk, Kategori, Pesanan, Pelanggan, Voucher, Banner, Cashflow, dan Resit) atau pulihkan data dari file backup JSON.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            
+            {/* Card 1: Backup & Download */}
+            <div className="p-6 bg-stone-50 rounded-2xl border border-stone-200 flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-800 text-white flex items-center justify-center">
+                  <Download className="w-5 h-5" />
+                </div>
+                <h3 className="font-serif font-bold text-base text-stone-900">Download Backup Database</h3>
+                <p className="text-stone-500 text-[11px] leading-relaxed">
+                  Menghasilkan berkas cadangan JSON berisi seluruh tabel dan seting toko yang dapat disimpan dengan aman di komputer Anda.
+                </p>
+              </div>
+
+              <button
+                onClick={createAndDownloadBackup}
+                className="w-full py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" /> Download Backup (.json)
+              </button>
+            </div>
+
+            {/* Card 2: Upload & Restore */}
+            <div className="p-6 bg-stone-50 rounded-2xl border border-stone-200 flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-2xl bg-[#800020] text-white flex items-center justify-center">
+                  <Upload className="w-5 h-5" />
+                </div>
+                <h3 className="font-serif font-bold text-base text-stone-900">Upload & Restore Backup</h3>
+                <p className="text-stone-500 text-[11px] leading-relaxed">
+                  Memvalidasi struktur berkas backup JSON dan memulihkan seluruh data toko secara utuh. Sistem memverifikasi integritas berkas untuk mencegah overwrite file rosak.
+                </p>
+              </div>
+
+              <label className="w-full py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <Upload className="w-4 h-4" /> Upload File Backup (.json)
+                <input 
+                  type="file" 
+                  accept=".json, application/json"
+                  onChange={handleRestoreFile}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+          </div>
+
+          {/* Backup Restore Status Feedback Card */}
+          {backupStatus && (
+            <div className={`p-4 rounded-2xl border text-xs space-y-2 animate-fade-in ${
+              backupStatus.success ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-rose-50 border-rose-300 text-rose-900'
+            }`}>
+              <div className="flex items-center gap-2 font-bold text-sm">
+                {backupStatus.success ? <CheckCircle2 className="w-5 h-5 text-emerald-700" /> : <AlertTriangle className="w-5 h-5 text-rose-700" />}
+                <span>{backupStatus.message}</span>
+              </div>
+              {backupStatus.details && (
+                <div className="flex gap-4 pt-1 text-[11px] text-emerald-800 font-medium">
+                  <span>Produk: {backupStatus.details.productsCount}</span>
+                  <span>Pesanan: {backupStatus.details.ordersCount}</span>
+                  <span>Kategori: {backupStatus.details.categoriesCount}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
       )}
 
       <ConfirmModal
