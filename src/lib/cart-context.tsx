@@ -45,10 +45,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const savedCart = localStorage.getItem('fbs_bakery_cart');
       const savedWishlist = localStorage.getItem('fbs_bakery_wishlist');
-      if (savedCart) setCart(JSON.parse(savedCart));
-      if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) setCart(parsed);
+      }
+      if (savedWishlist) {
+        const parsed = JSON.parse(savedWishlist);
+        if (Array.isArray(parsed)) setWishlist(parsed);
+      }
     } catch (e) {
-      console.error('Error loading cart from storage', e);
+      console.warn('Error reading cart or wishlist from storage:', e);
+      setCart([]);
+      setWishlist([]);
     } finally {
       setIsLoaded(true);
     }
@@ -57,14 +65,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Save cart changes
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('fbs_bakery_cart', JSON.stringify(cart));
+      try {
+        localStorage.setItem('fbs_bakery_cart', JSON.stringify(cart));
+      } catch (e) {
+        console.warn('Failed to save cart to storage:', e);
+      }
     }
   }, [cart, isLoaded]);
 
   // Save wishlist changes
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('fbs_bakery_wishlist', JSON.stringify(wishlist));
+      try {
+        localStorage.setItem('fbs_bakery_wishlist', JSON.stringify(wishlist));
+      } catch (e) {
+        console.warn('Failed to save wishlist to storage:', e);
+      }
     }
   }, [wishlist, isLoaded]);
 

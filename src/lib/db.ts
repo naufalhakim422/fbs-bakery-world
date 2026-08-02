@@ -601,10 +601,13 @@ const loadFromStorage = <T>(key: string, fallback: T): T => {
     try {
       const saved = localStorage.getItem(key);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed !== null && parsed !== undefined) {
+          return parsed;
+        }
       }
     } catch (e) {
-      console.error(`Error reading ${key} from storage`, e);
+      console.warn(`Error reading ${key} from storage, using fallback:`, e);
     }
   }
   return fallback;
