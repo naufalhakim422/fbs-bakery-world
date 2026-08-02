@@ -275,6 +275,9 @@ export default function ProductDetailPage() {
               <img 
                 src={activeImage || product.mainImage} 
                 alt={product.productName} 
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
               <button
@@ -299,7 +302,7 @@ export default function ProductDetailPage() {
                       activeImage === imgUrl ? 'border-[#800020] scale-95 shadow-md' : 'border-stone-200 hover:border-[#800020]'
                     }`}
                   >
-                    <img src={imgUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                    <img src={imgUrl} alt="Thumbnail" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
