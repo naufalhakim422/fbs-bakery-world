@@ -220,6 +220,9 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
           <img 
             src={product.mainImage} 
             alt={product.productName} 
+            loading="lazy"
+            decoding="async"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         </Link>
