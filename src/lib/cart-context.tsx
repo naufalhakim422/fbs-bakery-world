@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { Product, ProductVariant } from '@/types';
 
 export interface CartItem {
@@ -84,7 +84,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [wishlist, isLoaded]);
 
-  const addToCart = (product: Product, variant: ProductVariant, quantity = 1) => {
+  const addToCart = useCallback((product: Product, variant: ProductVariant, quantity = 1) => {
     setCart(prev => {
       const existingIdx = prev.findIndex(item => item.productId === product.id && item.variantId === variant.id);
       if (existingIdx !== -1) {
@@ -107,13 +107,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       ];
     });
-  };
+  }, []);
 
-  const removeFromCart = (productId: string, variantId: string) => {
+  const removeFromCart = useCallback((productId: string, variantId: string) => {
     setCart(prev => prev.filter(item => !(item.productId === productId && item.variantId === variantId)));
-  };
+  }, []);
 
-  const updateQuantity = (productId: string, variantId: string, delta: number) => {
+  const updateQuantity = useCallback((productId: string, variantId: string, delta: number) => {
     setCart(prev => {
       return prev.map(item => {
         if (item.productId === productId && item.variantId === variantId) {
@@ -123,26 +123,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return item;
       }).filter(Boolean) as CartItem[];
     });
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
-  const toggleWishlist = (productId: string) => {
+  const toggleWishlist = useCallback((productId: string) => {
     setWishlist(prev => {
       if (prev.includes(productId)) {
         return prev.filter(id => id !== productId);
       }
       return [...prev, productId];
     });
-  };
+  }, []);
 
-  const isInWishlist = (productId: string) => wishlist.includes(productId);
+  const isInWishlist = useCallback((productId: string) => wishlist.includes(productId), [wishlist]);
 
-  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const totalWeight = cart.reduce((acc, item) => acc + item.weight * item.quantity, 0);
+  const totalItems = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
+  const subtotal = useMemo(() => cart.reduce((acc, item) => acc + item.price * item.quantity, 0), [cart]);
+  const totalWeight = useMemo(() => cart.reduce((acc, item) => acc + item.weight * item.quantity, 0), [cart]);
 
   return (
     <CartContext.Provider
