@@ -198,8 +198,8 @@ export const HeaderNav: React.FC = () => {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2 sm:p-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] active:scale-95 rounded-xl border border-[#D4AF37]/50 shadow-md transition-all flex items-center justify-center gap-1"
-                title="Buka Menu Navigasi"
-                aria-label="Buka Menu Navigasi"
+                title={isMobileMenuOpen ? "Tutup Menu Navigasi" : "Buka Menu Navigasi"}
+                aria-label={isMobileMenuOpen ? "Tutup Menu Navigasi" : "Buka Menu Navigasi"}
               >
                 {isMobileMenuOpen ? (
                   <X className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
