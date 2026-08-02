@@ -24,6 +24,7 @@ interface CartContextType {
   clearCart: () => void;
   toggleWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
+  totalWishlist: number;
   totalItems: number;
   subtotal: number;
   totalWeight: number;
@@ -140,6 +141,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isInWishlist = useCallback((productId: string) => wishlist.includes(productId), [wishlist]);
 
+  const totalWishlist = useMemo(() => wishlist.length, [wishlist]);
   const totalItems = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
   const subtotal = useMemo(() => cart.reduce((acc, item) => acc + item.price * item.quantity, 0), [cart]);
   const totalWeight = useMemo(() => cart.reduce((acc, item) => acc + item.weight * item.quantity, 0), [cart]);
@@ -155,6 +157,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearCart,
         toggleWishlist,
         isInWishlist,
+        totalWishlist,
         totalItems,
         subtotal,
         totalWeight,
