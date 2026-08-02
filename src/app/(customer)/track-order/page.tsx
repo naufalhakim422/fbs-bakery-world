@@ -45,19 +45,32 @@ function TrackOrderContent() {
   };
 
   useEffect(() => {
-    if (initialOrderNum && initialPhone) {
-      const res = db.getOrderByNumberAndPhone(initialOrderNum, initialPhone);
-      setOrderResult(res || null);
-      setSearched(true);
-    }
-  }, [initialOrderNum, initialPhone]);
+    const refreshOrder = () => {
+      const activeNum = orderNumber || initialOrderNum;
+      const activePh = phone || initialPhone;
+      if (activeNum && activePh) {
+        const res = db.getOrderByNumberAndPhone(activeNum, activePh);
+        setOrderResult(res || null);
+        setSearched(true);
+      }
+    };
+
+    refreshOrder();
+
+    window.addEventListener('storage', refreshOrder);
+    window.addEventListener('fbs_db_updated', refreshOrder);
+    return () => {
+      window.removeEventListener('storage', refreshOrder);
+      window.removeEventListener('fbs_db_updated', refreshOrder);
+    };
+  }, [initialOrderNum, initialPhone, orderNumber, phone]);
 
   const timelineSteps: { key: OrderStatus; label: string; desc: string }[] = [
-    { key: 'NEW', label: 'Order Placed', desc: 'Order received via WhatsApp' },
-    { key: 'CONFIRMED', label: 'Confirmed', desc: 'Payment & stock verified by admin' },
-    { key: 'PROCESSING', label: 'Processing & Packing', desc: 'Preparing bakery items' },
-    { key: 'SHIPPED', label: 'Dispatched / Shipped', desc: 'Courier resi tracking issued' },
-    { key: 'DELIVERED', label: 'Delivered', desc: 'Package delivered to address' },
+    { key: 'NEW', label: 'Pending (Order Received)', desc: 'Order received & waiting payment confirmation' },
+    { key: 'CONFIRMED', label: 'Processing (Confirmed)', desc: 'Payment & stock verified by store admin' },
+    { key: 'PROCESSING', label: 'Packed & Prepared', desc: 'Bakery items packaged with care' },
+    { key: 'SHIPPED', label: 'Shipped (Dispatched)', desc: 'Courier resi tracking issued' },
+    { key: 'DELIVERED', label: 'Delivered', desc: 'Package delivered to recipient' },
   ];
 
   const getStepIndex = (status: OrderStatus) => {
