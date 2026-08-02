@@ -64,6 +64,8 @@ export default function CategoriesPage() {
                   <img 
                     src={cat.image} 
                     alt={cat.name} 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-4 right-4 bg-[#800020] text-[#D4AF37] text-xs font-bold px-3 py-1 rounded-full shadow border border-[#D4AF37]/40">
