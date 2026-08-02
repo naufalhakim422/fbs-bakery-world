@@ -307,6 +307,7 @@ export default function ProductDetailPage() {
                 fetchPriority="high"
                 loading="eager"
                 decoding="async"
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="w-full h-full object-cover"
               />
               <button
@@ -315,6 +316,7 @@ export default function ProductDetailPage() {
                   isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 text-stone-700 hover:text-red-500'
                 }`}
                 title="Save to Wishlist"
+                aria-label="Save to Wishlist"
               >
                 <Heart className={`w-5 h-5 ${isFavorite ? 'fill-white' : ''}`} />
               </button>
@@ -330,8 +332,9 @@ export default function ProductDetailPage() {
                     className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${
                       activeImage === imgUrl ? 'border-[#800020] scale-95 shadow-md' : 'border-stone-200 hover:border-[#800020]'
                     }`}
+                    aria-label={`View Product Image ${idx + 1}`}
                   >
-                    <img src={imgUrl} alt="Thumbnail" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                    <img src={imgUrl} alt={`${product.productName} Thumbnail ${idx + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
