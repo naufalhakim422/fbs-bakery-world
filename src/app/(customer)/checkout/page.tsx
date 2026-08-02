@@ -12,6 +12,7 @@ import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
+import { InvoiceModal } from '@/components/customer/invoice-modal';
 import { Order, Voucher } from '@/types';
 import { 
   MessageCircle, 
@@ -25,7 +26,8 @@ import {
   Phone,
   FileText,
   Tag,
-  Sparkles
+  Sparkles,
+  Printer
 } from 'lucide-react';
 
 export default function CheckoutPage() {
@@ -65,6 +67,7 @@ export default function CheckoutPage() {
 
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
   const [isAutoFilled, setIsAutoFilled] = useState(false);
 
@@ -271,6 +274,12 @@ export default function CheckoutPage() {
                   <MessageCircle className="w-4 h-4 fill-white" /> {t.checkout.openWAAgain}
                 </a>
               )}
+              <button
+                onClick={() => setIsInvoiceOpen(true)}
+                className="flex-1 py-3.5 bg-[#D4AF37] hover:bg-amber-400 text-[#800020] font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
+              >
+                <Printer className="w-4 h-4" /> Cetak Invoice PDF
+              </button>
               <Link
                 href={`/track-order?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}&phone=${encodeURIComponent(createdOrder.customerPhone)}`}
                 className="flex-1 py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
@@ -278,6 +287,12 @@ export default function CheckoutPage() {
                 <PackageCheck className="w-4 h-4" /> {t.checkout.trackOrderStatus}
               </Link>
             </div>
+
+            <InvoiceModal
+              order={createdOrder}
+              isOpen={isInvoiceOpen}
+              onClose={() => setIsInvoiceOpen(false)}
+            />
           </div>
         ) : (
           /* CHECKOUT FORM SCREEN */
