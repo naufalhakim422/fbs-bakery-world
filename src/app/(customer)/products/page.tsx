@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
@@ -95,12 +95,12 @@ function CatalogContent() {
     return list;
   }, [allProducts, categories, selectedCategory, searchQuery, halalOnly, sortBy]);
 
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setSearchQuery('');
     setSelectedCategory('');
     setHalalOnly(false);
     setSortBy('featured');
-  };
+  }, []);
 
   return (
     <>
