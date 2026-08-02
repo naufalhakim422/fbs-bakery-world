@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { useLanguage } from '@/lib/language-context';
+import { useNotification } from '@/lib/notification-context';
 import { db } from '@/lib/db';
 import { formatMYR } from '@/lib/currency';
 import { generateWhatsAppOrderLink } from '@/lib/whatsapp';
@@ -34,6 +35,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { cart, subtotal, totalItems, clearCart } = useCart();
   const { t } = useLanguage();
+  const { showToast } = useNotification();
   const [settings, setSettings] = useState(db.getStoreSettings());
 
   useEffect(() => {
@@ -122,16 +124,20 @@ export default function CheckoutPage() {
     const found = vouchers.find(v => v.code.toUpperCase() === voucherCode.trim().toUpperCase() && v.status);
 
     if (!found) {
-      setVoucherError(t.checkout.voucherNotFound);
+      const errMsg = t.checkout.voucherNotFound;
+      setVoucherError(errMsg);
       setAppliedVoucher(null);
       setDiscountAmount(0);
+      showToast('Voucher Tidak Sah', errMsg, 'error');
       return;
     }
 
     if (subtotal < found.minSpend) {
-      setVoucherError(`${t.checkout.voucherMinSpend} ${found.minSpend}.00`);
+      const errMsg = `${t.checkout.voucherMinSpend} ${found.minSpend}.00`;
+      setVoucherError(errMsg);
       setAppliedVoucher(null);
       setDiscountAmount(0);
+      showToast('Syarat Kelayakan', errMsg, 'error');
       return;
     }
 
@@ -144,6 +150,7 @@ export default function CheckoutPage() {
 
     setAppliedVoucher(found);
     setDiscountAmount(calculatedDiscount);
+    showToast('Voucher Berjaya!', `Diskaun Penjimatan ${formatMYR(calculatedDiscount)} Terpakai.`, 'voucher');
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -204,6 +211,7 @@ export default function CheckoutPage() {
 
       newOrder.whatsappUrl = waLink;
       setCreatedOrder(newOrder);
+      showToast('Pesanan Berjaya!', `Pesanan ${newOrder.orderNumber} telah direkodkan.`, 'success');
 
       // 3. Clear cart
       clearCart();

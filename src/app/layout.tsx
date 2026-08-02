@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import { LanguageProvider } from "@/lib/language-context";
+import { NotificationProvider } from "@/lib/notification-context";
 import { GoogleTranslateScript } from "@/components/customer/google-translate";
 
 export const viewport: Viewport = {
@@ -108,8 +109,10 @@ export default function RootLayout({
       <body className="antialiased selection:bg-[#800020] selection:text-[#D4AF37] overflow-x-hidden max-w-full w-full font-satoshi">
         <LanguageProvider>
           <CartProvider>
-            {children}
-            <GoogleTranslateScript />
+            <NotificationProvider>
+              {children}
+              <GoogleTranslateScript />
+            </NotificationProvider>
           </CartProvider>
         </LanguageProvider>
       </body>
