@@ -129,12 +129,12 @@ export default function AdminRecipesPage() {
   const executeSaveRecipe = () => {
     const ingredientsList = form.ingredientsText
       .split('\n')
-      .map(i => i.trim())
+      .map(i => i.trim().replace(/^[•\-\*\d+\.\s]+/, '').trim())
       .filter(Boolean);
 
     const instructionsList = form.instructionsText
       .split('\n')
-      .map(i => i.trim())
+      .map(i => i.trim().replace(/^[•\-\*\d+\.\s]+/, '').trim())
       .filter(Boolean);
 
     const payload: Partial<Recipe> = {

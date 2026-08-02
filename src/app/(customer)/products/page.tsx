@@ -35,17 +35,22 @@ function CatalogContent() {
   }, [searchParams]);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const categories = db.getCategories();
+  const categories = useMemo(() => db.getCategories(), []);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     const loadLiveData = () => {
-      setAllProducts(db.getProducts());
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        setAllProducts(db.getProducts());
+      }, 50);
     };
-    loadLiveData();
+    setAllProducts(db.getProducts());
 
     window.addEventListener('storage', loadLiveData);
     window.addEventListener('fbs_db_updated', loadLiveData);
     return () => {
+      clearTimeout(timer);
       window.removeEventListener('storage', loadLiveData);
       window.removeEventListener('fbs_db_updated', loadLiveData);
     };

@@ -15,17 +15,44 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
   const isLoginPage = pathname === '/admin/login' || pathname === '/admin2026/login';
 
   useEffect(() => {
     if (isLoginPage) {
       setIsAdminLoggedIn(false);
+      setIsCheckingAuth(false);
       return;
     }
 
-    // Always consider admin logged in for universal device access
-    setIsAdminLoggedIn(true);
-    setAdminUser({ name: 'Admin User', role: 'OWNER' });
+    const checkAuth = () => {
+      try {
+        const savedSession = localStorage.getItem('fbs_admin_session');
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession);
+          setIsAdminLoggedIn(true);
+          setAdminUser(parsed);
+        } else {
+          setIsAdminLoggedIn(false);
+          router.push('/admin/login');
+        }
+      } catch (e) {
+        setIsAdminLoggedIn(false);
+        router.push('/admin/login');
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+
+    const handleStorageChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('fbs_db_updated', handleStorageChange);
 
     // Load saved sidebar collapse state
     try {
@@ -34,7 +61,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         setIsSidebarCollapsed(true);
       }
     } catch (e) {}
-  }, [pathname, router]);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('fbs_db_updated', handleStorageChange);
+    };
+  }, [pathname, router, isLoginPage]);
 
   const toggleSidebarCollapse = () => {
     const nextState = !isSidebarCollapsed;
@@ -48,7 +80,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
-  // Admin always has access - no session check needed
+  if (isCheckingAuth) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#FAF7F2] text-stone-700">
+        <div className="w-10 h-10 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Memeriksa Sesi Admin...</p>
+      </div>
+    );
+  }
+
+  if (!isAdminLoggedIn) {
+    return null;
+  }
 
   return (
     <div className="h-screen w-screen max-w-full overflow-hidden bg-[#FAF7F2] flex font-sans text-stone-900">

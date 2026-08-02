@@ -613,9 +613,11 @@ const loadFromStorage = <T>(key: string, fallback: T): T => {
 const sanitizeDataForStorage = (data: any): any => {
   if (!data) return data;
   if (typeof data === 'string') {
-    if (data.startsWith('data:image/') && data.length > 250000) {
+    if ((data.startsWith('data:image/') || data.startsWith('data:video/')) && data.length > 250000) {
       console.warn('Excessively large base64 payload detected, downsizing storage footprint.');
-      return 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop';
+      return data.startsWith('data:video/')
+        ? 'https://assets.mixkit.co/videos/preview/mixkit-chef-kneading-dough-on-a-table-42938-large.mp4'
+        : 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop';
     }
     return data;
   }
@@ -1040,7 +1042,8 @@ export const db = {
 
   // Categories CRUD
   getCategories: (): Category[] => {
-    return loadFromStorage<Category[]>('fbs_categories', categoriesData);
+    const list = loadFromStorage<Category[]>('fbs_categories', categoriesData);
+    return list.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   },
 
   getCategoryBySlug: (slug: string) => {
@@ -1075,6 +1078,25 @@ export const db = {
     let list = loadFromStorage<Category[]>('fbs_categories', categoriesData);
     list = list.filter(c => c.id !== id);
     saveToStorage('fbs_categories', list);
+
+    // Clean up orphaned products linked to the deleted category
+    let products = loadFromStorage<Product[]>('fbs_products', initialProducts);
+    let updated = false;
+    products = products.map(p => {
+      if (p.categoryId === id) {
+        updated = true;
+        return {
+          ...p,
+          categoryId: 'cat-1',
+          categoryName: 'Flour & Powder',
+        };
+      }
+      return p;
+    });
+    if (updated) {
+      saveToStorage('fbs_products', products);
+    }
+
     return true;
   },
 

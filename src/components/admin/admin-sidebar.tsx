@@ -48,18 +48,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     : 'Video Management';
 
   const menuItems = [
-    { name: t.adminNav.dashboard, href: '/admin2026', icon: LayoutDashboard },
-    { name: 'Arus Kas (Cashflow)', href: '/admin2026/cashflow', icon: Wallet },
-    { name: t.adminNav.orders, href: '/admin2026/orders', icon: ShoppingBag },
-    { name: t.adminNav.products, href: '/admin2026/products', icon: Package },
-    { name: t.adminNav.categories, href: '/admin2026/categories', icon: Layers },
-    { name: t.adminNav.recipes, href: '/admin2026/recipes', icon: ChefHat },
-    { name: t.adminNav.blogs, href: '/admin2026/blogs', icon: BookOpen },
-    { name: videoMenuName, href: '/admin2026/videos', icon: Film },
-    { name: t.adminNav.banners, href: '/admin2026/banners', icon: ImageIcon },
-    { name: t.adminNav.vouchers, href: '/admin2026/vouchers', icon: Tag },
-    { name: t.adminNav.customers, href: '/admin2026/customers', icon: Users },
-    { name: t.adminNav.settings, href: '/admin2026/settings', icon: Settings },
+    { name: t.adminNav.dashboard, href: '/admin', icon: LayoutDashboard },
+    { name: 'Arus Kas (Cashflow)', href: '/admin/cashflow', icon: Wallet },
+    { name: t.adminNav.orders, href: '/admin/orders', icon: ShoppingBag },
+    { name: t.adminNav.products, href: '/admin/products', icon: Package },
+    { name: t.adminNav.categories, href: '/admin/categories', icon: Layers },
+    { name: t.adminNav.recipes, href: '/admin/recipes', icon: ChefHat },
+    { name: t.adminNav.blogs, href: '/admin/blogs', icon: BookOpen },
+    { name: videoMenuName, href: '/admin/videos', icon: Film },
+    { name: t.adminNav.banners, href: '/admin/banners', icon: ImageIcon },
+    { name: t.adminNav.vouchers, href: '/admin/vouchers', icon: Tag },
+    { name: t.adminNav.customers, href: '/admin/customers', icon: Users },
+    { name: t.adminNav.settings, href: '/admin/settings', icon: Settings },
   ];
 
   const languagesList: { code: LanguageCode; label: string }[] = [
@@ -74,7 +74,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
   const executeLogout = () => {
     localStorage.removeItem('fbs_admin_session');
-    router.push('/admin2026/login');
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_admin_session' } }));
+    }
+    router.push('/admin/login');
   };
 
   const handleNavClick = () => {

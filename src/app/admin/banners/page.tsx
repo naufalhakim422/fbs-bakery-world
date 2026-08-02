@@ -6,6 +6,7 @@ import { useLanguage } from '@/lib/language-context';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { Banner, Product } from '@/types';
 import { Plus, Image as ImageIcon, Sparkles, Trash2, Edit, CheckCircle2, X, Eye, EyeOff, Upload, ArrowRight, Link as LinkIcon, Save, ChevronLeft, ChevronRight } from 'lucide-react';
+import { compressImageFile } from '@/lib/image-compressor';
 
 export default function AdminBannersPage() {
   const { t } = useLanguage();
@@ -25,7 +26,7 @@ export default function AdminBannersPage() {
         {
           id: 'ban-1',
           title: 'Semolina & Italian Flour Special Promo',
-          subtitle: 'Best Semolina Flour & Specialty Baking Powder for Soft Fluffy Pastries.',
+          subtitle: 'Best Semolina Flour & Specialty Baking Powder for Soft Fluffy Pastries and Artisan Breads.',
           imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1200&auto=format&fit=crop',
           buttonText: 'SHOP PRODUCT NOW',
           buttonLink: '/products/semolina-flour-premium-grade',
@@ -34,27 +35,27 @@ export default function AdminBannersPage() {
         {
           id: 'ban-2',
           title: 'Kyoto Uji Matcha Grade A Diskon 15%',
-          subtitle: 'Authentic Emerald Green Uji Matcha Powder for Artisan Matcha Lava Tarts.',
+          subtitle: 'Authentic Emerald Green Uji Matcha Powder for Artisan Matcha Lava Tarts & Beverages.',
           imageUrl: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=1200&auto=format&fit=crop',
-          buttonText: 'LIHAT PRODUK PROMO',
-          buttonLink: '/products/uji-matcha-powder-grade-a',
+          buttonText: 'BELI MATCHA UJI',
+          buttonLink: '/products/kyoto-uji-matcha-powder-grade-a',
           status: true,
         },
         {
           id: 'ban-3',
-          title: 'Belgian Dark Couverture Chocolate 70%',
-          subtitle: 'Rich Creamy Dutch Processed Chocolate Chips for Bakery & Cafe Desserts.',
+          title: 'Pasokan Cokelat Couverture Belgian 70%',
+          subtitle: 'Cokelat couverture murni untuk glazing cake, praline, dan ganache mewah.',
           imageUrl: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=1200&auto=format&fit=crop',
-          buttonText: 'PESAN PRODUK DISKON',
+          buttonText: 'LIHAT COKELAT',
           buttonLink: '/products/belgian-dark-couverture-chocolate-70',
           status: true,
         },
         {
           id: 'ban-4',
-          title: 'Commercial Stand Mixer 10L New Arrival',
-          subtitle: 'Heavy-duty stainless steel mixer with multi-speed gear drive for commercial bakeries.',
+          title: 'Stand Mixer Komersial Heavy Duty 10L',
+          subtitle: 'Mesin mixer adonan roti 1200W dengan mangkuk stainless steel tebal.',
           imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=1200&auto=format&fit=crop',
-          buttonText: 'CEK BARANG BARU',
+          buttonText: 'LIHAT MIXER KOMERSIAL',
           buttonLink: '/products/commercial-stand-mixer-10l',
           status: true,
         }
@@ -74,22 +75,25 @@ export default function AdminBannersPage() {
     setBanners(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
   };
 
-  const handleSlotFileUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSlotFileUpload = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.result) {
-          handleUpdateSlotField(id, 'imageUrl', reader.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressed = await compressImageFile(file);
+        handleUpdateSlotField(id, 'imageUrl', compressed);
+      } catch (err) {
+        console.error('Error compressing banner image:', err);
+      }
     }
   };
 
   const handleSlotVideoUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File video banner terlalu besar (Maks 2MB). Silakan gunakan file yang lebih kecil atau URL eksternal.');
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         if (reader.result) {

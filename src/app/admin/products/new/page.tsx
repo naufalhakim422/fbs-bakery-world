@@ -124,9 +124,9 @@ function AdminNewProductContent() {
         id: v.id || `var-${Date.now()}-${idx}`,
         productId: editId || `prod-${Date.now()}`,
         variantName: v.variantName || 'Standard',
-        weight: Number(v.weight) || 1.0,
-        price: Number(v.price) || 10.0,
-        stock: Number(v.stock) || 50,
+        weight: isNaN(Number(v.weight)) ? 1.0 : Number(v.weight),
+        price: isNaN(Number(v.price)) ? 0.0 : Number(v.price),
+        stock: isNaN(Number(v.stock)) ? 0 : Number(v.stock),
         sku: v.sku || `FBS-VAR-${idx}`,
       })),
     });

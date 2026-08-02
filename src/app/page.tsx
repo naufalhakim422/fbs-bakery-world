@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
@@ -48,7 +48,7 @@ export default function HomePage() {
   const [selectedVideo, setSelectedVideo] = useState<VideoPost | null>(null);
   const { language, t } = useLanguage();
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     setSettings(db.getStoreSettings());
     const cHome = db.getHomePageSettings();
     setHomeCms(cHome);
@@ -73,22 +73,27 @@ export default function HomePage() {
     const allBlogs = db.getBlogs();
     setLatestArticles(allBlogs.filter(b => b.type === 'ARTICLE').slice(0, 6));
     setLatestVideos(db.getVideos().filter(v => v.status === 'PUBLISHED').slice(0, 6));
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
 
+    let timer: NodeJS.Timeout;
     const handleUpdate = () => {
-      loadData();
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        loadData();
+      }, 50);
     };
 
     window.addEventListener('storage', handleUpdate);
     window.addEventListener('fbs_db_updated', handleUpdate);
     return () => {
+      clearTimeout(timer);
       window.removeEventListener('storage', handleUpdate);
       window.removeEventListener('fbs_db_updated', handleUpdate);
     };
-  }, []);
+  }, [loadData]);
 
   // AUTO PLAY SLIDER CAROUSEL TIMER (DEFAULT 1 MINUTE / 60,000 MS)
   useEffect(() => {
@@ -146,6 +151,8 @@ export default function HomePage() {
                     <img 
                       src={banner.imageUrl || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1920&auto=format&fit=crop'} 
                       alt={banner.title || 'FBS Banner Promo'} 
+                      fetchPriority="high"
+                      loading="eager"
                       className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
                     />
                   )}

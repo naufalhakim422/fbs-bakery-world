@@ -42,7 +42,7 @@ import {
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 
 export default function AdminDashboardPage() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [orders, setOrders] = useState(db.getOrders());
   const [products, setProducts] = useState(db.getProducts());
   const [customers, setCustomers] = useState(db.getCustomers());
@@ -293,13 +293,13 @@ export default function AdminDashboardPage() {
 
         <div className="flex flex-wrap gap-2.5 z-10 w-full md:w-auto">
           <Link
-            href="/admin2026/products/new"
+            href="/admin/products/new"
             className="px-4 py-2.5 bg-[#D4AF37] hover:bg-amber-400 text-[#800020] font-black text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4 stroke-[3]" /> {t.common?.create || 'Add Product'}
           </Link>
           <Link
-            href="/admin2026/recipes"
+            href="/admin/recipes"
             className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-[#FFF8F0] font-bold text-xs rounded-xl border border-white/20 transition-all flex items-center gap-1.5"
           >
             <ChefHat className="w-4 h-4 text-[#D4AF37]" /> {t.adminNav?.recipes || 'Recipe CMS'}
@@ -313,9 +313,9 @@ export default function AdminDashboardPage() {
       {/* 4 Interactive Clickable Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
-        {/* Card 1: Estimated Revenue -> Navigates to /admin2026/orders */}
+        {/* Card 1: Estimated Revenue -> Navigates to /admin/orders */}
         <Link 
-          href="/admin2026/orders"
+          href="/admin/orders"
           className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-[#800020]/40 transition-all flex flex-col justify-between space-y-4 group cursor-pointer"
         >
           <div className="flex items-center justify-between">
@@ -336,9 +336,9 @@ export default function AdminDashboardPage() {
           </div>
         </Link>
 
-        {/* Card 2: Orders & Pending Actions -> Navigates to /admin2026/orders */}
+        {/* Card 2: Orders & Pending Actions -> Navigates to /admin/orders */}
         <Link 
-          href="/admin2026/orders"
+          href="/admin/orders"
           className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-amber-400 transition-all flex flex-col justify-between space-y-4 group cursor-pointer"
         >
           <div className="flex items-center justify-between">
@@ -359,9 +359,9 @@ export default function AdminDashboardPage() {
           </div>
         </Link>
 
-        {/* Card 3: Active Products Catalog -> Navigates to /admin2026/products */}
+        {/* Card 3: Active Products Catalog -> Navigates to /admin/products */}
         <Link 
-          href="/admin2026/products"
+          href="/admin/products"
           className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-emerald-400 transition-all flex flex-col justify-between space-y-4 group cursor-pointer"
         >
           <div className="flex items-center justify-between">
@@ -382,9 +382,9 @@ export default function AdminDashboardPage() {
           </div>
         </Link>
 
-        {/* Card 4: Customer CRM Database -> Navigates to /admin2026/customers */}
+        {/* Card 4: Customer CRM Database -> Navigates to /admin/customers */}
         <Link 
-          href="/admin2026/customers"
+          href="/admin/customers"
           className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-blue-400 transition-all flex flex-col justify-between space-y-4 group cursor-pointer"
         >
           <div className="flex items-center justify-between">
@@ -422,11 +422,11 @@ export default function AdminDashboardPage() {
                     <TrendingUp className="w-4 h-4" />
                   </span>
                   <h3 className="font-serif text-lg font-extrabold text-stone-900">
-                    Grafik Analitik Omset & Penjualan Interaktif
+                    {language === 'ID' ? 'Grafik Analitik Omset & Penjualan Interaktif' : language === 'MS' ? 'Grafik Analitik Jualan & Hasil Interaktif' : 'Interactive Sales & Revenue Analytics Chart'}
                   </h3>
                 </div>
                 <p className="text-stone-500 text-xs mt-0.5">
-                  Klik titik grafik atau bar mana saja untuk melihat rincian transaksi instan.
+                  {language === 'ID' ? 'Klik titik grafik atau bar mana saja untuk melihat rincian transaksi instan.' : language === 'MS' ? 'Klik sebarang titik carta atau bar untuk melihat butiran transaksi segera.' : 'Click any chart point or bar to view instant transaction details.'}
                 </p>
               </div>
 
@@ -439,7 +439,7 @@ export default function AdminDashboardPage() {
                     timeRange === '7D' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  7 Hari
+                  {language === 'ID' ? '7 Hari' : language === 'MS' ? '7 Hari' : '7 Days'}
                 </button>
                 <button
                   type="button"
@@ -448,7 +448,7 @@ export default function AdminDashboardPage() {
                     timeRange === '30D' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  30 Hari
+                  {language === 'ID' ? '30 Hari' : language === 'MS' ? '30 Hari' : '30 Days'}
                 </button>
                 <button
                   type="button"
@@ -457,7 +457,7 @@ export default function AdminDashboardPage() {
                     timeRange === '1Y' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  1 Tahun
+                  {language === 'ID' ? '1 Tahun' : language === 'MS' ? '1 Tahun' : '1 Year'}
                 </button>
                 <button
                   type="button"
@@ -466,7 +466,7 @@ export default function AdminDashboardPage() {
                     timeRange === 'CUSTOM' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  <Calendar className="w-3.5 h-3.5" /> Kalender
+                  <Calendar className="w-3.5 h-3.5" /> {language === 'ID' ? 'Kalender' : language === 'MS' ? 'Kalendar' : 'Calendar'}
                 </button>
               </div>
             </div>

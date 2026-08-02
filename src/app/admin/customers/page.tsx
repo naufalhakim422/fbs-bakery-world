@@ -23,6 +23,10 @@ export default function AdminCustomersPage() {
       list[idx].customerType = newType;
       localStorage.setItem('fbs_customers', JSON.stringify(list));
       setCustomers([...list]);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_customers' } }));
+      }
     }
   };
 

@@ -68,9 +68,17 @@ export default function AdminVouchersPage() {
   };
 
   const executeSaveVoucher = () => {
+    let sanitizedDiscount = form.discountValue;
+    if (form.discountType === 'PERCENT') {
+      sanitizedDiscount = Math.min(100, Math.max(1, form.discountValue));
+    } else if (form.discountType === 'FIXED') {
+      sanitizedDiscount = Math.min(form.minSpend, Math.max(0, form.discountValue));
+    }
+
     db.saveVoucher({
       id: editingVoucher?.id,
       ...form,
+      discountValue: sanitizedDiscount,
     });
     setVouchers(db.getVouchers());
     setConfirmSaveOpen(false);

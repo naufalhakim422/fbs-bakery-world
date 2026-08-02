@@ -214,11 +214,11 @@ export default function AdminCashflowPage() {
 
   const totalOutflowAmt = totalOutflow || 1;
   const outflowCategories = [
-    { cat: 'Pembelian Stok (HPP)', color: 'bg-rose-600', amt: categoryTotals['Pembelian Stok (HPP)'] || 0 },
-    { cat: 'Operasional Gudang & Listrik', color: 'bg-amber-500', amt: categoryTotals['Operasional Gudang'] || 0 },
-    { cat: 'Biaya Packaging & Kardus', color: 'bg-purple-600', amt: categoryTotals['Biaya Packaging'] || 0 },
-    { cat: 'Biaya Kurir & Logistik', color: 'bg-blue-500', amt: categoryTotals['Biaya Kurir & Logistik'] || 0 },
-    { cat: 'Pengeluaran Lainnya', color: 'bg-stone-500', amt: categoryTotals['Pengeluaran Lainnya'] || 0 },
+    { cat: 'Pembelian Stok (HPP)', color: 'bg-rose-600', amt: (categoryTotals['Pembelian Stok (HPP)'] || 0) + (categoryTotals['Pembelian Stok'] || 0) },
+    { cat: 'Operasional Gudang & Listrik', color: 'bg-amber-500', amt: (categoryTotals['Operasional Gudang & Listrik'] || 0) + (categoryTotals['Operasional Gudang'] || 0) },
+    { cat: 'Biaya Packaging & Kardus', color: 'bg-purple-600', amt: (categoryTotals['Biaya Packaging & Kardus'] || 0) + (categoryTotals['Biaya Packaging'] || 0) },
+    { cat: 'Biaya Kurir & Logistik', color: 'bg-blue-500', amt: (categoryTotals['Biaya Kurir & Logistik'] || 0) + (categoryTotals['Biaya Kurir'] || 0) },
+    { cat: 'Pengeluaran Lainnya', color: 'bg-stone-500', amt: (categoryTotals['Pengeluaran Lainnya'] || 0) + (categoryTotals['Pengeluaran'] || 0) },
   ].filter(c => c.amt > 0);
 
 
@@ -241,7 +241,10 @@ export default function AdminCashflowPage() {
     const updated = [newItem, ...expenses];
     setExpenses(updated);
     localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_cashflow_expenses' } }));
+    }
     setConfirmSaveOpen(false);
     setShowExpenseModal(false);
     setNewExpTitle('');
@@ -258,7 +261,10 @@ export default function AdminCashflowPage() {
       const updated = expenses.filter(e => e.id !== pendingDeleteId);
       setExpenses(updated);
       localStorage.setItem('fbs_cashflow_expenses', JSON.stringify(updated));
-      window.dispatchEvent(new Event('storage'));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_cashflow_expenses' } }));
+      }
       setPendingDeleteId(null);
     }
   };
@@ -679,9 +685,9 @@ export default function AdminCashflowPage() {
                 <select value={newExpCategory} onChange={e => setNewExpCategory(e.target.value)}
                   className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]">
                   <option value="Pembelian Stok (HPP)">Pembelian Stok (HPP)</option>
-                  <option value="Biaya Packaging">Biaya Packaging & Kardus</option>
+                  <option value="Biaya Packaging & Kardus">Biaya Packaging & Kardus</option>
                   <option value="Biaya Kurir & Logistik">Biaya Kurir & Logistik</option>
-                  <option value="Operasional Gudang">Operasional Gudang & Listrik</option>
+                  <option value="Operasional Gudang & Listrik">Operasional Gudang & Listrik</option>
                   <option value="Pengeluaran Lainnya">Pengeluaran Lainnya</option>
                 </select>
               </div>

@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { VideoPost } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
+import { getEmbedVideoUrl } from '@/lib/video-utils';
 import { Video as VideoIcon, Plus, Upload, Trash2, Edit, CheckCircle2, X, PlayCircle, Search, Film, Clock, Eye } from 'lucide-react';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 
@@ -52,6 +53,10 @@ export default function AdminVideosPage() {
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 3 * 1024 * 1024) {
+        alert('File video terlalu besar (Maksimal 3MB). Silakan gunakan link URL video (YouTube / TikTok / Facebook) atau gunakan file video yang lebih kecil.');
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         if (reader.result) {
@@ -101,9 +106,14 @@ export default function AdminVideosPage() {
     e.preventDefault();
     if (!form.title.trim()) return;
 
+    // Auto-convert standard YouTube watch / Facebook URLs to proper iframe embed URLs
+    const parsed = getEmbedVideoUrl(form.embedUrl, form.platform);
+    const finalEmbedUrl = (!parsed.isDirectVideo && parsed.embedUrl) ? parsed.embedUrl : form.embedUrl;
+
     db.saveVideo({
       id: editingVideo?.id,
       ...form,
+      embedUrl: finalEmbedUrl,
     });
     setVideos(db.getVideos());
     setIsModalOpen(false);

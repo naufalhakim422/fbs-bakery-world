@@ -20,8 +20,6 @@ export default function AdminLoginPage() {
   useEffect(() => {
     const liveCreds = db.getAdminCredentials();
     setCreds(liveCreds);
-    setEmail(liveCreds.email);
-    setPassword(liveCreds.password);
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -42,9 +40,13 @@ export default function AdminLoginPage() {
           role: 'OWNER',
           loginAt: new Date().toISOString()
         }));
-        router.push('/admin2026');
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_admin_session' } }));
+        }
+        router.push('/admin');
       } else {
-        setError(`${t.adminLogin.wrongCreds} (Default / Active: ${activeCreds.email} / ${activeCreds.password})`);
+        setError(t.adminLogin.wrongCreds);
         setLoading(false);
       }
     }, 800);
@@ -118,11 +120,7 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          <div className="p-3 bg-[#FFF8F0] rounded-xl border border-[#EADBC8] text-[11px] text-stone-600">
-            <strong>{t.adminLogin.activeCreds}</strong><br />
-            Email: <code className="text-[#800020] font-bold">{creds.email}</code><br />
-            Password: <code className="text-[#800020] font-bold">{creds.password}</code>
-          </div>
+
 
           <button
             type="submit"

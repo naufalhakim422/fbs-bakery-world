@@ -107,6 +107,7 @@ export default function AdminBlogsPage() {
   const executeSaveBlog = () => {
     db.saveBlog({
       id: editingBlog?.id,
+      contentBlocks: editingBlog?.contentBlocks,
       ...form,
       galleryImages: blogGallery,
     });
