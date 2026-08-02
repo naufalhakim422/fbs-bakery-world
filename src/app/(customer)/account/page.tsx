@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/db';
+import { Customer, Order, OrderItem } from '@/types';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -17,7 +18,7 @@ import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, Check
 export default function CustomerAccountPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'orders' | 'benefits' | 'wishlist' | 'profile'>('orders');
-  const [customer, setCustomer] = useState<any>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [vouchers, setVouchers] = useState<any[]>([]);
   const [copiedCode, setCopiedCode] = useState<string>('');
@@ -81,6 +82,7 @@ export default function CustomerAccountPage() {
           city: sessObj.city || 'Shah Alam',
           state: sessObj.state || 'Selangor',
           postcode: sessObj.postcode || '40000',
+          createdAt: sessObj.createdAt || new Date().toISOString(),
         });
       }
 
@@ -143,8 +145,8 @@ export default function CustomerAccountPage() {
       session.photo = photoUrl;
       localStorage.setItem('fbs_customer_session', JSON.stringify(session));
 
-      const existingCusts = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
-      const idx = existingCusts.findIndex((c: any) => c.id === customer.id || (customer.email && c.email === customer.email));
+      const existingCusts: Customer[] = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
+      const idx = existingCusts.findIndex((c: Customer) => c.id === customer.id || (customer.email && c.email === customer.email));
       if (idx !== -1) {
         existingCusts[idx].photo = photoUrl;
         localStorage.setItem('fbs_customers', JSON.stringify(existingCusts));
@@ -169,8 +171,8 @@ export default function CustomerAccountPage() {
       session.coverPhoto = coverUrl;
       localStorage.setItem('fbs_customer_session', JSON.stringify(session));
 
-      const existingCusts = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
-      const idx = existingCusts.findIndex((c: any) => c.id === customer.id || (customer.email && c.email === customer.email));
+      const existingCusts: Customer[] = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
+      const idx = existingCusts.findIndex((c: Customer) => c.id === customer.id || (customer.email && c.email === customer.email));
       if (idx !== -1) {
         existingCusts[idx].coverPhoto = coverUrl;
         localStorage.setItem('fbs_customers', JSON.stringify(existingCusts));
@@ -670,7 +672,7 @@ export default function CustomerAccountPage() {
 
                   {/* Item Preview */}
                   <div className="space-y-2">
-                    {order.items.map((item: any) => (
+                    {order.items.map((item: OrderItem) => (
                       <div key={item.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl gap-2 border border-stone-200">
                         <div>
                           <span className="font-bold text-stone-900 block">{item.productName}</span>
