@@ -106,10 +106,12 @@ export default function HomePage() {
   }, [banners, homeCms.bannerSpeed]);
 
   const nextSlide = () => {
+    if (!banners || banners.length === 0) return;
     setCurrentSlideIndex((prev) => (prev + 1) % banners.length);
   };
 
   const prevSlide = () => {
+    if (!banners || banners.length === 0) return;
     setCurrentSlideIndex((prev) => (prev - 1 + banners.length) % banners.length);
   };
 
