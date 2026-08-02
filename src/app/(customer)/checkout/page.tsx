@@ -86,7 +86,9 @@ export default function CheckoutPage() {
           setIsAutoFilled(true);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to parse customer session in checkout:', e);
+    }
   }, []);
 
   const statesMalaysia = [

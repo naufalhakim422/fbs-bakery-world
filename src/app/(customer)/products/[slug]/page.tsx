@@ -92,7 +92,9 @@ export default function ProductDetailPage() {
               name: sessObj.name || '',
             }));
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn('Failed to parse customer session for review form:', e);
+        }
       }
     }
   }, [slug]);

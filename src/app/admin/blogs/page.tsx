@@ -42,7 +42,9 @@ export default function AdminBlogsPage() {
       try {
         const compressed = await compressImageFile(files[i]);
         list.push(compressed);
-      } catch (err) {}
+      } catch (err) {
+        console.warn('Failed to compress blog image file:', err);
+      }
     }
 
     if (list.length > 0) {

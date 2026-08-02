@@ -2052,7 +2052,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         gtCombo.value = targetGtLang;
         gtCombo.dispatchEvent(new Event('change'));
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to sync Google Translate combo element:', e);
+    }
   };
 
   // Load saved language on mount from localStorage or cookie
@@ -2072,7 +2074,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           syncGoogleTranslate(saved as LanguageCode);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to load saved language from storage/cookie:', e);
+    }
   }, []);
 
   // Sync across tabs/windows & custom events
@@ -2129,7 +2133,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           window.location.reload();
         }, 100);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to save setLanguage state:', e);
+    }
   };
 
   return (

@@ -42,7 +42,9 @@ export default function ForgotPasswordPage() {
     try {
       const waMsg = `Halo Admin Staf FBS Bakery World, permohonan reset password diajukan untuk akun terdaftar: ${emailOrPhone}. Kode Verifikasi Token: ${token}`;
       window.open(`https://wa.me/60183942147?text=${encodeURIComponent(waMsg)}`, '_blank');
-    } catch (err) {}
+    } catch (err) {
+      console.warn('Failed to open WhatsApp URL window:', err);
+    }
 
     setTimeout(() => {
       setLoading(false);

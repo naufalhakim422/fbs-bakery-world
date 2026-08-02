@@ -170,5 +170,7 @@ export function resetFailedAttempts(identifier: string) {
       delete attemptsMap[identifier];
       localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(attemptsMap));
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('Failed to reset rate limit attempts:', e);
+  }
 }

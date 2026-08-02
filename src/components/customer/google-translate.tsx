@@ -26,7 +26,9 @@ if (typeof window !== 'undefined') {
         }
         return originalInsertBefore.call(this, newNode, referenceNode) as T;
       };
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to patch Node.prototype.insertBefore for Google Translate:', e);
+    }
   }
 }
 
@@ -93,7 +95,9 @@ export const GoogleTranslateScript: React.FC = () => {
               }
             }, 300);
           }
-        } catch (err) {}
+        } catch (err) {
+          console.warn('Failed to initialize Google Translate element:', err);
+        }
       };
 
       const script = document.createElement('script');

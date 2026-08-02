@@ -44,7 +44,9 @@ export default function AdminRecipesPage() {
       try {
         const compressed = await compressImageFile(files[i]);
         list.push(compressed);
-      } catch (err) {}
+      } catch (err) {
+        console.warn('Failed to compress recipe image file:', err);
+      }
     }
 
     if (list.length > 0) {

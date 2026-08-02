@@ -39,7 +39,9 @@ export function PhoneOtpModal({
         try {
           (window as any).recaptchaVerifier.clear();
           (window as any).recaptchaVerifier = null;
-        } catch (e) {}
+        } catch (e) {
+          console.warn('Failed to clear recaptchaVerifier on unmount:', e);
+        }
       }
     };
   }, []);
@@ -63,7 +65,9 @@ export function PhoneOtpModal({
       if ((window as any).recaptchaVerifier) {
         try {
           (window as any).recaptchaVerifier.clear();
-        } catch (e) {}
+        } catch (e) {
+          console.warn('Failed to clear recaptchaVerifier before re-init:', e);
+        }
         (window as any).recaptchaVerifier = null;
       }
 
