@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { formatMYR } from '@/lib/currency';
@@ -147,14 +147,14 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Cashflow Totals
-  const totalInflow = orders.reduce((acc, o) => acc + o.totalAmount, 0);
-  const totalOutflow = expenses.reduce((acc, e) => acc + e.amount, 0);
-  const netCashflow = totalInflow - totalOutflow;
-  const profitMarginPct = totalInflow > 0 ? Math.round((netCashflow / totalInflow) * 100) : 0;
+  // Cashflow Totals & Dashboard Statistics (Memoized for zero re-render overhead)
+  const totalInflow = useMemo(() => orders.reduce((acc, o) => acc + o.totalAmount, 0), [orders]);
+  const totalOutflow = useMemo(() => expenses.reduce((acc, e) => acc + e.amount, 0), [expenses]);
+  const netCashflow = useMemo(() => totalInflow - totalOutflow, [totalInflow, totalOutflow]);
+  const profitMarginPct = useMemo(() => totalInflow > 0 ? Math.round((netCashflow / totalInflow) * 100) : 0, [totalInflow, netCashflow]);
 
-  const totalSalesEstimate = orders.reduce((acc, o) => acc + o.totalAmount, 0);
-  const pendingOrders = orders.filter(o => o.orderStatus === 'NEW' || o.orderStatus === 'CONFIRMED');
+  const totalSalesEstimate = totalInflow;
+  const pendingOrders = useMemo(() => orders.filter(o => o.orderStatus === 'NEW' || o.orderStatus === 'CONFIRMED'), [orders]);
 
   // Dynamic Time-Range Chart Calculation Engine
   const getChartData = () => {
