@@ -16,8 +16,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const amountToFreeShipping = freeShippingThreshold - subtotal;
-  const progressPercent = Math.min(100, (subtotal / freeShippingThreshold) * 100);
+  const amountToFreeShipping = React.useMemo(() => Math.max(0, freeShippingThreshold - subtotal), [freeShippingThreshold, subtotal]);
+  const progressPercent = React.useMemo(() => Math.min(100, (subtotal / freeShippingThreshold) * 100), [subtotal, freeShippingThreshold]);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
