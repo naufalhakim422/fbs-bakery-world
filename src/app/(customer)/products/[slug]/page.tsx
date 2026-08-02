@@ -46,6 +46,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState<string>('');
   const [isAdded, setIsAdded] = useState(false);
+  const [recentlyViewedProducts, setRecentlyViewedProducts] = useState<Product[]>([]);
 
   // Reviews State
   const [reviews, setReviews] = useState<ProductReview[]>([]);
@@ -81,6 +82,24 @@ export default function ProductDetailPage() {
         const loaded = db.getProductReviews(foundProd.id);
         setReviews(loaded);
         setRatingStats(db.calculateProductRating(foundProd.id));
+
+        // Update Recently Viewed Products in localStorage (max 10, no duplicates)
+        try {
+          const saved = localStorage.getItem('fbs_recently_viewed');
+          let ids: string[] = saved ? JSON.parse(saved) : [];
+          if (!Array.isArray(ids)) ids = [];
+          ids = [foundProd.id, ...ids.filter(id => id !== foundProd.id)].slice(0, 10);
+          localStorage.setItem('fbs_recently_viewed', JSON.stringify(ids));
+
+          const allProds = db.getProducts();
+          const list = ids
+            .filter(id => id !== foundProd.id)
+            .map(id => allProds.find(p => p.id === id))
+            .filter(Boolean) as Product[];
+          setRecentlyViewedProducts(list);
+        } catch (e) {
+          console.warn('Failed to update recently viewed:', e);
+        }
 
         // Try load customer session
         try {
@@ -649,6 +668,20 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Recently Viewed Products */}
+        {recentlyViewedProducts.length > 0 && (
+          <section className="mb-16">
+            <h2 className="font-serif text-2xl font-bold text-[#2B1B1B] mb-6 flex items-center gap-2">
+              <span>Recently Viewed Products</span>
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recentlyViewedProducts.map((p) => (
+                <ProductCard key={`rv-${p.id}`} product={p} />
               ))}
             </div>
           </section>

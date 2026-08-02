@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
-import { VideoPost } from '@/types';
+import { VideoPost, Product } from '@/types';
 import { getEmbedVideoUrl } from '@/lib/video-utils';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
@@ -46,6 +46,7 @@ export default function HomePage() {
   const [latestArticles, setLatestArticles] = useState<any[]>([]);
   const [latestVideos, setLatestVideos] = useState<VideoPost[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<VideoPost | null>(null);
+  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const { language, t } = useLanguage();
 
   const loadData = useCallback(() => {
@@ -73,6 +74,19 @@ export default function HomePage() {
     const allBlogs = db.getBlogs();
     setLatestArticles(allBlogs.filter(b => b.type === 'ARTICLE').slice(0, 6));
     setLatestVideos(db.getVideos().filter(v => v.status === 'PUBLISHED').slice(0, 6));
+
+    // Load Recently Viewed Products
+    try {
+      const saved = localStorage.getItem('fbs_recently_viewed');
+      if (saved) {
+        const ids: string[] = JSON.parse(saved);
+        if (Array.isArray(ids) && ids.length > 0) {
+          const allProds = db.getProducts();
+          const list = ids.map(id => allProds.find(p => p.id === id)).filter(Boolean) as Product[];
+          setRecentlyViewed(list);
+        }
+      }
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -644,6 +658,25 @@ export default function HomePage() {
             );
           })()}
         </div>
+      )}
+
+      {/* Recently Viewed Products Section */}
+      {recentlyViewed.length > 0 && (
+        <section className="py-12 bg-gradient-to-b from-[#FFF8F0] to-white border-t border-[#EADBC8]/40">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <span className="text-xs font-bold text-[#800020] uppercase tracking-widest block mb-1">Personalized For You</span>
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2B1B1B]">Recently Viewed</h2>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+              {recentlyViewed.map((prod) => (
+                <ProductCard key={`hp-rv-${prod.id}`} product={prod} />
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       <Footer />
