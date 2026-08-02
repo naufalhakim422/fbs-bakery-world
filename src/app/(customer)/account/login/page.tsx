@@ -66,8 +66,9 @@ export default function CustomerLoginPage() {
     localStorage.setItem('fbs_customer_session', JSON.stringify(finalUser));
   };
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
 
     const identifier = phoneOrEmail.trim();
