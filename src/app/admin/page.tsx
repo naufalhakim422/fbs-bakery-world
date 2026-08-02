@@ -153,6 +153,31 @@ export default function AdminDashboardPage() {
   const netCashflow = useMemo(() => totalInflow - totalOutflow, [totalInflow, totalOutflow]);
   const profitMarginPct = useMemo(() => totalInflow > 0 ? Math.round((netCashflow / totalInflow) * 100) : 0, [totalInflow, netCashflow]);
 
+  // Sprint 35 - Enhanced Sales Dashboard Statistics
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const currentMonthStr = useMemo(() => new Date().toISOString().slice(0, 7), []);
+
+  const revenueToday = useMemo(() => {
+    return orders
+      .filter(o => o.createdAt && o.createdAt.startsWith(todayStr))
+      .reduce((sum, o) => sum + o.totalAmount, 0);
+  }, [orders, todayStr]);
+
+  const revenueThisMonth = useMemo(() => {
+    return orders
+      .filter(o => o.createdAt && o.createdAt.startsWith(currentMonthStr))
+      .reduce((sum, o) => sum + o.totalAmount, 0);
+  }, [orders, currentMonthStr]);
+
+  const bestSellingProduct = useMemo(() => {
+    if (products.length === 0) return null;
+    return [...products].sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0))[0] || null;
+  }, [products]);
+
+  const lowStockProductsList = useMemo(() => {
+    return products.filter(p => p.variants && p.variants.some(v => v.stock <= 5));
+  }, [products]);
+
   const totalSalesEstimate = totalInflow;
   const pendingOrders = useMemo(() => orders.filter(o => o.orderStatus === 'NEW' || o.orderStatus === 'CONFIRMED'), [orders]);
 
@@ -401,6 +426,75 @@ export default function AdminDashboardPage() {
             </h3>
             <span className="text-[11px] text-blue-600 font-bold flex items-center gap-1 mt-1">
               <Users className="w-3.5 h-3.5" /> {t.adminCustomers?.title || 'Customers'} →
+            </span>
+          </div>
+        </Link>
+
+      </div>
+
+      {/* SECONDARY ROW: REVENUE TODAY, REVENUE THIS MONTH, BEST SELLER, LOW STOCK ALERT */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        
+        {/* Revenue Today Card */}
+        <div className="bg-gradient-to-br from-[#800020] to-[#5a0017] p-5 rounded-3xl text-white shadow-md flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#F7E7CE]">REVENUE HARI INI</span>
+            <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-[#D4AF37]">
+              <DollarSign className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <h4 className="font-serif text-2xl font-black text-white">{formatMYR(revenueToday)}</h4>
+            <span className="text-[10px] text-white/80 font-medium">Hari ini ({todayStr})</span>
+          </div>
+        </div>
+
+        {/* Revenue This Month Card */}
+        <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">REVENUE BULAN INI</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <TrendingUp className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <h4 className="font-serif text-2xl font-black text-stone-900">{formatMYR(revenueThisMonth)}</h4>
+            <span className="text-[10px] text-stone-500 font-medium">Bulan Ini ({currentMonthStr})</span>
+          </div>
+        </div>
+
+        {/* Best Selling Product Card */}
+        <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">PRODUK TERLARIS</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Sparkles className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <h4 className="font-bold text-sm text-stone-900 truncate">
+              {bestSellingProduct ? bestSellingProduct.productName : 'Belum Ada Data'}
+            </h4>
+            <span className="text-[10px] text-amber-700 font-extrabold block">
+              {bestSellingProduct ? `${bestSellingProduct.totalSold || 0} Terjual` : '-'}
+            </span>
+          </div>
+        </div>
+
+        {/* Low Stock Product Card */}
+        <Link href="/admin/products" className="bg-white p-5 rounded-3xl border border-stone-200 hover:border-rose-300 shadow-sm transition-all flex flex-col justify-between group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 group-hover:text-rose-600">STOK MENIPIS</span>
+            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <h4 className="font-serif text-2xl font-black text-stone-900 group-hover:text-rose-600">
+              {lowStockProductsList.length} <span className="text-xs font-normal text-stone-400">Produk</span>
+            </h4>
+            <span className="text-[10px] text-rose-600 font-bold block">
+              {lowStockProductsList.length > 0 ? 'Perlu Restok Segera →' : 'Stok Aman'}
             </span>
           </div>
         </Link>
