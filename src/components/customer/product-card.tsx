@@ -70,6 +70,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
   };
 
   const isFavorite = isInWishlist(product.id);
+  const productImage = product.mainImage || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop';
 
   // LIST VIEW LAYOUT
   if (viewMode === 'list') {
@@ -80,7 +81,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
         <div className="relative w-full sm:w-48 h-48 sm:h-auto flex-shrink-0 rounded-xl overflow-hidden bg-stone-100">
           <Link href={`/products/${product.slug}`}>
             <img 
-              src={product.mainImage} 
+              src={productImage} 
               alt={product.productName} 
               loading="lazy"
               decoding="async"
@@ -218,7 +219,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
       <div className="relative aspect-square overflow-hidden bg-stone-100">
         <Link href={`/products/${product.slug}`}>
           <img 
-            src={product.mainImage} 
+            src={productImage} 
             alt={product.productName} 
             loading="lazy"
             decoding="async"
