@@ -172,6 +172,7 @@ export default function HomePage() {
                 onClick={prevSlide}
                 className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3.5 rounded-full bg-black/50 hover:bg-[#800020] text-white/90 border border-white/20 backdrop-blur-md transition-all shadow-2xl hover:scale-110"
                 title="Previous Slide"
+                aria-label="Previous Banner Slide"
               >
                 <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
@@ -180,6 +181,7 @@ export default function HomePage() {
                 onClick={nextSlide}
                 className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3.5 rounded-full bg-black/50 hover:bg-[#800020] text-white/90 border border-white/20 backdrop-blur-md transition-all shadow-2xl hover:scale-110"
                 title="Next Slide"
+                aria-label="Next Banner Slide"
               >
                 <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
