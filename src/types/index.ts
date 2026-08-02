@@ -27,6 +27,7 @@ export interface Product {
   isHalal: boolean;
   isFeatured: boolean;
   isBestSeller: boolean;
+  isNew?: boolean;
   status: boolean;
   totalSold?: number;
   variants: ProductVariant[];

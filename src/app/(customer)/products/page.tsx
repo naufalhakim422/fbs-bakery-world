@@ -30,7 +30,9 @@ function CatalogContent() {
 
   const [selectedCategory, setSelectedCategory] = useState<string>(selectedCatParam);
   const [halalOnly, setHalalOnly] = useState(false);
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured');
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [newArrivalOnly, setNewArrivalOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'newest' | 'bestseller' | 'name-asc'>('featured');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Sync state when URL query params change
@@ -94,20 +96,38 @@ function CatalogContent() {
       list = list.filter(p => p.isHalal);
     }
 
-    // Sort Order
+    // Filter by In-Stock Only
+    if (inStockOnly) {
+      list = list.filter(p => p.variants && p.variants.some(v => v.stock > 0));
+    }
+
+    // Filter by New Arrival Only
+    if (newArrivalOnly) {
+      list = list.filter(p => p.isNew);
+    }
+
+    // Advanced Sort Order
     if (sortBy === 'price-asc') {
       list.sort((a, b) => (a.variants[0]?.price || 0) - (b.variants[0]?.price || 0));
     } else if (sortBy === 'price-desc') {
       list.sort((a, b) => (b.variants[0]?.price || 0) - (a.variants[0]?.price || 0));
+    } else if (sortBy === 'newest') {
+      list.sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime());
+    } else if (sortBy === 'bestseller') {
+      list.sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0));
+    } else if (sortBy === 'name-asc') {
+      list.sort((a, b) => a.productName.localeCompare(b.productName));
     }
 
     return list;
-  }, [allProducts, categories, selectedCategory, debouncedSearchQuery, halalOnly, sortBy]);
+  }, [allProducts, categories, selectedCategory, debouncedSearchQuery, halalOnly, inStockOnly, newArrivalOnly, sortBy]);
 
   const handleResetFilters = useCallback(() => {
     setSearchQuery('');
     setSelectedCategory('');
     setHalalOnly(false);
+    setInStockOnly(false);
+    setNewArrivalOnly(false);
     setSortBy('featured');
   }, []);
 
@@ -192,6 +212,36 @@ function CatalogContent() {
               <span>Halal Only</span>
             </button>
 
+            {/* Ready Stock Filter Pill */}
+            <button
+              onClick={() => setInStockOnly(!inStockOnly)}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border ${
+                inStockOnly
+                  ? 'bg-blue-800 text-white border-blue-600 shadow-sm'
+                  : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200'
+              }`}
+            >
+              <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${inStockOnly ? 'bg-white text-blue-800' : 'border border-stone-400'}`}>
+                {inStockOnly && <Check className="w-3 h-3 stroke-[3]" />}
+              </div>
+              <span>Ready Stock</span>
+            </button>
+
+            {/* New Arrival Filter Pill */}
+            <button
+              onClick={() => setNewArrivalOnly(!newArrivalOnly)}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border ${
+                newArrivalOnly
+                  ? 'bg-amber-600 text-white border-amber-500 shadow-sm'
+                  : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200'
+              }`}
+            >
+              <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${newArrivalOnly ? 'bg-white text-amber-600' : 'border border-stone-400'}`}>
+                {newArrivalOnly && <Check className="w-3 h-3 stroke-[3]" />}
+              </div>
+              <span>New Arrival</span>
+            </button>
+
             {/* Sort Select Dropdown */}
             <select
               value={sortBy}
@@ -199,8 +249,11 @@ function CatalogContent() {
               className="px-3 py-1.5 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 bg-stone-50 hover:bg-white focus:outline-none focus:border-[#800020] transition-colors"
             >
               <option value="featured">Featured Order</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
+              <option value="price-asc">Harga Termurah</option>
+              <option value="price-desc">Harga Termahal</option>
+              <option value="newest">Terbaru</option>
+              <option value="bestseller">Bestseller</option>
+              <option value="name-asc">Nama A-Z</option>
             </select>
 
             {/* INTEGRATED MODERN GRID / LIST VIEW TOGGLE BUTTONS */}
