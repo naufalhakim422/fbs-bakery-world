@@ -110,14 +110,18 @@ function AdminNewProductContent() {
   };
 
   const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmitProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.productName.trim()) return;
+    if (!form.productName.trim() || isSubmitting) return;
     setConfirmSaveOpen(true);
   };
 
   const executeSaveProduct = () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     db.saveProduct({
       id: editId ? db.getProductBySlug(editId)?.id : undefined,
       ...form,
@@ -425,9 +429,10 @@ function AdminNewProductContent() {
           </Link>
           <button
             type="submit"
-            className="px-8 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-lg flex items-center gap-2"
+            disabled={isSubmitting}
+            className="px-8 py-3 bg-[#800020] hover:bg-[#6F1D1B] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-lg flex items-center gap-2"
           >
-            <Save className="w-4 h-4" /> Save Product & Variants
+            <Save className="w-4 h-4" /> {isSubmitting ? 'Saving...' : 'Save Product & Variants'}
           </button>
         </div>
 

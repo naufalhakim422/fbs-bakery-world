@@ -153,6 +153,7 @@ export default function HomePage() {
                       alt={banner.title || 'FBS Banner Promo'} 
                       fetchPriority="high"
                       loading="eager"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
                     />
                   )}

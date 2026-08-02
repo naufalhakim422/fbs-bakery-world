@@ -34,7 +34,7 @@ function CatalogContent() {
     }
   }, [searchParams]);
 
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>(() => db.getProducts());
   const categories = useMemo(() => db.getCategories(), []);
 
   useEffect(() => {
