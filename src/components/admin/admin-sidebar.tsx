@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage, LanguageCode } from '@/lib/language-context';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
+import { recordAuditLog } from '@/lib/audit';
 import { 
   LayoutDashboard, 
   Package, 
@@ -73,6 +74,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   };
 
   const executeLogout = () => {
+    recordAuditLog('Admin Logout', 'AUTH', 'Signed out from admin session.');
     localStorage.removeItem('fbs_admin_session');
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('storage'));

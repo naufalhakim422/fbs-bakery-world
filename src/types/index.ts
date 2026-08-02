@@ -266,4 +266,13 @@ export interface StockHistoryLog {
   timestamp: string;
 }
 
+export interface AuditLog {
+  id: string;
+  adminName: string;
+  action: string;
+  category: 'AUTH' | 'PRODUCT' | 'BANNER' | 'VOUCHER' | 'RECIPE' | 'BLOG' | 'ORDER' | 'SETTINGS';
+  details: string;
+  timestamp: string;
+}
+
 

@@ -7,6 +7,7 @@ import { formatMYR } from '@/lib/currency';
 import { useLanguage } from '@/lib/language-context';
 import { Product } from '@/types';
 import { exportProductsToCSV, parseCSVProductData, ImportReport } from '@/lib/excel';
+import { recordAuditLog } from '@/lib/audit';
 import { Plus, Search, Edit, Trash2, ShieldCheck, Sparkles, Star, Download, Upload, FileText, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 
@@ -31,6 +32,8 @@ export default function AdminProductsPage() {
       importedProducts.forEach(p => {
         db.saveProduct(p);
       });
+
+      recordAuditLog('Import Produk Excel', 'PRODUCT', `Imported ${report.importedCount} products via CSV/Excel.`);
 
       setProducts(db.getProducts());
       setImportReport(report);
@@ -66,7 +69,9 @@ export default function AdminProductsPage() {
 
   const executeDelete = () => {
     if (deleteId) {
+      const target = products.find(p => p.id === deleteId);
       db.deleteProduct(deleteId);
+      recordAuditLog('Hapus Produk', 'PRODUCT', `Product ${target?.productName || deleteId} (${target?.sku || ''}) was deleted.`);
       setProducts(db.getProducts());
       setDeleteId(null);
     }

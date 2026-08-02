@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { recordAuditLog } from '@/lib/audit';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
@@ -81,6 +82,7 @@ export default function AdminOrderDetailPage() {
     const updated = db.updateOrderStatusAndTracking(order.id, orderStatus, finalCourier, trackingNumber);
     if (updated) {
       setOrder({ ...updated });
+      recordAuditLog('Update Status Order', 'ORDER', `Order ${order.orderNumber} status updated to ${orderStatus} (${finalCourier} - Resi: ${trackingNumber || 'N/A'}).`);
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
     }

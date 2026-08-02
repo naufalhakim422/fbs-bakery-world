@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { recordAuditLog } from '@/lib/audit';
 import { useLanguage } from '@/lib/language-context';
 import { Lock, User, Sparkles, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
@@ -40,6 +41,9 @@ export default function AdminLoginPage() {
           role: 'OWNER',
           loginAt: new Date().toISOString()
         }));
+
+        recordAuditLog('Admin Login', 'AUTH', 'Successful portal authentication.', activeCreds.email);
+
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('storage'));
           window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_admin_session' } }));

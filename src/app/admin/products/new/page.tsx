@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { recordAuditLog } from '@/lib/audit';
 import { ProductVariant } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
@@ -136,6 +137,12 @@ function AdminNewProductContent() {
         sku: v.sku || `FBS-VAR-${idx}`,
       })),
     });
+
+    recordAuditLog(
+      editId ? 'Edit Produk' : 'Tambah Produk Baru',
+      'PRODUCT',
+      `Product ${form.productName} (${form.sku}) with ${variants.length} variants was ${editId ? 'updated' : 'created'}.`
+    );
 
     setConfirmSaveOpen(false);
     router.push('/admin/products');
