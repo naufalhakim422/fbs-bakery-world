@@ -19,6 +19,15 @@ function CatalogContent() {
   const initialSearchParam = searchParams.get('search') || '';
 
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchParam);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(initialSearchParam);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 150);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [selectedCategory, setSelectedCategory] = useState<string>(selectedCatParam);
   const [halalOnly, setHalalOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured');
@@ -66,9 +75,9 @@ function CatalogContent() {
       list = list.filter(p => p.categoryId === targetId || p.categoryName?.toLowerCase() === selectedCategory.toLowerCase());
     }
 
-    // Deep Filter by Search Query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
+    // Deep Filter by Search Query (Debounced)
+    if (debouncedSearchQuery.trim()) {
+      const q = debouncedSearchQuery.toLowerCase().trim();
       list = list.filter(p => 
         p.productName.toLowerCase().includes(q) || 
         p.brand.toLowerCase().includes(q) || 
@@ -93,7 +102,7 @@ function CatalogContent() {
     }
 
     return list;
-  }, [allProducts, categories, selectedCategory, searchQuery, halalOnly, sortBy]);
+  }, [allProducts, categories, selectedCategory, debouncedSearchQuery, halalOnly, sortBy]);
 
   const handleResetFilters = useCallback(() => {
     setSearchQuery('');
