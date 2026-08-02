@@ -254,4 +254,16 @@ export interface VideoPost {
   createdAt: string;
 }
 
+export interface StockHistoryLog {
+  id: string;
+  productId: string;
+  productName: string;
+  variantName: string;
+  changeType: 'ORDER_DEDUCT' | 'CANCEL_RESTORE' | 'MANUAL_ADJUST';
+  quantityChange: number;
+  stockAfter: number;
+  orderNumber?: string;
+  timestamp: string;
+}
+
 

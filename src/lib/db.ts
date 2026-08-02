@@ -1,4 +1,4 @@
-import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, Voucher, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost } from '@/types';
+import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, Voucher, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog } from '@/types';
 
 let categoriesData: Category[] = [
   {
@@ -763,7 +763,7 @@ export const db = {
     orders.unshift(newOrder);
     saveToStorage('fbs_orders', orders);
 
-    // AUTO-INCREMENT TOTAL SOLD & DEDUCT VARIANT STOCK ON ORDER PLACED
+    // AUTO-INCREMENT TOTAL SOLD & DEDUCT VARIANT STOCK ON ORDER PLACED WITH STOCK HISTORY LOGGING
     try {
       const products = loadFromStorage<Product[]>('fbs_products', initialProducts);
       orderInput.items.forEach(item => {
@@ -773,7 +773,19 @@ export const db = {
           if (products[pIdx].variants) {
             const vIdx = products[pIdx].variants.findIndex(v => v.variantName === item.variantName);
             if (vIdx !== -1) {
-              products[pIdx].variants[vIdx].stock = Math.max(0, products[pIdx].variants[vIdx].stock - (item.quantity || 1));
+              const newStock = Math.max(0, products[pIdx].variants[vIdx].stock - (item.quantity || 1));
+              products[pIdx].variants[vIdx].stock = newStock;
+              
+              // Record Stock History Log
+              db.recordStockLog({
+                productId: products[pIdx].id,
+                productName: products[pIdx].productName,
+                variantName: item.variantName,
+                changeType: 'ORDER_DEDUCT',
+                quantityChange: -(item.quantity || 1),
+                stockAfter: newStock,
+                orderNumber,
+              });
             }
           }
         }
@@ -825,7 +837,7 @@ export const db = {
       
       saveToStorage('fbs_orders', orders);
 
-      // AUTO-RESTORE VARIANT STOCK IF ORDER IS CANCELLED
+      // AUTO-RESTORE VARIANT STOCK IF ORDER IS CANCELLED WITH STOCK HISTORY LOGGING
       if (status === 'CANCELLED' && previousStatus !== 'CANCELLED') {
         try {
           const products = loadFromStorage<Product[]>('fbs_products', initialProducts);
@@ -835,6 +847,18 @@ export const db = {
               const vIdx = products[pIdx].variants.findIndex(v => v.variantName === item.variantName);
               if (vIdx !== -1) {
                 products[pIdx].variants[vIdx].stock += (item.quantity || 1);
+                const restoredStock = products[pIdx].variants[vIdx].stock;
+
+                // Record Stock History Log
+                db.recordStockLog({
+                  productId: products[pIdx].id,
+                  productName: products[pIdx].productName,
+                  variantName: item.variantName,
+                  changeType: 'CANCEL_RESTORE',
+                  quantityChange: +(item.quantity || 1),
+                  stockAfter: restoredStock,
+                  orderNumber: orders[idx].orderNumber,
+                });
               }
             }
           });
@@ -847,6 +871,23 @@ export const db = {
       return orders[idx];
     }
     return null;
+  },
+
+  // Stock History Logs API
+  getStockLogs: (): StockHistoryLog[] => {
+    return loadFromStorage<StockHistoryLog[]>('fbs_stock_logs', []);
+  },
+
+  recordStockLog: (log: Omit<StockHistoryLog, 'id' | 'timestamp'>): StockHistoryLog => {
+    const logs = loadFromStorage<StockHistoryLog[]>('fbs_stock_logs', []);
+    const newLog: StockHistoryLog = {
+      ...log,
+      id: `stk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      timestamp: new Date().toISOString(),
+    };
+    logs.unshift(newLog);
+    saveToStorage('fbs_stock_logs', logs.slice(0, 200));
+    return newLog;
   },
 
   // Customer Database CRM
