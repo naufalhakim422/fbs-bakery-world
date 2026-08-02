@@ -137,29 +137,39 @@ export const extractMapsAppUrl = (appUrl?: string, embedUrl?: string, address?: 
 };
 
 export const generateWhatsAppOrderLink = (data: WhatsAppCheckoutData): string => {
-  const cleanPhone = formatWhatsAppNumber(data.whatsappNumber);
+  const cleanPhone = formatWhatsAppNumber(data.whatsappNumber || '60129876543');
 
-  let message = `Hello *FBS Bakery World*,\n\nI would like to place an order from website:\n\n`;
-  message += `📋 *ORDER NUMBER:* ${data.orderNumber}\n\n`;
-  message += `👤 *CUSTOMER DETAILS:*\n`;
-  message += `• *Name:* ${data.customerName}\n`;
-  message += `• *Phone:* ${data.customerPhone}\n`;
-  message += `• *Address:* ${data.address}, ${data.city}, ${data.postcode}, ${data.state}\n\n`;
+  let message = `🛒 *FBS BAKERY WORLD - OFFICIAL ORDER*\n`;
+  message += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  message += `📋 *Order ID:* ${data.orderNumber || '#ORD-ONLINE'}\n`;
+  message += `👤 *Customer Name:* ${data.customerName || 'Pelanggan'}\n`;
+  if (data.customerPhone) {
+    message += `📞 *Phone:* ${data.customerPhone}\n`;
+  }
+  if (data.address) {
+    message += `📍 *Delivery Address:* ${data.address}${data.city ? `, ${data.city}` : ''}${data.postcode ? ` ${data.postcode}` : ''}${data.state ? `, ${data.state}` : ''}\n`;
+  }
+  message += `\n📦 *ORDERED ITEMS:*\n`;
 
-  message += `📦 *ORDER ITEMS:*\n`;
-  data.items.forEach((item, index) => {
-    const lineTotal = formatMYR(item.price * item.quantity);
-    message += `${index + 1}. *${item.productName}*\n`;
-    message += `   Variant: ${item.variantName} | Qty: ${item.quantity} x ${formatMYR(item.price)} = ${lineTotal}\n`;
-  });
-
-  message += `\n💰 *ESTIMATED PRODUCT TOTAL:* ${formatMYR(data.subtotal)}\n`;
-
-  if (data.notes && data.notes.trim() !== '') {
-    message += `\n📝 *NOTES:* ${data.notes.trim()}\n`;
+  if (data.items && data.items.length > 0) {
+    data.items.forEach((item, index) => {
+      const lineTotal = formatMYR(item.price * item.quantity);
+      message += `${index + 1}. *${item.productName}*\n`;
+      message += `   • Variant: ${item.variantName}\n`;
+      message += `   • Qty: ${item.quantity} x ${formatMYR(item.price)} = *${lineTotal}*\n`;
+    });
+  } else {
+    message += `• Product Inquiry / Quick Order\n`;
   }
 
-  message += `\nPlease confirm stock availability, shipping cost, and payment details.\nThank You!`;
+  message += `\n💰 *TOTAL ESTIMATE:* *${formatMYR(data.subtotal || 0)}*\n`;
+
+  if (data.notes && data.notes.trim()) {
+    message += `\n📝 *Notes:* ${data.notes.trim()}\n`;
+  }
+
+  message += `\n━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  message += `Please confirm stock availability, delivery fees, and bank account details. Thank you! 🙏`;
 
   const encodedMsg = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
