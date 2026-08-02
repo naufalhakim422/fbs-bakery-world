@@ -6,7 +6,8 @@ import { db } from '@/lib/db';
 import { formatMYR } from '@/lib/currency';
 import { useLanguage } from '@/lib/language-context';
 import { Product } from '@/types';
-import { Plus, Search, Edit, Trash2, ShieldCheck, Sparkles, Star } from 'lucide-react';
+import { exportProductsToCSV, parseCSVProductData, ImportReport } from '@/lib/excel';
+import { Plus, Search, Edit, Trash2, ShieldCheck, Sparkles, Star, Download, Upload, FileText, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 
 export default function AdminProductsPage() {
@@ -14,6 +15,30 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [importReport, setImportReport] = useState<ImportReport | null>(null);
+
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      if (!text) return;
+
+      const { importedProducts, report } = parseCSVProductData(text);
+
+      importedProducts.forEach(p => {
+        db.saveProduct(p);
+      });
+
+      setProducts(db.getProducts());
+      setImportReport(report);
+      e.target.value = '';
+    };
+
+    reader.readAsText(file);
+  };
 
   useEffect(() => {
     const loadLiveData = () => {
@@ -57,12 +82,32 @@ export default function AdminProductsPage() {
           <p className="text-xs text-stone-500 mt-0.5">Manage baking supplies, weight variants, prices, and inventory stock.</p>
         </div>
 
-        <Link
-          href="/admin/products/new"
-          className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow flex items-center gap-2 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" /> Add New Product
-        </Link>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => exportProductsToCSV(products)}
+            className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5 transition-all"
+            title="Export Products to Excel / CSV"
+          >
+            <Download className="w-4 h-4" /> Export Excel
+          </button>
+          
+          <label className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5 cursor-pointer transition-all">
+            <Upload className="w-4 h-4" /> Import Excel
+            <input 
+              type="file" 
+              accept=".csv, .xlsx, text/csv"
+              onChange={handleFileImport}
+              className="hidden"
+            />
+          </label>
+
+          <Link
+            href="/admin/products/new"
+            className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Add New Product
+          </Link>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -162,6 +207,56 @@ export default function AdminProductsPage() {
         onConfirm={executeDelete}
         onCancel={() => setDeleteId(null)}
       />
+
+      {/* Import Report Result Modal */}
+      {importReport && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-stone-200 space-y-5 animate-fade-in">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#800020]" />
+                <h3 className="font-serif font-bold text-lg text-stone-900">Laporan Hasil Import Excel</h3>
+              </div>
+              <button onClick={() => setImportReport(null)} className="p-1 rounded-full text-stone-400 hover:text-stone-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="p-3 bg-stone-50 rounded-2xl border border-stone-200">
+                <span className="text-[10px] text-stone-400 font-bold uppercase block">Total Baris</span>
+                <span className="font-serif font-bold text-lg text-stone-900">{importReport.totalProcessed}</span>
+              </div>
+              <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200">
+                <span className="text-[10px] text-emerald-800 font-bold uppercase block">Berjaya</span>
+                <span className="font-serif font-bold text-lg text-emerald-700">{importReport.importedCount}</span>
+              </div>
+              <div className="p-3 bg-rose-50 rounded-2xl border border-rose-200">
+                <span className="text-[10px] text-rose-800 font-bold uppercase block">Diabaikan</span>
+                <span className="font-serif font-bold text-lg text-rose-700">{importReport.skippedCount}</span>
+              </div>
+            </div>
+
+            {importReport.errors.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-stone-700 block">Catatan Validasi Data:</span>
+                <div className="max-h-36 overflow-y-auto p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-1 text-[11px] text-rose-800 font-medium">
+                  {importReport.errors.map((err, i) => (
+                    <p key={i}>• {err}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={() => setImportReport(null)}
+              className="w-full py-3 bg-[#800020] text-white font-bold text-xs rounded-xl shadow hover:bg-[#6F1D1B] transition-colors"
+            >
+              Tutup & Lihat Katalog
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
