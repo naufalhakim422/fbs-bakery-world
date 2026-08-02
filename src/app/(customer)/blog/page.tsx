@@ -21,8 +21,8 @@ export default function BlogListPage() {
 
   useEffect(() => {
     const loadLiveData = () => {
-      setBlogs(db.getBlogs());
-      setVideos(db.getVideos().filter(v => v.status === 'PUBLISHED'));
+      setBlogs(db.getBlogs() || []);
+      setVideos((db.getVideos() || []).filter(v => v && v.status === 'PUBLISHED'));
     };
     loadLiveData();
 

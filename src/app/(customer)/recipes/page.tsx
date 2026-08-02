@@ -16,7 +16,7 @@ export default function RecipeCenterPage() {
 
   useEffect(() => {
     const loadLiveData = () => {
-      setRecipes(db.getRecipes());
+      setRecipes(db.getRecipes() || []);
     };
     loadLiveData();
 
