@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
               {/* ADDRESS & REGISTRATION NAME */}
               <div className="flex items-start gap-3" suppressHydrationWarning>
                 <MapPin className="w-5 h-5 text-[#D4AF37] flex-shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 notranslate" translate="no">
                   <p className="font-bold text-[#F7E7CE] leading-snug">{companyName}</p>
                   <p className="text-[#C4A882] text-xs leading-relaxed">{settings.address}</p>
                 </div>
@@ -210,7 +210,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Copyright Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#8B6F5C] gap-3">
-          <p>© 2026 <strong className="text-[#F7E7CE]">FBS BAKERY WORLD</strong>. {language === 'EN' ? 'All rights reserved.' : language === 'MS' ? 'Hak cipta terpelihara.' : 'Hak cipta dilindungi.'}</p>
+          <p>© 2026 <strong className="text-[#F7E7CE] notranslate" translate="no">FBS BAKERY WORLD</strong>. {language === 'EN' ? 'All rights reserved.' : language === 'MS' ? 'Hak cipta terpelihara.' : 'Hak cipta dilindungi.'}</p>
           <p className="text-[11px] text-[#A0876F]">
             {language === 'EN' 
               ? 'Certified Halal Baking Supply Partner Malaysia & Indonesia' 

@@ -41,7 +41,7 @@ export default function CategoriesPage() {
         <div className="text-left pt-2 pb-6 mb-4 space-y-1.5 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 border border-black/10 text-black text-[11px] font-extrabold tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-            {language === 'EN' ? 'FBS BAKERY COLLECTIONS' : language === 'MS' ? 'KOLEKSI KEDAI ROTI FBS' : 'KOLEKSI TOKO ROTI FBS'}
+            {language === 'EN' ? 'FBS BAKERY COLLECTIONS' : language === 'MS' ? 'KOLEKSI FBS BAKERY' : 'KOLEKSI FBS BAKERY'}
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-black text-black tracking-tight">
             {language === 'EN' ? 'Featured Product Categories' : language === 'MS' ? 'Kategori Produk Pilihan' : 'Kategori Produk Pilihan'}

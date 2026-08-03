@@ -97,7 +97,7 @@ export const HeaderNav: React.FC = () => {
           <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
             
             {/* Left: Brand Logo & Typography */}
-            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group flex-shrink-0">
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group flex-shrink-0 notranslate" translate="no">
               <img 
                 src="/logo.jpg" 
                 alt="FBS Bakery World Logo" 
@@ -108,7 +108,7 @@ export const HeaderNav: React.FC = () => {
                   FBS BAKERY WORLD
                 </span>
                 <span className="hidden sm:block text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.18em] uppercase text-[#F7E7CE]/80 font-medium mt-1">
-                  {language === 'EN' ? 'PREMIUM BAKING SUPPLY MALAYSIA' : 'BEKALAN BAKERY PREMIUM MALAYSIA'}
+                  PREMIUM BAKING SUPPLY MALAYSIA
                 </span>
               </div>
             </Link>

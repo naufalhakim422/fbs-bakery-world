@@ -138,7 +138,7 @@ function CatalogContent() {
         <div className="space-y-1.5 max-w-2xl text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 border border-black/10 text-black text-[11px] font-extrabold tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-            {language === 'EN' ? 'FBS BAKERY CATALOG' : language === 'MS' ? 'KATALOG KEDAI ROTI FBS' : 'KATALOG TOKO ROTI FBS'}
+            {language === 'EN' ? 'FBS BAKERY CATALOG' : language === 'MS' ? 'KATALOG FBS BAKERY' : 'KATALOG FBS BAKERY'}
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-black text-black tracking-tight leading-tight">
             {language === 'EN' ? 'Baking Supplies & Ingredients' : language === 'MS' ? 'Bekalan & Bahan Bakeri' : 'Perlengkapan & Bahan Kue'}
