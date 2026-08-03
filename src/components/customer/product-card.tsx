@@ -286,7 +286,12 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
         <div className="mt-4 pt-3 border-t border-stone-100">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-semibold text-stone-500">{language === 'EN' ? 'Select Weight / Size:' : language === 'MS' ? 'Pilih Berat / Saiz:' : 'Pilih Berat / Ukuran:'}</span>
-            <span className="text-xs font-bold text-emerald-700">{language === 'EN' ? 'In Stock' : language === 'MS' ? 'Ada Stok' : 'Stok Tersedia'}</span>
+            <span className={`text-xs font-bold ${selectedVariant.stock > 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+              {selectedVariant.stock > 0 
+                ? (language === 'EN' ? 'In Stock' : language === 'MS' ? 'Ada Stok' : 'Stok Tersedia')
+                : (language === 'EN' ? 'Out of Stock' : language === 'MS' ? 'Kehabisan Stok' : 'Stok Habis')
+              }
+            </span>
           </div>
 
           <div className="flex flex-wrap gap-1.5 mb-3">
