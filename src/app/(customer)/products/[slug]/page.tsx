@@ -277,22 +277,37 @@ export default function ProductDetailPage() {
         setReviews(loaded);
         setRatingStats(db.calculateProductRating(foundProd.id));
 
-        // Update Recently Viewed Products in localStorage (max 10, no duplicates)
+        // Update Recently Viewed Products in localStorage (Sprint 2: max 10, no duplicates, latest first)
         try {
-          const saved = localStorage.getItem('fbs_recently_viewed');
-          let ids: string[] = saved ? JSON.parse(saved) : [];
-          if (!Array.isArray(ids)) ids = [];
-          ids = [foundProd.id, ...ids.filter(id => id !== foundProd.id)].slice(0, 10);
-          localStorage.setItem('fbs_recently_viewed', JSON.stringify(ids));
+          if (foundProd && foundProd.id && typeof window !== 'undefined') {
+            const saved = localStorage.getItem('fbs_recently_viewed');
+            let ids: string[] = [];
+            if (saved) {
+              try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                  ids = parsed.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
+                }
+              } catch (e) {
+                ids = [];
+              }
+            }
 
-          const allProds = db.getProducts();
-          const list = ids
-            .filter(id => id !== foundProd.id)
-            .map(id => allProds.find(p => p.id === id))
-            .filter(Boolean) as Product[];
-          setRecentlyViewedProducts(list);
+            // Ensure no duplicate, latest viewed always first, max 10
+            const updatedIds = [foundProd.id, ...ids.filter(id => id !== foundProd.id)].slice(0, 10);
+            localStorage.setItem('fbs_recently_viewed', JSON.stringify(updatedIds));
+
+            // Populate Product list excluding current product being viewed
+            const allProds = db.getProducts();
+            const list = updatedIds
+              .filter(id => id !== foundProd.id)
+              .map(id => allProds.find(p => p.id === id))
+              .filter((p): p is Product => Boolean(p && p.id && p.status !== false));
+
+            setRecentlyViewedProducts(list);
+          }
         } catch (e) {
-          console.warn('Failed to update recently viewed:', e);
+          console.warn('Failed to update recently viewed products in localStorage:', e);
         }
 
         // Try load customer session
