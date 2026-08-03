@@ -39,7 +39,8 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  ChevronLeft
+  ChevronLeft,
+  Clock
 } from 'lucide-react';
 
 export default function ProductDetailPage() {
@@ -927,13 +928,19 @@ export default function ProductDetailPage() {
 
         {/* Recently Viewed Products */}
         {recentlyViewedProducts.length > 0 && (
-          <section className="mb-16">
-            <h2 className="font-serif text-2xl font-bold text-[#2B1B1B] mb-6 flex items-center gap-2">
-              <span>{language === 'EN' ? 'Recently Viewed Products' : language === 'MS' ? 'Produk Baru Dilihat' : 'Produk Terakhir Dilihat'}</span>
-            </h2>
+          <section className="mb-16 animate-fade-in">
+            <div className="flex items-center justify-between mb-6 border-b border-stone-200 pb-4">
+              <h2 className="font-serif text-2xl font-bold text-[#800020] flex items-center gap-2">
+                <Clock className="w-6 h-6 text-[#800020]" />
+                <span>{language === 'EN' ? 'Recently Viewed' : language === 'MS' ? 'Produk Baru Dilihat' : 'Produk Terakhir Dilihat'}</span>
+              </h2>
+              <span className="text-xs text-stone-500 font-medium">
+                {recentlyViewedProducts.length} {language === 'EN' ? 'items' : 'produk'}
+              </span>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {recentlyViewedProducts.map((p) => (
-                <ProductCard key={`rv-${p.id}`} product={p} />
+                <ProductCard key={`rv-${p.id}`} product={p} viewMode="grid" />
               ))}
             </div>
           </section>
