@@ -30,6 +30,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
     }
   );
   const [isAdded, setIsAdded] = useState(false);
+  const ratingStats = React.useMemo(() => db.calculateProductRating(product.id), [product.id]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -132,7 +133,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
                   <Flame className="w-3 h-3 fill-orange-500 text-orange-500" /> {formatSoldQuantity(product.totalSold)}
                 </span>
                 <span className="flex items-center gap-0.5 text-amber-500 font-extrabold">
-                  <Star className="w-3 h-3 fill-amber-400" /> 5.0
+                  <Star className={`w-3 h-3 ${ratingStats.averageRating > 0 ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`} /> {ratingStats.averageRating > 0 ? ratingStats.averageRating : '0.0'}
                 </span>
               </div>
             </div>
@@ -270,7 +271,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
                 <Flame className="w-3 h-3 fill-orange-500 text-orange-500" /> {formatSoldQuantity(product.totalSold)}
               </span>
               <span className="flex items-center gap-0.5 text-amber-500 font-extrabold">
-                <Star className="w-3 h-3 fill-amber-400" /> 5.0
+                <Star className={`w-3 h-3 ${ratingStats.averageRating > 0 ? 'fill-amber-400 text-amber-400' : 'text-stone-300'}`} /> {ratingStats.averageRating > 0 ? ratingStats.averageRating : '0.0'}
               </span>
             </div>
           </div>

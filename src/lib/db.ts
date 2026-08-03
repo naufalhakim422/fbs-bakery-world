@@ -71,7 +71,7 @@ let initialProducts: Product[] = [
     isFeatured: true,
     isBestSeller: true,
     status: true,
-    totalSold: 1420,
+    totalSold: 0,
     variants: [
       { id: 'var-1-1', productId: 'prod-1', variantName: '500g', weight: 0.5, price: 8.50, sku: 'FBS-FLR-001-500G', stock: 150 },
       { id: 'var-1-2', productId: 'prod-1', variantName: '1kg', weight: 1.0, price: 15.00, sku: 'FBS-FLR-001-1KG', stock: 200 },
@@ -100,7 +100,7 @@ let initialProducts: Product[] = [
     isFeatured: true,
     isBestSeller: true,
     status: true,
-    totalSold: 850,
+    totalSold: 0,
     variants: [
       { id: 'var-2-1', productId: 'prod-2', variantName: '100g Pack', weight: 0.1, price: 32.00, sku: 'FBS-MCH-002-100G', stock: 80 },
       { id: 'var-2-2', productId: 'prod-2', variantName: '250g Pack', weight: 0.25, price: 75.00, sku: 'FBS-MCH-002-250G', stock: 50 },
@@ -127,7 +127,7 @@ let initialProducts: Product[] = [
     isFeatured: true,
     isBestSeller: true,
     status: true,
-    totalSold: 2100,
+    totalSold: 0,
     variants: [
       { id: 'var-3-1', productId: 'prod-3', variantName: '250g', weight: 0.25, price: 18.00, sku: 'FBS-CHO-003-250G', stock: 120 },
       { id: 'var-3-2', productId: 'prod-3', variantName: '1kg Pack', weight: 1.0, price: 62.00, sku: 'FBS-CHO-003-1KG', stock: 90 },
@@ -154,6 +154,7 @@ let initialProducts: Product[] = [
     isFeatured: true,
     isBestSeller: true,
     status: true,
+    totalSold: 0,
     variants: [
       { id: 'var-4-1', productId: 'prod-4', variantName: '227g Block', weight: 0.227, price: 14.50, sku: 'FBS-ING-004-227G', stock: 140 },
       { id: 'var-4-2', productId: 'prod-4', variantName: '1kg Block', weight: 1.0, price: 52.00, sku: 'FBS-ING-004-1KG', stock: 65 },
@@ -180,6 +181,7 @@ let initialProducts: Product[] = [
     isFeatured: true,
     isBestSeller: false,
     status: true,
+    totalSold: 0,
     variants: [
       { id: 'var-5-1', productId: 'prod-5', variantName: '1 Jar + Topper Set', weight: 0.1, price: 25.00, sku: 'FBS-DEC-005-SET', stock: 60 },
       { id: 'var-5-2', productId: 'prod-5', variantName: 'Bundle of 5 Sets', weight: 0.5, price: 110.00, sku: 'FBS-DEC-005-BUNDLE', stock: 25 },
@@ -205,6 +207,7 @@ let initialProducts: Product[] = [
     isFeatured: true,
     isBestSeller: false,
     status: true,
+    totalSold: 0,
     variants: [
       { id: 'var-6-1', productId: 'prod-6', variantName: 'Standard 7L Maroon', weight: 8.5, price: 450.00, sku: 'FBS-TOL-006-7L', stock: 12 },
       { id: 'var-6-2', productId: 'prod-6', variantName: 'Pro Edition 10L Gold', weight: 12.0, price: 780.00, sku: 'FBS-TOL-006-10L', stock: 5 },
@@ -230,6 +233,7 @@ let initialProducts: Product[] = [
     isFeatured: false,
     isBestSeller: true,
     status: true,
+    totalSold: 0,
     variants: [
       { id: 'var-7-1', productId: 'prod-7', variantName: 'Pack of 10 Boxes', weight: 0.8, price: 18.00, sku: 'FBS-PKG-007-10P', stock: 100 },
       { id: 'var-7-2', productId: 'prod-7', variantName: 'Pack of 50 Boxes', weight: 4.0, price: 75.00, sku: 'FBS-PKG-007-50P', stock: 40 },
@@ -256,6 +260,7 @@ let initialProducts: Product[] = [
     isFeatured: true,
     isBestSeller: true,
     status: true,
+    totalSold: 0,
     variants: [
       { id: 'var-8-1', productId: 'prod-8', variantName: '250g Pack', weight: 0.25, price: 28.00, sku: 'FBS-CHO-008-250G', stock: 75 },
       { id: 'var-8-2', productId: 'prod-8', variantName: '1kg Box', weight: 1.0, price: 95.00, sku: 'FBS-CHO-008-1KG', stock: 35 },
@@ -1323,7 +1328,7 @@ export const db = {
   calculateProductRating: (productId: string) => {
     const reviews = loadFromStorage<ProductReview[]>('fbs_product_reviews', initialReviewsData).filter(r => r.productId === productId);
     if (reviews.length === 0) {
-      return { averageRating: 5.0, reviewCount: 12 }; // Default high rating score for showcase
+      return { averageRating: 0.0, reviewCount: 0 };
     }
     const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
     const avg = sum / reviews.length;
@@ -1334,40 +1339,5 @@ export const db = {
   },
 };
 
-const initialReviewsData: ProductReview[] = [
-  {
-    id: 'rev-1',
-    productId: 'prod-1',
-    customerName: 'Puan Fatimah Zahra',
-    customerPhone: '+6012****123',
-    rating: 5,
-    comment: 'Tepung semolina ini teksturnya sangat bagus dan halus! Tekstur bolu dan pasta buatan saya jadi sangat gurih dan mengembang sempurna. Packaging rapi dan pengiriman cepat.',
-    createdAt: '2026-07-28T10:00:00Z',
-    images: ['https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop'],
-    verifiedPurchase: true,
-  },
-  {
-    id: 'rev-2',
-    productId: 'prod-1',
-    customerName: 'Chef Ahmad Naufal',
-    customerPhone: '+6019****888',
-    rating: 5,
-    comment: 'Sudah langganan beli kemasan 5kg grosir untuk kafe saya. Kualitas terjamin Halal dan konsisten. Video demo pembuatannya bisa dilihat di bawah!',
-    createdAt: '2026-07-27T14:30:00Z',
-    images: ['https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800&auto=format&fit=crop'],
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-chef-kneading-dough-on-a-table-42938-large.mp4',
-    verifiedPurchase: true,
-  },
-  {
-    id: 'rev-3',
-    productId: 'prod-2',
-    customerName: 'Siti Aisyah',
-    customerPhone: '+6017****555',
-    rating: 5,
-    comment: 'Matcha Uji Kyoto asli dari Jepang! Warnanya hijau emerald pekat dan wanginya harum autentik. Sangat direkomendasikan untuk bento cake dan matcha latte.',
-    createdAt: '2026-07-26T09:15:00Z',
-    images: ['https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800&auto=format&fit=crop'],
-    verifiedPurchase: true,
-  },
-];
+const initialReviewsData: ProductReview[] = [];
 
