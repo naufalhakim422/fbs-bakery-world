@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   },
 };
 
-import { ThemeProvider } from "@/components/providers/theme-provider";
+
 
 export default function RootLayout({
   children,
@@ -93,7 +93,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className="overflow-x-hidden max-w-full" suppressHydrationWarning>
+    <html lang="en" className="overflow-x-hidden max-w-full">
       <head>
         <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="anonymous" />
@@ -108,17 +108,15 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
-      <body className="antialiased selection:bg-[#800020] selection:text-[#D4AF37] overflow-x-hidden max-w-full w-full font-satoshi" suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="fbs_theme">
-          <LanguageProvider>
-            <CartProvider>
-              <NotificationProvider>
-                {children}
-                <GoogleTranslateScript />
-              </NotificationProvider>
-            </CartProvider>
-          </LanguageProvider>
-        </ThemeProvider>
+      <body className="antialiased selection:bg-[#800020] selection:text-[#D4AF37] overflow-x-hidden max-w-full w-full font-satoshi">
+        <LanguageProvider>
+          <CartProvider>
+            <NotificationProvider>
+              {children}
+              <GoogleTranslateScript />
+            </NotificationProvider>
+          </CartProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

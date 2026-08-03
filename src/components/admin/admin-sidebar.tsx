@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage, LanguageCode } from '@/lib/language-context';
-import { ThemeToggle } from '@/components/theme-toggle';
+
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { recordAuditLog } from '@/lib/audit';
 import { 
@@ -155,10 +155,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 );
               })}
             </div>
-            <div className="pt-1.5 border-t border-stone-800 flex justify-between items-center text-xs text-[#D4AF37] font-bold">
-              <span>THEME MODE:</span>
-              <ThemeToggle showLabelOnMobile={true} />
-            </div>
+
           </div>
         ) : (
           <div className="notranslate p-2 my-2 flex flex-col items-center gap-1" translate="no">
@@ -224,7 +221,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             {!collapsed && <span>{t.adminNav.openStore}</span>}
             <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
-          <ThemeToggle />
+
         </div>
 
         <button

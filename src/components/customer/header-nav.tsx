@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { useLanguage, LanguageCode } from '@/lib/language-context';
-import { ThemeToggle } from '@/components/theme-toggle';
+
 import { db } from '@/lib/db';
 import { CartDrawer } from './cart-drawer';
 import { 
@@ -195,8 +195,6 @@ export const HeaderNav: React.FC = () => {
                 </span>
               </Link>
 
-              {/* Dark Mode Toggle Button */}
-              <ThemeToggle />
 
               {/* Mobile & Tablet Menu Hamburger Button (Shown on screens smaller than lg) */}
               <button
@@ -265,7 +263,7 @@ export const HeaderNav: React.FC = () => {
                   );
                 })}
               </div>
-              <ThemeToggle />
+
             </div>
 
           </div>
@@ -354,7 +352,7 @@ export const HeaderNav: React.FC = () => {
                 <PackageCheck className="w-4 h-4 text-[#D4AF37]" />
                 <span>{t.nav.trackOrder}</span>
               </Link>
-              <ThemeToggle showLabelOnMobile={true} />
+
             </div>
 
           </div>

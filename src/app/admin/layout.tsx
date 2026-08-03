@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
-import { ThemeToggle } from '@/components/theme-toggle';
+
 import { useLanguage } from '@/lib/language-context';
 import { User, Bell, ShieldCheck, Sparkles, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
@@ -161,8 +161,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
 
-            {/* Dark / Light Mode Toggle Button */}
-            <ThemeToggle />
           </div>
 
         </header>
