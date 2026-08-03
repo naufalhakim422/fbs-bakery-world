@@ -667,6 +667,20 @@ export const db = {
   // Products
   getProducts: (params?: { category?: string; search?: string; featured?: boolean; bestSeller?: boolean }) => {
     let list = loadFromStorage<Product[]>('fbs_products', initialProducts);
+
+    // Auto-migrate legacy cached localStorage values (1420, 850, 2100) to 0
+    let hasLegacy = false;
+    list = list.map(p => {
+      if (p.totalSold && p.totalSold > 0 && ['prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8'].includes(p.id)) {
+        hasLegacy = true;
+        return { ...p, totalSold: 0 };
+      }
+      return p;
+    });
+    if (hasLegacy) {
+      saveToStorage('fbs_products', list);
+    }
+
     if (params?.category) {
       list = list.filter(p => p.categoryId === params.category || p.categoryName?.toLowerCase() === params.category?.toLowerCase());
     }
@@ -685,8 +699,21 @@ export const db = {
 
   getProductBySlug: (slug: string): Product | undefined => {
     if (!slug) return undefined;
-    const list = loadFromStorage<Product[]>('fbs_products', initialProducts);
+    let list = loadFromStorage<Product[]>('fbs_products', initialProducts);
     if (!list || list.length === 0) return undefined;
+
+    // Auto-migrate legacy cached values
+    let hasLegacy = false;
+    list = list.map(p => {
+      if (p.totalSold && p.totalSold > 0 && ['prod-1', 'prod-2', 'prod-3', 'prod-4', 'prod-5', 'prod-6', 'prod-7', 'prod-8'].includes(p.id)) {
+        hasLegacy = true;
+        return { ...p, totalSold: 0 };
+      }
+      return p;
+    });
+    if (hasLegacy) {
+      saveToStorage('fbs_products', list);
+    }
 
     const raw = String(slug).trim();
     let decoded = raw;
@@ -1308,13 +1335,20 @@ export const db = {
   },
 
   // Customer Product Reviews & Video Feedback
-  getProductReviews: (productId: string): ProductReview[] => {
-    const all = loadFromStorage<ProductReview[]>('fbs_product_reviews', initialReviewsData);
+  getProductReviews: (productId: string) => {
+    let all = loadFromStorage<ProductReview[]>('fbs_product_reviews', initialReviewsData);
+    if (all.some(r => ['rev-1', 'rev-2', 'rev-3'].includes(r.id))) {
+      all = all.filter(r => !['rev-1', 'rev-2', 'rev-3'].includes(r.id));
+      saveToStorage('fbs_product_reviews', all);
+    }
     return all.filter(r => r.productId === productId);
   },
 
   addReview: (review: Omit<ProductReview, 'id' | 'createdAt'>): ProductReview => {
-    const all = loadFromStorage<ProductReview[]>('fbs_product_reviews', initialReviewsData);
+    let all = loadFromStorage<ProductReview[]>('fbs_product_reviews', initialReviewsData);
+    if (all.some(r => ['rev-1', 'rev-2', 'rev-3'].includes(r.id))) {
+      all = all.filter(r => !['rev-1', 'rev-2', 'rev-3'].includes(r.id));
+    }
     const newRev: ProductReview = {
       ...review,
       id: `rev-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -1326,18 +1360,22 @@ export const db = {
   },
 
   calculateProductRating: (productId: string) => {
-    const reviews = loadFromStorage<ProductReview[]>('fbs_product_reviews', initialReviewsData).filter(r => r.productId === productId);
-    if (reviews.length === 0) {
+    let reviews = loadFromStorage<ProductReview[]>('fbs_product_reviews', initialReviewsData);
+    if (reviews.some(r => ['rev-1', 'rev-2', 'rev-3'].includes(r.id))) {
+      reviews = reviews.filter(r => !['rev-1', 'rev-2', 'rev-3'].includes(r.id));
+      saveToStorage('fbs_product_reviews', reviews);
+    }
+    const filtered = reviews.filter(r => r.productId === productId);
+    if (filtered.length === 0) {
       return { averageRating: 0.0, reviewCount: 0 };
     }
-    const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
-    const avg = sum / reviews.length;
+    const sum = filtered.reduce((acc, r) => acc + r.rating, 0);
+    const avg = sum / filtered.length;
     return {
       averageRating: parseFloat(avg.toFixed(1)),
-      reviewCount: reviews.length,
+      reviewCount: filtered.length,
     };
   },
 };
 
 const initialReviewsData: ProductReview[] = [];
-
