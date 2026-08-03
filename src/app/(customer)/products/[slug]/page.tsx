@@ -295,14 +295,23 @@ export default function ProductDetailPage() {
 
             // Ensure no duplicate, latest viewed always first, max 10
             const updatedIds = [foundProd.id, ...ids.filter(id => id !== foundProd.id)].slice(0, 10);
-            localStorage.setItem('fbs_recently_viewed', JSON.stringify(updatedIds));
+            
+            // Sprint 4 Optimization: Remove products that no longer exist in catalog
+            const allProds = db.getProducts();
+            const validIds = updatedIds.filter(id => allProds.some(p => p.id === id && p.status !== false));
+            
+            // If any deleted product ID was removed, sync cleaned IDs back to localStorage immediately
+            if (validIds.length !== updatedIds.length) {
+              localStorage.setItem('fbs_recently_viewed', JSON.stringify(validIds));
+            } else {
+              localStorage.setItem('fbs_recently_viewed', JSON.stringify(updatedIds));
+            }
 
             // Populate Product list excluding current product being viewed
-            const allProds = db.getProducts();
-            const list = updatedIds
+            const list = validIds
               .filter(id => id !== foundProd.id)
               .map(id => allProds.find(p => p.id === id))
-              .filter((p): p is Product => Boolean(p && p.id && p.status !== false));
+              .filter((p): p is Product => Boolean(p && p.id));
 
             setRecentlyViewedProducts(list);
           }
