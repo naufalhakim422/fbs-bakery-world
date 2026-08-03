@@ -35,7 +35,11 @@ import {
   MessageSquare,
   ThumbsUp,
   Image as ImageIcon,
-  Sparkles
+  Sparkles,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  ChevronLeft
 } from 'lucide-react';
 
 export default function ProductDetailPage() {
@@ -68,6 +72,180 @@ export default function ProductDetailPage() {
   const [reviewVideoPreview, setReviewVideoPreview] = useState<string>('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSuccess, setReviewSuccess] = useState(false);
+
+  // Image Gallery & Zoom State
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [zoomIndex, setZoomIndex] = useState(0);
+  const [zoomScale, setZoomScale] = useState(1);
+  const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const touchStateRef = React.useRef({
+    lastTap: 0,
+    initialPinchDist: 0,
+    initialScale: 1,
+  });
+
+  const allImages = useMemo(() => {
+    if (!product) return [];
+    const list = [product.mainImage, ...(product.galleryImages || [])].filter(Boolean);
+    return Array.from(new Set(list));
+  }, [product]);
+
+  const openZoom = (imageUrl?: string) => {
+    const imgToFind = imageUrl || activeImage || product?.mainImage || '';
+    const idx = allImages.indexOf(imgToFind);
+    setZoomIndex(idx >= 0 ? idx : 0);
+    setZoomScale(1);
+    setZoomPos({ x: 0, y: 0 });
+    setIsZoomOpen(true);
+  };
+
+  const closeZoom = () => {
+    setIsZoomOpen(false);
+    setZoomScale(1);
+    setZoomPos({ x: 0, y: 0 });
+  };
+
+  const zoomIn = () => {
+    setZoomScale((prev) => Math.min(prev + 0.5, 4));
+  };
+
+  const zoomOut = () => {
+    setZoomScale((prev) => {
+      const next = Math.max(prev - 0.5, 1);
+      if (next === 1) setZoomPos({ x: 0, y: 0 });
+      return next;
+    });
+  };
+
+  const resetZoom = () => {
+    setZoomScale(1);
+    setZoomPos({ x: 0, y: 0 });
+  };
+
+  const toggleDoubleTapZoom = () => {
+    if (zoomScale > 1) {
+      resetZoom();
+    } else {
+      setZoomScale(2.5);
+    }
+  };
+
+  const nextZoomImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (allImages.length === 0) return;
+    setZoomIndex((prev) => (prev + 1) % allImages.length);
+    resetZoom();
+  };
+
+  const prevZoomImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (allImages.length === 0) return;
+    setZoomIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+    resetZoom();
+  };
+
+  // Keyboard shortcut listener for Zoom Viewer
+  useEffect(() => {
+    if (!isZoomOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeZoom();
+      } else if (e.key === 'ArrowRight') {
+        nextZoomImage();
+      } else if (e.key === 'ArrowLeft') {
+        prevZoomImage();
+      } else if (e.key === '+' || e.key === '=') {
+        zoomIn();
+      } else if (e.key === '-') {
+        zoomOut();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isZoomOpen, allImages.length]);
+
+  // Drag handlers for mouse
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoomScale <= 1) return;
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - zoomPos.x, y: e.clientY - zoomPos.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || zoomScale <= 1) return;
+    setZoomPos({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Touch handlers for pinch-to-zoom, pan, and double-tap
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      touchStateRef.current.initialPinchDist = dist;
+      touchStateRef.current.initialScale = zoomScale;
+    } else if (e.touches.length === 1) {
+      const now = Date.now();
+      if (now - touchStateRef.current.lastTap < 300) {
+        toggleDoubleTapZoom();
+      }
+      touchStateRef.current.lastTap = now;
+
+      if (zoomScale > 1) {
+        setIsDragging(true);
+        setDragStart({
+          x: e.touches[0].clientX - zoomPos.x,
+          y: e.touches[0].clientY - zoomPos.y,
+        });
+      }
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if (touchStateRef.current.initialPinchDist > 0) {
+        const scaleFactor = dist / touchStateRef.current.initialPinchDist;
+        const newScale = Math.min(Math.max(touchStateRef.current.initialScale * scaleFactor, 1), 4);
+        setZoomScale(newScale);
+        if (newScale === 1) setZoomPos({ x: 0, y: 0 });
+      }
+    } else if (e.touches.length === 1 && isDragging && zoomScale > 1) {
+      setZoomPos({
+        x: e.touches[0].clientX - dragStart.x,
+        y: e.touches[0].clientY - dragStart.y,
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    touchStateRef.current.initialPinchDist = 0;
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      zoomIn();
+    } else {
+      zoomOut();
+    }
+  };
 
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
 
@@ -334,7 +512,11 @@ export default function ProductDetailPage() {
           
           {/* Left Column: Image Gallery */}
           <div className="space-y-4">
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-stone-100 border border-stone-200">
+            <div 
+              onClick={() => openZoom(activeImage || product.mainImage)}
+              className="relative aspect-square rounded-2xl overflow-hidden bg-stone-100 border border-stone-200 cursor-zoom-in group shadow-sm transition-all hover:shadow-md"
+              title={language === 'EN' ? 'Click to zoom product image' : 'Klik untuk memperbesar gambar produk'}
+            >
               <img 
                 src={activeImage || product.mainImage} 
                 alt={product.productName} 
@@ -342,11 +524,24 @@ export default function ProductDetailPage() {
                 loading="eager"
                 decoding="async"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
+
+              {/* Hover Zoom Badge / Overlay Indicator */}
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                <div className="bg-black/75 text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-lg backdrop-blur-sm transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                  <ZoomIn className="w-4 h-4 text-[#D4AF37]" />
+                  <span>{language === 'EN' ? 'Click to Zoom' : 'Klik untuk Perbesar'}</span>
+                </div>
+              </div>
+
+              {/* Wishlist Button */}
               <button
-                onClick={() => toggleWishlist(product.id)}
-                className={`absolute top-4 right-4 p-3 rounded-full backdrop-blur-md shadow-lg transition-transform active:scale-95 ${
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleWishlist(product.id);
+                }}
+                className={`absolute top-4 right-4 p-3 rounded-full backdrop-blur-md shadow-lg transition-transform active:scale-95 z-10 ${
                   isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 text-stone-700 hover:text-red-500'
                 }`}
                 title={t.customerAccount.wishlistTitle}
@@ -357,20 +552,34 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Thumbnail Gallery List */}
-            {product.galleryImages && product.galleryImages.length > 0 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {product.galleryImages.map((imgUrl, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(imgUrl)}
-                    className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${
-                      activeImage === imgUrl ? 'border-[#800020] scale-95 shadow-md' : 'border-stone-200 hover:border-[#800020]'
-                    }`}
-                    aria-label={`View Product Image ${idx + 1}`}
-                  >
-                    <img src={imgUrl} alt={`${product.productName} Thumbnail ${idx + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
-                  </button>
-                ))}
+            {allImages.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+                {allImages.map((imgUrl, idx) => {
+                  const isActive = (activeImage || product.mainImage) === imgUrl;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImage(imgUrl)}
+                      className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all relative ${
+                        isActive 
+                          ? 'border-[#800020] scale-95 shadow-md ring-2 ring-[#800020]/30' 
+                          : 'border-stone-200 opacity-70 hover:opacity-100 hover:border-[#800020]'
+                      }`}
+                      aria-label={`View Product Image ${idx + 1}`}
+                    >
+                      <img 
+                        src={imgUrl} 
+                        alt={`${product.productName} Thumbnail ${idx + 1}`} 
+                        loading="lazy" 
+                        decoding="async" 
+                        className="w-full h-full object-cover" 
+                      />
+                      {isActive && (
+                        <div className="absolute inset-0 border-2 border-[#800020] rounded-xl pointer-events-none" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -719,6 +928,164 @@ export default function ProductDetailPage() {
         )}
 
       </main>
+
+      {/* Fullscreen Interactive Zoom Viewer Modal */}
+      {isZoomOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between animate-fade-in select-none overflow-hidden"
+          onClick={closeZoom}
+        >
+          {/* Top Header Bar */}
+          <div 
+            className="flex items-center justify-between p-4 bg-gradient-to-b from-black/90 to-transparent text-white z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Product Name & Counter */}
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="font-bold text-sm sm:text-base text-[#F7E7CE] truncate max-w-xs sm:max-w-md">
+                {product.productName}
+              </span>
+              {allImages.length > 1 && (
+                <span className="text-xs px-2.5 py-1 bg-white/10 rounded-full font-mono text-stone-300 flex-shrink-0">
+                  {zoomIndex + 1} / {allImages.length}
+                </span>
+              )}
+            </div>
+
+            {/* Control Buttons & Close */}
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              <div className="hidden sm:flex items-center gap-1 bg-white/10 px-2.5 py-1.5 rounded-xl backdrop-blur-md text-xs font-mono text-stone-300">
+                <span>{Math.round(zoomScale * 100)}%</span>
+              </div>
+
+              <button
+                onClick={zoomOut}
+                disabled={zoomScale <= 1}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors"
+                title="Zoom Out (-)"
+                aria-label="Zoom Out"
+              >
+                <ZoomOut className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={zoomIn}
+                disabled={zoomScale >= 4}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors"
+                title="Zoom In (+)"
+                aria-label="Zoom In"
+              >
+                <ZoomIn className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={resetZoom}
+                disabled={zoomScale === 1 && zoomPos.x === 0 && zoomPos.y === 0}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors"
+                title="Reset Zoom"
+                aria-label="Reset Zoom"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={closeZoom}
+                className="p-2 sm:p-2.5 rounded-xl bg-red-600/90 hover:bg-red-600 text-white transition-colors ml-1 sm:ml-2 shadow-lg"
+                title="Close (ESC)"
+                aria-label="Close Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Center Image Container with Pan / Zoom */}
+          <div 
+            className="flex-1 relative flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing p-4"
+            onClick={(e) => e.stopPropagation()}
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onDoubleClick={toggleDoubleTapZoom}
+          >
+            <div 
+              className="transition-transform duration-150 ease-out max-w-full max-h-full flex items-center justify-center"
+              style={{
+                transform: `translate(${zoomPos.x}px, ${zoomPos.y}px) scale(${zoomScale})`,
+                transformOrigin: 'center center',
+              }}
+            >
+              <img
+                src={allImages[zoomIndex] || product.mainImage}
+                alt={product.productName}
+                className="max-w-[92vw] max-h-[75vh] object-contain rounded-xl shadow-2xl pointer-events-none select-none"
+              />
+            </div>
+
+            {/* Prev / Next Navigation Arrows */}
+            {allImages.length > 1 && (
+              <>
+                <button
+                  onClick={prevZoomImage}
+                  className="absolute left-3 sm:left-6 p-2.5 sm:p-3.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-transform active:scale-95 shadow-2xl backdrop-blur-md z-30 border border-white/10"
+                  title="Previous Image (Left Arrow)"
+                  aria-label="Previous Image"
+                >
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+
+                <button
+                  onClick={nextZoomImage}
+                  className="absolute right-3 sm:right-6 p-2.5 sm:p-3.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-transform active:scale-95 shadow-2xl backdrop-blur-md z-30 border border-white/10"
+                  title="Next Image (Right Arrow)"
+                  aria-label="Next Image"
+                >
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Bottom Thumbnail Strip & Controls */}
+          <div 
+            className="p-4 bg-gradient-to-t from-black/90 to-transparent flex flex-col items-center gap-2.5 z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Gesture Hint */}
+            <div className="text-[11px] text-stone-400 font-medium tracking-wide text-center">
+              {language === 'EN' 
+                ? 'Double-tap or click to zoom • Drag/pinch to move • Press ESC or click outside to close' 
+                : 'Ketuk 2x atau klik untuk perbesar • Geser/cubit untuk berpindah • Tekan ESC atau klik luar untuk tutup'}
+            </div>
+
+            {allImages.length > 1 && (
+              <div className="flex gap-2.5 overflow-x-auto max-w-full pb-1 px-2 scrollbar-none">
+                {allImages.map((imgUrl, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setZoomIndex(idx);
+                      resetZoom();
+                    }}
+                    className={`w-14 h-14 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
+                      zoomIndex === idx 
+                        ? 'border-[#D4AF37] scale-105 ring-2 ring-[#D4AF37]/50 shadow-lg' 
+                        : 'border-white/20 opacity-50 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={imgUrl} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <Footer />
       <FloatingWhatsApp />
