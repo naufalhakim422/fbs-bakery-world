@@ -363,8 +363,94 @@ export default function ProductDetailPage() {
     const allProds = db.getProducts();
     return allProds
       .filter(p => p.id !== product.id && (p.categoryId === product.categoryId || p.brand === product.brand || p.isBestSeller))
-      .slice(0, 2);
+      .slice(0, 4);
   }, [product]);
+
+  const [selectedBundleItemIds, setSelectedBundleItemIds] = useState<string[]>([]);
+  const [isBundleAdded, setIsBundleAdded] = useState(false);
+
+  useEffect(() => {
+    if (frequentlyBoughtTogether.length > 0) {
+      setSelectedBundleItemIds(frequentlyBoughtTogether.map(p => p.id));
+    }
+  }, [frequentlyBoughtTogether]);
+
+  const toggleBundleItem = (id: string) => {
+    setSelectedBundleItemIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const bundleSubtotal = useMemo(() => {
+    if (!product || !selectedVariant) return 0;
+    const mainTotal = selectedVariant.price * quantity;
+    const recommendedTotal = frequentlyBoughtTogether
+      .filter(p => selectedBundleItemIds.includes(p.id))
+      .reduce((sum, p) => {
+        const v = p.variants?.[0];
+        return sum + (v ? v.price : 0);
+      }, 0);
+    return mainTotal + recommendedTotal;
+  }, [product, selectedVariant, quantity, frequentlyBoughtTogether, selectedBundleItemIds]);
+
+  const handleAddBundleToCart = () => {
+    if (!product || !selectedVariant) return;
+    addToCart(product, selectedVariant, quantity);
+    frequentlyBoughtTogether.forEach(p => {
+      if (selectedBundleItemIds.includes(p.id) && p.variants?.[0]) {
+        addToCart(p, p.variants[0], 1);
+      }
+    });
+    setIsBundleAdded(true);
+    setTimeout(() => setIsBundleAdded(false), 2000);
+  };
+
+  const handleWhatsAppBundle = () => {
+    if (!product || !selectedVariant) return;
+    const settings = db.getStoreSettings();
+    const itemsList = [
+      {
+        productId: product.id,
+        variantId: selectedVariant.id,
+        productName: product.productName,
+        variantName: selectedVariant.variantName,
+        price: selectedVariant.price,
+        weight: selectedVariant.weight,
+        quantity: quantity,
+        mainImage: product.mainImage,
+        sku: selectedVariant.sku,
+      },
+      ...frequentlyBoughtTogether
+        .filter(p => selectedBundleItemIds.includes(p.id) && p.variants?.[0])
+        .map(p => ({
+          productId: p.id,
+          variantId: p.variants[0].id,
+          productName: p.productName,
+          variantName: p.variants[0].variantName,
+          price: p.variants[0].price,
+          weight: p.variants[0].weight,
+          quantity: 1,
+          mainImage: p.mainImage,
+          sku: p.variants[0].sku,
+        }))
+    ];
+
+    const link = generateWhatsAppOrderLink({
+      orderNumber: `#BUNDLE-${Math.floor(1000 + Math.random() * 9000)}`,
+      customerName: 'Bundle Customer',
+      customerPhone: '',
+      address: '',
+      city: '',
+      state: '',
+      postcode: '',
+      notes: `Frequently Bought Together Bundle Order (${itemsList.length} items)`,
+      items: itemsList,
+      subtotal: bundleSubtotal,
+      whatsappNumber: settings.whatsappNumber,
+    });
+
+    window.open(link, '_blank');
+  };
 
   const isFavorite = isInWishlist(product.id);
 
@@ -785,20 +871,131 @@ export default function ProductDetailPage() {
 
         </div>
 
-        {/* Frequently Bought Together Recommendation Section */}
+        {/* Frequently Bought Together Bundle Builder (Sprint 1-5 Complete) */}
         {frequentlyBoughtTogether.length > 0 && (
-          <div className="bg-[#800020]/5 p-6 sm:p-8 rounded-3xl border border-[#800020]/20 shadow-sm mb-12">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5 text-[#800020]" />
-              <h3 className="font-serif text-xl font-bold text-[#800020]">{language === 'EN' ? 'Frequently Bought Together' : language === 'MS' ? 'Kerap Dibeli Bersama' : 'Sering Dibeli Bersama'}</h3>
+          <section className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-sm mb-12 animate-fade-in">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-stone-200 pb-4 gap-4 mb-6">
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-[#800020] flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-[#800020]" />
+                  <span>{language === 'EN' ? 'Frequently Bought Together' : language === 'MS' ? 'Kerap Dibeli Bersama' : 'Sering Dibeli Bersama'}</span>
+                </h3>
+                <p className="text-stone-500 text-xs mt-1">
+                  {language === 'EN' ? 'Combine complementary baking items and add all selected items to cart with 1-click.' : 'Kombinasikan bahan baking pelengkap ini dan tambahkan semua item terpilih ke keranjang.'}
+                </p>
+              </div>
             </div>
-            <p className="text-stone-600 text-xs mb-6">{language === 'EN' ? 'Baking professionals and customers often order these complementary ingredients together for optimal results.' : language === 'MS' ? 'Pakar bakeri dan pelanggan sering memesan bahan tambahan ini bersama untuk hasil terbaik.' : 'Profesional baking dan pelanggan sering memesan bahan pelengkap ini bersama untuk hasil terbaik.'}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {frequentlyBoughtTogether.map((p: Product) => (
-                <ProductCard key={`fbt-${p.id}`} product={p} viewMode="grid" />
-              ))}
+
+            {/* Bundle Items List with Checkboxes & Stock Status */}
+            <div className="space-y-4 mb-8">
+              {/* Main Product Row */}
+              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 flex items-center gap-4">
+                <input
+                  type="checkbox"
+                  checked={true}
+                  disabled={true}
+                  className="w-5 h-5 accent-[#800020] rounded cursor-not-allowed"
+                />
+                <img
+                  src={product.mainImage}
+                  alt={product.productName}
+                  className="w-16 h-16 object-cover rounded-xl border border-stone-300"
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-bold text-[#800020] uppercase">This Item (Main)</span>
+                  <h4 className="font-serif font-bold text-stone-900 text-sm truncate">{product.productName}</h4>
+                  <span className="text-xs font-bold text-[#800020]">{formatMYR(selectedVariant ? selectedVariant.price * quantity : 0)} ({selectedVariant?.variantName})</span>
+                </div>
+                <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-300">
+                  {language === 'EN' ? 'In Stock' : 'Stok Tersedia'}
+                </span>
+              </div>
+
+              {/* Recommended Complementary Products */}
+              {frequentlyBoughtTogether.map((p) => {
+                const isSelected = selectedBundleItemIds.includes(p.id);
+                const v = p.variants?.[0];
+                const price = v ? v.price : 0;
+                const inStock = v ? v.stock > 0 : true;
+
+                return (
+                  <div 
+                    key={`bundle-${p.id}`}
+                    onClick={() => toggleBundleItem(p.id)}
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 ${
+                      isSelected ? 'bg-[#800020]/5 border-[#800020]/30 shadow-sm' : 'bg-white border-stone-200 opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleBundleItem(p.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-5 h-5 accent-[#800020] rounded cursor-pointer"
+                    />
+                    <Link href={`/products/${p.slug}`} onClick={(e) => e.stopPropagation()}>
+                      <img
+                        src={p.mainImage}
+                        alt={p.productName}
+                        className="w-16 h-16 object-cover rounded-xl border border-stone-300 hover:scale-105 transition-transform"
+                      />
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <Link href={`/products/${p.slug}`} onClick={(e) => e.stopPropagation()} className="hover:text-[#800020]">
+                        <h4 className="font-serif font-bold text-stone-900 text-sm truncate">{p.productName}</h4>
+                      </Link>
+                      <span className="text-xs font-bold text-[#800020]">{formatMYR(price)} {v ? `(${v.variantName})` : ''}</span>
+                    </div>
+                    <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border ${
+                      inStock ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-red-100 text-red-800 border-red-300'
+                    }`}>
+                      {inStock ? (language === 'EN' ? 'In Stock' : 'Stok Tersedia') : (language === 'EN' ? 'Out of Stock' : 'Stok Habis')}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+
+            {/* Total Subtotal & CTA Bundle Action Bar */}
+            <div className="p-6 bg-stone-900 text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+              <div>
+                <span className="text-xs text-stone-400 font-medium block">
+                  {language === 'EN' ? 'Total Bundle Subtotal' : 'Total Subtotal Paket'} ({1 + selectedBundleItemIds.length} {language === 'EN' ? 'items selected' : 'item terpilih'}):
+                </span>
+                <span className="font-serif text-2xl font-black text-[#D4AF37]">
+                  {formatMYR(bundleSubtotal)}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handleAddBundleToCart}
+                  className={`flex-1 sm:flex-initial px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${
+                    isBundleAdded ? 'bg-emerald-600 text-white' : 'bg-[#800020] hover:bg-[#6F1D1B] text-white active:scale-95'
+                  }`}
+                >
+                  {isBundleAdded ? (
+                    <>
+                      <Check className="w-4 h-4" /> {language === 'EN' ? 'Bundle Added to Cart!' : 'Paket Ditambahkan!'}
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-4 h-4" /> {language === 'EN' ? 'Add Selected Items to Cart' : 'Tambahkan Item Terpilih'}
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleWhatsAppBundle}
+                  className="flex-1 sm:flex-initial px-6 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <MessageCircle className="w-4 h-4 fill-white" /> WhatsApp
+                </button>
+              </div>
+            </div>
+          </section>
         )}
 
         {/* Full Detailed Description Section */}
