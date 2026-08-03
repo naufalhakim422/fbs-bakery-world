@@ -45,7 +45,8 @@ import {
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const slug = params?.slug as string;
+  const rawParamSlug = params?.slug;
+  const slug = Array.isArray(rawParamSlug) ? rawParamSlug[0] : (rawParamSlug ? String(rawParamSlug) : '');
   const { t, language } = useLanguage();
 
   const [product, setProduct] = useState<Product | null>(null);
