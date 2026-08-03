@@ -8,7 +8,7 @@ import { recordAuditLog } from '@/lib/audit';
 import { ProductVariant } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
-import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, Sparkles, Upload, X } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, Sparkles, Upload, X, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 function AdminNewProductContent() {
@@ -19,9 +19,13 @@ function AdminNewProductContent() {
 
   const categories = db.getCategories();
 
+  const [isSlugManual, setIsSlugManual] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     sku: `FBS-PROD-${Math.floor(1000 + Math.random() * 9000)}`,
     productName: '',
+    slug: '',
     categoryId: categories[0]?.id || 'cat-1',
     brand: 'FBS Choice',
     shortDescription: '',
@@ -42,6 +46,25 @@ function AdminNewProductContent() {
     { variantName: '5kg Commercial', weight: 5.0, price: 75.00, stock: 40, sku: `FBS-VAR-5KG-${Math.floor(100 + Math.random() * 900)}` },
   ]);
 
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[\s_]+/g, '-')
+      .replace(/-+/g, '-');
+  };
+
+  const handleProductNameChange = (name: string) => {
+    setValidationError(null);
+    if (!isSlugManual) {
+      const autoSlug = generateSlug(name);
+      setForm(prev => ({ ...prev, productName: name, slug: autoSlug }));
+    } else {
+      setForm(prev => ({ ...prev, productName: name }));
+    }
+  };
+
   useEffect(() => {
     if (editId) {
       const existing = db.getProductBySlug(editId);
@@ -49,6 +72,7 @@ function AdminNewProductContent() {
         setForm({
           sku: existing.sku,
           productName: existing.productName,
+          slug: existing.slug,
           categoryId: existing.categoryId,
           brand: existing.brand,
           shortDescription: existing.shortDescription,
@@ -59,6 +83,7 @@ function AdminNewProductContent() {
           isBestSeller: existing.isBestSeller,
           totalSold: existing.totalSold || 0,
         });
+        setIsSlugManual(true);
         if (existing.galleryImages && existing.galleryImages.length > 0) {
           setGalleryImages(existing.galleryImages);
         }
@@ -117,7 +142,70 @@ function AdminNewProductContent() {
 
   const handleSubmitProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.productName.trim() || isSubmitting) return;
+    setValidationError(null);
+
+    const cleanName = form.productName.trim();
+    const cleanSlug = (form.slug || generateSlug(cleanName)).trim();
+
+    // 1. Mandatory Product Name
+    if (!cleanName) {
+      setValidationError('Product Name is required.');
+      return;
+    }
+
+    // 2. Mandatory Slug & Duplicate Check
+    if (!cleanSlug) {
+      setValidationError('Product Slug is required.');
+      return;
+    }
+
+    const currentProd = editId ? db.getProductBySlug(editId) : undefined;
+    const allProds = db.getProducts();
+    const duplicate = allProds.find(
+      p => p.slug.toLowerCase() === cleanSlug.toLowerCase() && p.id !== currentProd?.id
+    );
+
+    if (duplicate) {
+      setValidationError(`The URL slug "${cleanSlug}" is already in use by "${duplicate.productName}". Product slugs must be unique.`);
+      return;
+    }
+
+    // 3. Category Validation
+    if (!form.categoryId || !categories.some(c => c.id === form.categoryId)) {
+      setValidationError('Please select a valid product category.');
+      return;
+    }
+
+    // 4. Main Image Validation
+    if (!form.mainImage || !form.mainImage.trim()) {
+      setValidationError('Product Main Image is required. Please upload or select a main cover photo.');
+      return;
+    }
+
+    // 5. Variants Validation (Price > 0, Stock >= 0)
+    if (!variants || variants.length === 0) {
+      setValidationError('Product must have at least 1 packaging size variant.');
+      return;
+    }
+
+    for (let i = 0; i < variants.length; i++) {
+      const v = variants[i];
+      if (!v.variantName || !v.variantName.trim()) {
+        setValidationError(`Variant #${i + 1} requires a Variant Name.`);
+        return;
+      }
+      const price = Number(v.price);
+      if (isNaN(price) || price <= 0) {
+        setValidationError(`Variant "${v.variantName}" must have a price greater than 0.`);
+        return;
+      }
+      const stock = Number(v.stock);
+      if (isNaN(stock) || stock < 0) {
+        setValidationError(`Variant "${v.variantName}" stock cannot be negative.`);
+        return;
+      }
+    }
+
     setConfirmSaveOpen(true);
   };
 
@@ -125,17 +213,21 @@ function AdminNewProductContent() {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
+    const currentProd = editId ? db.getProductBySlug(editId) : undefined;
+    const finalSlug = (form.slug || generateSlug(form.productName)).trim();
+
     db.saveProduct({
-      id: editId ? db.getProductBySlug(editId)?.id : undefined,
+      id: currentProd?.id,
       ...form,
-      galleryImages,
+      slug: finalSlug,
+      galleryImages: galleryImages.length > 0 ? galleryImages : [form.mainImage],
       variants: variants.map((v, idx) => ({
         id: v.id || `var-${Date.now()}-${idx}`,
-        productId: editId || `prod-${Date.now()}`,
+        productId: currentProd?.id || `prod-${Date.now()}`,
         variantName: v.variantName || 'Standard',
         weight: isNaN(Number(v.weight)) ? 1.0 : Number(v.weight),
-        price: isNaN(Number(v.price)) ? 0.0 : Number(v.price),
-        stock: isNaN(Number(v.stock)) ? 0 : Number(v.stock),
+        price: Number(v.price),
+        stock: Number(v.stock),
         sku: v.sku || `FBS-VAR-${idx}`,
       })),
     });
@@ -143,7 +235,7 @@ function AdminNewProductContent() {
     recordAuditLog(
       editId ? 'Edit Produk' : 'Tambah Produk Baru',
       'PRODUCT',
-      `Product ${form.productName} (${form.sku}) with ${variants.length} variants was ${editId ? 'updated' : 'created'}.`
+      `Product ${form.productName} (slug: ${finalSlug}) with ${variants.length} variants was ${editId ? 'updated' : 'created'}.`
     );
 
     setConfirmSaveOpen(false);
@@ -165,6 +257,19 @@ function AdminNewProductContent() {
           {editId ? 'EDIT PRODUCT MODE' : 'CREATE NEW PRODUCT'}
         </span>
       </div>
+
+      {/* Validation Error Banner */}
+      {validationError && (
+        <div className="p-4 bg-red-50 border-2 border-red-500/30 rounded-2xl text-red-700 text-xs font-bold flex items-center justify-between animate-fade-in shadow-sm">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <span>{validationError}</span>
+          </div>
+          <button type="button" onClick={() => setValidationError(null)} className="text-red-500 hover:text-red-800">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmitProduct} className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6">
         <div>
@@ -192,11 +297,33 @@ function AdminNewProductContent() {
                 required
                 placeholder="e.g. Semolina Flour Premium Grade"
                 value={form.productName}
-                onChange={(e) => setForm({ ...form, productName: e.target.value })}
+                onChange={(e) => handleProductNameChange(e.target.value)}
                 className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
               />
             </div>
 
+            <div>
+              <label className="block font-bold text-stone-700 uppercase mb-1">
+                Product URL Slug <span className="text-red-600">*</span>
+              </label>
+              <input 
+                type="text"
+                required
+                placeholder="e.g. semolina-flour-premium-grade"
+                value={form.slug}
+                onChange={(e) => {
+                  setIsSlugManual(true);
+                  setForm({ ...form, slug: generateSlug(e.target.value) });
+                }}
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-mono text-xs focus:outline-none focus:border-[#800020]"
+              />
+              <span className="text-[10px] text-stone-500 mt-1 block">
+                Auto-generated from Product Name. Must be unique.
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
                 Category <span className="text-red-600">*</span>
@@ -211,9 +338,7 @@ function AdminNewProductContent() {
                 ))}
               </select>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
                 Product SKU / Code
@@ -222,7 +347,7 @@ function AdminNewProductContent() {
                 type="text"
                 value={form.sku}
                 onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                className="w-full px-4 py-2 border border-stone-300 rounded-xl font-mono text-stone-900"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-stone-900"
               />
             </div>
 
@@ -235,7 +360,7 @@ function AdminNewProductContent() {
                 placeholder="e.g. Anchor, Beryls, Caputo"
                 value={form.brand}
                 onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                className="w-full px-4 py-2 border border-stone-300 rounded-xl text-stone-900"
+                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
               />
             </div>
           </div>
