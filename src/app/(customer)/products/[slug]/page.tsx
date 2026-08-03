@@ -770,7 +770,7 @@ export default function ProductDetailPage() {
             <p className="text-stone-600 text-xs mb-6">{language === 'EN' ? 'Baking professionals and customers often order these complementary ingredients together for optimal results.' : language === 'MS' ? 'Pakar bakeri dan pelanggan sering memesan bahan tambahan ini bersama untuk hasil terbaik.' : 'Profesional baking dan pelanggan sering memesan bahan pelengkap ini bersama untuk hasil terbaik.'}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {frequentlyBoughtTogether.map((p: Product) => (
-                <ProductCard key={`fbt-${p.id}`} product={p} viewMode="list" />
+                <ProductCard key={`fbt-${p.id}`} product={p} viewMode="grid" />
               ))}
             </div>
           </div>
