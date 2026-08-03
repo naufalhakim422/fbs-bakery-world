@@ -20,6 +20,8 @@ import {
   Check
 } from 'lucide-react';
 
+import { formatMYR } from '@/lib/currency';
+
 export const HeaderNav: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -27,10 +29,83 @@ export const HeaderNav: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [settings, setSettings] = useState(db.getStoreSettings());
 
+  // Search suggestion states & refs (Sprint 1-5 Complete)
+  const [isOpenSuggestions, setIsOpenSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const searchContainerRef = React.useRef<HTMLDivElement>(null);
+  const mobileSearchContainerRef = React.useRef<HTMLDivElement>(null);
+
   const pathname = usePathname();
   const router = useRouter();
   const { totalItems, wishlist } = useCart();
   const { language, setLanguage, t } = useLanguage();
+
+  const norm = (s: string) => (s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+  // Instant Suggestions (Max 6 matching products)
+  const suggestions = React.useMemo(() => {
+    const q = norm(searchQuery);
+    if (!q || q.length < 1) return [];
+    const all = db.getProducts();
+    return all.filter(p => 
+      norm(p.productName).includes(q) ||
+      norm(p.brand).includes(q) ||
+      norm(p.categoryName || '').includes(q) ||
+      norm(p.sku).includes(q)
+    ).slice(0, 6);
+  }, [searchQuery]);
+
+  // Click outside listener
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node) &&
+        mobileSearchContainerRef.current && !mobileSearchContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpenSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Reset selected index when query changes
+  useEffect(() => {
+    setSelectedIndex(-1);
+    if (searchQuery.trim().length > 0) {
+      setIsOpenSuggestions(true);
+    } else {
+      setIsOpenSuggestions(false);
+    }
+  }, [searchQuery]);
+
+  // Keyboard navigation handler (ArrowUp, ArrowDown, Enter, ESC)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isOpenSuggestions) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (suggestions.length > 0) {
+        setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (suggestions.length > 0) {
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+      }
+    } else if (e.key === 'Enter') {
+      if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+        e.preventDefault();
+        const selectedProd = suggestions[selectedIndex];
+        setIsOpenSuggestions(false);
+        setIsMobileMenuOpen(false);
+        router.push(`/products/${selectedProd.slug}`);
+      }
+    } else if (e.key === 'Escape') {
+      setIsOpenSuggestions(false);
+      setSelectedIndex(-1);
+    }
+  };
 
   useEffect(() => {
     const loadLiveData = () => {
@@ -64,6 +139,7 @@ export const HeaderNav: React.FC = () => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsOpenSuggestions(false);
     if (searchQuery.trim()) {
       router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setIsMobileMenuOpen(false);
@@ -114,33 +190,102 @@ export const HeaderNav: React.FC = () => {
             </Link>
 
             {/* Middle: Integrated Search Bar (Tablet & Desktop - md and up) */}
-            <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xs lg:max-w-sm relative mx-2 lg:mx-4">
-              <input
-                type="text"
-                placeholder={t.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-stone-900/80 border border-[#D4AF37]/40 rounded-full text-xs text-white placeholder-stone-400 focus:outline-none focus:border-[#D4AF37] transition-all backdrop-blur-md"
-              />
-              <button 
-                type="submit" 
-                className="absolute left-3 top-2.5 text-[#D4AF37] hover:text-white transition-colors"
-                title={t.common.search}
-                aria-label={t.common.search}
-              >
-                <Search className="w-4 h-4" />
-              </button>
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => { setSearchQuery(''); router.push('/products'); }}
-                  className="absolute right-3 top-2.5 text-stone-400 hover:text-white text-xs font-bold"
-                  aria-label={t.common.close}
+            <div ref={searchContainerRef} className="hidden md:flex flex-1 max-w-xs lg:max-w-sm relative mx-2 lg:mx-4">
+              <form onSubmit={handleSearchSubmit} className="w-full relative">
+                <input
+                  type="text"
+                  placeholder={t.searchPlaceholder}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsOpenSuggestions(true)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full pl-9 pr-8 py-2 bg-stone-900/80 border border-[#D4AF37]/40 rounded-full text-xs text-white placeholder-stone-400 focus:outline-none focus:border-[#D4AF37] transition-all backdrop-blur-md"
+                />
+                <button 
+                  type="submit" 
+                  className="absolute left-3 top-2.5 text-[#D4AF37] hover:text-white transition-colors"
+                  title={t.common.search}
+                  aria-label={t.common.search}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <Search className="w-4 h-4" />
                 </button>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery(''); setIsOpenSuggestions(false); router.push('/products'); }}
+                    className="absolute right-3 top-2.5 text-stone-400 hover:text-white text-xs font-bold"
+                    aria-label={t.common.close}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </form>
+
+              {/* Live Search Suggestion Popup (Desktop) */}
+              {isOpenSuggestions && searchQuery.trim().length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-stone-950/95 border border-[#D4AF37]/40 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl animate-fade-in text-left">
+                  {suggestions.length > 0 ? (
+                    <div className="py-2 divide-y divide-stone-800/60">
+                      <div className="px-3.5 py-1.5 text-[10px] font-black uppercase text-[#D4AF37] tracking-wider flex items-center justify-between">
+                        <span>{language === 'EN' ? 'Product Suggestions' : 'Cadangan Produk'}</span>
+                        <span className="text-stone-400 font-normal text-[9px]">{suggestions.length} {language === 'EN' ? 'found' : 'ditemukan'}</span>
+                      </div>
+                      {suggestions.map((p, idx) => {
+                        const isHighlighted = idx === selectedIndex;
+                        const v = p.variants?.[0];
+                        return (
+                          <div
+                            key={`sug-d-${p.id}`}
+                            onClick={() => {
+                              setIsOpenSuggestions(false);
+                              router.push(`/products/${p.slug}`);
+                            }}
+                            onMouseEnter={() => setSelectedIndex(idx)}
+                            className={`px-3.5 py-2.5 flex items-center gap-3 cursor-pointer transition-colors ${
+                              isHighlighted ? 'bg-[#800020] text-white' : 'hover:bg-white/10 text-stone-200'
+                            }`}
+                          >
+                            <img
+                              src={p.mainImage}
+                              alt={p.productName}
+                              className="w-9 h-9 object-cover rounded-lg border border-stone-700/60 flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-bold truncate leading-tight">{p.productName}</div>
+                              <div className="text-[10px] text-stone-400 truncate">
+                                {p.categoryName || 'Baking'} • {p.brand}
+                              </div>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <div className="text-xs font-black text-[#D4AF37]">
+                                {v ? formatMYR(v.price) : ''}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div className="px-3.5 py-2 bg-stone-900/80 text-[10px] text-stone-400 flex items-center justify-between">
+                        <span>↑↓ Navigasi • Enter Pilih</span>
+                        <button
+                          type="button"
+                          onClick={handleSearchSubmit}
+                          className="text-[#D4AF37] font-bold hover:underline"
+                        >
+                          {language === 'EN' ? 'View All' : 'Lihat Semua'} &rarr;
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-xs text-stone-400">
+                      <p className="font-semibold text-stone-300">{language === 'EN' ? 'No products found' : 'Tidak ada produk ditemukan'}</p>
+                      <p className="text-[10px] text-stone-500 mt-1">
+                        {language === 'EN' ? `No results for "${searchQuery}"` : `Tidak ada hasil untuk "${searchQuery}"`}
+                      </p>
+                    </div>
+                  )}
+                </div>
               )}
-            </form>
+            </div>
 
             {/* Right: Actions & User Buttons (Optimized for Mobile, Tablet & Desktop) */}
             <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
@@ -274,19 +419,75 @@ export const HeaderNav: React.FC = () => {
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-[#181113] border-t border-[#F7E7CE]/20 px-4 sm:px-6 pt-4 pb-6 space-y-4 animate-fade-in shadow-2xl">
             
-            {/* Mobile Search Form (Shown on screens where search isn't in main header) */}
-            <form onSubmit={handleSearchSubmit} className="relative md:hidden">
-              <input
-                type="text"
-                placeholder={t.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-stone-900 border border-[#D4AF37]/40 rounded-xl text-xs text-white placeholder-stone-400 focus:outline-none focus:border-[#D4AF37]"
-              />
-              <button type="submit" className="absolute left-3 top-3 text-[#D4AF37]">
-                <Search className="w-4 h-4" />
-              </button>
-            </form>
+            {/* Mobile Search Form with Suggestion Popup */}
+            <div ref={mobileSearchContainerRef} className="relative md:hidden">
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <input
+                  type="text"
+                  placeholder={t.searchPlaceholder}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsOpenSuggestions(true)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full pl-9 pr-4 py-2.5 bg-stone-900 border border-[#D4AF37]/40 rounded-xl text-xs text-white placeholder-stone-400 focus:outline-none focus:border-[#D4AF37]"
+                />
+                <button type="submit" className="absolute left-3 top-3 text-[#D4AF37]">
+                  <Search className="w-4 h-4" />
+                </button>
+              </form>
+
+              {/* Mobile Live Suggestion Popup */}
+              {isOpenSuggestions && searchQuery.trim().length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-stone-950/95 border border-[#D4AF37]/40 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl animate-fade-in text-left">
+                  {suggestions.length > 0 ? (
+                    <div className="py-2 divide-y divide-stone-800/60">
+                      <div className="px-3.5 py-1.5 text-[10px] font-black uppercase text-[#D4AF37] tracking-wider flex items-center justify-between">
+                        <span>{language === 'EN' ? 'Product Suggestions' : 'Cadangan Produk'}</span>
+                        <span className="text-stone-400 font-normal text-[9px]">{suggestions.length}</span>
+                      </div>
+                      {suggestions.map((p, idx) => {
+                        const isHighlighted = idx === selectedIndex;
+                        const v = p.variants?.[0];
+                        return (
+                          <div
+                            key={`sug-m-${p.id}`}
+                            onClick={() => {
+                              setIsOpenSuggestions(false);
+                              setIsMobileMenuOpen(false);
+                              router.push(`/products/${p.slug}`);
+                            }}
+                            className={`px-3.5 py-2.5 flex items-center gap-3 cursor-pointer transition-colors ${
+                              isHighlighted ? 'bg-[#800020] text-white' : 'hover:bg-white/10 text-stone-200'
+                            }`}
+                          >
+                            <img
+                              src={p.mainImage}
+                              alt={p.productName}
+                              className="w-9 h-9 object-cover rounded-lg border border-stone-700/60 flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-bold truncate leading-tight">{p.productName}</div>
+                              <div className="text-[10px] text-stone-400 truncate">
+                                {p.categoryName || 'Baking'} • {p.brand}
+                              </div>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <div className="text-xs font-black text-[#D4AF37]">
+                                {v ? formatMYR(v.price) : ''}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-xs text-stone-400">
+                      <p className="font-semibold text-stone-300">{language === 'EN' ? 'No products found' : 'Tidak ada produk ditemukan'}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* INTEGRATED LANGUAGE SWITCHER INSIDE MOBILE MENU DRAWER */}
             <div className="notranslate bg-stone-900/90 p-3.5 rounded-2xl border border-stone-800 space-y-2.5" translate="no">
