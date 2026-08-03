@@ -14,6 +14,7 @@ import { ProductCard } from '@/components/customer/product-card';
 import { formatMYR, formatSoldQuantity } from '@/lib/currency';
 import { useCart } from '@/lib/cart-context';
 import { generateWhatsAppOrderLink } from '@/lib/whatsapp';
+import { ProductBadges } from '@/components/customer/product-badges';
 import { 
   ShoppingBag, 
   MessageCircle, 
@@ -658,7 +659,8 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              {/* Wishlist Button */}
+              {/* Product Badges Overlay */}
+              <ProductBadges product={product} size="md" className="absolute top-4 left-4 z-10" />
               <button
                 onClick={(e) => {
                   e.stopPropagation();

@@ -9,6 +9,7 @@ import { useLanguage } from '@/lib/language-context';
 import { ShoppingBag, MessageCircle, Heart, ShieldCheck, Check, Sparkles, Star, Flame } from 'lucide-react';
 import { generateWhatsAppOrderLink } from '@/lib/whatsapp';
 import { db } from '@/lib/db';
+import { ProductBadges } from '@/components/customer/product-badges';
 
 interface ProductCardProps {
   product: Product;
@@ -107,18 +108,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
           </button>
 
           {/* Badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
-            {product.isHalal && (
-              <span className="px-1.5 py-0.5 bg-emerald-700 text-white text-[8px] font-extrabold rounded shadow flex items-center gap-0.5">
-                <ShieldCheck className="w-2.5 h-2.5" /> HALAL
-              </span>
-            )}
-            {product.isBestSeller && (
-              <span className="px-1.5 py-0.5 bg-[#D4AF37] text-[#800020] text-[8px] font-black rounded shadow flex items-center gap-0.5">
-                <Sparkles className="w-2.5 h-2.5" /> BEST SELLER
-              </span>
-            )}
-          </div>
+          <ProductBadges product={product} size="sm" className="absolute top-2 left-2" />
         </div>
 
         {/* Middle: Content Info & Variants */}
@@ -242,18 +232,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
         </button>
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
-          {product.isHalal && (
-            <span className="px-2 py-0.5 bg-emerald-700 text-white text-[10px] font-extrabold rounded-md shadow flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3" /> HALAL
-            </span>
-          )}
-          {product.isBestSeller && (
-            <span className="px-2 py-0.5 bg-[#D4AF37] text-[#800020] text-[10px] font-black rounded-md shadow flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> BEST SELLER
-            </span>
-          )}
-        </div>
+        <ProductBadges product={product} size="md" className="absolute top-3 left-3" />
       </div>
 
       {/* Product Details */}
