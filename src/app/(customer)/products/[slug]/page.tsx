@@ -49,10 +49,21 @@ export default function ProductDetailPage() {
   const slug = Array.isArray(rawParamSlug) ? rawParamSlug[0] : (rawParamSlug ? String(rawParamSlug) : '');
   const { t, language } = useLanguage();
 
-  const [product, setProduct] = useState<Product | null>(null);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [product, setProduct] = useState<Product | null>(() => {
+    if (!slug) return null;
+    return db.getProductBySlug(slug) || null;
+  });
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(() => {
+    if (!slug) return null;
+    const found = db.getProductBySlug(slug);
+    return found?.variants?.[0] || null;
+  });
   const [quantity, setQuantity] = useState(1);
-  const [activeImage, setActiveImage] = useState<string>('');
+  const [activeImage, setActiveImage] = useState<string>(() => {
+    if (!slug) return '';
+    const found = db.getProductBySlug(slug);
+    return found?.mainImage || '';
+  });
   const [isAdded, setIsAdded] = useState(false);
   const [recentlyViewedProducts, setRecentlyViewedProducts] = useState<Product[]>([]);
 

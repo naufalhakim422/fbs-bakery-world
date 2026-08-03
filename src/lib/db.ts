@@ -681,6 +681,8 @@ export const db = {
   getProductBySlug: (slug: string): Product | undefined => {
     if (!slug) return undefined;
     const list = loadFromStorage<Product[]>('fbs_products', initialProducts);
+    if (!list || list.length === 0) return undefined;
+
     const raw = String(slug).trim();
     let decoded = raw;
     try {
@@ -688,7 +690,11 @@ export const db = {
     } catch (e) {
       decoded = raw;
     }
-    return list.find(p => p.slug === decoded || p.id === decoded || p.slug === raw || p.id === raw);
+
+    const norm = (s: string) => (s || '').toLowerCase().replace(/[_]/g, '-').trim();
+    const target = norm(decoded);
+
+    return list.find(p => norm(p.slug) === target || norm(p.id) === target);
   },
 
   saveProduct: (product: Partial<Product>) => {
