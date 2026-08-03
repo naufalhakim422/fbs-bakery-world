@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '@/lib/language-context';
 import { auth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from '@/lib/firebase';
 import { ShieldCheck, Phone, RefreshCw, CheckCircle2, X, AlertCircle } from 'lucide-react';
 
@@ -17,8 +18,11 @@ export function PhoneOtpModal({
   onClose,
   onSuccess,
   defaultPhone = '',
-  title = 'Login / Daftar via SMS OTP (Firebase)',
+  title,
 }: PhoneOtpModalProps) {
+  const { t, language } = useLanguage();
+  const modalTitle = title || (language === 'EN' ? 'Login / Register via SMS OTP (Firebase)' : language === 'MS' ? 'Log Masuk / Daftar melalui SMS OTP (Firebase)' : 'Login / Daftar via SMS OTP (Firebase)');
+
   const [phoneNumber, setPhoneNumber] = useState(defaultPhone);
   const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', '']);
   const [step, setStep] = useState<'INPUT_PHONE' | 'INPUT_OTP'>('INPUT_PHONE');
@@ -55,7 +59,7 @@ export function PhoneOtpModal({
 
     let cleanPhone = phoneNumber.trim().replace(/\s+/g, '');
     if (!cleanPhone.startsWith('+')) {
-      setError('Format nomor HP harus menggunakan kode negara (contoh: +628123456789 atau +60123456789).');
+      setError(language === 'EN' ? 'Phone number must include country code (e.g. +628123456789 or +60123456789).' : language === 'MS' ? 'Format nombor HP mesti menggunakan kod negara (contoh: +628123456789 atau +60123456789).' : 'Format nomor HP harus menggunakan kode negara (contoh: +628123456789 atau +60123456789).');
       return;
     }
 
@@ -76,7 +80,7 @@ export function PhoneOtpModal({
         size: 'normal',
         callback: () => {},
         'expired-callback': () => {
-          setError('reCAPTCHA kedaluwarsa. Silakan muat ulang dan coba lagi.');
+          setError(language === 'EN' ? 'reCAPTCHA expired. Please reload and try again.' : language === 'MS' ? 'reCAPTCHA tamat tempoh. Sila muat semula dan cuba lagi.' : 'reCAPTCHA kedaluwarsa. Silakan muat ulang dan coba lagi.');
         },
       });
 
@@ -90,11 +94,11 @@ export function PhoneOtpModal({
       console.error('[Firebase Phone Auth Error]:', err);
       setLoading(false);
       if (err.code === 'auth/invalid-phone-number') {
-        setError('Nomor HP tidak valid. Pastikan format internasional (contoh: +628xxx atau +601xxx).');
+        setError(language === 'EN' ? 'Invalid phone number. Ensure international format (e.g. +628xxx or +601xxx).' : language === 'MS' ? 'Nombor HP tidak sah. Pastikan format antarabangsa (contoh: +628xxx atau +601xxx).' : 'Nomor HP tidak valid. Pastikan format internasional (contoh: +628xxx atau +601xxx).');
       } else if (err.code === 'auth/too-many-requests') {
-        setError('Terlalu banyak permintaan SMS OTP. Silakan coba beberapa saat lagi.');
+        setError(language === 'EN' ? 'Too many SMS OTP requests. Please try again later.' : language === 'MS' ? 'Terlalu banyak permintaan SMS OTP. Sila cuba seketika lagi.' : 'Terlalu banyak permintaan SMS OTP. Silakan coba beberapa saat lagi.');
       } else {
-        setError(err.message || 'Gagal mengirim SMS OTP. Periksa nomor HP & koneksi Firebase.');
+        setError(language === 'EN' ? 'Failed to send SMS OTP. Check phone number & Firebase connection.' : language === 'MS' ? 'Gagal menghantar SMS OTP. Semak nombor HP & sambungan Firebase.' : 'Gagal mengirim SMS OTP. Periksa nomor HP & koneksi Firebase.');
       }
     }
   };
@@ -137,7 +141,7 @@ export function PhoneOtpModal({
 
   const verifyCode = async (code: string) => {
     if (!confirmationResult) {
-      setError('Sesi verifikasi tidak ditemukan. Silakan kirim ulang kode OTP.');
+      setError(language === 'EN' ? 'Verification session not found. Please resend OTP.' : language === 'MS' ? 'Sesi pengesahan tidak ditemui. Sila hantar semula kod OTP.' : 'Sesi verifikasi tidak ditemukan. Silakan kirim ulang kode OTP.');
       return;
     }
 
@@ -152,7 +156,7 @@ export function PhoneOtpModal({
     } catch (err: any) {
       console.error('[Firebase OTP Verify Error]:', err);
       setLoading(false);
-      setError('Kode OTP 6-digit tidak cocok atau telah kedaluwarsa. Silakan periksa kembali!');
+      setError(language === 'EN' ? 'Invalid 6-digit OTP code or expired. Please check again!' : language === 'MS' ? 'Kod OTP 6-digit tidak sepadan atau telah tamat tempoh. Sila semak semula!' : 'Kode OTP 6-digit tidak cocok atau telah kedaluwarsa. Silakan periksa kembali!');
     }
   };
 
@@ -176,12 +180,12 @@ export function PhoneOtpModal({
 
         <div>
           <h2 className="text-2xl font-black text-stone-900 tracking-tight font-serif">
-            {title}
+            {modalTitle}
           </h2>
           <p className="text-xs text-stone-600 mt-2 leading-relaxed">
             {step === 'INPUT_PHONE' 
-              ? 'Masukkan nomor HP internasional Anda untuk menerima SMS kode verifikasi OTP 6-digit.'
-              : `Kode OTP 6-digit telah dikirimkan via SMS ke nomor ${phoneNumber}`}
+              ? (language === 'EN' ? 'Enter your international phone number to receive a 6-digit SMS OTP code.' : language === 'MS' ? 'Masukkan nombor HP antarabangsa anda untuk menerima SMS kod pengesahan 6-digit.' : 'Masukkan nomor HP internasional Anda untuk menerima SMS kode verifikasi OTP 6-digit.')
+              : `${language === 'EN' ? 'A 6-digit OTP code has been sent via SMS to' : language === 'MS' ? 'Kod OTP 6-digit telah dihantar melalui SMS ke nombor' : 'Kode OTP 6-digit telah dikirimkan via SMS ke nomor'} ${phoneNumber}`}
           </p>
         </div>
 
@@ -196,13 +200,13 @@ export function PhoneOtpModal({
           <form onSubmit={handleSendOtp} className="space-y-4 text-left">
             <div>
               <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                Nomor HP (Format Internasional) <span className="text-red-600">*</span>
+                {language === 'EN' ? 'Phone Number (International Format)' : language === 'MS' ? 'Nombor HP (Format Antarabangsa)' : 'Nomor HP (Format Internasional)'} <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input
                   type="tel"
                   required
-                  placeholder="e.g. +628123456789 atau +60123456789"
+                  placeholder="e.g. +628123456789 / +60123456789"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border-2 border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
@@ -210,7 +214,7 @@ export function PhoneOtpModal({
                 <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-4" />
               </div>
               <span className="text-[10px] text-stone-500 mt-1 block">
-                Contoh: <strong>+62</strong> (Indonesia) atau <strong>+60</strong> (Malaysia).
+                {language === 'EN' ? 'Example: +62 (Indonesia) or +60 (Malaysia).' : language === 'MS' ? 'Contoh: +62 (Indonesia) atau +60 (Malaysia).' : 'Contoh: +62 (Indonesia) atau +60 (Malaysia).'}
               </span>
             </div>
 
@@ -225,12 +229,12 @@ export function PhoneOtpModal({
               {loading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Mengirim SMS OTP...</span>
+                  <span>{language === 'EN' ? 'Sending SMS OTP...' : language === 'MS' ? 'Menghantar SMS OTP...' : 'Mengirim SMS OTP...'}</span>
                 </>
               ) : (
                 <>
                   <ShieldCheck className="w-4 h-4" />
-                  <span>Kirim Kode OTP SMS</span>
+                  <span>{language === 'EN' ? 'Send SMS OTP Code' : language === 'MS' ? 'Hantar Kod OTP SMS' : 'Kirim Kode OTP SMS'}</span>
                 </>
               )}
             </button>
@@ -261,12 +265,12 @@ export function PhoneOtpModal({
               {loading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Memverifikasi Firebase OTP...</span>
+                  <span>{language === 'EN' ? 'Verifying Firebase OTP...' : language === 'MS' ? 'Mengesahkan Firebase OTP...' : 'Memverifikasi Firebase OTP...'}</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Verifikasi & Login</span>
+                  <span>{language === 'EN' ? 'Verify & Login' : language === 'MS' ? 'Sahkan & Log Masuk' : 'Verifikasi & Login'}</span>
                 </>
               )}
             </button>
@@ -276,7 +280,7 @@ export function PhoneOtpModal({
               onClick={() => setStep('INPUT_PHONE')}
               className="text-xs text-[#800020] font-bold hover:underline"
             >
-              ← Ubah Nomor HP / Kirim Ulang
+              {language === 'EN' ? '← Change Phone Number / Resend' : language === 'MS' ? '← Tukar Nombor HP / Hantar Semula' : '← Ubah Nomor HP / Kirim Ulang'}
             </button>
           </div>
         )}

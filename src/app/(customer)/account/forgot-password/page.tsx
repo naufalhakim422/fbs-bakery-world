@@ -3,15 +3,17 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/language-context';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { hashPassword, validatePassword } from '@/lib/auth-security';
-import { KeyRound, Mail, Phone, Lock, ArrowRight, CheckCircle2, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { KeyRound, Mail, Lock, ArrowRight, CheckCircle2, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [step, setStep] = useState<'REQUEST' | 'VERIFY' | 'NEW_PASSWORD'>('REQUEST');
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [resetToken, setResetToken] = useState('');
@@ -28,7 +30,7 @@ export default function ForgotPasswordPage() {
     setError('');
 
     if (!emailOrPhone.trim()) {
-      setError('Silakan masukkan Email atau Nomor WhatsApp Anda.');
+      setError(language === 'EN' ? 'Please enter your registered Email or WhatsApp Number.' : language === 'MS' ? 'Sila masukkan E-mel atau Nombor WhatsApp anda.' : 'Silakan masukkan Email atau Nomor WhatsApp Anda.');
       return;
     }
 
@@ -57,7 +59,7 @@ export default function ForgotPasswordPage() {
     setError('');
 
     if (resetToken.trim() !== generatedToken) {
-      setError(`Kode verifikasi token salah. Gunakan kode: ${generatedToken}`);
+      setError(`${language === 'EN' ? 'Invalid verification token code. Use code:' : language === 'MS' ? 'Kod verifikasi token salah. Gunakan kod:' : 'Kode verifikasi token salah. Gunakan kode:'} ${generatedToken}`);
       return;
     }
 
@@ -75,18 +77,19 @@ export default function ForgotPasswordPage() {
     }
 
     if (newPassword !== confirmPassword) {
-      setError('Konfirmasi password tidak cocok. Silakan periksa kembali.');
+      setError(t.customerAccount.passwordMismatch);
       return;
     }
 
     setLoading(true);
 
     // Hash new password using bcrypt/SHA-256 algorithm
-    const hashedPassword = await hashPassword(newPassword);
+    const hashed = await hashPassword(newPassword);
+    console.log('[Password Reset Success]:', hashed.slice(0, 10));
 
     setTimeout(() => {
       setLoading(false);
-      alert('Password berhasil diperbarui! Silakan sign in menggunakan password baru Anda.');
+      alert(language === 'EN' ? 'Password updated successfully! Please sign in using your new password.' : language === 'MS' ? 'Kata laluan berjaya dikemas kini! Sila log masuk menggunakan kata laluan baharu anda.' : 'Password berhasil diperbarui! Silakan sign in menggunakan password baru Anda.');
       router.push('/account/login');
     }, 600);
   };
@@ -102,10 +105,10 @@ export default function ForgotPasswordPage() {
           
           <div className="flex items-center justify-between border-b border-stone-100 pb-3">
             <Link href="/account/login" className="inline-flex items-center gap-1 text-xs font-bold text-[#800020] hover:underline">
-              <ArrowLeft className="w-4 h-4" /> Kembali ke Login
+              <ArrowLeft className="w-4 h-4" /> {language === 'EN' ? 'Back to Login' : language === 'MS' ? 'Kembali ke Log Masuk' : 'Kembali ke Login'}
             </Link>
             <span className="text-[10px] font-extrabold text-[#D4AF37] uppercase tracking-widest bg-[#800020] px-2.5 py-0.5 rounded-full">
-              LUPA PASSWORD
+              {t.customerAccount.forgotPassword}
             </span>
           </div>
 
@@ -117,10 +120,10 @@ export default function ForgotPasswordPage() {
                   <KeyRound className="w-7 h-7" />
                 </div>
                 <h1 className="font-serif text-2xl font-extrabold text-[#2B1B1B]">
-                  Lupa Password Akun?
+                  {t.customerAccount.forgotTitle}
                 </h1>
                 <p className="text-stone-600 text-xs mt-1">
-                  Masukkan Email atau Nomor WhatsApp terdaftar Anda untuk menerima kode reset password.
+                  {t.customerAccount.forgotSubtitle}
                 </p>
               </div>
 
@@ -133,13 +136,13 @@ export default function ForgotPasswordPage() {
               <form onSubmit={handleRequestSubmit} className="space-y-4 text-xs">
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">
-                    Email / WhatsApp Terdaftar <span className="text-red-600">*</span>
+                    {t.customerAccount.phoneOrEmail} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input 
                       type="text"
                       required
-                      placeholder="e.g. naufal@example.com atau +60129876543"
+                      placeholder="e.g. naufal@example.com / +60129876543"
                       value={emailOrPhone}
                       onChange={(e) => setEmailOrPhone(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
@@ -153,7 +156,7 @@ export default function ForgotPasswordPage() {
                   disabled={loading}
                   className="w-full py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
                 >
-                  {loading ? 'Mengirim Kode Reset...' : 'KIRIM KODE RESET PASSWORD'} <ArrowRight className="w-4 h-4" />
+                  {loading ? (language === 'EN' ? 'Sending Reset Code...' : language === 'MS' ? 'Menghantar Kod Reset...' : 'Mengirim Kode Reset...') : t.customerAccount.resetBtn} <ArrowRight className="w-4 h-4" />
                 </button>
               </form>
             </div>
@@ -166,16 +169,16 @@ export default function ForgotPasswordPage() {
                 <ShieldCheck className="w-7 h-7" />
               </div>
               <h2 className="font-serif text-2xl font-bold text-[#2B1B1B]">
-                Masukkan Kode Token Reset
+                {t.customerAccount.verifyIdentity}
               </h2>
               <p className="text-stone-600 text-xs leading-relaxed">
-                Permintaan reset password telah dikirim ke <strong className="text-[#800020]">{emailOrPhone}</strong>. Periksa Email Gmail atau pesan WhatsApp Anda untuk menerima 6-digit kode verifikasi reset kata sandi.
+                {language === 'EN' ? 'Password reset request has been sent to' : language === 'MS' ? 'Permintaan tetapan semula kata laluan telah dihantar ke' : 'Permintaan reset password telah dikirim ke'} <strong className="text-[#800020]">{emailOrPhone}</strong>. {t.customerAccount.enterOtp}
               </p>
 
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-left text-xs text-amber-800 space-y-1">
-                <strong className="block font-bold">📲 Notifikasi Terkirim Ke Admin / User:</strong>
+                <strong className="block font-bold">📲 {language === 'EN' ? 'Notification Sent To Admin / User:' : language === 'MS' ? 'Notifikasi Dihantar Kepada Admin / Pengguna:' : 'Notifikasi Terkirim Ke Admin / User:'}</strong>
                 <p className="text-[11px] text-amber-700">
-                  Staf / Admin FBS Bakery World telah menerima notifikasi permohonan reset password untuk {emailOrPhone}. Jika pesan WhatsApp tidak terbuka otomatis, Anda dapat klik tombol kontak admin di bawah.
+                  {language === 'EN' ? 'FBS Bakery World Admin / Staff has received the password reset notification for' : language === 'MS' ? 'Staf / Admin FBS Bakery World telah menerima notifikasi permohonan reset kata laluan untuk' : 'Staf / Admin FBS Bakery World telah menerima notifikasi permohonan reset password untuk'} {emailOrPhone}.
                 </p>
                 <a 
                   href={`https://wa.me/60183942147?text=${encodeURIComponent(`Halo Admin FBS Bakery World, saya ingin meminta konfirmasi kode reset password untuk akun terdaftar: ${emailOrPhone}`)}`}
@@ -183,7 +186,7 @@ export default function ForgotPasswordPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 font-bold text-[#25D366] hover:underline pt-1 text-xs"
                 >
-                  💬 Hubungi Admin WhatsApp Staf
+                  💬 {language === 'EN' ? 'Contact Admin Staff on WhatsApp' : language === 'MS' ? 'Hubungi Staf Admin WhatsApp' : 'Hubungi Admin WhatsApp Staf'}
                 </a>
               </div>
 
@@ -198,7 +201,7 @@ export default function ForgotPasswordPage() {
                   type="text"
                   required
                   maxLength={6}
-                  placeholder="Masukkan 6-digit kode"
+                  placeholder={t.customerAccount.enterOtp}
                   value={resetToken}
                   onChange={(e) => setResetToken(e.target.value)}
                   className="w-full text-center font-mono text-2xl font-black tracking-widest px-4 py-3 border-2 border-stone-300 rounded-xl focus:outline-none focus:border-[#800020]"
@@ -208,7 +211,7 @@ export default function ForgotPasswordPage() {
                   type="submit"
                   className="w-full py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
                 >
-                  VERIFIKASI TOKEN <CheckCircle2 className="w-4 h-4" />
+                  {language === 'EN' ? 'VERIFY TOKEN' : language === 'MS' ? 'PENGESAHAN TOKEN' : 'VERIFIKASI TOKEN'} <CheckCircle2 className="w-4 h-4" />
                 </button>
               </form>
             </div>
@@ -222,10 +225,10 @@ export default function ForgotPasswordPage() {
                   <Lock className="w-7 h-7" />
                 </div>
                 <h2 className="font-serif text-2xl font-bold text-[#2B1B1B]">
-                  Buat Password Baru
+                  {language === 'EN' ? 'Create New Password' : language === 'MS' ? 'Cipta Kata Laluan Baharu' : 'Buat Password Baru'}
                 </h2>
                 <p className="text-stone-600 text-xs mt-1">
-                  Password baru harus terdiri dari <strong>minimal 8 hingga 12+ karakter</strong>.
+                  {t.customerAccount.passwordMinLength}
                 </p>
               </div>
 
@@ -238,7 +241,7 @@ export default function ForgotPasswordPage() {
               <form onSubmit={handleNewPasswordSubmit} className="space-y-4 text-xs">
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">
-                    Password Baru (Min 8-12 Karakter) <span className="text-red-600">*</span>
+                    {t.customerAccount.password} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input 
@@ -251,18 +254,11 @@ export default function ForgotPasswordPage() {
                     />
                     <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
                   </div>
-                  {newPassword.length > 0 && (
-                    <span className={`text-[10px] font-bold mt-1 block ${
-                      newPassword.length >= 8 ? 'text-emerald-600' : 'text-red-600'
-                    }`}>
-                      Panjang karakter: {newPassword.length} / 8-12 karakter {newPassword.length >= 8 ? '✓ (Aman)' : '(Terlalu pendek)'}
-                    </span>
-                  )}
                 </div>
 
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">
-                    Konfirmasi Password Baru <span className="text-red-600">*</span>
+                    {t.customerAccount.confirmPassword} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
                     <input 
@@ -282,7 +278,7 @@ export default function ForgotPasswordPage() {
                   disabled={loading}
                   className="w-full py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
                 >
-                  {loading ? 'Menyimpan Password...' : 'SIMPAN PASSWORD BARU'} <CheckCircle2 className="w-4 h-4" />
+                  {loading ? (language === 'EN' ? 'Saving Password...' : language === 'MS' ? 'Menyimpan Kata Laluan...' : 'Menyimpan Password...') : t.customerAccount.saveProfile} <CheckCircle2 className="w-4 h-4" />
                 </button>
               </form>
             </div>

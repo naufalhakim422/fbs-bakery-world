@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '@/lib/language-context';
 import { ShieldCheck, Mail, AlertCircle, RefreshCw, CheckCircle2, X } from 'lucide-react';
 
 interface OtpModalProps {
@@ -16,8 +17,11 @@ export function OtpModal({
   onClose,
   targetDestination,
   onVerifySuccess,
-  title = 'Verifikasi 2 Langkah (OTP)',
+  title,
 }: OtpModalProps) {
+  const { t, language } = useLanguage();
+  const modalTitle = title || (language === 'EN' ? '2-Step Verification (OTP)' : language === 'MS' ? 'Pengesahan 2-Langkah (OTP)' : 'Verifikasi 2 Langkah (OTP)');
+
   const [generatedCode, setGeneratedCode] = useState('');
   const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', '']);
   const [countdown, setCountdown] = useState(60);
@@ -37,7 +41,7 @@ export function OtpModal({
     setCanResend(false);
     setError('');
     setShowBotNotification(true);
-    setSendStatusMessage('Mengirim kode OTP ke Email...');
+    setSendStatusMessage(language === 'EN' ? 'Sending OTP code to Email...' : language === 'MS' ? 'Menghantar kod OTP ke E-mel...' : 'Mengirim kode OTP ke Email...');
 
     try {
       const res = await fetch('/api/send-otp', {
@@ -53,11 +57,11 @@ export function OtpModal({
 
       const data = await res.json();
       if (data.success) {
-        setSendStatusMessage(data.message || `Kode OTP terkirim ke ${targetDestination}!`);
+        setSendStatusMessage(data.message || `${language === 'EN' ? 'OTP code sent to' : language === 'MS' ? 'Kod OTP dihantar ke' : 'Kode OTP terkirim ke'} ${targetDestination}!`);
       }
     } catch (e) {
       console.log('[Send OTP Fetch Error]:', e);
-      setSendStatusMessage(`Kode OTP siap digunakan untuk ${targetDestination}`);
+      setSendStatusMessage(`${language === 'EN' ? 'OTP code ready for' : language === 'MS' ? 'Kod OTP sedia untuk' : 'Kode OTP siap digunakan untuk'} ${targetDestination}`);
     }
   };
 
@@ -133,7 +137,7 @@ export function OtpModal({
         onVerifySuccess();
       } else {
         setIsVerifying(false);
-        setError('Kode verifikasi 6-digit salah atau telah kedaluwarsa. Silakan periksa kembali!');
+        setError(language === 'EN' ? 'Invalid 6-digit OTP code or expired. Please check again!' : language === 'MS' ? 'Kod verifikasi 6-digit salah atau telah tamat tempoh. Sila semak semula!' : 'Kode verifikasi 6-digit salah atau telah kedaluwarsa. Silakan periksa kembali!');
       }
     }, 400);
   };
@@ -164,10 +168,10 @@ export function OtpModal({
 
         <div>
           <h2 className="text-2xl font-black text-stone-900 tracking-tight font-serif">
-            {title}
+            {modalTitle}
           </h2>
           <p className="text-xs text-stone-600 mt-2 leading-relaxed">
-            Bot Verifikasi Otomatis telah mengirimkan kode 6-digit ke:
+            {language === 'EN' ? 'Automated Verification Bot has sent a 6-digit code to:' : language === 'MS' ? 'Bot Pengesahan Automatikal telah menghantar kod 6-digit ke:' : 'Bot Verifikasi Otomatis telah mengirimkan kode 6-digit ke:'}
             <br />
             <span className="font-bold text-[#800020] bg-stone-100 px-2 py-0.5 rounded text-sm mt-1 inline-block">
               {targetDestination || 'email/WhatsApp Anda'}
@@ -188,7 +192,7 @@ export function OtpModal({
           <div
             onClick={autoFillCode}
             className="bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border-2 border-dashed border-amber-400 p-4 rounded-2xl cursor-pointer hover:bg-amber-100/50 transition-all text-left group relative shadow-sm"
-            title="Klik untuk mengisi otomatis kode verifikasi"
+            title={language === 'EN' ? 'Click to autofill verification code' : language === 'MS' ? 'Klik untuk isi automatik kod pengesahan' : 'Klik untuk mengisi otomatis kode verifikasi'}
           >
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow">
@@ -196,19 +200,19 @@ export function OtpModal({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between text-[11px] font-bold text-amber-900">
-                  <span>📩 BOT VERIFIKASI EMAIL / WA</span>
+                  <span>📩 {language === 'EN' ? 'EMAIL / WA VERIFICATION BOT' : language === 'MS' ? 'BOT PENGESAHAN E-MEL / WA' : 'BOT VERIFIKASI EMAIL / WA'}</span>
                   <span className="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded font-mono">
-                    BARU SAJA
+                    {language === 'EN' ? 'JUST NOW' : language === 'MS' ? 'BARU SAHAJA' : 'BARU SAJA'}
                   </span>
                 </div>
                 <p className="text-xs text-stone-700 mt-1 font-mono">
-                  Kode Verifikasi OTP Anda adalah:{' '}
+                  {language === 'EN' ? 'Your OTP Verification Code is:' : language === 'MS' ? 'Kod Pengesahan OTP Anda ialah:' : 'Kode Verifikasi OTP Anda adalah:'}{' '}
                   <span className="font-black text-stone-900 text-sm tracking-wider underline">
                     {generatedCode}
                   </span>
                 </p>
                 <span className="text-[10px] text-amber-800 font-medium block mt-1 group-hover:underline">
-                  ✨ Klik banner ini untuk isi otomatis
+                  ✨ {language === 'EN' ? 'Click this banner to autofill' : language === 'MS' ? 'Klik sepanduk ini untuk isi automatik' : 'Klik banner ini untuk isi otomatis'}
                 </span>
               </div>
             </div>
@@ -218,7 +222,7 @@ export function OtpModal({
         {/* 6-Digit OTP Inputs */}
         <div className="space-y-3">
           <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider">
-            Masukkan Kode 6-Digit:
+            {language === 'EN' ? 'Enter 6-Digit Code:' : language === 'MS' ? 'Masukkan Kod 6-Digit:' : 'Masukkan Kode 6-Digit:'}
           </label>
           <div className="flex justify-center gap-2 sm:gap-3">
             {otpValues.map((digit, index) => (
@@ -255,12 +259,12 @@ export function OtpModal({
             {isVerifying ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Memverifikasi Kode...</span>
+                <span>{language === 'EN' ? 'Verifying Code...' : language === 'MS' ? 'Mengesahkan Kod...' : 'Memverifikasi Kode...'}</span>
               </>
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Verifikasi Kode (OTP)</span>
+                <span>{language === 'EN' ? 'Verify Code (OTP)' : language === 'MS' ? 'Sahkan Kod (OTP)' : 'Verifikasi Kode (OTP)'}</span>
               </>
             )}
           </button>
@@ -268,7 +272,7 @@ export function OtpModal({
           {/* Resend & Timer */}
           <div className="flex items-center justify-between text-xs text-stone-500 pt-1">
             <span className="font-mono">
-              ⏱ Waktu tersisa: <strong className="text-stone-800">{countdown}s</strong>
+              ⏱ {language === 'EN' ? 'Time remaining:' : language === 'MS' ? 'Masa tinggal:' : 'Waktu tersisa:'} <strong className="text-stone-800">{countdown}s</strong>
             </span>
 
             <button
@@ -278,7 +282,7 @@ export function OtpModal({
               className="text-[#800020] font-bold hover:underline disabled:text-stone-400 disabled:no-underline flex items-center gap-1"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Kirim Ulang Kode</span>
+              <span>{language === 'EN' ? 'Resend Code' : language === 'MS' ? 'Hantar Semula Kod' : 'Kirim Ulang Kode'}</span>
             </button>
           </div>
         </div>

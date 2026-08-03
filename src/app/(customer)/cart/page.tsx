@@ -13,7 +13,7 @@ import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ArrowLeft, MessageCircle,
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, subtotal, totalItems, freeShippingThreshold } = useCart();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const amountToFreeShipping = freeShippingThreshold - subtotal;
   const progressPercent = Math.min(100, (subtotal / freeShippingThreshold) * 100);
@@ -70,7 +70,7 @@ export default function CartPage() {
               {/* Free Shipping Meter */}
               <div className="bg-[#5A0015] text-[#FFF8F0] p-4 rounded-2xl border border-[#D4AF37]/30 shadow-md">
                 {amountToFreeShipping > 0 ? (
-                  <p className="text-xs">{t.cart.freeShippingAdd} <span className="font-bold text-[#D4AF37]">{formatMYR(amountToFreeShipping)}</span>!</p>
+                  <p className="text-xs">{t.cart.freeShippingAdd.replace('{amount}', formatMYR(amountToFreeShipping))}</p>
                 ) : (
                   <p className="text-xs text-[#D4AF37] font-semibold">{t.cart.freeShippingUnlocked}</p>
                 )}
@@ -109,7 +109,7 @@ export default function CartPage() {
                       <button 
                         onClick={() => updateQuantity(item.productId, item.variantId, -1)}
                         className="p-1.5 text-stone-600 hover:text-[#800020] transition-colors"
-                        title="Kurangi jumlah"
+                        title={language === 'EN' ? 'Decrease quantity' : language === 'MS' ? 'Kurangkan kuantiti' : 'Kurangi jumlah'}
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
@@ -126,13 +126,13 @@ export default function CartPage() {
                           }
                         }}
                         className="w-12 text-center font-bold text-xs text-[#800020] bg-white border border-stone-200 rounded-md py-0.5 mx-1 focus:outline-none focus:border-[#800020] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        title="Ketik nominal jumlah"
+                        title={language === 'EN' ? 'Type custom quantity' : language === 'MS' ? 'Taip kuantiti pilihan' : 'Ketik nominal jumlah'}
                       />
 
                       <button 
                         onClick={() => updateQuantity(item.productId, item.variantId, 1)}
                         className="p-1.5 text-stone-600 hover:text-[#800020] transition-colors"
-                        title="Tambah jumlah"
+                        title={language === 'EN' ? 'Increase quantity' : language === 'MS' ? 'Tambah kuantiti' : 'Tambah jumlah'}
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>

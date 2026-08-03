@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { Product, ProductVariant, ProductReview } from '@/types';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
@@ -41,6 +42,7 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug as string;
+  const { t, language } = useLanguage();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
@@ -125,10 +127,10 @@ export default function ProductDetailPage() {
         <AnnouncementBar />
         <HeaderNav />
         <main className="flex-1 flex flex-col items-center justify-center py-20 text-center px-4">
-          <h2 className="font-serif text-3xl font-bold text-[#800020]">Product Not Found</h2>
-          <p className="text-stone-600 text-sm mt-2">The requested baking supply item does not exist or has been archived.</p>
+          <h2 className="font-serif text-3xl font-bold text-[#800020]">{language === 'EN' ? 'Product Not Found' : language === 'MS' ? 'Produk Tidak Dijumpai' : 'Produk Tidak Ditemukan'}</h2>
+          <p className="text-stone-600 text-sm mt-2">{language === 'EN' ? 'The requested baking supply item does not exist or has been archived.' : language === 'MS' ? 'Item bekalan bakeri yang dicari tidak wujud atau telah diarkibkan.' : 'Item perlengkapan kue yang diminta tidak ada atau telah diarsipkan.'}</p>
           <Link href="/products" className="mt-6 px-6 py-3 bg-[#800020] text-white font-bold text-xs rounded-xl shadow">
-            Back to Catalog
+            {language === 'EN' ? 'Back to Catalog' : language === 'MS' ? 'Kembali ke Katalog' : 'Kembali ke Katalog'}
           </Link>
         </main>
         <Footer />
@@ -320,9 +322,9 @@ export default function ProductDetailPage() {
         
         {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-2 text-xs text-stone-500 mb-8 font-medium">
-          <Link href="/" className="hover:text-[#800020]">Home</Link>
+          <Link href="/" className="hover:text-[#800020]">{t.nav.home}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
-          <Link href="/products" className="hover:text-[#800020]">Products</Link>
+          <Link href="/products" className="hover:text-[#800020]">{t.nav.products}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
           <span className="text-[#800020] font-bold truncate max-w-xs">{product.productName}</span>
         </nav>
@@ -347,8 +349,8 @@ export default function ProductDetailPage() {
                 className={`absolute top-4 right-4 p-3 rounded-full backdrop-blur-md shadow-lg transition-transform active:scale-95 ${
                   isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 text-stone-700 hover:text-red-500'
                 }`}
-                title="Save to Wishlist"
-                aria-label="Save to Wishlist"
+                title={t.customerAccount.wishlistTitle}
+                aria-label={t.customerAccount.wishlistTitle}
               >
                 <Heart className={`w-5 h-5 ${isFavorite ? 'fill-white' : ''}`} />
               </button>
@@ -383,7 +385,7 @@ export default function ProductDetailPage() {
                 <span className="text-xs font-bold text-stone-500">Brand: {product.brand}</span>
                 {product.isHalal && (
                   <span className="px-2.5 py-0.5 bg-emerald-700 text-white text-xs font-extrabold rounded-md flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> HALAL CERTIFIED
+                    <ShieldCheck className="w-3.5 h-3.5" /> {t.productDetail.halalCertified}
                   </span>
                 )}
               </div>
@@ -408,7 +410,7 @@ export default function ProductDetailPage() {
                     ))}
                   </div>
                   <span className="text-xs font-bold text-stone-900">{ratingStats.averageRating}</span>
-                  <span className="text-xs text-stone-500">({ratingStats.reviewCount} Ulasan & Video)</span>
+                  <span className="text-xs text-stone-500">({ratingStats.reviewCount} {language === 'EN' ? 'Reviews' : language === 'MS' ? 'Ulasan' : 'Ulasan'})</span>
                 </div>
               </div>
 
@@ -419,7 +421,7 @@ export default function ProductDetailPage() {
               {/* Price Display */}
               <div className="mt-6 p-4 bg-[#FFF8F0] rounded-2xl border border-[#EADBC8] flex items-baseline justify-between">
                 <div>
-                  <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">Price per pack</span>
+                  <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">{t.productDetail.pricePerPack}</span>
                   <span className="font-serif text-3xl font-extrabold text-[#800020]">
                     {selectedVariant ? formatMYR(selectedVariant.price * quantity) : formatMYR(0)}
                   </span>
@@ -431,7 +433,7 @@ export default function ProductDetailPage() {
               {product.variants && product.variants.length > 0 && (
                 <div className="mt-6">
                   <label className="block text-xs font-bold text-[#2B1B1B] uppercase tracking-wider mb-2">
-                    Select Packaging Size / Weight:
+                    {t.productDetail.selectVariant}
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     {product.variants.map((v) => (
@@ -456,7 +458,7 @@ export default function ProductDetailPage() {
 
               {/* Quantity Controller with Direct Nominal Input */}
               <div className="mt-6 flex items-center gap-4">
-                <span className="text-xs font-bold text-[#2B1B1B] uppercase tracking-wider">Quantity:</span>
+                <span className="text-xs font-bold text-[#2B1B1B] uppercase tracking-wider">{t.productDetail.quantity}:</span>
                 <div className="flex items-center border border-stone-300 rounded-xl bg-stone-50 p-1">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -506,11 +508,11 @@ export default function ProductDetailPage() {
               >
                 {isAdded ? (
                   <>
-                    <Check className="w-5 h-5" /> Added to Shopping Cart!
+                    <Check className="w-5 h-5" /> {language === 'EN' ? 'Added to Shopping Cart!' : language === 'MS' ? 'Ditambah ke Troli!' : 'Ditambahkan ke Keranjang!'}
                   </>
                 ) : (
                   <>
-                    <ShoppingBag className="w-5 h-5" /> Add to Cart
+                    <ShoppingBag className="w-5 h-5" /> {t.productDetail.addToCart}
                   </>
                 )}
               </button>
@@ -519,17 +521,17 @@ export default function ProductDetailPage() {
                 onClick={handleDirectWhatsApp}
                 className="py-3.5 px-6 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
               >
-                <MessageCircle className="w-5 h-5 fill-white" /> Order via WhatsApp
+                <MessageCircle className="w-5 h-5 fill-white" /> {t.productDetail.orderWhatsApp}
               </button>
             </div>
 
             {/* Additional Info Cards */}
             <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-stone-600">
               <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center gap-2">
-                <Truck className="w-4 h-4 text-[#800020]" /> Fast Delivery Across Malaysia
+                <Truck className="w-4 h-4 text-[#800020]" /> {t.productDetail.fastDelivery}
               </div>
               <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center gap-2">
-                <Award className="w-4 h-4 text-[#800020]" /> Commercial Bulk Rates Available
+                <Award className="w-4 h-4 text-[#800020]" /> {language === 'EN' ? 'Commercial Bulk Rates Available' : language === 'MS' ? 'Kadar Pukal Komersial Disediakan' : 'Harga Grosir Komersial Tersedia'}
               </div>
             </div>
 
@@ -542,9 +544,9 @@ export default function ProductDetailPage() {
           <div className="bg-[#800020]/5 p-6 sm:p-8 rounded-3xl border border-[#800020]/20 shadow-sm mb-12">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-[#800020]" />
-              <h3 className="font-serif text-xl font-bold text-[#800020]">Frequently Bought Together</h3>
+              <h3 className="font-serif text-xl font-bold text-[#800020]">{language === 'EN' ? 'Frequently Bought Together' : language === 'MS' ? 'Kerap Dibeli Bersama' : 'Sering Dibeli Bersama'}</h3>
             </div>
-            <p className="text-stone-600 text-xs mb-6">Baking professionals and customers often order these complementary ingredients together for optimal results.</p>
+            <p className="text-stone-600 text-xs mb-6">{language === 'EN' ? 'Baking professionals and customers often order these complementary ingredients together for optimal results.' : language === 'MS' ? 'Pakar bakeri dan pelanggan sering memesan bahan tambahan ini bersama untuk hasil terbaik.' : 'Profesional baking dan pelanggan sering memesan bahan pelengkap ini bersama untuk hasil terbaik.'}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {frequentlyBoughtTogether.map((p: Product) => (
                 <ProductCard key={`fbt-${p.id}`} product={p} viewMode="list" />
@@ -556,7 +558,7 @@ export default function ProductDetailPage() {
         {/* Full Detailed Description Section */}
         <div className="bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-sm mb-12">
           <h2 className="font-serif text-2xl font-bold text-[#800020] mb-4 border-b border-stone-200 pb-3 flex items-center gap-2">
-            <Info className="w-5 h-5 text-[#800020]" /> Detailed Product Specifications & Usage Guide
+            <Info className="w-5 h-5 text-[#800020]" /> {t.productDetail.descriptionTitle}
           </h2>
           <div className="prose max-w-none text-stone-700 text-sm leading-relaxed whitespace-pre-line">
             {product.description}
@@ -569,10 +571,10 @@ export default function ProductDetailPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-stone-200 pb-4 gap-4">
             <div>
               <h2 className="font-serif text-2xl font-bold text-[#800020] flex items-center gap-2">
-                <Star className="w-6 h-6 text-amber-400 fill-amber-400" /> Ratings, Ulasan & Video Review Pelanggan
+                <Star className="w-6 h-6 text-amber-400 fill-amber-400" /> {language === 'EN' ? 'Customer Ratings, Reviews & Video Demos' : language === 'MS' ? 'Penilaian, Ulasan & Video Pelanggan' : 'Penilaian, Ulasan & Video Review Pelanggan'}
               </h2>
               <p className="text-stone-500 text-xs mt-0.5">
-                Ulasan jujur dan demo video penggunaan produk oleh para baker & pelanggan setia FBS Bakery World.
+                {language === 'EN' ? 'Honest customer feedback and video product demos by FBS Bakery World bakers.' : language === 'MS' ? 'Ulasan jujur dan demo video produk oleh para baker & pelanggan FBS Bakery World.' : 'Ulasan jujur dan demo video penggunaan produk oleh para baker & pelanggan setia FBS Bakery World.'}
               </p>
             </div>
 
@@ -596,10 +598,10 @@ export default function ProductDetailPage() {
             </div>
             <div>
               <h3 className="font-serif text-base font-bold text-[#800020]">
-                🔒 Form Ulasan & Video Feedback Khusus Pembeli Terverifikasi
+                {language === 'EN' ? '🔒 Review Form Reserved for Verified Buyers' : language === 'MS' ? '🔒 Borang Ulasan Khas Pembeli Terbukti' : '🔒 Form Ulasan Khusus Pembeli Terverifikasi'}
               </h3>
               <p className="text-stone-600 text-xs mt-1 max-w-lg mx-auto">
-                Demi menjaga kualitas & kejujuran ulasan produk, fitur ulasan dan pengunggahan video hanya aktif untuk pelanggan yang telah memesan dan paketnya telah <strong>Sampai (DELIVERED)</strong>.
+                {language === 'EN' ? 'To ensure review authenticity, review submissions are available after your order status is DELIVERED.' : language === 'MS' ? 'Untuk memastikan ketulenan ulasan, borang ulasan aktif selepas pesanan anda BERJAYA DIHANTAR (DELIVERED).' : 'Demi menjaga kualitas & kejujuran ulasan produk, fitur ulasan hanya aktif setelah pesanan Sampai (DELIVERED).'}
               </p>
             </div>
             <div className="pt-2 flex justify-center gap-3">
@@ -607,7 +609,7 @@ export default function ProductDetailPage() {
                 href="/account"
                 className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl shadow inline-flex items-center gap-2"
               >
-                <Star className="w-4 h-4 fill-[#D4AF37]" /> Buka Riwayat Pesanan Saya Untuk Beri Ulasan
+                <Star className="w-4 h-4 fill-[#D4AF37]" /> {language === 'EN' ? 'Open My Order History to Write a Review' : language === 'MS' ? 'Buka Sejarah Pesanan Saya Untuk Beri Ulasan' : 'Buka Riwayat Pesanan Saya Untuk Beri Ulasan'}
               </Link>
             </div>
           </div>
@@ -615,12 +617,12 @@ export default function ProductDetailPage() {
           {/* LIST ULASAN & VIDEO FEEDBACK PELANGGAN */}
           <div className="space-y-4 pt-4">
             <h3 className="font-serif text-lg font-bold text-[#2B1B1B] border-b border-stone-100 pb-2">
-              Daftar Ulasan & Pembuktian Video ({reviews.length})
+              {language === 'EN' ? 'Customer Reviews & Video Demonstrations' : language === 'MS' ? 'Senarai Ulasan & Video Pelanggan' : 'Daftar Ulasan & Pembuktian Video'} ({reviews.length})
             </h3>
 
             {reviews.length === 0 ? (
               <div className="p-8 text-center bg-stone-50 rounded-2xl border border-stone-200">
-                <p className="text-xs text-stone-500 font-bold">Belum ada ulasan untuk produk ini. Jadilah yang pertama memberikan ulasan!</p>
+                <p className="text-xs text-stone-500 font-bold">{language === 'EN' ? 'No reviews yet for this product. Be the first to review!' : language === 'MS' ? 'Belum ada ulasan untuk produk ini. Jadilah yang pertama memberikan ulasan!' : 'Belum ada ulasan untuk produk ini. Jadilah yang pertama memberikan ulasan!'}</p>
               </div>
             ) : (
               reviews.map((rev) => (
@@ -652,7 +654,7 @@ export default function ProductDetailPage() {
                   </div>
 
                   <p className="text-xs text-stone-700 leading-relaxed font-medium">
-                    "{rev.comment}"
+                    &quot;{rev.comment}&quot;
                   </p>
 
                   {/* ATTACHED PHOTOS */}
@@ -692,7 +694,7 @@ export default function ProductDetailPage() {
         {relatedProducts.length > 0 && (
           <section className="mb-16">
             <h2 className="font-serif text-2xl font-bold text-[#2B1B1B] mb-6">
-              You May Also Need
+              {t.productDetail.relatedTitle}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((p: Product) => (
@@ -706,7 +708,7 @@ export default function ProductDetailPage() {
         {recentlyViewedProducts.length > 0 && (
           <section className="mb-16">
             <h2 className="font-serif text-2xl font-bold text-[#2B1B1B] mb-6 flex items-center gap-2">
-              <span>Recently Viewed Products</span>
+              <span>{language === 'EN' ? 'Recently Viewed Products' : language === 'MS' ? 'Produk Baru Dilihat' : 'Produk Terakhir Dilihat'}</span>
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {recentlyViewedProducts.map((p) => (

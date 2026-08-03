@@ -4,6 +4,7 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -13,6 +14,7 @@ import { User, Calendar, ArrowLeft, BookOpen, Video as VideoIcon, PlayCircle, Sp
 export default function BlogDetailPage() {
   const params = useParams();
   const slug = params?.slug as string;
+  const { t, language } = useLanguage();
   const blog = db.getBlogBySlug(slug);
 
   if (!blog) {
@@ -21,9 +23,11 @@ export default function BlogDetailPage() {
         <AnnouncementBar />
         <HeaderNav />
         <main className="flex-1 flex flex-col items-center justify-center py-20 text-center px-4">
-          <h2 className="font-serif text-3xl font-bold text-[#800020]">Article Not Found</h2>
+          <h2 className="font-serif text-3xl font-bold text-[#800020]">
+            {language === 'EN' ? 'Article Not Found' : language === 'MS' ? 'Artikel Tidak Ditemui' : 'Artikel Tidak Ditemukan'}
+          </h2>
           <Link href="/blog" className="mt-4 px-6 py-2.5 bg-[#800020] text-white text-xs font-bold rounded-xl">
-            Back to Blog
+            {language === 'EN' ? 'Back to Blog' : language === 'MS' ? 'Kembali ke Blog' : 'Kembali ke Blog'}
           </Link>
         </main>
         <Footer />
@@ -39,7 +43,7 @@ export default function BlogDetailPage() {
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         
         <Link href="/blog" className="inline-flex items-center gap-1 text-xs font-bold text-[#800020] hover:underline mb-6">
-          <ArrowLeft className="w-4 h-4" /> Back to Blog List
+          <ArrowLeft className="w-4 h-4" /> {language === 'EN' ? 'Back to Blog List' : language === 'MS' ? 'Kembali ke Senarai Blog' : 'Kembali ke Daftar Blog'}
         </Link>
 
         <article className="bg-white rounded-3xl p-6 sm:p-12 border border-[#EADBC8] shadow-md space-y-6">
@@ -63,7 +67,7 @@ export default function BlogDetailPage() {
             <div className="rounded-3xl overflow-hidden shadow-xl border-2 border-[#800020] bg-black">
               <div className="p-3 bg-[#800020] text-[#D4AF37] text-xs font-bold flex items-center gap-2">
                 <VideoIcon className="w-4 h-4 text-[#D4AF37]" />
-                <span>VIDEO DEMO TUTORIAL & PANDUAN BAKING</span>
+                <span>{language === 'EN' ? 'VIDEO DEMO TUTORIAL & BAKING GUIDE' : language === 'MS' ? 'TUTORIAL DEMO VIDEO & PANDUAN BAKERI' : 'VIDEO DEMO TUTORIAL & PANDUAN BAKING'}</span>
               </div>
               <video 
                 src={blog.videoUrl} 
@@ -87,10 +91,10 @@ export default function BlogDetailPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest block mb-0.5 flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> OFFICIAL SOCIAL MEDIA CHANNELS
+                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> {language === 'EN' ? 'OFFICIAL SOCIAL MEDIA CHANNELS' : language === 'MS' ? 'SALURAN MEDIA SOSIAL RASMI' : 'SALURAN MEDIA SOSIAL RESMI'}
                 </span>
                 <h3 className="font-serif text-lg font-bold text-white">
-                  Dapatkan Tips, Video Resep & Promo Terbaru!
+                  {language === 'EN' ? 'Get Latest Tips, Video Recipes & Promos!' : language === 'MS' ? 'Dapatkan Petua, Video Resipi & Promo Terkini!' : 'Dapatkan Tips, Video Resep & Promo Terbaru!'}
                 </h3>
               </div>
 

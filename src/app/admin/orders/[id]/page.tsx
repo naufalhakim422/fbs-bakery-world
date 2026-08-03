@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { recordAuditLog } from '@/lib/audit';
@@ -9,10 +9,11 @@ import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
 import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 export default function AdminOrderDetailPage() {
   const params = useParams();
-  const router = useRouter();
+  const { t, language } = useLanguage();
   const id = params?.id as string;
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -68,9 +69,9 @@ export default function AdminOrderDetailPage() {
   if (!order) {
     return (
       <div className="p-8 text-center bg-white rounded-3xl border border-stone-200">
-        <h2 className="font-serif text-xl font-bold text-[#800020]">Order Not Found</h2>
+        <h2 className="font-serif text-xl font-bold text-[#800020]">{t.adminExtra.orderNotFound}</h2>
         <Link href="/admin/orders" className="mt-4 inline-block px-5 py-2.5 bg-[#800020] text-white text-xs font-bold rounded-xl">
-          Back to Order List
+          {t.adminExtra.orderBackToList}
         </Link>
       </div>
     );
@@ -102,7 +103,7 @@ export default function AdminOrderDetailPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <Link href="/admin/orders" className="inline-flex items-center gap-1 text-xs font-bold text-[#800020] hover:underline">
-          <ArrowLeft className="w-4 h-4" /> Back to Orders List
+          <ArrowLeft className="w-4 h-4" /> {t.adminExtra.orderBackToList}
         </Link>
 
         <a
@@ -111,7 +112,7 @@ export default function AdminOrderDetailPage() {
           rel="noopener noreferrer"
           className="px-4 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
         >
-          <MessageCircle className="w-4 h-4 fill-white" /> Send Tracking Info via WhatsApp
+          <MessageCircle className="w-4 h-4 fill-white" /> {t.adminExtra.orderChatCustomer}
         </a>
       </div>
 
@@ -125,7 +126,7 @@ export default function AdminOrderDetailPage() {
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div>
                 <span className="text-xs text-stone-500 block flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5" /> Order Placed: {new Date(order.createdAt).toLocaleString()}
+                  <Calendar className="w-3.5 h-3.5" /> {language === 'EN' ? 'Order Placed' : language === 'MS' ? 'Pesanan Dibuat' : 'Pesanan Dibuat'}: {new Date(order.createdAt).toLocaleString()}
                 </span>
                 <h1 className="font-serif text-2xl font-bold text-[#800020]">{order.orderNumber}</h1>
               </div>
@@ -138,7 +139,7 @@ export default function AdminOrderDetailPage() {
               <div className="flex items-start gap-2">
                 <User className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block text-stone-900">Customer Name & Phone:</strong>
+                  <strong className="block text-stone-900">{t.adminExtra.orderCustomerName}</strong>
                   <span>{order.customerName} ({order.customerPhone})</span>
                 </div>
               </div>
@@ -146,14 +147,14 @@ export default function AdminOrderDetailPage() {
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block text-stone-900">Delivery Address:</strong>
+                  <strong className="block text-stone-900">{t.adminExtra.orderDeliveryAddress}</strong>
                   <span>{order.address}, {order.city}, {order.postcode}, {order.state}</span>
                 </div>
               </div>
 
               {order.notes && (
                 <div className="p-3 bg-[#FFF8F0] rounded-xl border border-[#EADBC8] text-stone-700">
-                  <strong className="block text-[#800020]">Customer Note:</strong>
+                  <strong className="block text-[#800020]">{t.adminExtra.orderCustomerNote}</strong>
                   <span>{order.notes}</span>
                 </div>
               )}
@@ -161,7 +162,7 @@ export default function AdminOrderDetailPage() {
 
             {/* Items Purchased List */}
             <div className="pt-4 border-t border-stone-100 space-y-3">
-              <h3 className="font-serif text-base font-bold text-stone-900">Items Ordered</h3>
+              <h3 className="font-serif text-base font-bold text-stone-900">{t.adminExtra.orderItemsOrdered}</h3>
               <div className="space-y-2">
                 {order.items.map(item => (
                   <div key={item.id} className="flex justify-between items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl border border-stone-200">
@@ -171,7 +172,7 @@ export default function AdminOrderDetailPage() {
                       )}
                       <div>
                         <span className="font-bold text-stone-900 block">{item.productName}</span>
-                        <span className="text-[11px] text-stone-500">Variant: {item.variantName} x {item.quantity}</span>
+                        <span className="text-[11px] text-stone-500">{t.adminExtra.variant}: {item.variantName} x {item.quantity}</span>
                       </div>
                     </div>
                     <span className="font-bold text-[#800020]">{formatMYR(item.subtotal)}</span>
@@ -180,7 +181,7 @@ export default function AdminOrderDetailPage() {
               </div>
 
               <div className="pt-2 text-right">
-                <span className="text-xs text-stone-500 block">Total Order Amount</span>
+                <span className="text-xs text-stone-500 block">{t.adminExtra.orderTotal}</span>
                 <span className="font-serif text-2xl font-extrabold text-[#800020]">{formatMYR(order.totalAmount)}</span>
               </div>
             </div>
@@ -192,12 +193,12 @@ export default function AdminOrderDetailPage() {
         {/* Right Column: Resi Input & Status Management */}
         <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-md h-fit space-y-4 text-xs">
           <h2 className="font-serif text-lg font-bold text-[#800020] border-b border-stone-100 pb-2 flex items-center gap-2">
-            <Truck className="w-5 h-5 text-[#800020]" /> Dispatch & Courier Resi Input
+            <Truck className="w-5 h-5 text-[#800020]" /> {language === 'EN' ? 'Dispatch & Courier Tracking Input' : language === 'MS' ? 'Penghantaran & Input Resi Kurier' : 'Dispatch & Input Resi Kurir'}
           </h2>
 
           <form onSubmit={handleSaveStatus} className="space-y-4">
             <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">Update Order Status</label>
+              <label className="block font-bold text-stone-700 uppercase mb-1">{t.adminExtra.orderUpdateStatus}</label>
               <select
                 value={orderStatus}
                 onChange={(e) => setOrderStatus(e.target.value as OrderStatus)}
@@ -210,7 +211,7 @@ export default function AdminOrderDetailPage() {
             </div>
 
             <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">Shipping Courier Expedition</label>
+              <label className="block font-bold text-stone-700 uppercase mb-1">{language === 'EN' ? 'Shipping Courier' : language === 'MS' ? 'Kurier Penghantaran' : 'Ekspedisi Pengiriman'}</label>
               <select
                 value={courierName}
                 onChange={(e) => setCourierName(e.target.value)}
@@ -271,11 +272,11 @@ export default function AdminOrderDetailPage() {
             >
               {isSaved ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4" /> Status & Resi Saved!
+                  <CheckCircle2 className="w-4 h-4" /> {language === 'EN' ? 'Status & Tracking Saved!' : language === 'MS' ? 'Status & Resi Disimpan!' : 'Status & Resi Tersimpan!'}
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4" /> Save Status & Resi Number
+                  <Save className="w-4 h-4" /> {t.adminExtra.orderSaveTracking}
                 </>
               )}
             </button>

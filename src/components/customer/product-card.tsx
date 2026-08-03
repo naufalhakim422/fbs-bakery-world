@@ -17,7 +17,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, viewMode = 'grid' }) => {
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     product.variants && product.variants.length > 0 ? product.variants[0] : {
       id: 'default',
@@ -150,7 +150,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
 
           {/* Variant Selector */}
           <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-semibold text-stone-500 mr-1">Weight / Size:</span>
+            <span className="text-[11px] font-semibold text-stone-500 mr-1">{language === 'EN' ? 'Weight / Size:' : language === 'MS' ? 'Berat / Saiz:' : 'Berat / Ukuran:'}</span>
             {product.variants.map((variant) => (
               <button
                 key={variant.id}
@@ -188,7 +188,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
             >
               {isAdded ? (
                 <>
-                  <Check className="w-3.5 h-3.5" /> Added!
+                  <Check className="w-3.5 h-3.5" /> {language === 'EN' ? 'Added!' : language === 'MS' ? 'Ditambah!' : 'Ditambahkan!'}
                 </>
               ) : (
                 <>
@@ -287,8 +287,8 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
         {/* Weight Variant Selector */}
         <div className="mt-4 pt-3 border-t border-stone-100">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-semibold text-stone-500">Select Weight / Size:</span>
-            <span className="text-xs font-bold text-emerald-700">In Stock</span>
+            <span className="text-[11px] font-semibold text-stone-500">{language === 'EN' ? 'Select Weight / Size:' : language === 'MS' ? 'Pilih Berat / Saiz:' : 'Pilih Berat / Ukuran:'}</span>
+            <span className="text-xs font-bold text-emerald-700">{language === 'EN' ? 'In Stock' : language === 'MS' ? 'Ada Stok' : 'Stok Tersedia'}</span>
           </div>
 
           <div className="flex flex-wrap gap-1.5 mb-3">

@@ -306,7 +306,7 @@ export default function AdminDashboardPage() {
       <div className="bg-gradient-to-r from-[#4A1313] via-[#800020] to-[#5A0015] text-[#FFF8F0] p-6 sm:p-8 rounded-3xl shadow-xl border border-[#D4AF37]/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
         <div className="space-y-2 z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/15 text-[11px] font-bold text-[#D4AF37]">
-            <Sparkles className="w-3.5 h-3.5" /> LIVE STORE METRICS OVERVIEW
+            <Sparkles className="w-3.5 h-3.5" /> {t.adminExtra.liveMetrics}
           </div>
           <h1 className="font-serif text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
             {t.adminDashboard?.welcome || 'Welcome to Admin Portal'}
@@ -438,63 +438,75 @@ export default function AdminDashboardPage() {
         {/* Revenue Today Card */}
         <div className="bg-gradient-to-br from-[#800020] to-[#5a0017] p-5 rounded-3xl text-white shadow-md flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#F7E7CE]">REVENUE HARI INI</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#F7E7CE]">
+              {t.adminExtra.revenueToday}
+            </span>
             <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-[#D4AF37]">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <h4 className="font-serif text-2xl font-black text-white">{formatMYR(revenueToday)}</h4>
-            <span className="text-[10px] text-white/80 font-medium">Hari ini ({todayStr})</span>
+            <span className="text-[10px] text-white/80 font-medium">
+              {t.adminExtra.today} ({todayStr})
+            </span>
           </div>
         </div>
 
         {/* Revenue This Month Card */}
         <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">REVENUE BULAN INI</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+              {t.adminExtra.revenueMonth}
+            </span>
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <h4 className="font-serif text-2xl font-black text-stone-900">{formatMYR(revenueThisMonth)}</h4>
-            <span className="text-[10px] text-stone-500 font-medium">Bulan Ini ({currentMonthStr})</span>
+            <span className="text-[10px] text-stone-500 font-medium">
+              {t.adminExtra.thisMonth} ({currentMonthStr})
+            </span>
           </div>
         </div>
 
         {/* Best Selling Product Card */}
         <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">PRODUK TERLARIS</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+              {t.adminExtra.bestSeller}
+            </span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <h4 className="font-bold text-sm text-stone-900 truncate">
-              {bestSellingProduct ? bestSellingProduct.productName : 'Belum Ada Data'}
+              {bestSellingProduct ? bestSellingProduct.productName : t.adminExtra.noDataYet}
             </h4>
             <span className="text-[10px] text-amber-700 font-extrabold block">
-              {bestSellingProduct ? `${bestSellingProduct.totalSold || 0} Terjual` : '-'}
+              {bestSellingProduct ? `${bestSellingProduct.totalSold || 0} ${t.adminExtra.sold}` : '-'}
             </span>
           </div>
         </div>
 
         {/* Low Stock Product Card */}
-        <Link href="/admin/products" className="bg-white p-5 rounded-3xl border border-stone-200 hover:border-rose-300 shadow-sm transition-all flex flex-col justify-between group">
+        <Link href="/admin/products" className="bg-[#800020]/5 p-5 rounded-3xl border border-[#800020]/20 hover:border-rose-300 shadow-sm transition-all flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 group-hover:text-rose-600">STOK MENIPIS</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 group-hover:text-rose-600">
+              {t.adminExtra.lowStock}
+            </span>
             <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <h4 className="font-serif text-2xl font-black text-stone-900 group-hover:text-rose-600">
-              {lowStockProductsList.length} <span className="text-xs font-normal text-stone-400">Produk</span>
+              {lowStockProductsList.length} <span className="text-xs font-normal text-stone-400">{t.adminExtra.products}</span>
             </h4>
             <span className="text-[10px] text-rose-600 font-bold block">
-              {lowStockProductsList.length > 0 ? 'Perlu Restok Segera →' : 'Stok Aman'}
+              {lowStockProductsList.length > 0 ? t.adminExtra.restockRequired : t.adminExtra.stockHealthy}
             </span>
           </div>
         </Link>
@@ -516,11 +528,11 @@ export default function AdminDashboardPage() {
                     <TrendingUp className="w-4 h-4" />
                   </span>
                   <h3 className="font-serif text-lg font-extrabold text-stone-900">
-                    {language === 'ID' ? 'Grafik Analitik Omset & Penjualan Interaktif' : language === 'MS' ? 'Grafik Analitik Jualan & Hasil Interaktif' : 'Interactive Sales & Revenue Analytics Chart'}
+                    {t.adminExtra.chartTitle}
                   </h3>
                 </div>
                 <p className="text-stone-500 text-xs mt-0.5">
-                  {language === 'ID' ? 'Klik titik grafik atau bar mana saja untuk melihat rincian transaksi instan.' : language === 'MS' ? 'Klik sebarang titik carta atau bar untuk melihat butiran transaksi segera.' : 'Click any chart point or bar to view instant transaction details.'}
+                  {t.adminExtra.chartSubtitle}
                 </p>
               </div>
 
@@ -533,7 +545,7 @@ export default function AdminDashboardPage() {
                     timeRange === '7D' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  {language === 'ID' ? '7 Hari' : language === 'MS' ? '7 Hari' : '7 Days'}
+                  {t.adminExtra.days7}
                 </button>
                 <button
                   type="button"
@@ -542,7 +554,7 @@ export default function AdminDashboardPage() {
                     timeRange === '30D' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  {language === 'ID' ? '30 Hari' : language === 'MS' ? '30 Hari' : '30 Days'}
+                  {t.adminExtra.days30}
                 </button>
                 <button
                   type="button"
@@ -551,7 +563,7 @@ export default function AdminDashboardPage() {
                     timeRange === '1Y' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  {language === 'ID' ? '1 Tahun' : language === 'MS' ? '1 Tahun' : '1 Year'}
+                  {t.adminExtra.year1}
                 </button>
                 <button
                   type="button"
@@ -560,7 +572,7 @@ export default function AdminDashboardPage() {
                     timeRange === 'CUSTOM' ? 'bg-[#800020] text-[#D4AF37] shadow' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  <Calendar className="w-3.5 h-3.5" /> {language === 'ID' ? 'Kalender' : language === 'MS' ? 'Kalendar' : 'Calendar'}
+                  <Calendar className="w-3.5 h-3.5" /> {t.adminExtra.calendar}
                 </button>
               </div>
             </div>
@@ -569,7 +581,7 @@ export default function AdminDashboardPage() {
             {timeRange === 'CUSTOM' && (
               <div className="flex flex-wrap items-center gap-3 p-3 bg-amber-50/80 rounded-2xl border border-amber-200 text-xs animate-fade-in">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-amber-900">Dari Tanggal:</span>
+                  <span className="font-bold text-amber-900">{t.adminExtra.fromDate}</span>
                   <input
                     type="date"
                     value={startDate}
@@ -578,7 +590,7 @@ export default function AdminDashboardPage() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-amber-900">Sampai Tanggal:</span>
+                  <span className="font-bold text-amber-900">{t.adminExtra.toDate}</span>
                   <input
                     type="date"
                     value={endDate}
@@ -587,7 +599,7 @@ export default function AdminDashboardPage() {
                   />
                 </div>
                 <span className="text-[11px] text-amber-800 font-medium">
-                  ✓ Grafik otomatis diperbarui sesuai tanggal terpilih
+                  {t.adminExtra.chartAutoUpdate}
                 </span>
               </div>
             )}
@@ -643,8 +655,8 @@ export default function AdminDashboardPage() {
                     {/* Tooltip on Hover */}
                     <div className="absolute -top-14 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none bg-stone-900 text-white text-[10px] py-1.5 px-3 rounded-xl shadow-xl border border-stone-700 whitespace-nowrap z-30 flex flex-col items-center">
                       <span className="font-extrabold text-[#D4AF37]">{formatMYR(pt.omset)}</span>
-                      <span className="text-[9px] text-stone-300">{pt.ordersCount} Transaksi</span>
-                      <span className="text-[8px] text-emerald-400 font-bold mt-0.5">Klik untuk Rincian →</span>
+                      <span className="text-[9px] text-stone-300">{pt.ordersCount} {t.adminExtra.ordersLabel}</span>
+                      <span className="text-[8px] text-emerald-400 font-bold mt-0.5">{t.adminExtra.viewDetailOrder} →</span>
                     </div>
 
                     {/* Pulsing Glowing Circle Point */}
@@ -678,19 +690,19 @@ export default function AdminDashboardPage() {
           {/* Quick Summary Pill Footer (Calculated Dynamic Totals) */}
           <div className="grid grid-cols-3 gap-3 pt-3 border-t border-stone-100 text-center text-xs">
             <div className="p-2.5 bg-stone-50 rounded-2xl border border-stone-200">
-              <span className="text-[10px] text-stone-500 font-bold uppercase block">Total Omset Filtered</span>
+              <span className="text-[10px] text-stone-500 font-bold uppercase block">{t.adminExtra.totalOmset}</span>
               <strong className="text-[#800020] font-serif font-extrabold text-sm sm:text-base">
                 {formatMYR(totalOmsetFiltered)}
               </strong>
             </div>
             <div className="p-2.5 bg-stone-50 rounded-2xl border border-stone-200">
-              <span className="text-[10px] text-stone-500 font-bold uppercase block">Total Order Filtered</span>
+              <span className="text-[10px] text-stone-500 font-bold uppercase block">{t.adminExtra.totalOrders}</span>
               <strong className="text-emerald-700 font-serif font-extrabold text-sm sm:text-base">
-                {totalOrdersFiltered} Order
+                {totalOrdersFiltered} {t.adminExtra.order}
               </strong>
             </div>
             <div className="p-2.5 bg-stone-50 rounded-2xl border border-stone-200">
-              <span className="text-[10px] text-stone-500 font-bold uppercase block">Rata-Rata Order</span>
+              <span className="text-[10px] text-stone-500 font-bold uppercase block">{t.adminExtra.avgOrder}</span>
               <strong className="text-amber-800 font-serif font-extrabold text-sm sm:text-base">
                 {formatMYR(totalOrdersFiltered > 0 ? totalOmsetFiltered / totalOrdersFiltered : 0)}
               </strong>
@@ -706,11 +718,11 @@ export default function AdminDashboardPage() {
                 <Layers className="w-4 h-4" />
               </span>
               <h3 className="font-serif text-lg font-extrabold text-stone-900">
-                Distribusi Kategori & Status
+                {language === 'EN' ? 'Category & Status Distribution' : language === 'MS' ? 'Taburan Kategori & Status' : 'Distribusi Kategori & Status'}
               </h3>
             </div>
             <p className="text-stone-500 text-xs mt-0.5">
-              Persentase penjualan produk & pemrosesan resi.
+              {language === 'EN' ? 'Sales percentage by product category & tracking status.' : language === 'MS' ? 'Peratusan jualan produk & pemprosesan resi.' : 'Persentase penjualan produk & pemrosesan resi.'}
             </p>
           </div>
 
@@ -735,7 +747,7 @@ export default function AdminDashboardPage() {
 
             {/* Inner Center Label */}
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-[10px] font-bold text-stone-400 uppercase">PRODUK LALU</span>
+              <span className="text-[10px] font-bold text-stone-400 uppercase">{language === 'EN' ? 'ALL PRODUCTS' : 'PRODUK LALU'}</span>
               <span className="font-serif text-2xl font-black text-[#800020]">100%</span>
               <span className="text-[9px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">HALAL</span>
             </div>
@@ -773,8 +785,8 @@ export default function AdminDashboardPage() {
             <Wallet className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="font-serif font-extrabold text-lg text-white">Laporan Arus Kas & Analisis Keuangan (Cashflow)</h3>
-            <p className="text-stone-300 text-xs mt-0.5">Kelola jurnal kas masuk, pengeluaran HPP, operasional gudang, dan laba bersih di halaman menu terpisah.</p>
+            <h3 className="font-serif font-extrabold text-lg text-white">{t.adminCashflow.title}</h3>
+            <p className="text-stone-300 text-xs mt-0.5">{t.adminCashflow.subtitle}</p>
           </div>
         </div>
 
@@ -782,7 +794,7 @@ export default function AdminDashboardPage() {
           href="/admin/cashflow"
           className="px-5 py-3 bg-[#D4AF37] hover:bg-amber-400 text-[#800020] font-black text-xs rounded-2xl shadow-md transition-transform active:scale-95 flex items-center gap-2 whitespace-nowrap self-start sm:self-auto"
         >
-          Buka Laporan Arus Kas <ArrowRight className="w-4 h-4" />
+          {t.adminCashflow.title} <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
 
@@ -794,15 +806,15 @@ export default function AdminDashboardPage() {
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-xs font-extrabold text-amber-900">Perhatian Admin: Pesanan Baru Perlu Konfirmasi Resi</h4>
-              <p className="text-[11px] text-amber-700 mt-0.5">Terdapat {pendingOrders.length} pesanan baru dari pelanggan yang perlu diproses dan dimasukkan nomor resinya.</p>
+              <h4 className="text-xs font-extrabold text-amber-900">{language === 'EN' ? 'Admin Notice: New Orders Need Tracking Confirmation' : language === 'MS' ? 'Perhatian Admin: Pesanan Baru Perlu Pengesahan Resi' : 'Perhatian Admin: Pesanan Baru Perlu Konfirmasi Resi'}</h4>
+              <p className="text-[11px] text-amber-700 mt-0.5">{language === 'EN' ? `There are ${pendingOrders.length} new customer orders that need to be processed and assigned tracking numbers.` : language === 'MS' ? `Terdapat ${pendingOrders.length} pesanan baru daripada pelanggan yang perlu diproses dan dimasukkan nombor resi.` : `Terdapat ${pendingOrders.length} pesanan baru dari pelanggan yang perlu diproses dan dimasukkan nomor resinya.`}</p>
             </div>
           </div>
           <Link 
             href="/admin/orders" 
             className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow transition-colors whitespace-nowrap"
           >
-            Kelola Resi Pesanan →
+            {t.adminExtra.manageResi}
           </Link>
         </div>
       )}
@@ -817,7 +829,7 @@ export default function AdminDashboardPage() {
           <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
             <Layers className="w-5 h-5" />
           </div>
-          <span className="text-xs font-bold text-stone-800 block">Kategori</span>
+          <span className="text-xs font-bold text-stone-800 block">{t.adminExtra.shortcutCategories}</span>
         </Link>
 
         <Link 
@@ -827,7 +839,7 @@ export default function AdminDashboardPage() {
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-[#800020] flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
             <ChefHat className="w-5 h-5" />
           </div>
-          <span className="text-xs font-bold text-stone-800 block">Resep & Video</span>
+          <span className="text-xs font-bold text-stone-800 block">{t.adminExtra.shortcutRecipes}</span>
         </Link>
 
         <Link 
@@ -837,7 +849,7 @@ export default function AdminDashboardPage() {
           <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
             <BookOpen className="w-5 h-5" />
           </div>
-          <span className="text-xs font-bold text-stone-800 block">Blog CMS</span>
+          <span className="text-xs font-bold text-stone-800 block">{t.adminExtra.shortcutBlogs}</span>
         </Link>
 
         <Link 
@@ -847,7 +859,7 @@ export default function AdminDashboardPage() {
           <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
             <Tag className="w-5 h-5" />
           </div>
-          <span className="text-xs font-bold text-stone-800 block">Voucher Diskon</span>
+          <span className="text-xs font-bold text-stone-800 block">{t.adminExtra.shortcutVouchers}</span>
         </Link>
 
         <Link 
@@ -857,7 +869,7 @@ export default function AdminDashboardPage() {
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
             <Users className="w-5 h-5" />
           </div>
-          <span className="text-xs font-bold text-stone-800 block">CRM Pelanggan</span>
+          <span className="text-xs font-bold text-stone-800 block">{t.adminExtra.shortcutCustomers}</span>
         </Link>
 
         <Link 
@@ -867,7 +879,7 @@ export default function AdminDashboardPage() {
           <div className="w-10 h-10 rounded-xl bg-stone-100 text-stone-700 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
             <Settings className="w-5 h-5" />
           </div>
-          <span className="text-xs font-bold text-stone-800 block">Pengaturan</span>
+          <span className="text-xs font-bold text-stone-800 block">{t.adminExtra.shortcutSettings}</span>
         </Link>
 
       </div>
@@ -876,14 +888,14 @@ export default function AdminDashboardPage() {
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-stone-100 pb-4 gap-2">
           <div>
-            <h3 className="font-serif text-lg font-bold text-stone-900">Pesanan WhatsApp Terbaru</h3>
-            <p className="text-stone-500 text-xs">Daftar transaksi masuk dari katalog produk toko.</p>
+            <h3 className="font-serif text-lg font-bold text-stone-900">{t.adminExtra.recentWAOrders}</h3>
+            <p className="text-stone-500 text-xs">{t.adminExtra.recentWAOrdersSub}</p>
           </div>
           <Link 
             href="/admin/orders" 
             className="text-xs font-bold text-[#800020] hover:underline flex items-center gap-1"
           >
-            Lihat Semua Pesanan <ArrowRight className="w-4 h-4" />
+            {t.adminExtra.viewAllOrders} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
@@ -891,12 +903,12 @@ export default function AdminDashboardPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-stone-50 text-stone-500 border-b border-stone-200 uppercase tracking-wider text-[11px] font-bold">
-                <th className="p-3.5">FOTO & ITEM PRODUK</th>
-                <th className="p-3.5">NO. PESANAN</th>
-                <th className="p-3.5">PELANGGAN WHATSAPP</th>
-                <th className="p-3.5">TOTAL PEMBAYARAN</th>
-                <th className="p-3.5">STATUS & RESI</th>
-                <th className="p-3.5 text-right">AKSI ADMIN</th>
+                <th className="p-3.5">{t.adminExtra.thPhotoProduct}</th>
+                <th className="p-3.5">{t.adminExtra.thOrderNumber}</th>
+                <th className="p-3.5">{t.adminExtra.thWACustomer}</th>
+                <th className="p-3.5">{t.adminExtra.thTotalPayment}</th>
+                <th className="p-3.5">{t.adminExtra.thStatusResi}</th>
+                <th className="p-3.5 text-right">{t.adminExtra.thAdminAction}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 text-stone-700">
@@ -921,10 +933,10 @@ export default function AdminDashboardPage() {
                         </div>
                         <div className="max-w-[180px]">
                           <span className="font-extrabold text-stone-900 block truncate">
-                            {firstItem ? firstItem.productName : 'Paket Bahan Kue'}
+                            {firstItem ? firstItem.productName : t.adminExtra.bakingPackage}
                           </span>
                           <span className="text-[11px] text-stone-500 block truncate">
-                            {firstItem ? `Varian: ${firstItem.variantName}` : `${o.items?.length || 1} Item`}
+                            {firstItem ? `${t.adminExtra.variant}: ${firstItem.variantName}` : `${o.items?.length || 1} ${t.adminExtra.item}`}
                           </span>
                         </div>
                       </div>
@@ -961,7 +973,7 @@ export default function AdminDashboardPage() {
                       <span className="font-serif font-black text-stone-900 text-sm block">
                         {formatMYR(o.totalAmount)}
                       </span>
-                      <span className="text-[10px] text-emerald-600 font-bold">✓ Terverifikasi</span>
+                      <span className="text-[10px] text-emerald-600 font-bold">✓ {language === 'EN' ? 'Verified' : language === 'MS' ? 'Disahkan' : 'Terverifikasi'}</span>
                     </td>
 
                     {/* COL 5: STATUS & RESI */}
@@ -977,7 +989,7 @@ export default function AdminDashboardPage() {
                           {o.courierName}: {o.trackingNumber}
                         </span>
                       ) : (
-                        <span className="block text-[10px] text-amber-700 italic">Belum Diisi Resi</span>
+                        <span className="block text-[10px] text-amber-700 italic">{t.adminExtra.pendingResi}</span>
                       )}
                     </td>
 
@@ -987,7 +999,7 @@ export default function AdminDashboardPage() {
                         href={`/admin/orders/${o.id}`}
                         className="px-3.5 py-1.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow transition-all inline-flex items-center gap-1 active:scale-95"
                       >
-                        Update Resi <ArrowRight className="w-3.5 h-3.5" />
+                        {t.adminExtra.processOrder} <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </td>
                   </tr>
@@ -1018,7 +1030,7 @@ export default function AdminDashboardPage() {
                   RINCIAN CHART ANALITIK
                 </span>
                 <h3 className="font-serif text-xl font-extrabold text-stone-900">
-                  Periode: {selectedModalPoint.label} ({selectedModalPoint.dateStr})
+                  {language === 'EN' ? 'Period' : 'Periode'}: {selectedModalPoint.label} ({selectedModalPoint.dateStr})
                 </h3>
               </div>
             </div>
@@ -1026,22 +1038,22 @@ export default function AdminDashboardPage() {
             {/* Metrics Breakdown Grid */}
             <div className="grid grid-cols-2 gap-3 text-center">
               <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200">
-                <span className="text-[10px] text-amber-800 font-bold uppercase block">Total Omset Periode Ini</span>
+                <span className="text-[10px] text-amber-800 font-bold uppercase block">{t.adminExtra.totalOmset}</span>
                 <strong className="text-[#800020] font-serif font-black text-xl">
                   {formatMYR(selectedModalPoint.omset)}
                 </strong>
               </div>
               <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200">
-                <span className="text-[10px] text-emerald-800 font-bold uppercase block">Jumlah Transaksi</span>
+                <span className="text-[10px] text-emerald-800 font-bold uppercase block">{t.adminExtra.totalOrders}</span>
                 <strong className="text-emerald-900 font-serif font-black text-xl">
-                  {selectedModalPoint.ordersCount} Order
+                  {selectedModalPoint.ordersCount} {t.adminExtra.order}
                 </strong>
               </div>
             </div>
 
             {/* List of Orders in this point if any */}
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-              <span className="text-xs font-bold text-stone-700 block">Daftar Transaksi Terkait:</span>
+              <span className="text-xs font-bold text-stone-700 block">{language === 'EN' ? 'Related Transactions:' : language === 'MS' ? 'Transaksi Berkaitan:' : 'Daftar Transaksi Terkait:'}</span>
               {selectedModalPoint.ordersList.length > 0 ? (
                 selectedModalPoint.ordersList.map(o => (
                   <div key={o.id} className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex justify-between items-center text-xs">
@@ -1054,7 +1066,7 @@ export default function AdminDashboardPage() {
                 ))
               ) : (
                 <p className="text-xs text-stone-500 italic p-3 bg-stone-50 rounded-xl border border-dashed border-stone-200">
-                  Proyeksi performa riwayat transaksi sesuai estimasi periode toko.
+                  {t.adminExtra.noDataPeriod}
                 </p>
               )}
             </div>
@@ -1064,7 +1076,7 @@ export default function AdminDashboardPage() {
                 href="/admin/orders"
                 className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow transition-colors flex items-center gap-1.5"
               >
-                Lihat Manajemen Pesanan Lengkap <ArrowRight className="w-4 h-4" />
+                {t.adminExtra.viewAllOrders} <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
@@ -1073,8 +1085,8 @@ export default function AdminDashboardPage() {
 
       <ConfirmModal
         isOpen={confirmDeleteOpen}
-        title="Hapus Pencatatan Pengeluaran?"
-        message="Pencatatan pengeluaran kas ini akan dihapus permanen. Apakah Anda yakin?"
+        title={language === 'EN' ? 'Delete Expense Record?' : language === 'MS' ? 'Padam Rekod Perbelanjaan?' : 'Hapus Pencatatan Pengeluaran?'}
+        message={language === 'EN' ? 'This expense record will be permanently deleted. Are you sure?' : language === 'MS' ? 'Rekod perbelanjaan ini akan dipadamkan secara kekal. Adakah anda pasti?' : 'Pencatatan pengeluaran kas ini akan dihapus permanen. Apakah Anda yakin?'}
         type="danger"
         onConfirm={executeDeleteExpense}
         onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}

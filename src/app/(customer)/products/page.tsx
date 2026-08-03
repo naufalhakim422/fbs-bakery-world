@@ -13,7 +13,7 @@ import { ProductCard } from '@/components/customer/product-card';
 import { Search, RefreshCw, Layers, LayoutGrid, List, SlidersHorizontal, Check } from 'lucide-react';
 
 function CatalogContent() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const selectedCatParam = searchParams.get('category') || '';
   const initialSearchParam = searchParams.get('search') || '';
@@ -138,13 +138,13 @@ function CatalogContent() {
         <div className="space-y-1.5 max-w-2xl text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 border border-black/10 text-black text-[11px] font-extrabold tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-            KATALOG TOKO ROTI FBS
+            {language === 'EN' ? 'FBS BAKERY CATALOG' : language === 'MS' ? 'KATALOG KEDAI ROTI FBS' : 'KATALOG TOKO ROTI FBS'}
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-black text-black tracking-tight leading-tight">
-            Perlengkapan & Bahan Kue
+            {language === 'EN' ? 'Baking Supplies & Ingredients' : language === 'MS' ? 'Bekalan & Bahan Bakeri' : 'Perlengkapan & Bahan Kue'}
           </h1>
           <p className="text-stone-700 text-xs sm:text-sm leading-relaxed font-medium">
-            Telusuri pilihan lengkap kami yang terdiri dari tepung, cokelat, mentega, hiasan, dan peralatan dengan berbagai pilihan berat.
+            {language === 'EN' ? 'Browse our complete selection of flours, chocolates, butter, decorations, and tools with various weight options.' : language === 'MS' ? 'Semak pilihan lengkap tepung, coklat, mentega, hiasan, dan peralatan kami dengan pelbagai pilihan berat.' : 'Telusuri pilihan lengkap kami yang terdiri dari tepung, cokelat, mentega, hiasan, dan peralatan dengan berbagai pilihan berat.'}
           </p>
         </div>
 
@@ -152,7 +152,7 @@ function CatalogContent() {
         <div className="w-full md:w-80 relative group">
           <input 
             type="text"
-            placeholder="Cari produk, merek, atau bahan..."
+            placeholder={t.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-4 py-3 bg-white border border-black/20 rounded-2xl text-xs text-black placeholder-stone-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black/20 shadow-sm transition-all duration-300"
@@ -177,7 +177,7 @@ function CatalogContent() {
                   : 'bg-stone-100/80 text-stone-700 hover:bg-stone-200/80 hover:text-stone-900'
               }`}
             >
-              All Products
+              {t.common.allCategories}
             </button>
             {categories.map((cat) => (
               <button
@@ -209,7 +209,7 @@ function CatalogContent() {
               <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${halalOnly ? 'bg-white text-emerald-800' : 'border border-stone-400'}`}>
                 {halalOnly && <Check className="w-3 h-3 stroke-[3]" />}
               </div>
-              <span>Halal Only</span>
+              <span>{t.common.halalOnly}</span>
             </button>
 
             {/* Ready Stock Filter Pill */}
@@ -224,7 +224,7 @@ function CatalogContent() {
               <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${inStockOnly ? 'bg-white text-blue-800' : 'border border-stone-400'}`}>
                 {inStockOnly && <Check className="w-3 h-3 stroke-[3]" />}
               </div>
-              <span>Ready Stock</span>
+              <span>{language === 'EN' ? 'Ready Stock' : language === 'MS' ? 'Stok Sedia Ada' : 'Stok Tersedia'}</span>
             </button>
 
             {/* New Arrival Filter Pill */}
@@ -239,7 +239,7 @@ function CatalogContent() {
               <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${newArrivalOnly ? 'bg-white text-amber-600' : 'border border-stone-400'}`}>
                 {newArrivalOnly && <Check className="w-3 h-3 stroke-[3]" />}
               </div>
-              <span>New Arrival</span>
+              <span>{language === 'EN' ? 'New Arrival' : language === 'MS' ? 'Produk Baharu' : 'Produk Baru'}</span>
             </button>
 
             {/* Sort Select Dropdown */}
@@ -248,12 +248,12 @@ function CatalogContent() {
               onChange={(e) => setSortBy(e.target.value as any)}
               className="px-3 py-1.5 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 bg-stone-50 hover:bg-white focus:outline-none focus:border-[#800020] transition-colors"
             >
-              <option value="featured">Featured Order</option>
-              <option value="price-asc">Harga Termurah</option>
-              <option value="price-desc">Harga Termahal</option>
-              <option value="newest">Terbaru</option>
-              <option value="bestseller">Bestseller</option>
-              <option value="name-asc">Nama A-Z</option>
+              <option value="featured">{language === 'EN' ? 'Featured Order' : language === 'MS' ? 'Susunan Utama' : 'Pilihan Utamakan'}</option>
+              <option value="price-asc">{language === 'EN' ? 'Price: Low to High' : language === 'MS' ? 'Harga: Rendah ke Tinggi' : 'Harga Termurah'}</option>
+              <option value="price-desc">{language === 'EN' ? 'Price: High to Low' : language === 'MS' ? 'Harga: Tinggi ke Rendah' : 'Harga Termahal'}</option>
+              <option value="newest">{language === 'EN' ? 'Newest' : language === 'MS' ? 'Terkini' : 'Terbaru'}</option>
+              <option value="bestseller">{language === 'EN' ? 'Bestseller' : language === 'MS' ? 'Terlaris' : 'Bestseller'}</option>
+              <option value="name-asc">{language === 'EN' ? 'Name A-Z' : language === 'MS' ? 'Nama A-Z' : 'Nama A-Z'}</option>
             </select>
 
             {/* INTEGRATED MODERN GRID / LIST VIEW TOGGLE BUTTONS */}
@@ -283,11 +283,11 @@ function CatalogContent() {
             </div>
 
             {/* Reset Filter Icon */}
-            {(selectedCategory || searchQuery || halalOnly) && (
+            {(selectedCategory || searchQuery || halalOnly || inStockOnly || newArrivalOnly) && (
               <button
                 onClick={handleResetFilters}
                 className="p-1.5 text-stone-500 hover:text-red-600 rounded-xl border border-stone-200 hover:border-red-300 transition-colors"
-                title="Reset Filters"
+                title={t.common.reset}
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
@@ -303,13 +303,13 @@ function CatalogContent() {
       {searchQuery.trim() && (
         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between">
           <p className="text-xs text-amber-900 font-bold">
-            Hasil pencarian untuk &quot;<span className="text-[#800020]">{searchQuery}</span>&quot;: <span className="font-extrabold">{filteredProducts.length} produk ditemukan</span>
+            {language === 'EN' ? 'Search results for' : language === 'MS' ? 'Hasil carian untuk' : 'Hasil pencarian untuk'} &quot;<span className="text-[#800020]">{searchQuery}</span>&quot;: <span className="font-extrabold">{filteredProducts.length} {language === 'EN' ? 'products found' : language === 'MS' ? 'produk dijumpai' : 'produk ditemukan'}</span>
           </p>
           <button
             onClick={() => setSearchQuery('')}
             className="text-xs font-bold text-red-600 hover:underline"
           >
-            Hapus Kata Kunci
+            {language === 'EN' ? 'Clear Keyword' : language === 'MS' ? 'Padam Kata Kunci' : 'Hapus Kata Kunci'}
           </button>
         </div>
       )}
@@ -320,15 +320,15 @@ function CatalogContent() {
           <div className="w-16 h-16 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto mb-4">
             <Search className="w-8 h-8" />
           </div>
-          <h3 className="font-serif text-xl font-bold text-[#800020]">Produk tidak ditemukan</h3>
+          <h3 className="font-serif text-xl font-bold text-[#800020]">{t.common.noResults}</h3>
           <p className="text-stone-500 text-xs mt-1 max-w-sm mx-auto">
-            Tidak ada produk baking yang cocok dengan pencarian &quot;{searchQuery}&quot;. Coba kata kunci lain seperti &quot;flour&quot;, &quot;matcha&quot;, &quot;butter&quot;, atau &quot;chocolate&quot;.
+            {language === 'EN' ? `No baking products match your search query "${searchQuery}". Try another keyword like flour, matcha, butter, or chocolate.` : language === 'MS' ? `Tiada produk bakeri yang sepadan dengan carian "${searchQuery}". Cuba kata kunci lain seperti tepung, matcha, mentega, atau coklat.` : `Tidak ada produk baking yang cocok dengan pencarian "${searchQuery}". Coba kata kunci lain seperti flour, matcha, butter, atau chocolate.`}
           </p>
           <button
             onClick={handleResetFilters}
             className="mt-4 px-5 py-2.5 bg-[#800020] text-white text-xs font-bold rounded-xl shadow"
           >
-            Reset Pencarian
+            {t.common.reset}
           </button>
         </div>
       ) : (

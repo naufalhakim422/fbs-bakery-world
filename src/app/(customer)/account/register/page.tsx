@@ -19,7 +19,7 @@ import FacebookButton from '@/components/auth/facebook-button';
 
 export default function CustomerRegisterPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -115,7 +115,7 @@ export default function CustomerRegisterPage() {
               <UserPlus className="w-7 h-7" />
             </div>
             <span className="text-xs font-bold text-[#800020] uppercase tracking-widest block mb-1">
-              NEW CUSTOMER REGISTRATION
+              {language === 'EN' ? 'NEW CUSTOMER REGISTRATION' : language === 'MS' ? 'PENDAFTARAN PELANGGAN BAHARU' : 'PENDAFTARAN PELANGGAN BARU'}
             </span>
             <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2B1B1B]">
               {t.customerAccount.registerTitle}
@@ -225,11 +225,11 @@ export default function CustomerRegisterPage() {
                   <span className={`text-[10px] font-bold block ${
                     passwordValidation.valid ? 'text-emerald-600' : 'text-stone-500'
                   }`}>
-                    {passwordValidation.valid ? '✓ Password memenuhi syarat keamanan (8-12+ karakter)' : 'Kriteria password:'}
+                    {passwordValidation.valid ? (language === 'EN' ? '✓ Password meets security requirements (8-12+ characters)' : language === 'MS' ? '✓ Kata laluan memenuhi syarat keselamatan (8-12+ aksara)' : '✓ Password memenuhi syarat keamanan (8-12+ karakter)') : (language === 'EN' ? 'Password Criteria:' : language === 'MS' ? 'Kriteria Kata Laluan:' : 'Kriteria password:')}
                   </span>
                   {!passwordValidation.valid && (
                     <p className="text-[10px] text-stone-500">
-                      Minimal 8-12 karakter (disarankan huruf besar & angka).
+                      {language === 'EN' ? 'Minimum 8-12 characters (uppercase & numbers recommended).' : language === 'MS' ? 'Sekurang-kurangnya 8-12 aksara (disyorkan huruf besar & nombor).' : 'Minimal 8-12 karakter (disarankan huruf besar & angka).'}
                     </p>
                   )}
                 </div>

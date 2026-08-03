@@ -77,7 +77,7 @@ export default function BlogListPage() {
         <div className="text-left pt-2 pb-6 mb-4 space-y-1.5 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 border border-black/10 text-black text-[11px] font-extrabold tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-            FBS BAKING EDUCATION & VIDEOS
+            {language === 'EN' ? 'FBS BAKING EDUCATION & VIDEOS' : language === 'MS' ? 'PENDIDIKAN & VIDEO BAKERI FBS' : 'EDUKASI & VIDEO BAKERY FBS'}
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-black text-black tracking-tight">
             {langTexts.title}
@@ -279,21 +279,21 @@ export default function BlogListPage() {
                 {/* Direct Link Banner if Video requires permissions or external viewing */}
                 {selectedVideo.embedUrl.startsWith('http') && !parsed.isDirectVideo && (
                   <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#800020]/30 border border-[#D4AF37]/30 text-stone-200 text-xs">
-                    <span>Video tidak bisa diputar? Tonton langsung di {selectedVideo.platform}:</span>
+                    <span>{language === 'EN' ? `Video cannot play? Watch directly on ${selectedVideo.platform}:` : language === 'MS' ? `Video tidak boleh dimainkan? Tonton secara langsung di ${selectedVideo.platform}:` : `Video tidak bisa diputar? Tonton langsung di ${selectedVideo.platform}:`}</span>
                     <a
                       href={selectedVideo.embedUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-3 py-1 bg-[#D4AF37] text-[#800020] font-bold rounded-lg hover:brightness-110 transition-all text-[11px] flex items-center gap-1 shrink-0"
                     >
-                      Buka Video ↗
+                      {language === 'EN' ? 'Open Video ↗' : language === 'MS' ? 'Buka Video ↗' : 'Buka Video ↗'}
                     </a>
                   </div>
                 )}
 
                 {/* Minimalist Luxury Description Card */}
                 <div className="bg-stone-900/60 p-4 rounded-2xl border border-stone-800/80 text-xs sm:text-sm text-stone-300 leading-relaxed max-h-32 overflow-y-auto space-y-1 backdrop-blur-sm">
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Description</span>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">{language === 'EN' ? 'Description' : language === 'MS' ? 'Penerangan' : 'Deskripsi'}</span>
                   <p className="whitespace-pre-line text-stone-200">{selectedVideo.description}</p>
                 </div>
               </div>

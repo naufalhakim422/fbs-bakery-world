@@ -46,8 +46,8 @@ export default function AdminOrdersPage() {
       {/* Header */}
       <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-stone-900">Order Management</h1>
-          <p className="text-xs text-stone-500 mt-0.5">Manage customer WhatsApp orders, verify payments, and issue courier resi tracking numbers.</p>
+          <h1 className="font-serif text-2xl font-bold text-stone-900">{t.adminExtra.ordersTitle}</h1>
+          <p className="text-xs text-stone-500 mt-0.5">{t.adminExtra.ordersSubtitle}</p>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export default function AdminOrdersPage() {
               statusFilter === 'ALL' ? 'bg-[#800020] text-white shadow' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
             }`}
           >
-            All Orders ({orders.length})
+            {t.common.all} ({orders.length})
           </button>
           {statuses.map(s => {
             const count = orders.filter(o => o.orderStatus === s).length;
@@ -81,7 +81,7 @@ export default function AdminOrdersPage() {
         <div className="relative">
           <input 
             type="text"
-            placeholder="Search by Order Number (#FBS-...), Customer Name, or Phone..."
+            placeholder={t.adminOrders.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
@@ -96,19 +96,19 @@ export default function AdminOrdersPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-stone-50 text-stone-600 border-b border-stone-200 uppercase tracking-wider font-bold text-[11px]">
-                <th className="p-4">FOTO & PRODUK DIBELI</th>
-                <th className="p-4">NO. PESANAN</th>
-                <th className="p-4">PELANGGAN WHATSAPP</th>
-                <th className="p-4">TOTAL BAYAR</th>
-                <th className="p-4">STATUS & RESI</th>
-                <th className="p-4 text-right">AKSI ADMIN</th>
+                <th className="p-4">{t.adminExtra.ordersThPhoto}</th>
+                <th className="p-4">{t.adminExtra.ordersThOrderNo}</th>
+                <th className="p-4">{t.adminExtra.ordersThCustomer}</th>
+                <th className="p-4">{t.adminExtra.ordersThTotal}</th>
+                <th className="p-4">{t.adminExtra.ordersThStatus}</th>
+                <th className="p-4 text-right">{t.adminExtra.ordersThAction}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-8 text-center text-stone-500">
-                    No orders match your filter criteria.
+                    {t.adminExtra.ordersNoOrders}
                   </td>
                 </tr>
               ) : (
@@ -133,10 +133,10 @@ export default function AdminOrdersPage() {
                           </div>
                           <div className="max-w-[200px]">
                             <span className="font-extrabold text-stone-900 block truncate">
-                              {firstItem ? firstItem.productName : 'Paket Bahan Kue'}
+                              {firstItem ? firstItem.productName : t.adminExtra.bakingPackage}
                             </span>
                             <span className="text-[11px] text-stone-500 block truncate">
-                              {firstItem ? `Varian: ${firstItem.variantName}` : `${o.items?.length || 1} Item`}
+                              {firstItem ? `${t.adminExtra.variant}: ${firstItem.variantName}` : `${o.items?.length || 1} ${t.adminExtra.item}`}
                             </span>
                           </div>
                         </div>
@@ -187,7 +187,7 @@ export default function AdminOrdersPage() {
                             {o.courierName}: {o.trackingNumber}
                           </span>
                         ) : (
-                          <span className="block text-[10px] text-amber-700 italic">Resi Pending</span>
+                          <span className="block text-[10px] text-amber-700 italic">{t.adminExtra.ordersResiPending}</span>
                         )}
                       </td>
 
@@ -197,7 +197,7 @@ export default function AdminOrdersPage() {
                           href={`/admin/orders/${o.id}`}
                           className="px-3.5 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow inline-flex items-center gap-1 transition-all active:scale-95"
                         >
-                          Kelola Resi <ArrowRight className="w-3.5 h-3.5" />
+                          {t.adminExtra.processOrder} <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                       </td>
                     </tr>

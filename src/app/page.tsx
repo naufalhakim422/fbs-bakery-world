@@ -287,7 +287,7 @@ export default function HomePage() {
         <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
-              Curated Collections
+              {language === 'EN' ? 'Curated Collections' : language === 'MS' ? 'Koleksi Terpilih' : 'Koleksi Pilihan'}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2B1B1B]">
               {t.sections.featuredTitle}
@@ -328,7 +328,7 @@ export default function HomePage() {
               href="/products" 
               className="px-6 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-2"
             >
-              Lihat Semua Katalog <ArrowRight className="w-4 h-4" />
+              {language === 'EN' ? 'View Full Catalog' : language === 'MS' ? 'Lihat Semua Katalog' : 'Lihat Semua Katalog'} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -343,7 +343,7 @@ export default function HomePage() {
         <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-16">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-[#D4AF37] font-serif font-bold text-sm block mb-1 uppercase tracking-widest">
-              Top Rated Selection
+              {language === 'EN' ? 'Top Rated Selection' : language === 'MS' ? 'Pilihan Teratas' : 'Pilihan Terbaik'}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2B1B1B]">
               {t.sections.bestsellerTitle}
@@ -364,13 +364,13 @@ export default function HomePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
-              COMMERCIAL BULK DEALS
+              {language === 'EN' ? 'COMMERCIAL BULK DEALS' : language === 'MS' ? 'PAKEJ PUKAL KOMERSIAL' : 'PAKET GROSIR KOMERSIAL'}
             </span>
             <h2 className="font-serif text-3xl font-bold text-[#2B1B1B]">
-              {homeCms.promoTitle || 'Pasokan Grosir & Diskon Komersial Baker'}
+              {homeCms.promoTitle || (language === 'EN' ? 'Baker Wholesale Supply & Bulk Discounts' : language === 'MS' ? 'Bekalan Pukal & Diskaun Komersial Baker' : 'Pasokan Grosir & Diskon Komersial Baker')}
             </h2>
             <p className="text-stone-500 text-xs sm:text-sm mt-1">
-              {homeCms.promoSubtitle || 'Dapatkan penawaran harga spesial untuk pembelian karung 5kg & 25kg.'}
+              {homeCms.promoSubtitle || (language === 'EN' ? 'Get special discounted pricing for 5kg & 25kg sacks.' : language === 'MS' ? 'Dapatkan tawaran harga khas untuk pembelian guni 5kg & 25kg.' : 'Dapatkan penawaran harga spesial untuk pembelian karung 5kg & 25kg.')}
             </p>
             <div className="w-16 h-1 bg-[#D4AF37] mx-auto mt-3 rounded-full" />
           </div>
@@ -379,10 +379,10 @@ export default function HomePage() {
             const list = homeCms.wholesaleBanners && homeCms.wholesaleBanners.length > 0 ? homeCms.wholesaleBanners : [
               {
                 id: 'wpromo-1',
-                title: homeCms.promoTitle || 'Diskon Komersial & Pasokan Grosir Baker',
-                subtitle: homeCms.promoSubtitle || 'Dapatkan penawaran harga spesial untuk pembelian karung 5kg & 25kg.',
+                title: homeCms.promoTitle || (language === 'EN' ? 'Baker Wholesale Supply & Bulk Discounts' : language === 'MS' ? 'Bekalan Pukal & Diskaun Komersial Baker' : 'Pasokan Grosir & Diskon Komersial Baker'),
+                subtitle: homeCms.promoSubtitle || (language === 'EN' ? 'Get special discounted pricing for 5kg & 25kg sacks.' : language === 'MS' ? 'Dapatkan tawaran harga khas untuk pembelian guni 5kg & 25kg.' : 'Dapatkan penawaran harga spesial untuk pembelian karung 5kg & 25kg.'),
                 imageUrl: homeCms.promoImage || 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=800&auto=format&fit=crop',
-                buttonText: 'MINTA KATALOG GROSIR WA',
+                buttonText: language === 'EN' ? 'REQUEST WHOLESALE CATALOG' : language === 'MS' ? 'MINTA KATALOG PUKAL WA' : 'MINTA KATALOG GROSIR WA',
                 buttonLink: `https://wa.me/${cleanWaNumber}?text=Halo%20FBS%20Bakery,%20saya%20ingin%20minta%20katalog%20grosir`,
               }
             ];
@@ -408,7 +408,7 @@ export default function HomePage() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                       />
                       <span className="absolute top-3 left-3 px-2.5 py-1 bg-[#D4AF37] text-[#800020] text-[9px] font-black rounded-lg uppercase tracking-wider shadow">
-                        PROMO GROSIR
+                        {language === 'EN' ? 'BULK PROMO' : language === 'MS' ? 'PROMO PUKAL' : 'PROMO GROSIR'}
                       </span>
                     </div>
 
@@ -428,7 +428,7 @@ export default function HomePage() {
                         rel="noopener noreferrer"
                         className="w-full py-2.5 px-4 bg-gradient-to-r from-[#D4AF37] via-[#F7E7CE] to-[#D4AF37] hover:brightness-110 text-[#4A0010] font-serif font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 uppercase tracking-wide group/btn text-center"
                       >
-                        <span>{promo.buttonText || 'LIHAT PROMO'}</span>
+                        <span>{promo.buttonText || (language === 'EN' ? 'VIEW PROMO' : 'LIHAT PROMO')}</span>
                         <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
                       </a>
                     </div>
@@ -445,17 +445,17 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
               <div>
                 <span className="text-xs font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
-                  {language === 'ID' ? 'KUMPULAN ARTIKEL' : language === 'MS' ? 'KUMPULAN ARTIKEL' : 'BAKING GUIDES'}
+                  {language === 'EN' ? 'BAKING GUIDES' : 'KUMPULAN ARTIKEL'}
                 </span>
                 <h2 className="font-serif text-3xl font-bold text-[#2B1B1B]">
-                  {language === 'ID' ? 'Artikel Edukasi Terbaru' : language === 'MS' ? 'Artikel Edukasi Terbaru' : 'Latest Educational Articles'}
+                  {language === 'EN' ? 'Latest Educational Articles' : language === 'MS' ? 'Artikel Edukasi Terkini' : 'Artikel Edukasi Terbaru'}
                 </h2>
               </div>
               <Link 
                 href="/blog?tab=articles" 
                 className="px-6 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-2"
               >
-                {language === 'ID' ? 'Lihat Semua Artikel' : language === 'MS' ? 'Lihat Semua Artikel' : 'View All Articles'} <ArrowRight className="w-4 h-4" />
+                {language === 'EN' ? 'View All Articles' : language === 'MS' ? 'Lihat Semua Artikel' : 'Lihat Semua Artikel'} <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
@@ -490,7 +490,7 @@ export default function HomePage() {
                         href={`/blog/${article.slug}`}
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-[#800020] hover:underline"
                       >
-                        {language === 'ID' ? 'Baca Selengkapnya' : language === 'MS' ? 'Baca Selengkapnya' : 'Read Full Article'} <ArrowRight className="w-3.5 h-3.5" />
+                        {language === 'EN' ? 'Read Full Article' : language === 'MS' ? 'Baca Artikel Penuh' : 'Baca Selengkapnya'} <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   </div>
@@ -506,23 +506,22 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
               <div>
                 <span className="text-xs font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
-                  {language === 'ID' ? 'TUTORIAL VIDEO' : language === 'MS' ? 'TUTORIAL VIDEO' : 'VIDEO SHOWCASE'}
+                  {language === 'EN' ? 'VIDEO SHOWCASE' : 'TUTORIAL VIDEO'}
                 </span>
                 <h2 className="font-serif text-3xl font-bold text-[#2B1B1B]">
-                  {language === 'ID' ? 'Video & Tutorial Terbaru' : language === 'MS' ? 'Video & Tutorial Terbaru' : 'Latest Videos & Tutorials'}
+                  {language === 'EN' ? 'Latest Videos & Tutorials' : language === 'MS' ? 'Video & Tutorial Terkini' : 'Video & Tutorial Terbaru'}
                 </h2>
               </div>
               <Link 
                 href="/blog" 
                 onClick={() => {
-                  // Switch tab programmatically if needed by custom query or state
                   if (typeof window !== 'undefined') {
                     localStorage.setItem('fbs_blog_active_tab', 'videos');
                   }
                 }}
                 className="px-6 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-2"
               >
-                {language === 'ID' ? 'Lihat Semua Video' : language === 'MS' ? 'Lihat Semua Video' : 'View All Videos'} <ArrowRight className="w-4 h-4" />
+                {language === 'EN' ? 'View All Videos' : language === 'MS' ? 'Lihat Semua Video' : 'Lihat Semua Video'} <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
@@ -570,7 +569,7 @@ export default function HomePage() {
                         onClick={() => setSelectedVideo(video)}
                         className="px-3 py-1 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-[10px] font-bold rounded-lg border border-[#D4AF37]/30 flex items-center gap-1 shadow"
                       >
-                        <PlayCircle className="w-3.5 h-3.5" /> {language === 'ID' ? 'Tonton' : language === 'MS' ? 'Tonton' : 'Watch'}
+                        <PlayCircle className="w-3.5 h-3.5" /> {language === 'EN' ? 'Watch' : 'Tonton'}
                       </button>
                     </div>
                   </div>
@@ -596,7 +595,7 @@ export default function HomePage() {
                 <button 
                   onClick={() => setSelectedVideo(null)} 
                   className="absolute top-4 right-4 p-2 bg-stone-900/90 hover:bg-[#800020] text-stone-300 hover:text-[#D4AF37] rounded-full border border-stone-800 hover:border-[#D4AF37]/50 shadow-xl transition-all z-50 group"
-                  title="Close Video"
+                  title={t.common.close}
                 >
                   <X className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
                 </button>
@@ -637,21 +636,21 @@ export default function HomePage() {
                 {/* Direct Link Banner if Video requires permissions or external viewing */}
                 {selectedVideo.embedUrl.startsWith('http') && !parsed.isDirectVideo && (
                   <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#800020]/30 border border-[#D4AF37]/30 text-stone-200 text-xs">
-                    <span>Video tidak bisa diputar? Tonton langsung di {selectedVideo.platform}:</span>
+                    <span>{language === 'EN' ? `Video cannot play? Watch directly on ${selectedVideo.platform}:` : language === 'MS' ? `Video tidak boleh dimainkan? Tonton di ${selectedVideo.platform}:` : `Video tidak bisa diputar? Tonton langsung di ${selectedVideo.platform}:`}</span>
                     <a
                       href={selectedVideo.embedUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-3 py-1 bg-[#D4AF37] text-[#800020] font-bold rounded-lg hover:brightness-110 transition-all text-[11px] flex items-center gap-1 shrink-0"
                     >
-                      Buka Video ↗
+                      {language === 'EN' ? 'Open Video ↗' : 'Buka Video ↗'}
                     </a>
                   </div>
                 )}
 
                 {/* Minimalist Luxury Description Card */}
                 <div className="bg-stone-900/60 p-4 rounded-2xl border border-stone-800/80 text-xs sm:text-sm text-stone-300 leading-relaxed max-h-32 overflow-y-auto space-y-1 backdrop-blur-sm">
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Description</span>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">{language === 'EN' ? 'Description' : language === 'MS' ? 'Keterangan' : 'Deskripsi'}</span>
                   <p className="whitespace-pre-line text-stone-200">{selectedVideo.description}</p>
                 </div>
               </div>
@@ -666,8 +665,8 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <span className="text-xs font-bold text-[#800020] uppercase tracking-widest block mb-1">Personalized For You</span>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2B1B1B]">Recently Viewed</h2>
+                <span className="text-xs font-bold text-[#800020] uppercase tracking-widest block mb-1">{language === 'EN' ? 'Personalized For You' : language === 'MS' ? 'Khas Untuk Anda' : 'Khusus Untuk Anda'}</span>
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2B1B1B]">{language === 'EN' ? 'Recently Viewed' : language === 'MS' ? 'Baru Dilihat' : 'Terakhir Dilihat'}</h2>
               </div>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">

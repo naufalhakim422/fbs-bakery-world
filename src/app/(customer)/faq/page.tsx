@@ -9,28 +9,28 @@ import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { HelpCircle } from 'lucide-react';
 
 export default function FAQPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const faqs = [
     {
-      q: 'How does ordering work on FBS Bakery World?',
-      a: 'Browse our catalog, select your desired packaging size (e.g. 500g, 1kg, 5kg, 25kg), add items to cart, and click "Checkout via WhatsApp". The website automatically generates your Order ID and formatted WhatsApp order summary for instant confirmation with our admin team.'
+      q: language === 'EN' ? 'How does ordering work on FBS Bakery World?' : language === 'MS' ? 'Bagaimanakah pesanan berfungsi di FBS Bakery World?' : 'Bagaimana cara pemesanan di FBS Bakery World?',
+      a: language === 'EN' ? 'Browse our catalog, select your desired packaging size (e.g. 500g, 1kg, 5kg, 25kg), add items to cart, and click "Checkout via WhatsApp". The website automatically generates your Order ID and formatted WhatsApp order summary for instant confirmation with our admin team.' : language === 'MS' ? 'Terokai katalog kami, pilih saiz pembungkusan (cth: 500g, 1kg, 5kg, 25kg), tambah ke troli, dan klik "Checkout via WhatsApp". Laman web menjana Nombor Pesanan dan ringkasan WhatsApp secara automatik.' : 'Jelajahi katalog kami, pilih ukuran kemasan (misal 500g, 1kg, 5kg, 25kg), tambahkan ke keranjang, dan klik "Checkout via WhatsApp". Website otomatis membuat ID Pesanan dan ringkasan WhatsApp.'
     },
     {
-      q: 'Are all baking ingredients Halal certified?',
-      a: 'Yes! We prioritize 100% Halal certified products. Every flour, chocolate, butter, yeast, and food color is verified with official Halal certification.'
+      q: language === 'EN' ? 'Are all baking ingredients Halal certified?' : language === 'MS' ? 'Adakah semua bahan bakeri disahkan Halal?' : 'Apakah semua bahan baking tersertifikasi Halal?',
+      a: language === 'EN' ? 'Yes! We prioritize 100% Halal certified products. Every flour, chocolate, butter, yeast, and food color is verified with official Halal certification.' : language === 'MS' ? 'Ya! Kami mengutamakan produk 100% disahkan Halal. Setiap tepung, coklat, mentega, dan pewarna disahkan dengan sijil Halal rasmi.' : 'Ya! Kami memprioritaskan 100% produk tersertifikasi Halal. Setiap tepung, cokelat, mentega, dan pewarna telah diverifikasi.'
     },
     {
-      q: 'How do I pay for my order?',
-      a: 'After reviewing your order on WhatsApp, our admin team will confirm final stock availability, delivery fees, and provide manual payment details (Instant Bank Transfer / QR Pay).'
+      q: language === 'EN' ? 'How do I pay for my order?' : language === 'MS' ? 'Bagaimanakah saya membayar pesanan saya?' : 'Bagaimana cara membayar pesanan saya?',
+      a: language === 'EN' ? 'After reviewing your order on WhatsApp, our admin team will confirm final stock availability, delivery fees, and provide manual payment details (Instant Bank Transfer / QR Pay).' : language === 'MS' ? 'Semasa menyemak pesanan di WhatsApp, pasukan admin kami akan mengesahkan stok, caj penghantaran, dan memberikan butiran pembayaran (Pindahan Bank / QR Pay).' : 'Setelah memeriksa pesanan di WhatsApp, tim admin akan mengonfirmasi stok, ongkir, dan memberikan detail pembayaran bank / QR Pay.'
     },
     {
-      q: 'How do I track my delivery status?',
-      a: 'Go to the "Track Order" page on our website, enter your Order ID (e.g. #FBS-20260728-101) and WhatsApp phone number to view live status updates and your courier resi tracking number (J&T Express, Ninja Van, Pos Laju).'
+      q: language === 'EN' ? 'How do I track my delivery status?' : language === 'MS' ? 'Bagaimanakah cara menjejak status penghantaran saya?' : 'Bagaimana cara melacak status pengiriman saya?',
+      a: language === 'EN' ? 'Go to the "Track Order" page on our website, enter your Order ID (e.g. #FBS-20260728-101) and WhatsApp phone number to view live status updates and your courier resi tracking number (J&T Express, Ninja Van, Pos Laju).' : language === 'MS' ? 'Pergi ke halaman "Jejak Pesanan", masukkan Nombor Pesanan dan nombor telefon WhatsApp anda untuk melihat kemas kini status dan nombor resi kurier.' : 'Buka halaman "Lacak Pesanan", masukkan ID Pesanan dan nomor WhatsApp Anda untuk melihat pembaruan status dan nomor resi kurir.'
     },
     {
-      q: 'Do you offer bulk wholesale prices for cafes and bakeries?',
-      a: 'Yes, we supply commercial 5kg and 25kg bulk packaging for bakery businesses, cafes, and restaurants. Contact our admin via WhatsApp for custom wholesale rates.'
+      q: language === 'EN' ? 'Do you offer bulk wholesale prices for cafes and bakeries?' : language === 'MS' ? 'Adakah anda menawarkan harga borong pukal untuk kafe dan kedai roti?' : 'Apakah ada harga grosir untuk kafe dan bakery?',
+      a: language === 'EN' ? 'Yes, we supply commercial 5kg and 25kg bulk packaging for bakery businesses, cafes, and restaurants. Contact our admin via WhatsApp for custom wholesale rates.' : language === 'MS' ? 'Ya, kami membekalkan pembungkusan pukal 5kg dan 25kg komersial untuk perniagaan bakeri, kafe, dan restoran. Hubungi admin kami melalui WhatsApp.' : 'Ya, kami menyediakan kemasan komersial 5kg dan 25kg untuk bisnis bakery, kafe, dan restoran. Hubungi admin kami via WhatsApp.'
     }
   ];
 

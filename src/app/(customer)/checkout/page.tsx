@@ -34,7 +34,7 @@ import {
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, subtotal, totalItems, clearCart } = useCart();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { showToast } = useNotification();
   const [settings, setSettings] = useState(db.getStoreSettings());
 
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
       setVoucherError(errMsg);
       setAppliedVoucher(null);
       setDiscountAmount(0);
-      showToast('Voucher Tidak Sah', errMsg, 'error');
+      showToast(language === 'EN' ? 'Invalid Voucher' : 'Voucher Tidak Sah', errMsg, 'error');
       return;
     }
 
@@ -137,7 +137,7 @@ export default function CheckoutPage() {
       setVoucherError(errMsg);
       setAppliedVoucher(null);
       setDiscountAmount(0);
-      showToast('Syarat Kelayakan', errMsg, 'error');
+      showToast(language === 'EN' ? 'Min Spend Requirement' : 'Syarat Kelayakan', errMsg, 'error');
       return;
     }
 
@@ -150,7 +150,7 @@ export default function CheckoutPage() {
 
     setAppliedVoucher(found);
     setDiscountAmount(calculatedDiscount);
-    showToast('Voucher Berjaya!', `Diskaun Penjimatan ${formatMYR(calculatedDiscount)} Terpakai.`, 'voucher');
+    showToast(language === 'EN' ? 'Voucher Applied!' : language === 'MS' ? 'Voucher Berjaya!' : 'Voucher Berhasil!', `${language === 'EN' ? 'Savings discount' : 'Diskaun Penjimatan'} ${formatMYR(calculatedDiscount)}`, 'voucher');
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -211,7 +211,7 @@ export default function CheckoutPage() {
 
       newOrder.whatsappUrl = waLink;
       setCreatedOrder(newOrder);
-      showToast('Pesanan Berjaya!', `Pesanan ${newOrder.orderNumber} telah direkodkan.`, 'success');
+      showToast(language === 'EN' ? 'Order Placed!' : language === 'MS' ? 'Pesanan Berjaya!' : 'Pesanan Berhasil!', `${newOrder.orderNumber}`, 'success');
 
       // 3. Clear cart
       clearCart();
@@ -286,7 +286,7 @@ export default function CheckoutPage() {
                 onClick={() => setIsInvoiceOpen(true)}
                 className="flex-1 py-3.5 bg-[#D4AF37] hover:bg-amber-400 text-[#800020] font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
               >
-                <Printer className="w-4 h-4" /> Cetak Invoice PDF
+                <Printer className="w-4 h-4" /> {language === 'EN' ? 'Print PDF Invoice' : language === 'MS' ? 'Cetak Invois PDF' : 'Cetak Invoice PDF'}
               </button>
               <Link
                 href={`/track-order?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}&phone=${encodeURIComponent(createdOrder.customerPhone)}`}

@@ -57,7 +57,7 @@ export const Footer: React.FC = () => {
           {/* Column 2 (Middle): FIND US ON / CARI KAMI */}
           <div className="lg:col-span-4 space-y-5" suppressHydrationWarning>
             <h3 className="font-sans font-extrabold text-sm sm:text-base uppercase tracking-widest text-[#F7E7CE] border-b-2 border-[#D4AF37]/40 pb-1.5 inline-block">
-              {language === 'ID' || language === 'MS' ? 'CARI KAMI DI' : 'FIND US ON'}
+              {language === 'EN' ? 'FIND US ON' : language === 'MS' ? 'CARI KAMI DI' : 'CARI KAMI DI'}
             </h3>
 
             <div className="space-y-4 text-xs sm:text-sm text-[#E8D5C0]">
@@ -124,38 +124,38 @@ export const Footer: React.FC = () => {
           {/* Column 3 (Right): HELP & SUPPORT / BANTUAN & DUKUNGAN */}
           <div className="lg:col-span-3 space-y-5">
             <h3 className="font-sans font-extrabold text-sm sm:text-base uppercase tracking-widest text-[#F7E7CE] border-b-2 border-[#D4AF37]/40 pb-1.5 inline-block">
-              {language === 'ID' || language === 'MS' ? 'BANTUAN & DUKUNGAN' : 'HELP & SUPPORT'}
+              {language === 'EN' ? 'HELP & SUPPORT' : language === 'MS' ? 'BANTUAN & SOKONGAN' : 'BANTUAN & DUKUNGAN'}
             </h3>
 
             <ul className="space-y-2 text-xs sm:text-sm text-[#C4A882] font-medium">
               <li>
                 <Link href="/contact#faq" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
-                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Cara Memesan' : 'How To Order'}
+                  <span className="text-[#D4AF37]">›</span> {language === 'EN' ? 'How To Order' : 'Cara Memesan'}
                 </Link>
               </li>
               <li>
                 <Link href="/contact#shipping" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
-                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Ketentuan Pengiriman' : 'Shipping Terms'}
+                  <span className="text-[#D4AF37]">›</span> {language === 'EN' ? 'Shipping Terms' : language === 'MS' ? 'Terma Penghantaran' : 'Syarat Pengiriman'}
                 </Link>
               </li>
               <li>
                 <Link href="/contact#payment" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
-                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Metode Pembayaran' : 'Payment Method'}
+                  <span className="text-[#D4AF37]">›</span> {language === 'EN' ? 'Payment Method' : language === 'MS' ? 'Kaedah Pembayaran' : 'Metode Pembayaran'}
                 </Link>
               </li>
               <li>
                 <Link href="/track-order" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
-                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Lacak Pesanan (Tracking)' : 'Track Order Status'}
+                  <span className="text-[#D4AF37]">›</span> {language === 'EN' ? 'Track Order Status' : language === 'MS' ? 'Jejak Pesanan' : 'Lacak Pesanan'}
                 </Link>
               </li>
               <li>
                 <Link href="/contact#refund" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
-                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Kebijakan Pengembalian' : 'Return & Refund Policy'}
+                  <span className="text-[#D4AF37]">›</span> {language === 'EN' ? 'Return & Refund Policy' : language === 'MS' ? 'Polisi Pemulangan' : 'Kebijakan Pengembalian'}
                 </Link>
               </li>
               <li>
                 <Link href="/faq" className="hover:text-[#F7E7CE] transition-colors block py-0.5 flex items-center gap-1.5">
-                  <span className="text-[#D4AF37]">›</span> {language === 'ID' || language === 'MS' ? 'Pertanyaan Umum (FAQ)' : 'Frequently Asked Questions'}
+                  <span className="text-[#D4AF37]">›</span> {language === 'EN' ? 'Frequently Asked Questions' : language === 'MS' ? 'Soalan Lazim (FAQ)' : 'Pertanyaan Umum (FAQ)'}
                 </Link>
               </li>
             </ul>
@@ -210,9 +210,13 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Copyright Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#8B6F5C] gap-3">
-          <p>© 2026 <strong className="text-[#F7E7CE]">FBS BAKERY WORLD</strong>. All rights reserved.</p>
+          <p>© 2026 <strong className="text-[#F7E7CE]">FBS BAKERY WORLD</strong>. {language === 'EN' ? 'All rights reserved.' : language === 'MS' ? 'Hak cipta terpelihara.' : 'Hak cipta dilindungi.'}</p>
           <p className="text-[11px] text-[#A0876F]">
-            Certified Halal Baking Supply Partner Malaysia & Indonesia
+            {language === 'EN' 
+              ? 'Certified Halal Baking Supply Partner Malaysia & Indonesia' 
+              : language === 'MS' 
+              ? 'Rakan Bekalan Bakery Halal Beriktiraf Malaysia & Indonesia' 
+              : 'Mitra Bahan Kue Halal Terverifikasi Malaysia & Indonesia'}
           </p>
         </div>
 

@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 function TrackOrderContent() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const initialOrderNum = searchParams.get('orderNumber') || '';
   const initialPhone = searchParams.get('phone') || '';
@@ -66,11 +66,31 @@ function TrackOrderContent() {
   }, [initialOrderNum, initialPhone, orderNumber, phone]);
 
   const timelineSteps: { key: OrderStatus; label: string; desc: string }[] = [
-    { key: 'NEW', label: 'Pending (Order Received)', desc: 'Order received & waiting payment confirmation' },
-    { key: 'CONFIRMED', label: 'Processing (Confirmed)', desc: 'Payment & stock verified by store admin' },
-    { key: 'PROCESSING', label: 'Packed & Prepared', desc: 'Bakery items packaged with care' },
-    { key: 'SHIPPED', label: 'Shipped (Dispatched)', desc: 'Courier resi tracking issued' },
-    { key: 'DELIVERED', label: 'Delivered', desc: 'Package delivered to recipient' },
+    { 
+      key: 'NEW', 
+      label: language === 'EN' ? 'Pending (Order Received)' : language === 'MS' ? 'Menunggu (Pesanan Diterima)' : 'Pending (Pesanan Diterima)', 
+      desc: language === 'EN' ? 'Order received & waiting payment confirmation' : language === 'MS' ? 'Pesanan diterima & menunggu pengesahan pembayaran' : 'Pesanan diterima & menunggu konfirmasi pembayaran' 
+    },
+    { 
+      key: 'CONFIRMED', 
+      label: language === 'EN' ? 'Processing (Confirmed)' : language === 'MS' ? 'Diproses (Disahkan)' : 'Diproses (Dikonfirmasi)', 
+      desc: language === 'EN' ? 'Payment & stock verified by store admin' : language === 'MS' ? 'Pembayaran & stok disahkan oleh admin kedai' : 'Pembayaran & stok diverifikasi oleh admin toko' 
+    },
+    { 
+      key: 'PROCESSING', 
+      label: language === 'EN' ? 'Packed & Prepared' : language === 'MS' ? 'Dibungkus & Disediakan' : 'Dikemas & Disiapkan', 
+      desc: language === 'EN' ? 'Bakery items packaged with care' : language === 'MS' ? 'Bahan bakeri dibungkus dengan kemas' : 'Bahan bakery dikemas dengan rapi' 
+    },
+    { 
+      key: 'SHIPPED', 
+      label: language === 'EN' ? 'Shipped (Dispatched)' : language === 'MS' ? 'Dihantar (Diserah)' : 'Dikirim (Diserahkan)', 
+      desc: language === 'EN' ? 'Courier resi tracking issued' : language === 'MS' ? 'Nombor resi kurier dikeluarkan' : 'Nomor resi kurir telah diterbitkan' 
+    },
+    { 
+      key: 'DELIVERED', 
+      label: language === 'EN' ? 'Delivered' : language === 'MS' ? 'Diterima' : 'Selesai / Diterima', 
+      desc: language === 'EN' ? 'Package delivered to recipient' : language === 'MS' ? 'Pakej dihantar kepada penerima' : 'Paket telah diterima pemesan' 
+    },
   ];
 
   const getStepIndex = (status: OrderStatus) => {
@@ -93,10 +113,10 @@ function TrackOrderContent() {
           <PackageCheck className="w-7 h-7" />
         </div>
         <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#800020]">
-          Track Parcel & Order Status
+          {language === 'EN' ? 'Track Parcel & Order Status' : language === 'MS' ? 'Jejak Status Penghantaran & Pesanan' : 'Lacak Status Paket & Pesanan'}
         </h1>
         <p className="text-stone-600 text-xs sm:text-sm mt-1">
-          Enter your Order ID (e.g., <span className="font-bold text-[#800020]">#FBS-20260728-101</span>) and phone number to view live delivery updates.
+          {language === 'EN' ? 'Enter your Order ID (e.g. #FBS-20260728-101) and phone number to view live delivery updates.' : language === 'MS' ? 'Masukkan Nombor Pesanan (cth #FBS-20260728-101) dan nombor telefon untuk melihat kemas kini.' : 'Masukkan ID Pesanan (misal #FBS-20260728-101) dan nomor telepon untuk melihat pembaruan.'}
         </p>
       </div>
 
@@ -106,7 +126,7 @@ function TrackOrderContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                Order ID / Number <span className="text-red-600">*</span>
+                {t.checkout.orderStatus} ID / Number <span className="text-red-600">*</span>
               </label>
               <input 
                 type="text"
@@ -120,7 +140,7 @@ function TrackOrderContent() {
 
             <div>
               <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                WhatsApp Phone Number <span className="text-red-600">*</span>
+                {t.checkout.phoneNumber} <span className="text-red-600">*</span>
               </label>
               <input 
                 type="text"
@@ -137,7 +157,7 @@ function TrackOrderContent() {
             type="submit"
             className="w-full py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
           >
-            <Search className="w-4 h-4" /> Track Order Now
+            <Search className="w-4 h-4" /> {language === 'EN' ? 'Track Order Now' : language === 'MS' ? 'Jejak Pesanan Sekarang' : 'Lacak Pesanan Sekarang'}
           </button>
         </form>
       </div>
@@ -148,9 +168,9 @@ function TrackOrderContent() {
           {!orderResult ? (
             <div className="bg-white p-10 rounded-3xl border border-[#EADBC8] shadow-sm text-center max-w-xl mx-auto">
               <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
-              <h3 className="font-serif text-xl font-bold text-[#800020]">Order Not Found</h3>
+              <h3 className="font-serif text-xl font-bold text-[#800020]">{language === 'EN' ? 'Order Not Found' : language === 'MS' ? 'Pesanan Tidak Ditemui' : 'Pesanan Tidak Ditemukan'}</h3>
               <p className="text-stone-600 text-xs mt-1">
-                We could not find an order matching <span className="font-bold">{orderNumber}</span> and phone number <span className="font-bold">{phone}</span>. Please verify your details or contact admin on WhatsApp.
+                {language === 'EN' ? 'We could not find an order matching your details. Please verify your info or contact support.' : language === 'MS' ? 'Pesanan tidak ditemui untuk maklumat tersebut. Sila semak butiran anda atau hubungi admin.' : 'Kami tidak dapat menemukan pesanan yang cocok. Silakan periksa kembali detail Anda.'}
               </p>
               <a
                 href={`https://wa.me/${formatWhatsAppNumber(db.getStoreSettings().whatsappNumber)}`}
@@ -158,7 +178,7 @@ function TrackOrderContent() {
                 rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white text-xs font-bold rounded-xl shadow"
               >
-                <MessageCircle className="w-4 h-4 fill-white" /> Contact Admin Support
+                <MessageCircle className="w-4 h-4 fill-white" /> {language === 'EN' ? 'Contact Admin Support' : language === 'MS' ? 'Hubungi Bantuan Admin' : 'Hubungi Dukungan Admin'}
               </a>
             </div>
           ) : (
@@ -172,7 +192,7 @@ function TrackOrderContent() {
                       {orderResult.orderStatus}
                     </span>
                     <span className="text-xs text-stone-500 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" /> Placed on {new Date(orderResult.createdAt).toLocaleDateString()}
+                      <Calendar className="w-3.5 h-3.5" /> {new Date(orderResult.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   <h2 className="font-serif text-2xl font-bold text-[#2B1B1B]">
@@ -181,7 +201,7 @@ function TrackOrderContent() {
                 </div>
 
                 <div className="text-left sm:text-right">
-                  <span className="text-xs text-stone-500 block">Total Amount</span>
+                  <span className="text-xs text-stone-500 block">{t.checkout.totalAmount}</span>
                   <span className="font-serif text-2xl font-extrabold text-[#800020]">
                     {formatMYR(orderResult.totalAmount)}
                   </span>
@@ -196,16 +216,16 @@ function TrackOrderContent() {
                       <Truck className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">🚗 Penghantaran Mandiri / Self-Pickup</span>
+                      <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">🚗 {language === 'EN' ? 'Self-Pickup / Store Delivery' : language === 'MS' ? 'Penghantaran Mandiri / Ambil di Kedai' : 'Pengambilan Toko / Kurir Toko'}</span>
                       <h4 className="text-sm font-extrabold text-stone-900">
                         {orderResult.trackingNumber 
-                          ? `Catatan Kurir: ${orderResult.trackingNumber}` 
-                          : 'Pesanan dikirim langsung oleh Kurir Toko FBS Bakery World / Diambil di Toko'}
+                          ? `Notes: ${orderResult.trackingNumber}` 
+                          : 'FBS Bakery World Store Delivery'}
                       </h4>
                     </div>
                   </div>
                   <span className="px-3.5 py-1.5 bg-emerald-700 text-white text-xs font-bold rounded-xl shadow">
-                    Verified Store Delivery
+                    {language === 'EN' ? 'Verified Store Delivery' : language === 'MS' ? 'Penghantaran Kedai Disahkan' : 'Pengiriman Toko Terverifikasi'}
                   </span>
                 </div>
               ) : orderResult.courierName && orderResult.trackingNumber ? (
@@ -225,20 +245,20 @@ function TrackOrderContent() {
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
                   >
-                    Track Package <ExternalLink className="w-3.5 h-3.5" />
+                    {language === 'EN' ? 'Track Package' : language === 'MS' ? 'Jejak Pakej' : 'Lacak Paket'} <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
               ) : (
                 <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
                   <Clock className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  <span>Package is being prepared for dispatch. Tracking resi number will be updated once shipped.</span>
+                  <span>{language === 'EN' ? 'Package is being prepared for dispatch. Tracking resi number will be updated once shipped.' : language === 'MS' ? 'Pakej sedang disediakan untuk penghantaran. Nombor resi akan dikemas kini sebaik sahaja dihantar.' : 'Paket sedang disiapkan untuk dikirim. Nomor resi akan diperbarui setelah dikirim.'}</span>
                 </div>
               )}
 
               {/* Interactive Status Timeline */}
               <div>
                 <h3 className="text-sm font-bold text-[#800020] uppercase tracking-wider mb-6">
-                  Delivery Status Timeline
+                  {language === 'EN' ? 'Delivery Status Timeline' : language === 'MS' ? 'Garisan Masa Status Penghantaran' : 'Lini Masa Status Pengiriman'}
                 </h3>
 
                 <div className="relative">
@@ -251,7 +271,7 @@ function TrackOrderContent() {
                       return (
                         <div key={step.key} className="flex flex-col items-center text-center">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 shadow transition-colors ${
-                            isDone ? 'bg-[#800020] text-white' : 'bg-stone-200 text-stone-400'
+                            isDone ? 'bg-[#800020] text-[#D4AF37]' : 'bg-stone-200 text-stone-400'
                           } ${isCurrent ? 'ring-4 ring-[#D4AF37]' : ''}`}>
                             {isDone ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
                           </div>
@@ -268,7 +288,7 @@ function TrackOrderContent() {
 
               {/* Purchased Items List */}
               <div className="border-t border-stone-200 pt-6">
-                <h3 className="text-sm font-bold text-[#2B1B1B] mb-3">Purchased Items</h3>
+                <h3 className="text-sm font-bold text-[#2B1B1B] mb-3">{language === 'EN' ? 'Purchased Items' : language === 'MS' ? 'Barang Dibeli' : 'Daftar Barang Dibeli'}</h3>
                 <div className="space-y-3">
                   {orderResult.items.map(item => (
                     <div key={item.id} className="flex justify-between items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl border border-stone-200">
@@ -278,7 +298,7 @@ function TrackOrderContent() {
                         )}
                         <div>
                           <span className="font-bold text-stone-900 block">{item.productName}</span>
-                          <span className="text-[11px] text-stone-500">Variant: {item.variantName} x {item.quantity}</span>
+                          <span className="text-[11px] text-stone-500">{t.cart.variant}: {item.variantName} x {item.quantity}</span>
                         </div>
                       </div>
                       <span className="font-bold text-[#800020]">{formatMYR(item.subtotal)}</span>

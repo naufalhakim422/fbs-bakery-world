@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { useLanguage } from '@/lib/language-context';
 import { User, Bell, ShieldCheck, Sparkles, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
@@ -149,7 +150,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            
             {/* Admin User Profile Tag */}
             <div className="flex items-center gap-2 sm:gap-3 bg-stone-900/90 px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl border border-[#D4AF37]/40 shadow-inner">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#800020] text-[#D4AF37] font-serif font-black text-xs sm:text-sm flex items-center justify-center border border-[#D4AF37]/50 shadow">
@@ -161,6 +161,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
 
+            {/* Dark / Light Mode Toggle Button */}
+            <ThemeToggle />
           </div>
 
         </header>

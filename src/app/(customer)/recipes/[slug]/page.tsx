@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
+import { useLanguage } from '@/lib/language-context';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -15,6 +16,7 @@ import { ChefHat, Clock, Check, ShoppingBag, ArrowLeft, Sparkles, CheckCircle2, 
 export default function RecipeDetailPage() {
   const params = useParams();
   const slug = params?.slug as string;
+  const { t, language } = useLanguage();
   const recipe = db.getRecipeBySlug(slug);
 
   const { addToCart } = useCart();
@@ -26,9 +28,11 @@ export default function RecipeDetailPage() {
         <AnnouncementBar />
         <HeaderNav />
         <main className="flex-1 flex flex-col items-center justify-center py-20 text-center px-4">
-          <h2 className="font-serif text-3xl font-bold text-[#800020]">Recipe Not Found</h2>
+          <h2 className="font-serif text-3xl font-bold text-[#800020]">
+            {language === 'EN' ? 'Recipe Not Found' : language === 'MS' ? 'Resipi Tidak Ditemui' : 'Resep Tidak Ditemukan'}
+          </h2>
           <Link href="/recipes" className="mt-4 px-6 py-2.5 bg-[#800020] text-white text-xs font-bold rounded-xl">
-            Back to Recipes
+            {language === 'EN' ? 'Back to Recipes' : language === 'MS' ? 'Kembali ke Resipi' : 'Kembali ke Resep'}
           </Link>
         </main>
         <Footer />
@@ -80,17 +84,17 @@ export default function RecipeDetailPage() {
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         
         <Link href="/recipes" className="inline-flex items-center gap-1 text-xs font-bold text-[#800020] hover:underline mb-6">
-          <ArrowLeft className="w-4 h-4" /> Back to Recipe Center
+          <ArrowLeft className="w-4 h-4" /> {language === 'EN' ? 'Back to Recipe Center' : language === 'MS' ? 'Kembali ke Pusat Resipi' : 'Kembali ke Pusat Resep'}
         </Link>
 
         {/* Recipe Title & Meta Header */}
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-[#EADBC8] shadow-md mb-10">
           <div className="flex flex-wrap gap-2 mb-3">
             <span className="px-3 py-1 bg-[#800020] text-[#D4AF37] text-xs font-bold rounded-full">
-              {recipe.difficulty} Difficulty
+              {recipe.difficulty}
             </span>
             <span className="px-3 py-1 bg-stone-100 text-stone-700 text-xs font-bold rounded-full flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-[#800020]" /> {recipe.cookingTime} Minutes
+              <Clock className="w-3.5 h-3.5 text-[#800020]" /> {recipe.cookingTime} {language === 'EN' ? 'Minutes' : language === 'MS' ? 'Minit' : 'Menit'}
             </span>
           </div>
 
@@ -104,7 +108,7 @@ export default function RecipeDetailPage() {
             <div className="mt-6 rounded-3xl overflow-hidden shadow-xl border-2 border-[#800020] bg-black">
               <div className="p-3 bg-[#800020] text-[#D4AF37] text-xs font-bold flex items-center gap-2">
                 <VideoIcon className="w-4 h-4 text-[#D4AF37]" />
-                <span>VIDEO TUTORIAL BAKING SAYA & STEP-BY-STEP DEMO</span>
+                <span>{language === 'EN' ? 'BAKING VIDEO TUTORIAL & STEP-BY-STEP DEMO' : language === 'MS' ? 'TUTORIAL VIDEO BAKERI & DEMO LANGKAH DEMI LANGKAH' : 'VIDEO TUTORIAL BAKING & DEMO LANGKAH DEMI LANGKAH'}</span>
               </div>
               <video 
                 src={recipe.videoUrl} 
@@ -126,7 +130,7 @@ export default function RecipeDetailPage() {
           <div className="bg-white p-6 rounded-3xl border border-[#EADBC8] shadow-sm space-y-4">
             <div className="flex items-center justify-between border-b border-stone-200 pb-3">
               <h2 className="font-serif text-xl font-bold text-[#800020] flex items-center gap-2">
-                <ChefHat className="w-5 h-5 text-[#800020]" /> Ingredients List
+                <ChefHat className="w-5 h-5 text-[#800020]" /> {language === 'EN' ? 'Ingredients List' : language === 'MS' ? 'Senarai Bahan' : 'Daftar Bahan'}
               </h2>
             </div>
 
@@ -148,11 +152,11 @@ export default function RecipeDetailPage() {
               >
                 {addedAll ? (
                   <>
-                    <Check className="w-4 h-4" /> Added Ingredients to Cart!
+                    <Check className="w-4 h-4" /> {language === 'EN' ? 'Added Ingredients to Cart!' : language === 'MS' ? 'Bahan Ditambah ke Troli!' : 'Bahan Ditambahkan ke Keranjang!'}
                   </>
                 ) : (
                   <>
-                    <ShoppingBag className="w-4 h-4" /> Add All Recipe Products to Cart
+                    <ShoppingBag className="w-4 h-4" /> {language === 'EN' ? 'Add All Recipe Products to Cart' : language === 'MS' ? 'Tambah Semua Bahan Resipi ke Troli' : 'Tambah Semua Produk Resep ke Keranjang'}
                   </>
                 )}
               </button>
@@ -162,7 +166,7 @@ export default function RecipeDetailPage() {
           {/* Right Column: Step-by-Step Instructions */}
           <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-sm space-y-6">
             <h2 className="font-serif text-xl font-bold text-[#800020] border-b border-stone-200 pb-3">
-              Step-by-Step Baking Tutorial
+              {language === 'EN' ? 'Step-by-Step Baking Tutorial' : language === 'MS' ? 'Tutorial Bakeri Langkah demi Langkah' : 'Tutorial Baking Langkah demi Langkah'}
             </h2>
 
             <div className="space-y-6">
@@ -186,13 +190,13 @@ export default function RecipeDetailPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-stone-700/80 pb-4">
             <div>
               <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest block mb-1 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> IKUTI & TAG REKAMAN HASIL BAKING ANDA
+                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> {language === 'EN' ? 'FOLLOW & TAG YOUR BAKING CREATIONS' : language === 'MS' ? 'IKUTI & TAG HASIL BAKERI ANDA' : 'IKUTI & TAG HASIL BAKING ANDA'}
               </span>
               <h3 className="font-serif text-xl font-bold text-white">
-                Bagikan Hasil Olahan Resep Ini Di Media Sosial Official Kami!
+                {language === 'EN' ? 'Share Your Recipe Creations On Our Official Social Media!' : language === 'MS' ? 'Kongsi Hasil Resipi Ini di Media Sosial Rasmi Kami!' : 'Bagikan Hasil Olahan Resep Ini Di Media Sosial Resmi Kami!'}
               </h3>
               <p className="text-stone-300 text-xs mt-1 max-w-xl">
-                Mencoba resep kue ini di rumah atau kafe Anda? Rekam video singkat atau ambil foto kue terbaik Anda, lalu tag akun Instagram & TikTok <strong>@fbsbakeryworld</strong> untuk di-repost resmi oleh Chef FBS!
+                {language === 'EN' ? 'Tried this baking recipe at home or cafe? Record a quick video or take photos, then tag Instagram & TikTok @fbsbakeryworld to get officially reposted by FBS Chef!' : language === 'MS' ? 'Mencuba resipi kek ini di rumah atau kafe? Rakam video atau ambil foto kek anda, kemudian tag Instagram & TikTok @fbsbakeryworld untuk di-repost rasmi oleh Chef FBS!' : 'Mencoba resep kue ini di rumah atau kafe Anda? Rekam video singkat atau ambil foto kue terbaik Anda, lalu tag akun Instagram & TikTok @fbsbakeryworld untuk di-repost resmi oleh Chef FBS!'}
               </p>
             </div>
 

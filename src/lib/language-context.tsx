@@ -502,6 +502,186 @@ export interface Translations {
     completed: string;
     refunded: string;
   };
+  adminExtra: {
+    // Dashboard
+    liveMetrics: string;
+    revenueToday: string;
+    revenueMonth: string;
+    today: string;
+    thisMonth: string;
+    bestSeller: string;
+    noDataYet: string;
+    sold: string;
+    lowStock: string;
+    products: string;
+    restockRequired: string;
+    stockHealthy: string;
+    chartTitle: string;
+    chartSubtitle: string;
+    days7: string;
+    days30: string;
+    year1: string;
+    calendar: string;
+    fromDate: string;
+    toDate: string;
+    chartAutoUpdate: string;
+    totalOmset: string;
+    totalOrders: string;
+    avgOrder: string;
+    order: string;
+    orders: string;
+    omsetLabel: string;
+    ordersLabel: string;
+    dateLabel: string;
+    noDataPeriod: string;
+    manageResi: string;
+    // Quick Shortcuts
+    shortcutCategories: string;
+    shortcutRecipes: string;
+    shortcutBlogs: string;
+    shortcutVouchers: string;
+    shortcutCustomers: string;
+    shortcutSettings: string;
+    // Recent Orders Table
+    recentWAOrders: string;
+    recentWAOrdersSub: string;
+    viewAllOrders: string;
+    thPhotoProduct: string;
+    thOrderNumber: string;
+    thWACustomer: string;
+    thTotalPayment: string;
+    thStatusResi: string;
+    thAdminAction: string;
+    bakingPackage: string;
+    variant: string;
+    item: string;
+    items: string;
+    chatWA: string;
+    pendingResi: string;
+    resiNumber: string;
+    processOrder: string;
+    viewDetailOrder: string;
+    // Stock Alert
+    stockAlertTitle: string;
+    stockAlertSub: string;
+    stockRemaining: string;
+    restockNow: string;
+    stockSafe: string;
+
+    // Cashflow
+    cfFilterTimeRange: string;
+    cfAvgPerPeriod: string;
+    cfPeakHighest: string;
+    cfStatusPerformance: string;
+    cfHealthy: string;
+    cfWarning: string;
+    cfTotalInflow: string;
+    cfTotalOutflow: string;
+    cfNetProfit: string;
+    cfOrderSales: string;
+    cfAuto: string;
+    cfReduceNet: string;
+    cfDateLabel: string;
+    cfCategoryLabel: string;
+    cfDescLabel: string;
+    cfAmountLabel: string;
+    cfCancel: string;
+    cfSave: string;
+    cfActive: string;
+    cfCatHPP: string;
+    cfCatPackaging: string;
+    cfCatCourier: string;
+    cfCatWarehouse: string;
+    cfCatOther: string;
+    cfNoExpenses: string;
+
+    // Orders Page
+    ordersTitle: string;
+    ordersSubtitle: string;
+    ordersThPhoto: string;
+    ordersThOrderNo: string;
+    ordersThCustomer: string;
+    ordersThTotal: string;
+    ordersThStatus: string;
+    ordersThAction: string;
+    ordersResiPending: string;
+    ordersNoOrders: string;
+
+    // Order Detail Page
+    orderNotFound: string;
+    orderBackToList: string;
+    orderCustomerName: string;
+    orderDeliveryAddress: string;
+    orderCustomerNote: string;
+    orderNoNote: string;
+    orderItemsOrdered: string;
+    orderItemQty: string;
+    orderTotal: string;
+    orderUpdateStatus: string;
+    orderTrackingNo: string;
+    orderTrackingPlaceholder: string;
+    orderSaveTracking: string;
+    orderTimeline: string;
+    orderPrintInvoice: string;
+    orderPrintReceipt: string;
+    orderChatCustomer: string;
+
+    // Products Page
+    productsExport: string;
+    productsImport: string;
+    productsDeleteConfirm: string;
+    productsVariants: string;
+    productsSKU: string;
+    productsStock: string;
+    productsPrice: string;
+
+    // Videos Page
+    videosTitle: string;
+    videosSubtitle: string;
+    videosAddNew: string;
+    videosThThumbnail: string;
+    videosThTitle: string;
+    videosThPlatform: string;
+    videosThStatus: string;
+    videosThAction: string;
+    videosNoVideos: string;
+    videosVideoTitle: string;
+    videosVideoUrl: string;
+    videosPlatform: string;
+    videosSaveVideo: string;
+    videosUploadFile: string;
+    videosUploadMP4: string;
+
+    // Settings Page
+    settingsTabStore: string;
+    settingsTabBackup: string;
+    settingsTabAudit: string;
+    settingsBackupTitle: string;
+    settingsBackupSub: string;
+    settingsBackupBtn: string;
+    settingsRestoreBtn: string;
+    settingsAuditTitle: string;
+    settingsAuditSub: string;
+    settingsAuditNoLogs: string;
+
+    // Customers Page
+    customersMemberTier: string;
+    customersTierRetail: string;
+    customersTierVIP: string;
+    customersTierWholesale: string;
+
+    // Blogs Page
+    blogsUploadMP4: string;
+
+    // Categories Page
+    categoriesUploadFile: string;
+
+    // Common Admin
+    uploadFile: string;
+    confirmDeleteTitle: string;
+    confirmDeleteMsg: string;
+    noData: string;
+  };
 }
 
 const dictionaries: Record<LanguageCode, Translations> = {
@@ -1003,6 +1183,162 @@ const dictionaries: Record<LanguageCode, Translations> = {
       completed: 'Selesai',
       refunded: 'Dipulangkan',
     },
+    adminExtra: {
+      liveMetrics: 'TINJAUAN METRIK KEDAI LANGSUNG',
+      revenueToday: 'PENDAPATAN HARI INI',
+      revenueMonth: 'PENDAPATAN BULAN INI',
+      today: 'Hari ini',
+      thisMonth: 'Bulan Ini',
+      bestSeller: 'PRODUK TERLARIS',
+      noDataYet: 'Tiada Data',
+      sold: 'Dijual',
+      lowStock: 'STOK SUSUT',
+      products: 'Produk',
+      restockRequired: 'Perlu Restok Segera →',
+      stockHealthy: 'Stok Selamat',
+      chartTitle: 'Grafik Analitik Jualan & Hasil Interaktif',
+      chartSubtitle: 'Klik sebarang titik carta atau bar untuk melihat butiran transaksi segera.',
+      days7: '7 Hari',
+      days30: '30 Hari',
+      year1: '1 Tahun',
+      calendar: 'Kalendar',
+      fromDate: 'Dari Tarikh:',
+      toDate: 'Sehingga Tarikh:',
+      chartAutoUpdate: '✓ Carta dikemas kini secara automatik mengikut tarikh yang dipilih',
+      totalOmset: 'Jumlah Hasil',
+      totalOrders: 'Jumlah Pesanan',
+      avgOrder: 'Purata / Pesanan',
+      order: 'Pesanan',
+      orders: 'Pesanan',
+      omsetLabel: 'Hasil',
+      ordersLabel: 'Pesanan',
+      dateLabel: 'Tarikh',
+      noDataPeriod: 'Tiada data dalam tempoh ini',
+      manageResi: 'Urus Resi Pesanan →',
+      shortcutCategories: 'Kategori',
+      shortcutRecipes: 'Resepi & Video',
+      shortcutBlogs: 'Blog CMS',
+      shortcutVouchers: 'Baucar Diskaun',
+      shortcutCustomers: 'CRM Pelanggan',
+      shortcutSettings: 'Tetapan',
+      recentWAOrders: 'Pesanan WhatsApp Terkini',
+      recentWAOrdersSub: 'Senarai transaksi masuk dari katalog produk kedai.',
+      viewAllOrders: 'Lihat Semua Pesanan',
+      thPhotoProduct: 'FOTO & ITEM PRODUK',
+      thOrderNumber: 'NO. PESANAN',
+      thWACustomer: 'PELANGGAN WHATSAPP',
+      thTotalPayment: 'JUMLAH PEMBAYARAN',
+      thStatusResi: 'STATUS & RESI',
+      thAdminAction: 'TINDAKAN ADMIN',
+      bakingPackage: 'Pakej Bahan Kek',
+      variant: 'Varian',
+      item: 'Item',
+      items: 'Item',
+      chatWA: 'Sembang WA',
+      pendingResi: 'Resi Belum Diisi',
+      resiNumber: 'Resi',
+      processOrder: 'Proses Pesanan',
+      viewDetailOrder: 'Lihat Butiran',
+      stockAlertTitle: 'Amaran Stok Kritikal',
+      stockAlertSub: 'produk dengan stok rendah yang memerlukan restok segera.',
+      stockRemaining: 'Baki stok',
+      restockNow: 'Restok Sekarang →',
+      stockSafe: 'Semua stok dalam keadaan sihat!',
+      cfFilterTimeRange: 'Tapis Julat Masa Carta',
+      cfAvgPerPeriod: 'Purata Per Tempoh',
+      cfPeakHighest: 'Puncak Tertinggi',
+      cfStatusPerformance: 'Status Prestasi',
+      cfHealthy: 'Sihat',
+      cfWarning: 'Amaran',
+      cfTotalInflow: 'Jumlah Aliran Masuk',
+      cfTotalOutflow: 'Jumlah Aliran Keluar',
+      cfNetProfit: 'Untung Bersih',
+      cfOrderSales: 'Jualan Pesanan',
+      cfAuto: 'Auto',
+      cfReduceNet: 'Mengurangkan aliran tunai bersih secara langsung.',
+      cfDateLabel: 'Tarikh',
+      cfCategoryLabel: 'Kategori',
+      cfDescLabel: 'Penerangan Transaksi',
+      cfAmountLabel: 'Jumlah (MYR)',
+      cfCancel: 'Batal',
+      cfSave: 'Simpan',
+      cfActive: 'Aktif',
+      cfCatHPP: 'Pembelian Stok (HPP)',
+      cfCatPackaging: 'Kos Pembungkusan',
+      cfCatCourier: 'Kos Kurier & Logistik',
+      cfCatWarehouse: 'Operasi Gudang & Elektrik',
+      cfCatOther: 'Perbelanjaan Lain',
+      cfNoExpenses: 'Tiada perbelanjaan direkodkan.',
+      ordersTitle: 'Pengurusan Pesanan',
+      ordersSubtitle: 'Urus pesanan WhatsApp pelanggan, sahkan pembayaran, dan keluarkan nombor resi penghantaran.',
+      ordersThPhoto: 'FOTO & PRODUK DIBELI',
+      ordersThOrderNo: 'NO. PESANAN',
+      ordersThCustomer: 'PELANGGAN WHATSAPP',
+      ordersThTotal: 'JUMLAH BAYAR',
+      ordersThStatus: 'STATUS & RESI',
+      ordersThAction: 'TINDAKAN ADMIN',
+      ordersResiPending: 'Resi Belum Diisi',
+      ordersNoOrders: 'Tiada pesanan dijumpai.',
+      orderNotFound: 'Pesanan Tidak Dijumpai',
+      orderBackToList: '← Kembali ke Senarai Pesanan',
+      orderCustomerName: 'Nama & Telefon Pelanggan:',
+      orderDeliveryAddress: 'Alamat Penghantaran:',
+      orderCustomerNote: 'Catatan Pelanggan:',
+      orderNoNote: 'Tiada catatan',
+      orderItemsOrdered: 'Item Dipesan',
+      orderItemQty: 'Kuan.',
+      orderTotal: 'Jumlah Pesanan',
+      orderUpdateStatus: 'Kemaskini Status',
+      orderTrackingNo: 'Nombor Penjejakan / Resi',
+      orderTrackingPlaceholder: 'Masukkan nombor resi...',
+      orderSaveTracking: 'Simpan',
+      orderTimeline: 'Garis Masa Pesanan',
+      orderPrintInvoice: 'Cetak Invois',
+      orderPrintReceipt: 'Cetak Resit',
+      orderChatCustomer: 'Sembang WhatsApp',
+      productsExport: 'Eksport CSV',
+      productsImport: 'Import CSV',
+      productsDeleteConfirm: 'Adakah anda pasti mahu memadamkan produk ini?',
+      productsVariants: 'Varian',
+      productsSKU: 'SKU',
+      productsStock: 'Stok',
+      productsPrice: 'Harga',
+      videosTitle: 'Pengurusan Video',
+      videosSubtitle: 'Urus video tutorial dan promosi.',
+      videosAddNew: 'Tambah Video Baru',
+      videosThThumbnail: 'LAKARAN KECIL',
+      videosThTitle: 'TAJUK',
+      videosThPlatform: 'PLATFORM',
+      videosThStatus: 'STATUS',
+      videosThAction: 'TINDAKAN',
+      videosNoVideos: 'Tiada video dijumpai.',
+      videosVideoTitle: 'Tajuk Video',
+      videosVideoUrl: 'URL Video',
+      videosPlatform: 'Platform',
+      videosSaveVideo: 'Simpan Video',
+      videosUploadFile: 'Muat Naik Fail',
+      videosUploadMP4: 'Muat Naik MP4 / WebM',
+      settingsTabStore: 'Tetapan Kedai',
+      settingsTabBackup: 'Sandaran & Pemulihan',
+      settingsTabAudit: 'Log Audit',
+      settingsBackupTitle: 'Sandaran & Pemulihan Data',
+      settingsBackupSub: 'Sandarkan atau pulihkan data kedai anda.',
+      settingsBackupBtn: 'Muat Turun Sandaran',
+      settingsRestoreBtn: 'Pulihkan dari Fail',
+      settingsAuditTitle: 'Log Audit Admin',
+      settingsAuditSub: 'Rekod semua aktiviti admin.',
+      settingsAuditNoLogs: 'Tiada log audit.',
+      customersMemberTier: 'PERINGKAT AHLI',
+      customersTierRetail: 'Peringkat: RUNCIT',
+      customersTierVIP: 'Peringkat: VIP',
+      customersTierWholesale: 'Peringkat: BORONG B2B',
+      blogsUploadMP4: 'Muat Naik MP4 / WebM',
+      categoriesUploadFile: 'Muat Naik Fail',
+      uploadFile: 'Muat Naik Fail',
+      confirmDeleteTitle: 'Sahkan Pemadaman',
+      confirmDeleteMsg: 'Adakah anda pasti mahu memadamkan item ini?',
+      noData: 'Tiada data',
+    },
   },
   ID: {
     flag: '🇮🇩',
@@ -1501,6 +1837,162 @@ const dictionaries: Record<LanguageCode, Translations> = {
       pending: 'Menunggu',
       completed: 'Selesai',
       refunded: 'Dikembalikan',
+    },
+    adminExtra: {
+      liveMetrics: 'TINJAUAN METRIK TOKO LANGSUNG',
+      revenueToday: 'PENDAPATAN HARI INI',
+      revenueMonth: 'PENDAPATAN BULAN INI',
+      today: 'Hari ini',
+      thisMonth: 'Bulan Ini',
+      bestSeller: 'PRODUK TERLARIS',
+      noDataYet: 'Belum Ada Data',
+      sold: 'Terjual',
+      lowStock: 'STOK MENIPIS',
+      products: 'Produk',
+      restockRequired: 'Perlu Restok Segera →',
+      stockHealthy: 'Stok Aman',
+      chartTitle: 'Grafik Analitik Omset & Penjualan Interaktif',
+      chartSubtitle: 'Klik titik grafik atau bar mana saja untuk melihat rincian transaksi instan.',
+      days7: '7 Hari',
+      days30: '30 Hari',
+      year1: '1 Tahun',
+      calendar: 'Kalender',
+      fromDate: 'Dari Tanggal:',
+      toDate: 'Sampai Tanggal:',
+      chartAutoUpdate: '✓ Grafik otomatis diperbarui sesuai tanggal terpilih',
+      totalOmset: 'Total Omset',
+      totalOrders: 'Total Pesanan',
+      avgOrder: 'Rata-Rata / Pesanan',
+      order: 'Pesanan',
+      orders: 'Pesanan',
+      omsetLabel: 'Omset',
+      ordersLabel: 'Pesanan',
+      dateLabel: 'Tanggal',
+      noDataPeriod: 'Belum ada data di periode ini',
+      manageResi: 'Kelola Resi Pesanan →',
+      shortcutCategories: 'Kategori',
+      shortcutRecipes: 'Resep & Video',
+      shortcutBlogs: 'Blog CMS',
+      shortcutVouchers: 'Voucher Diskon',
+      shortcutCustomers: 'CRM Pelanggan',
+      shortcutSettings: 'Pengaturan',
+      recentWAOrders: 'Pesanan WhatsApp Terbaru',
+      recentWAOrdersSub: 'Daftar transaksi masuk dari katalog produk toko.',
+      viewAllOrders: 'Lihat Semua Pesanan',
+      thPhotoProduct: 'FOTO & ITEM PRODUK',
+      thOrderNumber: 'NO. PESANAN',
+      thWACustomer: 'PELANGGAN WHATSAPP',
+      thTotalPayment: 'TOTAL PEMBAYARAN',
+      thStatusResi: 'STATUS & RESI',
+      thAdminAction: 'AKSI ADMIN',
+      bakingPackage: 'Paket Bahan Kue',
+      variant: 'Varian',
+      item: 'Item',
+      items: 'Item',
+      chatWA: 'Chat WA',
+      pendingResi: 'Resi Pending',
+      resiNumber: 'Resi',
+      processOrder: 'Proses Pesanan',
+      viewDetailOrder: 'Lihat Detail',
+      stockAlertTitle: 'Peringatan Stok Kritis',
+      stockAlertSub: 'produk dengan stok rendah yang memerlukan restok segera.',
+      stockRemaining: 'Sisa stok',
+      restockNow: 'Restok Sekarang →',
+      stockSafe: 'Semua stok dalam keadaan aman!',
+      cfFilterTimeRange: 'Filter Rentang Waktu Grafik',
+      cfAvgPerPeriod: 'Rata-Rata Per Periode',
+      cfPeakHighest: 'Puncak Tertinggi',
+      cfStatusPerformance: 'Status Performa',
+      cfHealthy: 'Sehat',
+      cfWarning: 'Peringatan',
+      cfTotalInflow: 'Total Inflow',
+      cfTotalOutflow: 'Total Outflow',
+      cfNetProfit: 'Laba Bersih',
+      cfOrderSales: 'Penjualan Pesanan',
+      cfAuto: 'Auto',
+      cfReduceNet: 'Kurangi net cashflow secara langsung.',
+      cfDateLabel: 'Tanggal',
+      cfCategoryLabel: 'Kategori',
+      cfDescLabel: 'Deskripsi Transaksi',
+      cfAmountLabel: 'Jumlah (MYR)',
+      cfCancel: 'Batal',
+      cfSave: 'Simpan',
+      cfActive: 'Aktif',
+      cfCatHPP: 'Pembelian Stok (HPP)',
+      cfCatPackaging: 'Biaya Packaging',
+      cfCatCourier: 'Biaya Kurir & Logistik',
+      cfCatWarehouse: 'Operasional Gudang & Listrik',
+      cfCatOther: 'Pengeluaran Lainnya',
+      cfNoExpenses: 'Belum ada pengeluaran dicatat.',
+      ordersTitle: 'Manajemen Pesanan',
+      ordersSubtitle: 'Kelola pesanan WhatsApp pelanggan, verifikasi pembayaran, dan terbitkan nomor resi pengiriman.',
+      ordersThPhoto: 'FOTO & PRODUK DIBELI',
+      ordersThOrderNo: 'NO. PESANAN',
+      ordersThCustomer: 'PELANGGAN WHATSAPP',
+      ordersThTotal: 'TOTAL BAYAR',
+      ordersThStatus: 'STATUS & RESI',
+      ordersThAction: 'AKSI ADMIN',
+      ordersResiPending: 'Resi Pending',
+      ordersNoOrders: 'Tidak ada pesanan ditemukan.',
+      orderNotFound: 'Pesanan Tidak Ditemukan',
+      orderBackToList: '← Kembali ke Daftar Pesanan',
+      orderCustomerName: 'Nama & Telepon Pelanggan:',
+      orderDeliveryAddress: 'Alamat Pengiriman:',
+      orderCustomerNote: 'Catatan Pelanggan:',
+      orderNoNote: 'Tidak ada catatan',
+      orderItemsOrdered: 'Item Dipesan',
+      orderItemQty: 'Jml.',
+      orderTotal: 'Total Pesanan',
+      orderUpdateStatus: 'Perbarui Status',
+      orderTrackingNo: 'Nomor Pelacakan / Resi',
+      orderTrackingPlaceholder: 'Masukkan nomor resi...',
+      orderSaveTracking: 'Simpan',
+      orderTimeline: 'Timeline Pesanan',
+      orderPrintInvoice: 'Cetak Invoice',
+      orderPrintReceipt: 'Cetak Struk',
+      orderChatCustomer: 'Chat WhatsApp',
+      productsExport: 'Ekspor CSV',
+      productsImport: 'Impor CSV',
+      productsDeleteConfirm: 'Apakah Anda yakin ingin menghapus produk ini?',
+      productsVariants: 'Varian',
+      productsSKU: 'SKU',
+      productsStock: 'Stok',
+      productsPrice: 'Harga',
+      videosTitle: 'Manajemen Video',
+      videosSubtitle: 'Kelola video tutorial dan promosi.',
+      videosAddNew: 'Tambah Video Baru',
+      videosThThumbnail: 'THUMBNAIL',
+      videosThTitle: 'JUDUL',
+      videosThPlatform: 'PLATFORM',
+      videosThStatus: 'STATUS',
+      videosThAction: 'AKSI',
+      videosNoVideos: 'Tidak ada video ditemukan.',
+      videosVideoTitle: 'Judul Video',
+      videosVideoUrl: 'URL Video',
+      videosPlatform: 'Platform',
+      videosSaveVideo: 'Simpan Video',
+      videosUploadFile: 'Upload File',
+      videosUploadMP4: 'Upload MP4 / WebM',
+      settingsTabStore: 'Pengaturan Toko',
+      settingsTabBackup: 'Backup & Restore',
+      settingsTabAudit: 'Audit Log',
+      settingsBackupTitle: 'Backup & Restore Data',
+      settingsBackupSub: 'Backup atau restore data toko Anda.',
+      settingsBackupBtn: 'Download Backup',
+      settingsRestoreBtn: 'Restore dari File',
+      settingsAuditTitle: 'Audit Log Admin',
+      settingsAuditSub: 'Rekam semua aktivitas admin.',
+      settingsAuditNoLogs: 'Tidak ada log audit.',
+      customersMemberTier: 'MEMBER TIER',
+      customersTierRetail: 'Tier: RETAIL',
+      customersTierVIP: 'Tier: VIP',
+      customersTierWholesale: 'Tier: WHOLESALE B2B',
+      blogsUploadMP4: 'Upload MP4 / WebM',
+      categoriesUploadFile: 'Upload File',
+      uploadFile: 'Upload File',
+      confirmDeleteTitle: 'Konfirmasi Hapus',
+      confirmDeleteMsg: 'Apakah Anda yakin ingin menghapus item ini?',
+      noData: 'Tidak ada data',
     },
   },
   EN: {
@@ -2001,6 +2493,162 @@ const dictionaries: Record<LanguageCode, Translations> = {
       completed: 'Completed',
       refunded: 'Refunded',
     },
+    adminExtra: {
+      liveMetrics: 'LIVE STORE METRICS OVERVIEW',
+      revenueToday: 'TODAY REVENUE',
+      revenueMonth: 'THIS MONTH REVENUE',
+      today: 'Today',
+      thisMonth: 'This Month',
+      bestSeller: 'BEST SELLER',
+      noDataYet: 'No Data Yet',
+      sold: 'Sold',
+      lowStock: 'LOW STOCK',
+      products: 'Products',
+      restockRequired: 'Restock Required →',
+      stockHealthy: 'Stock Healthy',
+      chartTitle: 'Interactive Sales & Revenue Analytics Chart',
+      chartSubtitle: 'Click any chart point or bar to view instant transaction details.',
+      days7: '7 Days',
+      days30: '30 Days',
+      year1: '1 Year',
+      calendar: 'Calendar',
+      fromDate: 'From Date:',
+      toDate: 'To Date:',
+      chartAutoUpdate: '✓ Chart auto-updated based on selected dates',
+      totalOmset: 'Total Revenue',
+      totalOrders: 'Total Orders',
+      avgOrder: 'Avg / Order',
+      order: 'Order',
+      orders: 'Orders',
+      omsetLabel: 'Revenue',
+      ordersLabel: 'Orders',
+      dateLabel: 'Date',
+      noDataPeriod: 'No data in this period',
+      manageResi: 'Manage Order Tracking →',
+      shortcutCategories: 'Categories',
+      shortcutRecipes: 'Recipes & Videos',
+      shortcutBlogs: 'Blog CMS',
+      shortcutVouchers: 'Discount Vouchers',
+      shortcutCustomers: 'Customer CRM',
+      shortcutSettings: 'Settings',
+      recentWAOrders: 'Recent WhatsApp Orders',
+      recentWAOrdersSub: 'Latest incoming transactions from the store product catalog.',
+      viewAllOrders: 'View All Orders',
+      thPhotoProduct: 'PHOTO & PRODUCT ITEM',
+      thOrderNumber: 'ORDER NO.',
+      thWACustomer: 'WHATSAPP CUSTOMER',
+      thTotalPayment: 'TOTAL PAYMENT',
+      thStatusResi: 'STATUS & TRACKING',
+      thAdminAction: 'ADMIN ACTION',
+      bakingPackage: 'Baking Package',
+      variant: 'Variant',
+      item: 'Item',
+      items: 'Items',
+      chatWA: 'Chat WA',
+      pendingResi: 'Tracking Pending',
+      resiNumber: 'Tracking',
+      processOrder: 'Process Order',
+      viewDetailOrder: 'View Detail',
+      stockAlertTitle: 'Critical Stock Alert',
+      stockAlertSub: 'products with low stock requiring immediate restock.',
+      stockRemaining: 'Stock remaining',
+      restockNow: 'Restock Now →',
+      stockSafe: 'All stock levels are healthy!',
+      cfFilterTimeRange: 'Filter Chart Time Range',
+      cfAvgPerPeriod: 'Average Per Period',
+      cfPeakHighest: 'Peak Highest',
+      cfStatusPerformance: 'Performance Status',
+      cfHealthy: 'Healthy',
+      cfWarning: 'Warning',
+      cfTotalInflow: 'Total Inflow',
+      cfTotalOutflow: 'Total Outflow',
+      cfNetProfit: 'Net Profit',
+      cfOrderSales: 'Order Sales',
+      cfAuto: 'Auto',
+      cfReduceNet: 'Reduces net cashflow directly.',
+      cfDateLabel: 'Date',
+      cfCategoryLabel: 'Category',
+      cfDescLabel: 'Transaction Description',
+      cfAmountLabel: 'Amount (MYR)',
+      cfCancel: 'Cancel',
+      cfSave: 'Save',
+      cfActive: 'Active',
+      cfCatHPP: 'Stock Purchase (COGS)',
+      cfCatPackaging: 'Packaging Cost',
+      cfCatCourier: 'Courier & Logistics',
+      cfCatWarehouse: 'Warehouse & Electricity',
+      cfCatOther: 'Other Expenses',
+      cfNoExpenses: 'No expenses recorded.',
+      ordersTitle: 'Order Management',
+      ordersSubtitle: 'Manage customer WhatsApp orders, verify payments, and issue courier tracking numbers.',
+      ordersThPhoto: 'PHOTO & PRODUCT PURCHASED',
+      ordersThOrderNo: 'ORDER NO.',
+      ordersThCustomer: 'WHATSAPP CUSTOMER',
+      ordersThTotal: 'TOTAL PAYMENT',
+      ordersThStatus: 'STATUS & TRACKING',
+      ordersThAction: 'ADMIN ACTION',
+      ordersResiPending: 'Tracking Pending',
+      ordersNoOrders: 'No orders found.',
+      orderNotFound: 'Order Not Found',
+      orderBackToList: '← Back to Orders List',
+      orderCustomerName: 'Customer Name & Phone:',
+      orderDeliveryAddress: 'Delivery Address:',
+      orderCustomerNote: 'Customer Note:',
+      orderNoNote: 'No notes',
+      orderItemsOrdered: 'Items Ordered',
+      orderItemQty: 'Qty.',
+      orderTotal: 'Order Total',
+      orderUpdateStatus: 'Update Status',
+      orderTrackingNo: 'Tracking / Resi Number',
+      orderTrackingPlaceholder: 'Enter tracking number...',
+      orderSaveTracking: 'Save',
+      orderTimeline: 'Order Timeline',
+      orderPrintInvoice: 'Print Invoice',
+      orderPrintReceipt: 'Print Receipt',
+      orderChatCustomer: 'Chat WhatsApp',
+      productsExport: 'Export CSV',
+      productsImport: 'Import CSV',
+      productsDeleteConfirm: 'Are you sure you want to delete this product?',
+      productsVariants: 'Variants',
+      productsSKU: 'SKU',
+      productsStock: 'Stock',
+      productsPrice: 'Price',
+      videosTitle: 'Video Management',
+      videosSubtitle: 'Manage tutorial and promotional videos.',
+      videosAddNew: 'Add New Video',
+      videosThThumbnail: 'THUMBNAIL',
+      videosThTitle: 'TITLE',
+      videosThPlatform: 'PLATFORM',
+      videosThStatus: 'STATUS',
+      videosThAction: 'ACTION',
+      videosNoVideos: 'No videos found.',
+      videosVideoTitle: 'Video Title',
+      videosVideoUrl: 'Video URL',
+      videosPlatform: 'Platform',
+      videosSaveVideo: 'Save Video',
+      videosUploadFile: 'Upload File',
+      videosUploadMP4: 'Upload MP4 / WebM',
+      settingsTabStore: 'Store Settings',
+      settingsTabBackup: 'Backup & Restore',
+      settingsTabAudit: 'Audit Log',
+      settingsBackupTitle: 'Backup & Restore Data',
+      settingsBackupSub: 'Backup or restore your store data.',
+      settingsBackupBtn: 'Download Backup',
+      settingsRestoreBtn: 'Restore from File',
+      settingsAuditTitle: 'Admin Audit Log',
+      settingsAuditSub: 'Record of all admin activities.',
+      settingsAuditNoLogs: 'No audit logs.',
+      customersMemberTier: 'MEMBER TIER',
+      customersTierRetail: 'Tier: RETAIL',
+      customersTierVIP: 'Tier: VIP',
+      customersTierWholesale: 'Tier: WHOLESALE B2B',
+      blogsUploadMP4: 'Upload MP4 / WebM',
+      categoriesUploadFile: 'Upload File',
+      uploadFile: 'Upload File',
+      confirmDeleteTitle: 'Confirm Delete',
+      confirmDeleteMsg: 'Are you sure you want to delete this item?',
+      noData: 'No data',
+    },
   },
 };
 
@@ -2110,7 +2758,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, []);
 
-  const setLanguage = (lang: LanguageCode) => {
+  const setLanguage = React.useCallback((lang: LanguageCode) => {
     setLangState(lang);
     try {
       const isAdminPath = typeof window !== 'undefined' && (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/admin2026'));
@@ -2136,10 +2784,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (e) {
       console.warn('Failed to save setLanguage state:', e);
     }
-  };
+  }, []);
+
+  const providerValue = React.useMemo(() => ({
+    language,
+    setLanguage,
+    t: dictionaries[language],
+  }), [language, setLanguage]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t: dictionaries[language] }}>
+    <LanguageContext.Provider value={providerValue}>
       {children}
     </LanguageContext.Provider>
   );

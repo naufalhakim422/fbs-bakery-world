@@ -40,7 +40,7 @@ export const AnnouncementBar: React.FC = () => {
           </span>
           <span className="hidden sm:inline text-white/30">|</span>
           <span className="hidden sm:flex items-center gap-1 font-semibold text-emerald-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> 100% Halal Certified
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> {t.productDetail.halalCertified}
           </span>
         </div>
 

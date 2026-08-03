@@ -10,38 +10,32 @@ import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { BotChallenge } from '@/components/customer/bot-challenge';
-import { hashPassword, checkRateLimit, recordFailedAttempt, resetFailedAttempts } from '@/lib/auth-security';
-import { OtpModal } from '@/components/customer/otp-modal';
-import { PhoneOtpModal } from '@/components/auth/phone-otp-modal';
+import { checkRateLimit, recordFailedAttempt, resetFailedAttempts } from '@/lib/auth-security';
 import { User, Lock, Phone, ArrowRight, ShieldCheck, AlertTriangle, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
 
 export default function CustomerLoginPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [phoneOrEmail, setPhoneOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isBotVerified, setIsBotVerified] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [showPhoneOtpModal, setShowPhoneOtpModal] = useState(false);
 
   // Rate Limiting & Security State
-  const [rateLimitState, setRateLimitState] = useState({
-    isLocked: false,
-    remainingAttempts: 5,
-    lockoutRemainingSeconds: 0,
-    shouldShowCaptcha: false,
-  });
-
-  useEffect(() => {
+  const rateLimitState = React.useMemo(() => {
     if (phoneOrEmail.trim()) {
-      const status = checkRateLimit(phoneOrEmail.trim());
-      setRateLimitState(status);
+      return checkRateLimit(phoneOrEmail.trim());
     }
+    return {
+      isLocked: false,
+      remainingAttempts: 5,
+      lockoutRemainingSeconds: 0,
+      shouldShowCaptcha: false,
+    };
   }, [phoneOrEmail]);
 
   const saveCustomerToDB = (customerData: any) => {
@@ -76,13 +70,11 @@ export default function CustomerLoginPage() {
     const status = checkRateLimit(identifier);
     if (status.isLocked) {
       setError(`${t.customerAccount.accountLocked} ${status.lockoutRemainingSeconds}s.`);
-      setRateLimitState(status);
       return;
     }
 
     if (!phoneOrEmail || !password) {
-      const newStatus = recordFailedAttempt(identifier);
-      setRateLimitState(newStatus);
+      recordFailedAttempt(identifier);
       setError(t.customerAccount.wrongCredentials);
       return;
     }
@@ -121,7 +113,6 @@ export default function CustomerLoginPage() {
   };
 
   const handlePhoneAuthSuccess = (firebaseUser: any) => {
-    setShowPhoneOtpModal(false);
     setLoading(true);
 
     const userPhone = firebaseUser.phoneNumber || phoneOrEmail || '+628123456789';
@@ -159,7 +150,7 @@ export default function CustomerLoginPage() {
               <User className="w-7 h-7" />
             </div>
             <span className="text-xs font-bold text-[#800020] uppercase tracking-widest block mb-1">
-              Member Portal
+              {language === 'EN' ? 'Member Portal' : language === 'MS' ? 'Portal Ahli' : 'Portal Anggota'}
             </span>
             <h1 className="font-serif text-2xl font-bold text-stone-900">
               {t.customerAccount.loginTitle}
@@ -286,7 +277,7 @@ export default function CustomerLoginPage() {
 
             <div className="p-3 bg-[#FFF8F0] rounded-xl border border-[#EADBC8] text-[11px] text-stone-600 flex items-center justify-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-[#800020] flex-shrink-0" />
-              <span>Guest checkout is always supported without requiring registration!</span>
+              <span>{language === 'EN' ? 'Guest checkout is always supported without requiring registration!' : language === 'MS' ? 'Penyemakan tetamu sentiasa disokong tanpa pendaftaran!' : 'Checkout tamu selalu didukung tanpa perlu mendaftar!'}</span>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '@/lib/language-context';
 import { ShieldCheck, RefreshCw, CheckCircle2, Lock, Sparkles, X, Check } from 'lucide-react';
 
 interface BotChallengeProps {
@@ -8,6 +9,7 @@ interface BotChallengeProps {
 }
 
 export const BotChallenge: React.FC<BotChallengeProps> = ({ onVerified }) => {
+  const { t, language } = useLanguage();
   const [isChecked, setIsChecked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -64,7 +66,7 @@ export const BotChallenge: React.FC<BotChallengeProps> = ({ onVerified }) => {
       setIsModalOpen(false);
       onVerified(true);
     } else {
-      setErrorMsg('Pilihan salah. Silakan coba pilih jawaban yang benar atau tekan Refresh Soal.');
+      setErrorMsg(language === 'EN' ? 'Incorrect answer. Please choose the correct number or click Refresh.' : language === 'MS' ? 'Jawapan salah. Sila pilih nombor yang betul atau tekan Semula.' : 'Pilihan salah. Silakan coba pilih jawaban yang benar atau tekan Refresh Soal.');
       onVerified(false);
     }
   };
@@ -91,14 +93,14 @@ export const BotChallenge: React.FC<BotChallengeProps> = ({ onVerified }) => {
             <span className="font-bold text-xs flex items-center gap-1.5">
               {isVerified ? (
                 <span className="text-emerald-700 font-extrabold flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> TERVERIFIKASI MANUSIA
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {language === 'EN' ? 'HUMAN VERIFIED' : language === 'MS' ? 'DISAHKAN MANUSIA' : 'TERVERIFIKASI MANUSIA'}
                 </span>
               ) : (
-                'Saya Bukan Robot (Verifikasi Keamanan)'
+                language === 'EN' ? 'I am not a robot (Security Check)' : language === 'MS' ? 'Saya Bukan Robot (Semakan Keselamatan)' : 'Saya Bukan Robot (Verifikasi Keamanan)'
               )}
             </span>
             <span className="text-[10px] text-stone-500 block">
-              {isVerified ? 'Pemeriksaan keamanan selesai ✓ Anda dapat melanjutkan' : 'Klik kotak di atas untuk verifikasi cepat 1-detik'}
+              {isVerified ? (language === 'EN' ? 'Security check completed ✓ You may proceed' : language === 'MS' ? 'Semakan keselamatan selesai ✓ Anda boleh meneruskan' : 'Pemeriksaan keamanan selesai ✓ Anda dapat melanjutkan') : (language === 'EN' ? 'Click checkbox above for quick 1-sec verification' : language === 'MS' ? 'Klik kotak di atas untuk pengesahan pantas 1-saat' : 'Klik kotak di atas untuk verifikasi cepat 1-detik')}
             </span>
           </div>
         </div>
@@ -116,7 +118,7 @@ export const BotChallenge: React.FC<BotChallengeProps> = ({ onVerified }) => {
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2 text-[#800020]">
                 <ShieldCheck className="w-5 h-5" />
-                <h3 className="font-serif font-bold text-sm">Verifikasi Manusia</h3>
+                <h3 className="font-serif font-bold text-sm">{language === 'EN' ? 'Human Verification' : language === 'MS' ? 'Pengesahan Manusia' : 'Verifikasi Manusia'}</h3>
               </div>
               <button 
                 onClick={() => { setIsModalOpen(false); setIsChecked(false); }}
@@ -129,23 +131,23 @@ export const BotChallenge: React.FC<BotChallengeProps> = ({ onVerified }) => {
             <div className="space-y-4 text-xs">
               <div className="flex items-center justify-between">
                 <p className="text-stone-600 font-medium">
-                  Berapakah hasil dari pertambahan ini?
+                  {language === 'EN' ? 'What is the sum of this equation?' : language === 'MS' ? 'Berapakah jumlah penambahan ini?' : 'Berapakah hasil dari pertambahan ini?'}
                 </p>
                 {/* PROMINENT REFRESH BUTTON FOR OTHER QUESTIONS */}
                 <button
                   type="button"
                   onClick={generateEasyChallenge}
                   className="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-[#800020] rounded-lg font-bold text-[11px] flex items-center gap-1 transition-colors border border-stone-200"
-                  title="Ganti Soal Pertanyaan Lain"
+                  title={language === 'EN' ? 'New Question' : language === 'MS' ? 'Soal Lain' : 'Ganti Soal'}
                 >
-                  <RefreshCw className="w-3.5 h-3.5" /> Soal Lain
+                  <RefreshCw className="w-3.5 h-3.5" /> {language === 'EN' ? 'New Question' : language === 'MS' ? 'Soal Lain' : 'Ganti Soal'}
                 </button>
               </div>
 
               {/* EASY QUESTION BOX */}
               <div className="p-4 bg-gradient-to-r from-[#800020] to-[#5A0015] text-white rounded-2xl text-center space-y-1 shadow-md relative">
                 <span className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-wider block">
-                  SOAL KEAMANAN
+                  {language === 'EN' ? 'SECURITY QUESTION' : language === 'MS' ? 'SOALAN KESELAMATAN' : 'SOAL KEAMANAN'}
                 </span>
                 <div className="font-mono text-3xl font-black tracking-widest text-white">
                   {challenge.num1} + {challenge.num2} = ?
@@ -180,7 +182,7 @@ export const BotChallenge: React.FC<BotChallengeProps> = ({ onVerified }) => {
                 onClick={generateEasyChallenge}
                 className="text-[#800020] font-bold hover:underline flex items-center gap-1"
               >
-                <RefreshCw className="w-3.5 h-3.5" /> Ganti Soal Pertanyaan
+                <RefreshCw className="w-3.5 h-3.5" /> {language === 'EN' ? 'Refresh Question' : language === 'MS' ? 'Tukar Soalan' : 'Ganti Soal Pertanyaan'}
               </button>
 
               <span className="text-[10px] text-stone-400 flex items-center gap-0.5">

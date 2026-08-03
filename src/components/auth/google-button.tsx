@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import { signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 
+import { useLanguage } from '@/lib/language-context';
+
 export default function GoogleButton() {
+  const { language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -129,7 +132,7 @@ export default function GoogleButton() {
         </svg>
       )}
       <span style={{ fontSize: '12px', fontWeight: 600, color: '#3C3C3C', fontFamily: "'Inter', sans-serif" }}>
-        {loading ? 'Memuat...' : 'Google'}
+        {loading ? (language === 'EN' ? 'Loading...' : language === 'MS' ? 'Memuatkan...' : 'Memuat...') : 'Google'}
       </span>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </button>

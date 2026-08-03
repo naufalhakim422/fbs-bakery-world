@@ -9,8 +9,10 @@ import { ProductVariant } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, Sparkles, Upload, X } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 function AdminNewProductContent() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');

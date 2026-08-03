@@ -11,7 +11,7 @@ import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { Layers, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function CategoriesPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [categories, setCategories] = useState(db.getCategories());
   const [products, setProducts] = useState(db.getProducts());
 
@@ -41,13 +41,13 @@ export default function CategoriesPage() {
         <div className="text-left pt-2 pb-6 mb-4 space-y-1.5 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 border border-black/10 text-black text-[11px] font-extrabold tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-            FBS BAKERY COLLECTIONS
+            {language === 'EN' ? 'FBS BAKERY COLLECTIONS' : language === 'MS' ? 'KOLEKSI KEDAI ROTI FBS' : 'KOLEKSI TOKO ROTI FBS'}
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-black text-black tracking-tight">
-            Kategori Produk Pilihan
+            {language === 'EN' ? 'Featured Product Categories' : language === 'MS' ? 'Kategori Produk Pilihan' : 'Kategori Produk Pilihan'}
           </h1>
           <p className="text-stone-700 text-xs sm:text-sm leading-relaxed font-medium">
-            Telusuri bahan kue dan peralatan bakery berdasarkan spesialisasi: tepung pilihan, cokelat couverture, mentega impor, hiasan kue, hingga kemasan food-grade.
+            {language === 'EN' ? 'Explore baking supplies and bakery tools by specialty: premium flours, couverture chocolate, imported butter, decorations, and food-grade packaging.' : language === 'MS' ? 'Terokai bahan bakeri dan peralatan mengikut kepakaran: tepung pilihan, coklat couverture, mentega import, hiasan kek, dan pembungkusan gred makanan.' : 'Telusuri bahan kue dan peralatan bakery berdasarkan spesialisasi: tepung pilihan, cokelat couverture, mentega impor, hiasan kue, hingga kemasan food-grade.'}
           </p>
         </div>
 
@@ -69,7 +69,7 @@ export default function CategoriesPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-4 right-4 bg-[#800020] text-[#D4AF37] text-xs font-bold px-3 py-1 rounded-full shadow border border-[#D4AF37]/40">
-                    {count} Products Available
+                    {count} {language === 'EN' ? 'Products Available' : language === 'MS' ? 'Produk Disediakan' : 'Produk Tersedia'}
                   </div>
                 </div>
 
@@ -85,13 +85,13 @@ export default function CategoriesPage() {
 
                   <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
                     <span className="text-xs text-stone-500 font-semibold flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> Halal Certified
+                      <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> {t.productDetail.halalCertified}
                     </span>
                     <Link
                       href={`/products?category=${cat.id}`}
                       className="px-4 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
                     >
-                      Browse Category <ArrowRight className="w-4 h-4" />
+                      {language === 'EN' ? 'Browse Category' : language === 'MS' ? 'Terokai Kategori' : 'Lihat Kategori'} <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 </div>

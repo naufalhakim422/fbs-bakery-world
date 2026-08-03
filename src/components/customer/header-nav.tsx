@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { useLanguage, LanguageCode } from '@/lib/language-context';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { db } from '@/lib/db';
 import { CartDrawer } from './cart-drawer';
 import { 
@@ -107,7 +108,7 @@ export const HeaderNav: React.FC = () => {
                   FBS BAKERY WORLD
                 </span>
                 <span className="hidden sm:block text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.18em] uppercase text-[#F7E7CE]/80 font-medium mt-1">
-                  PREMIUM BAKING SUPPLY MALAYSIA
+                  {language === 'EN' ? 'PREMIUM BAKING SUPPLY MALAYSIA' : 'BEKALAN BAKERY PREMIUM MALAYSIA'}
                 </span>
               </div>
             </Link>
@@ -124,8 +125,8 @@ export const HeaderNav: React.FC = () => {
               <button 
                 type="submit" 
                 className="absolute left-3 top-2.5 text-[#D4AF37] hover:text-white transition-colors"
-                title="Search"
-                aria-label="Submit Search"
+                title={t.common.search}
+                aria-label={t.common.search}
               >
                 <Search className="w-4 h-4" />
               </button>
@@ -134,7 +135,7 @@ export const HeaderNav: React.FC = () => {
                   type="button"
                   onClick={() => { setSearchQuery(''); router.push('/products'); }}
                   className="absolute right-3 top-2.5 text-stone-400 hover:text-white text-xs font-bold"
-                  aria-label="Clear Search Query"
+                  aria-label={t.common.close}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -157,8 +158,8 @@ export const HeaderNav: React.FC = () => {
               <Link 
                 href={customerSession ? "/account" : "/account/login"} 
                 className="relative p-1.5 sm:p-2 text-stone-200 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/5" 
-                title="Wishlist"
-                aria-label="View Wishlist"
+                title={t.customerAccount.wishlistTitle}
+                aria-label={t.customerAccount.wishlistTitle}
               >
                 <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
                 {wishlist.length > 0 && (
@@ -172,8 +173,8 @@ export const HeaderNav: React.FC = () => {
               <button 
                 onClick={() => setIsCartOpen(true)}
                 className="relative p-1.5 sm:px-3 sm:py-1.5 lg:px-3.5 lg:py-2 bg-gradient-to-r from-[#4A1313] to-[#800020] hover:brightness-110 text-[#FFF8F0] rounded-full border border-[#D4AF37]/50 transition-all active:scale-95 shadow-md flex items-center gap-1.5"
-                title="Shopping Cart"
-                aria-label="Open Shopping Cart"
+                title={t.nav.cart}
+                aria-label={t.nav.cart}
               >
                 <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-[#D4AF37]" />
                 <span className="hidden sm:inline text-xs font-extrabold tracking-wide">{t.nav.cart}</span>
@@ -186,7 +187,7 @@ export const HeaderNav: React.FC = () => {
               <Link 
                 href={customerSession ? "/account" : "/account/login"} 
                 className="p-1.5 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/20 text-[#FFF8F0] hover:text-[#D4AF37] rounded-full border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5"
-                title={customerSession ? `Halo, ${customerSession.name}` : t.nav.signIn}
+                title={customerSession ? `${language === 'EN' ? 'Hello' : 'Halo'}, ${customerSession.name}` : t.nav.signIn}
               >
                 <User className="w-4 h-4 text-[#D4AF37]" />
                 <span className="hidden md:inline text-xs">
@@ -194,12 +195,15 @@ export const HeaderNav: React.FC = () => {
                 </span>
               </Link>
 
+              {/* Dark Mode Toggle Button */}
+              <ThemeToggle />
+
               {/* Mobile & Tablet Menu Hamburger Button (Shown on screens smaller than lg) */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2 sm:p-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] active:scale-95 rounded-xl border border-[#D4AF37]/50 shadow-md transition-all flex items-center justify-center gap-1"
-                title={isMobileMenuOpen ? "Tutup Menu Navigasi" : "Buka Menu Navigasi"}
-                aria-label={isMobileMenuOpen ? "Tutup Menu Navigasi" : "Buka Menu Navigasi"}
+                title={isMobileMenuOpen ? (language === 'EN' ? 'Close Navigation Menu' : 'Tutup Menu Navigasi') : (language === 'EN' ? 'Open Navigation Menu' : 'Buka Menu Navigasi')}
+                aria-label={isMobileMenuOpen ? (language === 'EN' ? 'Close Navigation Menu' : 'Tutup Menu Navigasi') : (language === 'EN' ? 'Open Navigation Menu' : 'Buka Menu Navigasi')}
               >
                 {isMobileMenuOpen ? (
                   <X className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -240,25 +244,28 @@ export const HeaderNav: React.FC = () => {
               })}
             </div>
 
-            {/* Desktop Quick Language Switcher Pills */}
-            <div className="notranslate flex items-center gap-1 bg-stone-900/90 px-2.5 py-1 rounded-full border border-[#D4AF37]/40 shadow-inner" translate="no">
-              <Globe className="w-3.5 h-3.5 text-[#D4AF37] ml-0.5 mr-1" />
-              {languagesList.map((lang) => {
-                const isSelected = language === lang.code;
-                return (
-                  <button
-                    key={lang.code}
-                    onClick={() => setLanguage(lang.code)}
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-all ${
-                      isSelected
-                        ? 'bg-[#800020] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
-                        : 'text-stone-400 hover:text-white'
-                    }`}
-                  >
-                    {lang.code === 'MS' ? 'MY' : lang.code === 'ID' ? 'ID' : 'EN'}
-                  </button>
-                );
-              })}
+            {/* Desktop Quick Language Switcher Pills & Dark Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <div className="notranslate flex items-center gap-1 bg-stone-900/90 px-2.5 py-1 rounded-full border border-[#D4AF37]/40 shadow-inner" translate="no">
+                <Globe className="w-3.5 h-3.5 text-[#D4AF37] ml-0.5 mr-1" />
+                {languagesList.map((lang) => {
+                  const isSelected = language === lang.code;
+                  return (
+                    <button
+                      key={lang.code}
+                      onClick={() => setLanguage(lang.code)}
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-all ${
+                        isSelected
+                          ? 'bg-[#800020] text-[#D4AF37] border border-[#D4AF37]/50 shadow-sm'
+                          : 'text-stone-400 hover:text-white'
+                      }`}
+                    >
+                      {lang.code === 'MS' ? 'MY' : lang.code === 'ID' ? 'ID' : 'EN'}
+                    </button>
+                  );
+                })}
+              </div>
+              <ThemeToggle />
             </div>
 
           </div>
@@ -286,7 +293,7 @@ export const HeaderNav: React.FC = () => {
             {/* INTEGRATED LANGUAGE SWITCHER INSIDE MOBILE MENU DRAWER */}
             <div className="notranslate bg-stone-900/90 p-3.5 rounded-2xl border border-stone-800 space-y-2.5" translate="no">
               <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest block flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-[#D4AF37]" /> PILIH BAHASA / SELECT LANGUAGE
+                <Globe className="w-3.5 h-3.5 text-[#D4AF37]" /> {language === 'EN' ? 'SELECT LANGUAGE' : 'PILIH BAHASA'}
               </span>
               <div className="grid grid-cols-2 gap-2 text-xs font-bold">
                 {languagesList.map((lang) => {
@@ -337,16 +344,17 @@ export const HeaderNav: React.FC = () => {
               })}
             </div>
 
-            {/* Track Order Mobile Button */}
-            <div className="pt-2">
+            {/* Track Order Mobile Button & Dark Mode Toggle */}
+            <div className="pt-2 flex items-center gap-2">
               <Link 
                 href="/track-order" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-3 bg-[#4A1313] hover:bg-[#3D0F0F] text-[#D4AF37] rounded-xl text-xs font-bold border border-[#D4AF37]/40 shadow-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#4A1313] hover:bg-[#3D0F0F] text-[#D4AF37] rounded-xl text-xs font-bold border border-[#D4AF37]/40 shadow-sm"
               >
                 <PackageCheck className="w-4 h-4 text-[#D4AF37]" />
                 <span>{t.nav.trackOrder}</span>
               </Link>
+              <ThemeToggle showLabelOnMobile={true} />
             </div>
 
           </div>

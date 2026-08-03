@@ -11,7 +11,7 @@ import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { ChefHat, Clock, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function RecipeCenterPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [recipes, setRecipes] = useState(db.getRecipes());
 
   useEffect(() => {
@@ -39,13 +39,13 @@ export default function RecipeCenterPage() {
         <div className="text-left pt-2 pb-6 mb-4 space-y-1.5 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/5 border border-black/10 text-black text-[11px] font-extrabold tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-            FBS BAKER'S KITCHEN
+            {language === 'EN' ? "FBS BAKER'S KITCHEN" : language === 'MS' ? 'DAPUR BAKERI FBS' : 'DAPUR BAKERY FBS'}
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-black text-black tracking-tight">
-            Resep & Tutorial Baking
+            {language === 'EN' ? 'Recipes & Baking Tutorials' : language === 'MS' ? 'Resipi & Tutorial Bakeri' : 'Resep & Tutorial Baking'}
           </h1>
           <p className="text-stone-700 text-xs sm:text-sm leading-relaxed font-medium">
-            Panduan resep langkah-demi-langkah dari master baker. Klik resep untuk melihat bahan yang dibutuhkan dan pesan langsung ke dapur Anda!
+            {language === 'EN' ? 'Step-by-step recipe guides from master bakers. Click any recipe to view required ingredients and order directly to your kitchen!' : language === 'MS' ? 'Panduan resipi langkah demi langkah daripada pakar bakeri. Klik resipi untuk melihat bahan dan pesan terus ke dapur anda!' : 'Panduan resep langkah-demi-langkah dari master baker. Klik resep untuk melihat bahan yang dibutuhkan dan pesan langsung ke dapur Anda!'}
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function RecipeCenterPage() {
                     {recipe.difficulty}
                   </span>
                   <span className="px-3 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-bold rounded-full flex items-center gap-1 shadow">
-                    <Clock className="w-3.5 h-3.5" /> {recipe.cookingTime} Mins
+                    <Clock className="w-3.5 h-3.5" /> {recipe.cookingTime} {language === 'EN' ? 'Mins' : language === 'MS' ? 'Minit' : 'Menit'}
                   </span>
                 </div>
               </div>
@@ -81,13 +81,13 @@ export default function RecipeCenterPage() {
 
                 <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
                   <span className="text-xs font-bold text-stone-500 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> {recipe.ingredients.length} Key Ingredients
+                    <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> {recipe.ingredients.length} {language === 'EN' ? 'Key Ingredients' : language === 'MS' ? 'Bahan Utama' : 'Bahan Utama'}
                   </span>
                   <Link
                     href={`/recipes/${recipe.slug}`}
                     className="px-4 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
                   >
-                    View Tutorial & Shop <ArrowRight className="w-3.5 h-3.5" />
+                    {language === 'EN' ? 'View Tutorial & Shop' : language === 'MS' ? 'Lihat Tutorial & Beli' : 'Lihat Tutorial & Belanja'} <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
