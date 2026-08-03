@@ -38,7 +38,7 @@ export default function AdminBannersPage() {
           subtitle: 'Authentic Emerald Green Uji Matcha Powder for Artisan Matcha Lava Tarts & Beverages.',
           imageUrl: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=1200&auto=format&fit=crop',
           buttonText: 'BELI MATCHA UJI',
-          buttonLink: '/products/kyoto-uji-matcha-powder-grade-a',
+          buttonLink: '/products/uji-matcha-powder-grade-a',
           status: true,
         },
         {
@@ -47,7 +47,7 @@ export default function AdminBannersPage() {
           subtitle: 'Cokelat couverture murni untuk glazing cake, praline, dan ganache mewah.',
           imageUrl: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=1200&auto=format&fit=crop',
           buttonText: 'LIHAT COKELAT',
-          buttonLink: '/products/belgian-dark-couverture-chocolate-70',
+          buttonLink: '/products/belgian-dark-chocolate-chips-70',
           status: true,
         },
         {
@@ -56,7 +56,7 @@ export default function AdminBannersPage() {
           subtitle: 'Mesin mixer adonan roti 1200W dengan mangkuk stainless steel tebal.',
           imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=1200&auto=format&fit=crop',
           buttonText: 'LIHAT MIXER KOMERSIAL',
-          buttonLink: '/products/commercial-stand-mixer-10l',
+          buttonLink: '/products/professional-heavy-duty-stand-mixer-7l',
           status: true,
         }
       ];

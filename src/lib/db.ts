@@ -439,7 +439,7 @@ let initialBanners: Banner[] = [
     subtitle: 'Rich Creamy Dutch Processed Chocolate Chips for Bakery & Cafe Desserts.',
     imageUrl: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=1200&auto=format&fit=crop',
     buttonText: 'PESAN PRODUK DISKON',
-    buttonLink: '/products/belgian-dark-couverture-chocolate-70',
+    buttonLink: '/products/belgian-dark-chocolate-chips-70',
     status: true,
   },
   {
@@ -448,7 +448,7 @@ let initialBanners: Banner[] = [
     subtitle: 'Heavy-duty stainless steel mixer with multi-speed gear drive for commercial bakeries.',
     imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=1200&auto=format&fit=crop',
     buttonText: 'CEK BARANG BARU',
-    buttonLink: '/products/commercial-stand-mixer-10l',
+    buttonLink: '/products/professional-heavy-duty-stand-mixer-7l',
     status: true,
   }
 ];
@@ -569,7 +569,7 @@ let homePageSettingData: HomePageSetting = {
       subtitle: 'Peralatan oven & mixer stainless steel heavy duty garansi resmi.',
       imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=800&auto=format&fit=crop',
       buttonText: 'LIHAT MIXER KOMERSIAL',
-      buttonLink: '/products/commercial-stand-mixer-10l',
+      buttonLink: '/products/professional-heavy-duty-stand-mixer-7l',
     }
   ]
 };
@@ -681,8 +681,6 @@ export const db = {
   getProductBySlug: (slug: string): Product | undefined => {
     if (!slug) return undefined;
     const list = loadFromStorage<Product[]>('fbs_products', initialProducts);
-    if (!list || list.length === 0) return undefined;
-
     const raw = String(slug).trim();
     let decoded = raw;
     try {
@@ -690,70 +688,7 @@ export const db = {
     } catch (e) {
       decoded = raw;
     }
-
-    const lowerDecoded = decoded.toLowerCase();
-    const dashed = lowerDecoded.replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-
-    // 1. Direct exact match by slug or id
-    let found = list.find(p => p.slug === raw || p.id === raw || p.slug === decoded || p.id === decoded);
-    if (found) return found;
-
-    // 2. Case-insensitive match
-    found = list.find(p => p.slug?.toLowerCase() === lowerDecoded || p.id?.toLowerCase() === lowerDecoded);
-    if (found) return found;
-
-    // 3. Normalized dashed match against product slug or product name
-    found = list.find(p => {
-      const pSlugDashed = (p.slug || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-      const pNameDashed = (p.productName || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-      return pSlugDashed === dashed || pNameDashed === dashed;
-    });
-    if (found) return found;
-
-    // 4. Loose containment match (e.g. 'cocoa', 'matcha', 'semolina', 'butter', 'stand-mixer')
-    found = list.find(p => {
-      const pSlugLower = (p.slug || '').toLowerCase();
-      const pNameLower = (p.productName || '').toLowerCase();
-      return (
-        (pSlugLower && pSlugLower.includes(dashed)) ||
-        (dashed && pSlugLower && dashed.includes(pSlugLower)) ||
-        (pNameLower && pNameLower.includes(lowerDecoded)) ||
-        (lowerDecoded && pNameLower && lowerDecoded.includes(pNameLower))
-      );
-    });
-    if (found) return found;
-
-    // 5. Keyword fallback (e.g. cocoa, matcha, flour, butter, gold, mixer, box)
-    if (dashed.includes('cocoa') || dashed.includes('chocolate') || dashed.includes('valrhona')) {
-      found = list.find(p => p.id === 'prod-8' || p.id === 'prod-3' || p.slug.includes('cocoa') || p.slug.includes('chocolate'));
-      if (found) return found;
-    }
-    if (dashed.includes('matcha') || dashed.includes('uji')) {
-      found = list.find(p => p.id === 'prod-2' || p.slug.includes('matcha'));
-      if (found) return found;
-    }
-    if (dashed.includes('semolina') || dashed.includes('flour')) {
-      found = list.find(p => p.id === 'prod-1' || p.slug.includes('flour') || p.slug.includes('semolina'));
-      if (found) return found;
-    }
-    if (dashed.includes('butter') || dashed.includes('anchor')) {
-      found = list.find(p => p.id === 'prod-4' || p.slug.includes('butter'));
-      if (found) return found;
-    }
-    if (dashed.includes('gold') || dashed.includes('leaf')) {
-      found = list.find(p => p.id === 'prod-5' || p.slug.includes('gold'));
-      if (found) return found;
-    }
-    if (dashed.includes('mixer') || dashed.includes('stand')) {
-      found = list.find(p => p.id === 'prod-6' || p.slug.includes('mixer'));
-      if (found) return found;
-    }
-    if (dashed.includes('box') || dashed.includes('kraft')) {
-      found = list.find(p => p.id === 'prod-7' || p.slug.includes('box'));
-      if (found) return found;
-    }
-
-    return list[0];
+    return list.find(p => p.slug === decoded || p.id === decoded || p.slug === raw || p.id === raw);
   },
 
   saveProduct: (product: Partial<Product>) => {
