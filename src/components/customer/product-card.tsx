@@ -7,7 +7,7 @@ import { Product, ProductVariant } from '@/types';
 import { formatMYR, formatSoldQuantity } from '@/lib/currency';
 import { useCart } from '@/lib/cart-context';
 import { useLanguage } from '@/lib/language-context';
-import { ShoppingBag, MessageCircle, Heart, ShieldCheck, Check, Sparkles, Star, Flame } from 'lucide-react';
+import { ShoppingBag, MessageCircle, Heart, ShieldCheck, Check, Sparkles, Star, Flame, Scale } from 'lucide-react';
 import { generateWhatsAppOrderLink } from '@/lib/whatsapp';
 import { db } from '@/lib/db';
 import { ProductBadges } from '@/components/customer/product-badges';
@@ -19,7 +19,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, viewMode = 'grid' }) => {
   const router = useRouter();
-  const { addToCart, toggleWishlist, isInWishlist } = useCart();
+  const { addToCart, toggleWishlist, isInWishlist, toggleCompare, isInCompare } = useCart();
   const { t, language } = useLanguage();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     product.variants && product.variants.length > 0 ? product.variants[0] : {
@@ -34,6 +34,8 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
   );
   const [isAdded, setIsAdded] = useState(false);
   const ratingStats = React.useMemo(() => db.calculateProductRating(product.id), [product.id]);
+  const isFavorite = isInWishlist(product.id);
+  const isCompared = isInCompare(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,7 +52,6 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
     router.push('/checkout');
   };
 
-  const isFavorite = isInWishlist(product.id);
   const productImage = product.mainImage || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop';
 
   // LIST VIEW LAYOUT
@@ -71,20 +72,36 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
             />
           </Link>
 
-          {/* Wishlist Button */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleWishlist(product.id);
-            }}
-            className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md transition-colors shadow ${
-              isFavorite ? 'bg-red-500 text-white' : 'bg-white/80 text-stone-700 hover:text-red-500 hover:bg-white'
-            }`}
-            title="Save to Wishlist"
-          >
-            <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-white' : ''}`} />
-          </button>
+          {/* Wishlist & Compare Buttons */}
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-10">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleWishlist(product.id);
+              }}
+              className={`p-1.5 rounded-full backdrop-blur-md transition-colors shadow ${
+                isFavorite ? 'bg-red-500 text-white' : 'bg-white/80 text-stone-700 hover:text-red-500 hover:bg-white'
+              }`}
+              title="Save to Wishlist"
+            >
+              <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-white' : ''}`} />
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleCompare(product.id);
+              }}
+              className={`p-1.5 rounded-full backdrop-blur-md transition-colors shadow ${
+                isCompared ? 'bg-[#800020] text-white' : 'bg-white/80 text-stone-700 hover:text-[#800020] hover:bg-white'
+              }`}
+              title={isCompared ? "Hapus dari Perbandingan" : "Bandingkan Produk"}
+            >
+              <Scale className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
           {/* Badges */}
           <ProductBadges product={product} size="sm" className="absolute top-2 left-2" />
@@ -195,20 +212,36 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
           />
         </Link>
 
-        {/* Wishlist Button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleWishlist(product.id);
-          }}
-          className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-colors shadow-md ${
-            isFavorite ? 'bg-red-500 text-white' : 'bg-white/80 text-stone-700 hover:text-red-500 hover:bg-white'
-          }`}
-          title="Save to Wishlist"
-        >
-          <Heart className={`w-4 h-4 ${isFavorite ? 'fill-white' : ''}`} />
-        </button>
+        {/* Wishlist & Compare Buttons */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleWishlist(product.id);
+            }}
+            className={`p-2 rounded-full backdrop-blur-md transition-colors shadow-md ${
+              isFavorite ? 'bg-red-500 text-white' : 'bg-white/80 text-stone-700 hover:text-red-500 hover:bg-white'
+            }`}
+            title="Save to Wishlist"
+          >
+            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-white' : ''}`} />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleCompare(product.id);
+            }}
+            className={`p-2 rounded-full backdrop-blur-md transition-colors shadow-md ${
+              isCompared ? 'bg-[#800020] text-white' : 'bg-white/80 text-stone-700 hover:text-[#800020] hover:bg-white'
+            }`}
+            title={isCompared ? "Hapus dari Perbandingan" : "Bandingkan Produk"}
+          >
+            <Scale className="w-4 h-4" />
+          </button>
+        </div>
 
         {/* Badges */}
         <ProductBadges product={product} size="md" className="absolute top-3 left-3" />

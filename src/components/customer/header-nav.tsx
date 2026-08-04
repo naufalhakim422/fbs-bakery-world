@@ -17,7 +17,8 @@ import {
   X, 
   PackageCheck,
   Globe,
-  Check
+  Check,
+  Scale
 } from 'lucide-react';
 
 import { formatMYR } from '@/lib/currency';
@@ -37,7 +38,7 @@ export const HeaderNav: React.FC = () => {
 
   const pathname = usePathname();
   const router = useRouter();
-  const { totalItems, wishlist } = useCart();
+  const { totalItems, wishlist, totalCompare } = useCart();
   const { language, setLanguage, t } = useLanguage();
 
   const norm = (s: string) => (s || '').toLowerCase().replace(/\s+/g, ' ').trim();
@@ -310,6 +311,21 @@ export const HeaderNav: React.FC = () => {
                 {wishlist.length > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#800020] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md">
                     {wishlist.length}
+                  </span>
+                )}
+              </Link>
+
+              {/* Product Comparison Link */}
+              <Link 
+                href="/compare" 
+                className="relative p-1.5 sm:p-2 text-stone-200 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/5" 
+                title="Perbandingan Produk"
+                aria-label="Perbandingan Produk"
+              >
+                <Scale className="w-4 h-4 sm:w-5 sm:h-5" />
+                {totalCompare > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-[#800020] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-[#D4AF37]">
+                    {totalCompare}
                   </span>
                 )}
               </Link>

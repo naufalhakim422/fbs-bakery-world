@@ -805,6 +805,11 @@ export const db = {
     return list.find(p => norm(p.slug) === target || norm(p.id) === target);
   },
 
+  getProductById: (id: string): Product | undefined => {
+    const list = loadFromStorage<Product[]>('fbs_products', initialProducts);
+    return list.find(p => p.id === id);
+  },
+
   saveProduct: (product: Partial<Product>) => {
     const list = loadFromStorage<Product[]>('fbs_products', initialProducts);
     if (product.id) {

@@ -18,13 +18,19 @@ export interface CartItem {
 interface CartContextType {
   cart: CartItem[];
   wishlist: string[]; // product IDs
+  compareList: string[]; // product IDs (max 4)
   addToCart: (product: Product, variant: ProductVariant, quantity?: number) => void;
   removeFromCart: (productId: string, variantId: string) => void;
   updateQuantity: (productId: string, variantId: string, delta: number) => void;
   clearCart: () => void;
   toggleWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
+  toggleCompare: (productId: string) => boolean;
+  removeFromCompare: (productId: string) => void;
+  clearCompare: () => void;
+  isInCompare: (productId: string) => boolean;
   totalWishlist: number;
+  totalCompare: number;
   totalItems: number;
   subtotal: number;
   totalWeight: number;
@@ -38,6 +44,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [compareList, setCompareList] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Free shipping threshold in MYR
@@ -48,6 +55,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const savedCart = localStorage.getItem('fbs_bakery_cart');
       const savedWishlist = localStorage.getItem('fbs_bakery_wishlist');
+      const savedCompare = localStorage.getItem('fbs_bakery_compare');
       if (savedCart) {
         const parsed = JSON.parse(savedCart);
         if (Array.isArray(parsed)) setCart(parsed);
@@ -56,36 +64,32 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsed = JSON.parse(savedWishlist);
         if (Array.isArray(parsed)) setWishlist(parsed);
       }
+      if (savedCompare) {
+        const parsed = JSON.parse(savedCompare);
+        if (Array.isArray(parsed)) setCompareList(parsed);
+      }
     } catch (e) {
-      console.warn('Error reading cart or wishlist from storage:', e);
+      console.warn('Error reading data from storage:', e);
       setCart([]);
       setWishlist([]);
+      setCompareList([]);
     } finally {
       setIsLoaded(true);
     }
   }, []);
 
-  // Save cart changes
+  // Save changes
   useEffect(() => {
     if (isLoaded) {
       try {
         localStorage.setItem('fbs_bakery_cart', JSON.stringify(cart));
-      } catch (e) {
-        console.warn('Failed to save cart to storage:', e);
-      }
-    }
-  }, [cart, isLoaded]);
-
-  // Save wishlist changes
-  useEffect(() => {
-    if (isLoaded) {
-      try {
         localStorage.setItem('fbs_bakery_wishlist', JSON.stringify(wishlist));
+        localStorage.setItem('fbs_bakery_compare', JSON.stringify(compareList));
       } catch (e) {
-        console.warn('Failed to save wishlist to storage:', e);
+        console.warn('Failed to save to storage:', e);
       }
     }
-  }, [wishlist, isLoaded]);
+  }, [cart, wishlist, compareList, isLoaded]);
 
   const addToCart = useCallback((product: Product, variant: ProductVariant, quantity = 1) => {
     setCart(prev => {
@@ -143,7 +147,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isInWishlist = useCallback((productId: string) => wishlist.includes(productId), [wishlist]);
 
+  const toggleCompare = useCallback((productId: string): boolean => {
+    let added = false;
+    setCompareList(prev => {
+      if (prev.includes(productId)) {
+        return prev.filter(id => id !== productId);
+      }
+      if (prev.length >= 4) {
+        return prev;
+      }
+      added = true;
+      return [...prev, productId];
+    });
+    return added;
+  }, []);
+
+  const removeFromCompare = useCallback((productId: string) => {
+    setCompareList(prev => prev.filter(id => id !== productId));
+  }, []);
+
+  const clearCompare = useCallback(() => {
+    setCompareList([]);
+  }, []);
+
+  const isInCompare = useCallback((productId: string) => compareList.includes(productId), [compareList]);
+
   const totalWishlist = useMemo(() => wishlist.length, [wishlist]);
+  const totalCompare = useMemo(() => compareList.length, [compareList]);
   const totalItems = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
   const subtotal = useMemo(() => cart.reduce((acc, item) => acc + item.price * item.quantity, 0), [cart]);
   const totalWeight = useMemo(() => cart.reduce((acc, item) => acc + item.weight * item.quantity, 0), [cart]);
@@ -158,13 +188,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         cart,
         wishlist,
+        compareList,
         addToCart,
         removeFromCart,
         updateQuantity,
         clearCart,
         toggleWishlist,
         isInWishlist,
+        toggleCompare,
+        removeFromCompare,
+        clearCompare,
+        isInCompare,
         totalWishlist,
+        totalCompare,
         totalItems,
         subtotal,
         totalWeight,

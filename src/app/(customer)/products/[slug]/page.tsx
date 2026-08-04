@@ -43,7 +43,8 @@ import {
   RotateCcw,
   ChevronLeft,
   Clock,
-  Share2
+  Share2,
+  Scale
 } from 'lucide-react';
 
 export default function ProductDetailPage() {
@@ -52,6 +53,7 @@ export default function ProductDetailPage() {
   const rawParamSlug = params?.slug;
   const slug = Array.isArray(rawParamSlug) ? rawParamSlug[0] : (rawParamSlug ? String(rawParamSlug) : '');
   const { t, language } = useLanguage();
+  const { addToCart, isInWishlist, toggleWishlist, toggleCompare, isInCompare } = useCart();
 
   const [product, setProduct] = useState<Product | null>(() => {
     if (!slug) return null;
@@ -262,8 +264,6 @@ export default function ProductDetailPage() {
       zoomOut();
     }
   };
-
-  const { addToCart, toggleWishlist, isInWishlist } = useCart();
 
   useEffect(() => {
     if (slug) {
@@ -820,14 +820,29 @@ export default function ProductDetailPage() {
                 <MessageCircle className="w-5 h-5 fill-white" /> {t.productDetail.orderWhatsApp}
               </button>
 
-              <button
-                onClick={handleOpenShare}
-                className="col-span-1 sm:col-span-2 py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl text-sm font-bold transition-all border border-stone-300 flex items-center justify-center gap-2 active:scale-95 shadow-sm"
-                title="Bagikan Produk ini"
-              >
-                <Share2 className="w-5 h-5 text-[#800020]" />
-                <span>{language === 'EN' ? 'Share Product (WhatsApp / FB / Telegram / QR Code)' : language === 'MS' ? 'Kongsi Produk' : 'Bagikan Produk ini'}</span>
-              </button>
+              <div className="col-span-1 sm:col-span-2 grid grid-cols-2 gap-2.5">
+                <button
+                  onClick={handleOpenShare}
+                  className="py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl text-xs sm:text-sm font-bold transition-all border border-stone-300 flex items-center justify-center gap-2 active:scale-95 shadow-sm"
+                  title="Bagikan Produk ini"
+                >
+                  <Share2 className="w-4 h-4 text-[#800020]" />
+                  <span>{language === 'EN' ? 'Share' : language === 'MS' ? 'Kongsi' : 'Bagikan'}</span>
+                </button>
+
+                <button
+                  onClick={() => product && toggleCompare(product.id)}
+                  className={`py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all border flex items-center justify-center gap-2 active:scale-95 shadow-sm ${
+                    product && isInCompare(product.id)
+                      ? 'bg-[#800020] text-white border-[#800020]'
+                      : 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300'
+                  }`}
+                  title="Bandingkan Produk"
+                >
+                  <Scale className={`w-4 h-4 ${product && isInCompare(product.id) ? 'text-white' : 'text-[#800020]'}`} />
+                  <span>{product && isInCompare(product.id) ? 'Dibandingkan' : 'Bandingkan'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Additional Info Cards */}

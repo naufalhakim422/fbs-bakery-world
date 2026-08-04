@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { formatWhatsAppNumber, extractMapsEmbedUrl } from '@/lib/whatsapp';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { FloatingCompareBar } from '@/components/customer/floating-compare-bar';
 
 export const Footer: React.FC = () => {
   const [settings, setSettings] = useState(db.getStoreSettings());
@@ -221,6 +222,9 @@ export const Footer: React.FC = () => {
         </div>
 
       </div>
+
+      {/* Floating Compare Bar */}
+      <FloatingCompareBar />
     </footer>
   );
 };
