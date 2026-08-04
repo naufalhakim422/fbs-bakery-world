@@ -11,12 +11,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://fbsbakeryworld.com'),
+  metadataBase: new URL('https://fbsbaker.store'),
   title: "FBS Bakery World | Premium Baking Supply Malaysia",
   description: "E-Commerce Catalog, Shopping Cart & WhatsApp Checkout for baking ingredients, semolina flour, Kyoto matcha, Belgian chocolate, New Zealand butter, and baking tools across Malaysia.",
   keywords: ["Baking Supply Malaysia", "Tepung Semolina", "Uji Matcha Powder", "Belgian Chocolate Chips", "Anchor Butter", "Baking Ingredients Shah Alam"],
   alternates: {
-    canonical: '/',
+    canonical: 'https://fbsbaker.store',
   },
   robots: {
     index: true,
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "FBS Bakery World | Premium Baking Supply Malaysia",
     description: "E-Commerce Catalog & WhatsApp Checkout for premium baking ingredients across Malaysia.",
-    url: "https://fbsbakeryworld.com",
+    url: "https://fbsbaker.store",
     siteName: "FBS Bakery World",
     images: [
       {
@@ -69,8 +69,8 @@ export default function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'FBS Bakery World',
-    url: 'https://fbsbakeryworld.com',
-    logo: 'https://fbsbakeryworld.com/logo.jpg',
+    url: 'https://fbsbaker.store',
+    logo: 'https://fbsbaker.store/logo.jpg',
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+60183942147',
@@ -84,10 +84,10 @@ export default function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'FBS Bakery World',
-    url: 'https://fbsbakeryworld.com',
+    url: 'https://fbsbaker.store',
     potentialAction: {
       '@type': 'SearchAction',
-      target: 'https://fbsbakeryworld.com/products?search={search_term_string}',
+      target: 'https://fbsbaker.store/products?search={search_term_string}',
       'query-input': 'required name=search_term_string',
     },
   };
