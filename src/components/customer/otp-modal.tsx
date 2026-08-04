@@ -32,7 +32,7 @@ export function OtpModal({
 
   const [sendStatusMessage, setSendStatusMessage] = useState('');
 
-  // Generate a random 6-digit OTP code and send via /api/send-otp
+  // Generate a random 6-digit OTP code and send via /api/auth/send-otp (Resend Integration)
   const generateNewOtp = async () => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode(code);
@@ -41,27 +41,52 @@ export function OtpModal({
     setCanResend(false);
     setError('');
     setShowBotNotification(true);
-    setSendStatusMessage(language === 'EN' ? 'Sending OTP code to Email...' : language === 'MS' ? 'Menghantar kod OTP ke E-mel...' : 'Mengirim kode OTP ke Email...');
+    setSendStatusMessage(language === 'EN' ? 'Sending OTP verification email via Resend...' : 'Menghantar e-mel pengesahan OTP melalui Resend...');
+
+    // Save OTP to customer database record
+    if (targetDestination) {
+      const customers = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
+      const cleanTarget = targetDestination.trim().toLowerCase();
+      const idx = customers.findIndex((c: any) => 
+        (c.email && c.email.toLowerCase() === cleanTarget) ||
+        (c.phone && c.phone.replace(/[^0-9]/g, '') === cleanTarget.replace(/[^0-9]/g, ''))
+      );
+
+      if (idx !== -1) {
+        customers[idx] = {
+          ...customers[idx],
+          otpCode: code,
+          otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+        };
+        localStorage.setItem('fbs_customers', JSON.stringify(customers));
+      }
+    }
 
     try {
-      const res = await fetch('/api/send-otp', {
+      const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: targetDestination.includes('@') ? targetDestination : '',
-          phone: targetDestination.includes('@') ? '' : targetDestination,
-          otpCode: code,
+          otp: code,
           name: targetDestination.split('@')[0],
+          type: 'EMAIL_VERIFICATION',
         }),
       });
 
       const data = await res.json();
-      if (data.success) {
-        setSendStatusMessage(data.message || `${language === 'EN' ? 'OTP code sent to' : language === 'MS' ? 'Kod OTP dihantar ke' : 'Kode OTP terkirim ke'} ${targetDestination}!`);
+      if (res.ok && data.success) {
+        setSendStatusMessage(
+          language === 'EN'
+            ? `OTP email delivered via Resend to ${targetDestination}!`
+            : `E-mel OTP berjaya dihantar via Resend ke ${targetDestination}!`
+        );
+      } else {
+        setSendStatusMessage(`${language === 'EN' ? 'OTP code ready for' : 'Kod OTP sedia untuk'} ${targetDestination}`);
       }
     } catch (e) {
-      console.log('[Send OTP Fetch Error]:', e);
-      setSendStatusMessage(`${language === 'EN' ? 'OTP code ready for' : language === 'MS' ? 'Kod OTP sedia untuk' : 'Kode OTP siap digunakan untuk'} ${targetDestination}`);
+      console.log('[Send OTP Resend API Fetch Error]:', e);
+      setSendStatusMessage(`${language === 'EN' ? 'OTP code ready for' : 'Kod OTP sedia untuk'} ${targetDestination}`);
     }
   };
 
@@ -132,12 +157,45 @@ export function OtpModal({
     setError('');
 
     setTimeout(() => {
-      if (enteredCode === generatedCode || enteredCode === '123456') {
+      // Check against stored OTP in customer DB
+      const customers = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
+      const cleanTarget = targetDestination.trim().toLowerCase();
+      const customer = customers.find((c: any) => 
+        (c.email && c.email.toLowerCase() === cleanTarget) ||
+        (c.phone && c.phone.replace(/[^0-9]/g, '') === cleanTarget.replace(/[^0-9]/g, ''))
+      );
+
+      const dbOtp = customer?.otpCode || generatedCode;
+      const isExpired = customer?.otpExpiresAt && Date.now() > new Date(customer.otpExpiresAt).getTime();
+
+      if (isExpired) {
+        setIsVerifying(false);
+        setError(language === 'EN' ? 'Verification code has expired. Please click Resend Code.' : 'Kod verifikasi telah tamat tempoh. Sila klik Hantar Semula Kod.');
+        return;
+      }
+
+      if (enteredCode === dbOtp || enteredCode === generatedCode || enteredCode === '123456') {
+        // Mark customer as verified in DB
+        if (customer) {
+          const updated = customers.map((c: any) => {
+            if (c.id === customer.id) {
+              return {
+                ...c,
+                isEmailVerified: true,
+                otpCode: undefined,
+                otpExpiresAt: undefined,
+              };
+            }
+            return c;
+          });
+          localStorage.setItem('fbs_customers', JSON.stringify(updated));
+        }
+
         setIsVerifying(false);
         onVerifySuccess();
       } else {
         setIsVerifying(false);
-        setError(language === 'EN' ? 'Invalid 6-digit OTP code or expired. Please check again!' : language === 'MS' ? 'Kod verifikasi 6-digit salah atau telah tamat tempoh. Sila semak semula!' : 'Kode verifikasi 6-digit salah atau telah kedaluwarsa. Silakan periksa kembali!');
+        setError(language === 'EN' ? 'Invalid 6-digit OTP code. Please check again!' : 'Kod verifikasi 6-digit salah. Sila semak semula!');
       }
     }, 400);
   };

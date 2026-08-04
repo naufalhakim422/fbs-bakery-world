@@ -554,6 +554,7 @@ let initialCustomers: Customer[] = [
     email: 'siti@example.com',
     phone: '+60129876543',
     customerType: 'VIP',
+    isEmailVerified: true,
     address: 'No 12, Jalan Bunga Raya, Section 7',
     city: 'Shah Alam',
     state: 'Selangor',
@@ -1018,8 +1019,38 @@ export const db = {
   },
 
   // Customer Database CRM
-  getCustomers: () => {
+  getCustomers: (): Customer[] => {
     return loadFromStorage<Customer[]>('fbs_customers', initialCustomers);
+  },
+
+  saveCustomer: (customerInput: Partial<Customer>): Customer => {
+    const list = loadFromStorage<Customer[]>('fbs_customers', initialCustomers);
+    if (customerInput.id) {
+      const idx = list.findIndex(c => c.id === customerInput.id);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...customerInput };
+        saveToStorage('fbs_customers', list);
+        return list[idx];
+      }
+    }
+    const newCustomer: Customer = {
+      id: customerInput.id || `cust-${Date.now()}`,
+      name: customerInput.name || 'Pelanggan FBS',
+      email: customerInput.email || '',
+      phone: customerInput.phone || '',
+      customerType: customerInput.customerType || 'RETAIL',
+      provider: customerInput.provider || 'FORM',
+      hashedPassword: customerInput.hashedPassword,
+      address: customerInput.address || 'Chukai, Terengganu',
+      city: customerInput.city || 'Chukai',
+      state: customerInput.state || 'Terengganu',
+      postcode: customerInput.postcode || '24000',
+      createdAt: customerInput.createdAt || new Date().toISOString(),
+      loginAt: customerInput.loginAt || new Date().toISOString(),
+    };
+    list.unshift(newCustomer);
+    saveToStorage('fbs_customers', list);
+    return newCustomer;
   },
 
   // Banners & Banner Builder API

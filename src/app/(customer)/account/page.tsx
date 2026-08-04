@@ -63,25 +63,24 @@ export default function CustomerAccountPage() {
 
       const sessObj = JSON.parse(session);
       const customers = db.getCustomers();
-      const found = customers.find(c => c.id === sessObj.id || (sessObj.phone && sessObj.phone !== '+60129876543' && c.phone.replace(/[^0-9]/g, '') === sessObj.phone?.replace(/[^0-9]/g, '')));
+      const found = customers.find(c => 
+        c.id === sessObj.id || 
+        (sessObj.email && c.email && c.email.toLowerCase() === sessObj.email.toLowerCase()) ||
+        (sessObj.phone && c.phone && c.phone.replace(/[^0-9]/g, '') === sessObj.phone.replace(/[^0-9]/g, ''))
+      );
       
       if (found) {
-        setCustomer({ ...found, name: sessObj.name || found.name, email: sessObj.email || found.email, photo: sessObj.photo || found.photo || '', coverPhoto: sessObj.coverPhoto || found.coverPhoto || '' });
-      } else {
-        setCustomer({
-          id: sessObj.id || `cust-${Date.now()}`,
-          name: sessObj.name || 'Pelanggan Baru',
-          email: sessObj.email || '',
-          phone: sessObj.phone || '',
-          photo: sessObj.photo || '',
-          coverPhoto: sessObj.coverPhoto || '',
-          customerType: sessObj.customerType || 'RETAIL',
-          address: sessObj.address || 'Shah Alam, Selangor',
-          city: sessObj.city || 'Shah Alam',
-          state: sessObj.state || 'Selangor',
-          postcode: sessObj.postcode || '40000',
-          createdAt: sessObj.createdAt || new Date().toISOString(),
+        setCustomer({ 
+          ...found, 
+          name: sessObj.name || found.name, 
+          email: sessObj.email || found.email, 
+          photo: sessObj.photo || found.photo || '', 
+          coverPhoto: sessObj.coverPhoto || found.coverPhoto || '' 
         });
+      } else {
+        localStorage.removeItem('fbs_customer_session');
+        router.push('/account/login');
+        return;
       }
 
       const allOrders = db.getOrders();

@@ -38,9 +38,23 @@ export default function CustomerRegisterPage() {
 
   const passwordValidation = validatePassword(form.password);
 
+  const [pendingCustomer, setPendingCustomer] = useState<any>(null);
+
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validations
+    if (!form.fullName.trim() || !form.email.trim() || !form.phone.trim()) {
+      setError(language === 'EN' ? 'All fields are required.' : 'Semua bidang wajib diisi.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email.trim())) {
+      setError(language === 'EN' ? 'Please enter a valid email address.' : 'Sila masukkan alamat e-mel yang sah.');
+      return;
+    }
 
     if (!passwordValidation.valid) {
       setError(passwordValidation.message);
@@ -57,48 +71,95 @@ export default function CustomerRegisterPage() {
       return;
     }
 
+    const cleanEmail = form.email.trim().toLowerCase();
+    const cleanPhone = form.phone.replace(/[^0-9]/g, '');
+
+    // 1. Check Duplicate Email or Phone
+    const existingCustomers = db.getCustomers();
+    const isDuplicate = existingCustomers.some(c => {
+      const emailDup = cleanEmail && c.email && c.email.toLowerCase() === cleanEmail;
+      const phoneDup = cleanPhone.length > 5 && c.phone && c.phone.replace(/[^0-9]/g, '') === cleanPhone;
+      return emailDup || phoneDup;
+    });
+
+    if (isDuplicate) {
+      setError(
+        language === 'EN'
+          ? 'An account with this email address or phone number already exists. Please login.'
+          : language === 'MS'
+          ? 'Akaun dengan e-mel atau nombor telefon ini sudah wujud. Sila log masuk.'
+          : 'Email atau nomor telepon ini sudah terdaftar. Silakan login.'
+      );
+      return;
+    }
+
     setLoading(true);
+
+    // 2. Hash password using SHA-256 / Bcrypt equivalent
     const hashedPassword = await hashPassword(form.password);
 
-    setTimeout(() => {
-      const customerSession = {
-        id: `cust-${Date.now()}`,
-        name: form.fullName,
-        email: form.email || `${form.phone.replace(/[^0-9]/g, '')}@fbsbakeryworld.com`,
-        phone: form.phone,
-        customerType: 'RETAIL' as const,
-        provider: 'FORM' as const,
-        hashedPassword: hashedPassword,
-        address: 'Chukai, Terengganu',
-        city: 'Chukai',
-        state: 'Terengganu',
-        postcode: '24000',
-        createdAt: new Date().toISOString(),
-        loginAt: new Date().toISOString(),
-      };
+    // 3. Generate 6-digit OTP (Expires in 10 minutes)
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-      localStorage.setItem('fbs_customer_session', JSON.stringify(customerSession));
+    const newCustomer = {
+      id: `cust-${Date.now()}`,
+      name: form.fullName.trim(),
+      email: cleanEmail,
+      phone: form.phone.trim(),
+      customerType: 'RETAIL' as const,
+      provider: 'FORM' as const,
+      hashedPassword: hashedPassword,
+      isEmailVerified: false,
+      otpCode: otpCode,
+      otpExpiresAt: otpExpiresAt,
+      address: 'Chukai, Terengganu',
+      city: 'Chukai',
+      state: 'Terengganu',
+      postcode: '24000',
+      createdAt: new Date().toISOString(),
+      loginAt: new Date().toISOString(),
+    };
 
-      const existingCustomers = db.getCustomers();
-      if (!existingCustomers.some(c => c.phone.replace(/[^0-9]/g, '') === form.phone.replace(/[^0-9]/g, ''))) {
-        existingCustomers.unshift({
-          id: customerSession.id,
-          name: customerSession.name,
-          email: customerSession.email,
-          phone: customerSession.phone,
-          customerType: 'RETAIL',
-          address: customerSession.address,
-          city: customerSession.city,
-          state: customerSession.state,
-          postcode: customerSession.postcode,
-          createdAt: new Date().toISOString(),
-        });
-        localStorage.setItem('fbs_customers', JSON.stringify(existingCustomers));
-      }
+    // Save to DB as unverified customer
+    db.saveCustomer(newCustomer);
+    setPendingCustomer(newCustomer);
 
-      setLoading(false);
-      router.push('/account');
-    }, 400);
+    // Send OTP Email via Resend API
+    try {
+      await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          otp: otpCode,
+          name: form.fullName.trim(),
+          type: 'EMAIL_VERIFICATION',
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to send OTP email:', e);
+    }
+
+    setLoading(false);
+    setShowOtpModal(true);
+  };
+
+  const handleOtpVerifiedSuccess = () => {
+    if (!pendingCustomer) return;
+
+    const verifiedCustomer = {
+      ...pendingCustomer,
+      isEmailVerified: true,
+      otpCode: undefined,
+      otpExpiresAt: undefined,
+      loginAt: new Date().toISOString(),
+    };
+
+    db.saveCustomer(verifiedCustomer);
+    localStorage.setItem('fbs_customer_session', JSON.stringify(verifiedCustomer));
+    setShowOtpModal(false);
+    router.push('/account');
   };
 
   return (
@@ -288,6 +349,15 @@ export default function CustomerRegisterPage() {
 
       <Footer />
       <FloatingWhatsApp />
+
+      {/* Email Verification OTP Modal */}
+      <OtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        targetDestination={form.email}
+        onVerifySuccess={handleOtpVerifiedSuccess}
+        title={language === 'EN' ? 'Verify Your Email Address' : 'Pengesahan E-mel Pelanggan'}
+      />
     </div>
   );
 }

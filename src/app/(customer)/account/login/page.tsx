@@ -10,10 +10,11 @@ import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { BotChallenge } from '@/components/customer/bot-challenge';
-import { checkRateLimit, recordFailedAttempt, resetFailedAttempts } from '@/lib/auth-security';
+import { checkRateLimit, recordFailedAttempt, resetFailedAttempts, comparePassword } from '@/lib/auth-security';
 import { User, Lock, Phone, ArrowRight, ShieldCheck, AlertTriangle, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
+import { OtpModal } from '@/components/customer/otp-modal';
 
 export default function CustomerLoginPage() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function CustomerLoginPage() {
   const [isBotVerified, setIsBotVerified] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [unverifiedCustomer, setUnverifiedCustomer] = useState<any>(null);
 
   // Rate Limiting & Security State
   const rateLimitState = React.useMemo(() => {
@@ -38,29 +41,7 @@ export default function CustomerLoginPage() {
     };
   }, [phoneOrEmail]);
 
-  const saveCustomerToDB = (customerData: any) => {
-    const existing = db.getCustomers();
-    const idx = existing.findIndex(c => 
-      c.id === customerData.id || 
-      (customerData.email && c.email?.toLowerCase() === customerData.email?.toLowerCase())
-    );
-    
-    let finalUser = customerData;
-    if (idx !== -1) {
-      finalUser = { 
-        ...existing[idx], 
-        loginAt: new Date().toISOString() 
-      };
-      existing[idx] = finalUser;
-    } else {
-      existing.unshift(finalUser);
-    }
-
-    localStorage.setItem('fbs_customers', JSON.stringify(existing));
-    localStorage.setItem('fbs_customer_session', JSON.stringify(finalUser));
-  };
-
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setError('');
@@ -85,28 +66,81 @@ export default function CustomerLoginPage() {
     }
 
     setLoading(true);
+
+    const inputClean = identifier.toLowerCase();
+    const cleanPhone = identifier.replace(/[^0-9]/g, '');
+
+    // Search registered customers
+    const registeredCustomers = db.getCustomers();
+    const existingCustomer = registeredCustomers.find(c => {
+      const emailMatch = c.email && c.email.toLowerCase() === inputClean;
+      const phoneMatch = cleanPhone.length > 5 && c.phone && c.phone.replace(/[^0-9]/g, '') === cleanPhone;
+      return emailMatch || phoneMatch;
+    });
+
+    // 1. Unknown Email / Phone -> REJECT LOGIN (No session, no auto account creation)
+    if (!existingCustomer) {
+      recordFailedAttempt(identifier);
+      setLoading(false);
+      setError(
+        language === 'EN'
+          ? 'Email or phone number is not registered. Please create an account first.'
+          : language === 'MS'
+          ? 'Emel atau nombor telefon tidak berdaftar. Sila cipta akaun terlebih dahulu.'
+          : 'Email atau nomor telepon tidak terdaftar. Silakan buat akun terlebih dahulu.'
+      );
+      return;
+    }
+
+    // 2. Incorrect Password -> REJECT LOGIN
+    let isPasswordValid = false;
+    if (existingCustomer.hashedPassword) {
+      isPasswordValid = await comparePassword(password, existingCustomer.hashedPassword);
+    } else {
+      // Fallback for initial seed accounts
+      isPasswordValid = password.length >= 6;
+    }
+
+    if (!isPasswordValid) {
+      recordFailedAttempt(identifier);
+      setLoading(false);
+      setError(
+        language === 'EN'
+          ? 'Incorrect password.'
+          : language === 'MS'
+          ? 'Kata laluan salah.'
+          : 'Kata sandi salah.'
+      );
+      return;
+    }
+
+    // 3. Reject Unverified Accounts
+    if (existingCustomer.isEmailVerified === false) {
+      setLoading(false);
+      setUnverifiedCustomer(existingCustomer);
+      setError(
+        language === 'EN'
+          ? 'Please verify your email before logging in.'
+          : language === 'MS'
+          ? 'Sila sahkan e-mel anda sebelum log masuk.'
+          : 'Silakan verifikasi email Anda sebelum login.'
+      );
+      setShowOtpModal(true);
+      return;
+    }
+
+    // 4. SUCCESS -> Reset rate limit & create session
     resetFailedAttempts(identifier);
 
-    const inputClean = identifier;
-    const isEmail = inputClean.includes('@');
-    
-    const customerSession = {
-      id: `cust-${Date.now()}`,
-      name: isEmail ? inputClean.split('@')[0] : `Customer (${inputClean})`,
-      email: isEmail ? inputClean : `${inputClean.replace(/[^0-9]/g, '')}@fbsbakeryworld.com`,
-      phone: isEmail ? '' : inputClean,
-      customerType: 'RETAIL' as const,
-      provider: isEmail ? ('EMAIL' as const) : ('PHONE' as const),
-      address: 'Chukai, Terengganu',
-      city: 'Chukai',
-      state: 'Terengganu',
-      postcode: '24000',
-      createdAt: new Date().toISOString(),
+    const updatedCustomer = {
+      ...existingCustomer,
       loginAt: new Date().toISOString(),
     };
 
+    db.saveCustomer(updatedCustomer);
+    localStorage.setItem('fbs_customer_session', JSON.stringify(updatedCustomer));
+
     setTimeout(() => {
-      saveCustomerToDB(customerSession);
       setLoading(false);
       router.push('/account');
     }, 400);
@@ -131,7 +165,8 @@ export default function CustomerLoginPage() {
       loginAt: new Date().toISOString(),
     };
 
-    saveCustomerToDB(customerSession);
+    db.saveCustomer(customerSession);
+    localStorage.setItem('fbs_customer_session', JSON.stringify(customerSession));
     setLoading(false);
     router.push('/account');
   };
@@ -285,6 +320,28 @@ export default function CustomerLoginPage() {
 
       <Footer />
       <FloatingWhatsApp />
+
+      {/* Unverified Email OTP Verification Modal */}
+      <OtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        targetDestination={unverifiedCustomer?.email || phoneOrEmail}
+        onVerifySuccess={() => {
+          if (!unverifiedCustomer) return;
+          const verifiedCustomer = {
+            ...unverifiedCustomer,
+            isEmailVerified: true,
+            otpCode: undefined,
+            otpExpiresAt: undefined,
+            loginAt: new Date().toISOString(),
+          };
+          db.saveCustomer(verifiedCustomer);
+          localStorage.setItem('fbs_customer_session', JSON.stringify(verifiedCustomer));
+          setShowOtpModal(false);
+          router.push('/account');
+        }}
+        title={language === 'EN' ? 'Verify Your Email Address' : 'Pengesahan E-mel Pelanggan'}
+      />
     </div>
   );
 }

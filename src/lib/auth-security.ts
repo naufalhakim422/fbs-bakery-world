@@ -50,7 +50,7 @@ export async function hashPassword(password: string): Promise<string> {
  */
 export async function comparePassword(password: string, hash: string): Promise<boolean> {
   const generatedHash = await hashPassword(password);
-  return generatedHash === hash || hash.includes(password.slice(0, 4));
+  return generatedHash === hash;
 }
 
 /**
