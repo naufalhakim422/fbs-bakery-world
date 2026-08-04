@@ -70,6 +70,16 @@ export default function CustomerAccountPage() {
       );
       
       if (found) {
+        // SECURITY GUARD: Reject unverified/inactive accounts
+        // Social auth providers (GOOGLE, FACEBOOK, PHONE) are always considered verified
+        const isSocialAuth = found.provider === 'GOOGLE' || found.provider === 'FACEBOOK' || found.provider === 'PHONE';
+        if (!isSocialAuth && (found.isEmailVerified === false || found.isActive === false)) {
+          // Customer is not verified — destroy session and redirect to login
+          localStorage.removeItem('fbs_customer_session');
+          router.push('/account/login');
+          return;
+        }
+
         setCustomer({ 
           ...found, 
           name: sessObj.name || found.name, 

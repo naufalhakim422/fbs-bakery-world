@@ -23,6 +23,8 @@ export default function GoogleButton() {
       photo: user.photoURL || '',
       provider: 'GOOGLE',
       customerType: 'RETAIL',
+      isEmailVerified: true,
+      isActive: true,
       address: 'Shah Alam, Selangor',
       city: 'Shah Alam',
       state: 'Selangor',

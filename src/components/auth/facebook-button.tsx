@@ -23,6 +23,8 @@ export default function FacebookButton() {
       photo: user.photoURL || '',
       provider: 'FACEBOOK',
       customerType: 'RETAIL',
+      isEmailVerified: true,
+      isActive: true,
       address: 'Shah Alam, Selangor',
       city: 'Shah Alam',
       state: 'Selangor',

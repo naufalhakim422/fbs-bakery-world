@@ -157,6 +157,8 @@ export default function CustomerLoginPage() {
       phone: userPhone,
       customerType: 'RETAIL' as const,
       provider: 'PHONE' as const,
+      isEmailVerified: true,
+      isActive: true,
       address: 'Chukai, Terengganu',
       city: 'Chukai',
       state: 'Terengganu',
@@ -331,6 +333,7 @@ export default function CustomerLoginPage() {
           const verifiedCustomer = {
             ...unverifiedCustomer,
             isEmailVerified: true,
+            isActive: true,
             otpCode: undefined,
             otpExpiresAt: undefined,
             loginAt: new Date().toISOString(),

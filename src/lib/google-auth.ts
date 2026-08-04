@@ -10,6 +10,9 @@ export async function handleGoogleResponse(credential: string) {
         name: data.user.name,
         email: data.user.email,
         provider: data.user.provider,
+        customerType: 'RETAIL',
+        isEmailVerified: true,
+        isActive: true,
         loginAt: new Date().toISOString()
       };
       localStorage.setItem('fbs_customer_session', JSON.stringify(session));
