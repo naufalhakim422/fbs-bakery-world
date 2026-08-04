@@ -1,401 +1,81 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import Link from 'next/link';
-import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
-import { BotChallenge } from '@/components/customer/bot-challenge';
-import { checkRateLimit, recordFailedAttempt, resetFailedAttempts, comparePassword } from '@/lib/auth-security';
-import { User, Lock, Phone, ArrowRight, ShieldCheck, AlertTriangle, ShieldAlert, Eye, EyeOff } from 'lucide-react';
+import { ShieldCheck, Sparkles, UserCheck, Lock, CheckCircle2 } from 'lucide-react';
 import GoogleButton from '@/components/auth/google-button';
-import FacebookButton from '@/components/auth/facebook-button';
-import { OtpModal } from '@/components/customer/otp-modal';
-import { FirebaseEmailVerificationModal } from '@/components/auth/firebase-email-verification-modal';
-import { auth, signInWithEmailAndPassword } from '@/lib/firebase';
 
 export default function CustomerLoginPage() {
-  const router = useRouter();
-  const { t, language } = useLanguage();
-  const [phoneOrEmail, setPhoneOrEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isBotVerified, setIsBotVerified] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [showFirebaseModal, setShowFirebaseModal] = useState(false);
-  const [unverifiedCustomer, setUnverifiedCustomer] = useState<any>(null);
-
-  // Rate Limiting & Security State
-  const rateLimitState = React.useMemo(() => {
-    if (phoneOrEmail.trim()) {
-      return checkRateLimit(phoneOrEmail.trim());
-    }
-    return {
-      isLocked: false,
-      remainingAttempts: 5,
-      lockoutRemainingSeconds: 0,
-      shouldShowCaptcha: false,
-    };
-  }, [phoneOrEmail]);
-
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loading) return;
-    setError('');
-
-    const identifier = phoneOrEmail.trim();
-
-    const status = checkRateLimit(identifier);
-    if (status.isLocked) {
-      setError(`${t.customerAccount.accountLocked} ${status.lockoutRemainingSeconds}s.`);
-      return;
-    }
-
-    if (!phoneOrEmail || !password) {
-      recordFailedAttempt(identifier);
-      setError(t.customerAccount.wrongCredentials);
-      return;
-    }
-
-    if ((status.shouldShowCaptcha || rateLimitState.shouldShowCaptcha) && !isBotVerified) {
-      setError(t.customerAccount.rateLimitWarning);
-      return;
-    }
-
-    setLoading(true);
-
-    const inputClean = identifier.toLowerCase();
-    const cleanPhone = identifier.replace(/[^0-9]/g, '');
-    const isEmail = inputClean.includes('@');
-
-    // 1. Firebase Auth Login & Email Verification Check if email format
-    if (isEmail) {
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, inputClean, password);
-        const fbUser = userCredential.user;
-
-        // Reload user profile from Firebase to fetch updated emailVerified status
-        await fbUser.reload();
-
-        if (!fbUser.emailVerified) {
-          setLoading(false);
-          const targetCust = {
-            id: fbUser.uid,
-            email: inputClean,
-            name: fbUser.displayName || inputClean.split('@')[0],
-          };
-          setUnverifiedCustomer(targetCust);
-          setError(
-            language === 'EN'
-              ? 'Please verify your email address before logging in.'
-              : language === 'MS'
-              ? 'Sila sahkan e-mel anda sebelum log masuk.'
-              : 'Silakan verifikasi email Anda terlebih dahulu sebelum login.'
-          );
-          setShowFirebaseModal(true);
-          return;
-        }
-      } catch (fbAuthErr: any) {
-        console.log('[Firebase Auth Sign-In Info/Warning]:', fbAuthErr?.code || fbAuthErr?.message);
-        // Continue to local database fallback if user registered prior to Firebase setup
-      }
-    }
-
-    // 2. Search registered customers in Local DB
-    const registeredCustomers = db.getCustomers();
-    const existingCustomer = registeredCustomers.find(c => {
-      const emailMatch = c.email && c.email.toLowerCase() === inputClean;
-      const phoneMatch = cleanPhone.length > 5 && c.phone && c.phone.replace(/[^0-9]/g, '') === cleanPhone;
-      return emailMatch || phoneMatch;
-    });
-
-    // 3. Unknown Email / Phone -> REJECT LOGIN (No session, no auto account creation)
-    if (!existingCustomer) {
-      recordFailedAttempt(identifier);
-      setLoading(false);
-      setError(
-        language === 'EN'
-          ? 'Email or phone number is not registered. Please create an account first.'
-          : language === 'MS'
-          ? 'Emel atau nombor telefon tidak berdaftar. Sila cipta akaun terlebih dahulu.'
-          : 'Email atau nomor telepon tidak terdaftar. Silakan buat akun terlebih dahulu.'
-      );
-      return;
-    }
-
-    // 4. Incorrect Password -> REJECT LOGIN
-    let isPasswordValid = false;
-    if (existingCustomer.hashedPassword) {
-      isPasswordValid = await comparePassword(password, existingCustomer.hashedPassword);
-    } else {
-      // Fallback for initial seed accounts
-      isPasswordValid = password.length >= 6;
-    }
-
-    if (!isPasswordValid) {
-      recordFailedAttempt(identifier);
-      setLoading(false);
-      setError(
-        language === 'EN'
-          ? 'Incorrect password.'
-          : language === 'MS'
-          ? 'Kata laluan salah.'
-          : 'Kata sandi salah.'
-      );
-      return;
-    }
-
-    // 5. Reject Unverified or Inactive Accounts (PREVENT ACCESS TO DASHBOARD UNTIL VERIFIED)
-    if (existingCustomer.isEmailVerified === false || existingCustomer.isActive === false) {
-      setLoading(false);
-      setUnverifiedCustomer(existingCustomer);
-      setError(
-        language === 'EN'
-          ? 'Please verify your email before logging in.'
-          : language === 'MS'
-          ? 'Sila sahkan e-mel anda sebelum log masuk.'
-          : 'Silakan verifikasi email Anda sebelum login.'
-      );
-      setShowFirebaseModal(true);
-      return;
-    }
-
-    // 6. SUCCESS -> Reset rate limit & create session
-    resetFailedAttempts(identifier);
-
-    const updatedCustomer = {
-      ...existingCustomer,
-      isEmailVerified: true,
-      isActive: true,
-      loginAt: new Date().toISOString(),
-    };
-
-    db.saveCustomer(updatedCustomer);
-    localStorage.setItem('fbs_customer_session', JSON.stringify(updatedCustomer));
-
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/account');
-    }, 400);
-  };
-
-  const handlePhoneAuthSuccess = (firebaseUser: any) => {
-    setLoading(true);
-
-    const userPhone = firebaseUser.phoneNumber || phoneOrEmail || '+628123456789';
-    const customerSession = {
-      id: firebaseUser.uid || `cust-${Date.now()}`,
-      name: `User ${userPhone.slice(-4)}`,
-      email: `${userPhone.replace(/[^0-9]/g, '')}@fbsbakeryworld.com`,
-      phone: userPhone,
-      customerType: 'RETAIL' as const,
-      provider: 'PHONE' as const,
-      isEmailVerified: true,
-      isActive: true,
-      address: 'Chukai, Terengganu',
-      city: 'Chukai',
-      state: 'Terengganu',
-      postcode: '24000',
-      createdAt: new Date().toISOString(),
-      loginAt: new Date().toISOString(),
-    };
-
-    db.saveCustomer(customerSession);
-    localStorage.setItem('fbs_customer_session', JSON.stringify(customerSession));
-    setLoading(false);
-    router.push('/account');
-  };
+  const { language } = useLanguage();
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
       <AnnouncementBar />
       <HeaderNav />
 
-      <main className="flex-1 max-w-md mx-auto px-4 py-12 w-full flex flex-col justify-center">
+      <main className="flex-1 max-w-md mx-auto px-4 py-16 w-full flex flex-col justify-center">
         
-        <div className="bg-white p-8 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-xl space-y-6">
+        <div className="bg-white p-8 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-xl space-y-6 text-center animate-fade-in">
           
-          <div className="text-center">
-            <div className="w-14 h-14 rounded-full bg-[#800020]/10 text-[#800020] flex items-center justify-center mx-auto mb-3">
-              <User className="w-7 h-7" />
+          {/* Header Badge & Icon */}
+          <div className="space-y-3">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#800020] via-[#500014] to-[#3A0612] text-[#D4AF37] border-2 border-[#D4AF37] flex items-center justify-center mx-auto shadow-lg">
+              <ShieldCheck className="w-8 h-8" />
             </div>
-            <span className="text-xs font-bold text-[#800020] uppercase tracking-widest block mb-1">
-              {language === 'EN' ? 'Member Portal' : language === 'MS' ? 'Portal Ahli' : 'Portal Anggota'}
+            
+            <span className="text-[10px] font-black text-[#800020] uppercase tracking-widest bg-[#800020]/10 px-3 py-1 rounded-full inline-block">
+              {language === 'EN' ? 'INSTANT GOOGLE AUTHENTICATION' : language === 'MS' ? 'LOG MASUK PANTAS GOOGLE' : 'LOGIN INSTAN AKUN GOOGLE'}
             </span>
-            <h1 className="font-serif text-2xl font-bold text-stone-900">
-              {t.customerAccount.loginTitle}
+
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2B1B1B] tracking-tight">
+              {language === 'EN' ? 'Sign In / Register' : language === 'MS' ? 'Log Masuk / Daftar Akun' : 'Masuk / Daftar Akun'}
             </h1>
-            <p className="text-stone-600 text-xs mt-1">
-              {t.customerAccount.loginSubtitle}
+            
+            <p className="text-stone-600 text-xs leading-relaxed max-w-xs mx-auto font-medium">
+              {language === 'EN'
+                ? 'One-click instant login or sign-up using your official Google Account.'
+                : language === 'MS'
+                ? 'Satu klik mudah untuk log masuk atau mendaftar menggunakan Akaun Google anda.'
+                : 'Satu klik mudah untuk masuk atau mendaftar menggunakan Akun Google Anda.'}
             </p>
           </div>
 
-          {/* Social Login Buttons */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
-            <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
-              <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>{t.customerAccount.orContinueWith}</span>
-              <div style={{ flex: 1, height: '1px', background: '#E5E0D8' }} />
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          {/* Prominent Google Button Container */}
+          <div className="p-4 bg-[#FFF8F0] rounded-2xl border border-[#EADBC8] shadow-inner space-y-3">
+            <span className="text-[11px] font-bold text-stone-700 block uppercase tracking-wider">
+              {language === 'EN' ? 'Click below to proceed:' : 'Klik tombol di bawah untuk melanjutkan:'}
+            </span>
+            <div className="w-full">
               <GoogleButton />
-              <FacebookButton />
             </div>
           </div>
 
-          {rateLimitState.isLocked && (
-            <div className="p-4 bg-red-100 border-2 border-red-500 text-red-900 rounded-2xl text-xs space-y-1">
-              <div className="flex items-center gap-2 font-bold text-sm text-red-700">
-                <ShieldAlert className="w-5 h-5 text-red-600" />
-                <span>{t.customerAccount.securityCheck}</span>
-              </div>
-              <p>
-                {t.customerAccount.accountLocked} <strong>{rateLimitState.lockoutRemainingSeconds}s</strong>.
-              </p>
+          {/* Security & Convenience Benefits */}
+          <div className="space-y-2 pt-2 text-left text-xs text-stone-600 border-t border-stone-100">
+            <div className="flex items-center gap-2 text-[11px] text-stone-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span>{language === 'EN' ? 'Instant access without remembering passwords' : 'Akses instan tanpa perlu mengingat kata sandi'}</span>
             </div>
-          )}
-
-          {error && !rateLimitState.isLocked && (
-            <div className="p-3 bg-red-50 text-red-700 border border-red-200 text-xs rounded-xl font-medium flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              <span>{error}</span>
+            <div className="flex items-center gap-2 text-[11px] text-stone-700">
+              <Lock className="w-4 h-4 text-[#800020] flex-shrink-0" />
+              <span>{language === 'EN' ? '100% Encrypted & Verified Google Auth' : '100% Terenkripsi & Terverifikasi Resmi oleh Google'}</span>
             </div>
-          )}
-
-          <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
-            <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">
-                {t.customerAccount.phoneOrEmail} <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <input 
-                  type="text"
-                  required
-                  placeholder="e.g. +60123456789 / name@example.com"
-                  value={phoneOrEmail}
-                  onChange={(e) => setPhoneOrEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
-                />
-                <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">
-                {t.customerAccount.password} <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <input 
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
-                />
-                <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
-                
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-stone-400 hover:text-[#800020] transition-colors"
-                  title={showPassword ? t.customerAccount.hidePassword : t.customerAccount.showPassword}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <BotChallenge onVerified={setIsBotVerified} />
-
-            <div className="flex items-center justify-between text-xs text-stone-600">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" defaultChecked className="rounded text-[#800020]" />
-                <span>{t.customerAccount.rememberMe}</span>
-              </label>
-              
-              <Link 
-                href="/account/forgot-password" 
-                className="text-[#800020] font-bold hover:underline"
-              >
-                {t.customerAccount.forgotPassword}
-              </Link>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || rateLimitState.isLocked}
-              className={`w-full py-3.5 text-white font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2 ${
-                rateLimitState.isLocked 
-                  ? 'bg-red-300 cursor-not-allowed'
-                  : isBotVerified || !rateLimitState.shouldShowCaptcha 
-                  ? 'bg-[#800020] hover:bg-[#6F1D1B]' 
-                  : 'bg-stone-400 cursor-not-allowed'
-              }`}
-            >
-              {loading ? t.customerAccount.loggingIn : t.customerAccount.loginBtn} <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
-
-          <div className="pt-4 border-t border-stone-200 text-center space-y-3 text-xs">
-            <p className="text-stone-600">
-              {t.customerAccount.noAccount}{' '}
-              <Link href="/account/register" className="text-[#800020] font-bold hover:underline">
-                {t.customerAccount.registerTitle}
-              </Link>
-            </p>
-
-            <div className="p-3 bg-[#FFF8F0] rounded-xl border border-[#EADBC8] text-[11px] text-stone-600 flex items-center justify-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#800020] flex-shrink-0" />
-              <span>{language === 'EN' ? 'Guest checkout is always supported without requiring registration!' : language === 'MS' ? 'Penyemakan tetamu sentiasa disokong tanpa pendaftaran!' : 'Checkout tamu selalu didukung tanpa perlu mendaftar!'}</span>
+            <div className="flex items-center gap-2 text-[11px] text-stone-700">
+              <Sparkles className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
+              <span>{language === 'EN' ? 'Guest checkout is always supported without login' : 'Checkout tamu tetap selalu didukung tanpa pendaftaran'}</span>
             </div>
           </div>
+
         </div>
       </main>
 
       <Footer />
       <FloatingWhatsApp />
-
-      {/* Firebase Automatic Email Verification Warning Pop-up Modal */}
-      <FirebaseEmailVerificationModal
-        isOpen={showFirebaseModal}
-        onClose={() => setShowFirebaseModal(false)}
-        targetEmail={unverifiedCustomer?.email || phoneOrEmail}
-        customerData={unverifiedCustomer}
-        onVerificationConfirmed={() => {
-          setShowFirebaseModal(false);
-          router.push('/account');
-        }}
-      />
-
-      {/* Unverified Email OTP Verification Modal Fallback */}
-      <OtpModal
-        isOpen={showOtpModal}
-        onClose={() => setShowOtpModal(false)}
-        targetDestination={unverifiedCustomer?.email || phoneOrEmail}
-        onVerifySuccess={() => {
-          if (!unverifiedCustomer) return;
-          const verifiedCustomer = {
-            ...unverifiedCustomer,
-            isEmailVerified: true,
-            isActive: true,
-            otpCode: undefined,
-            otpExpiresAt: undefined,
-            loginAt: new Date().toISOString(),
-          };
-          db.saveCustomer(verifiedCustomer);
-          localStorage.setItem('fbs_customer_session', JSON.stringify(verifiedCustomer));
-          setShowOtpModal(false);
-          router.push('/account');
-        }}
-        title={language === 'EN' ? 'Verify Your Email Address' : 'Pengesahan E-mel Pelanggan'}
-      />
     </div>
   );
 }
