@@ -91,6 +91,7 @@ export interface Customer {
   hashedPassword?: string;
   loginAt?: string;
   isEmailVerified?: boolean;
+  isActive?: boolean;
   otpCode?: string;
   otpExpiresAt?: string;
   otpRequestsCount?: number;

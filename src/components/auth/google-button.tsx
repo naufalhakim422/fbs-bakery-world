@@ -45,7 +45,7 @@ export default function GoogleButton() {
   };
 
   useEffect(() => {
-    // 1. Cek hasil redirect saat halaman dimuat
+    // Check redirect result only when user initiated redirect flow
     getRedirectResult(auth)
       .then((result) => {
         if (result?.user) {
@@ -55,15 +55,6 @@ export default function GoogleButton() {
       .catch((err) => {
         console.warn('Google Redirect Result Warning:', err?.message || err);
       });
-
-    // 2. Event listener auth state
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        handleUserSession(user);
-      }
-    });
-
-    return () => unsubscribe();
   }, []);
 
   const handleClick = async () => {

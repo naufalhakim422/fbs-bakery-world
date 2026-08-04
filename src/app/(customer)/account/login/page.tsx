@@ -114,8 +114,8 @@ export default function CustomerLoginPage() {
       return;
     }
 
-    // 3. Reject Unverified Accounts
-    if (existingCustomer.isEmailVerified === false) {
+    // 3. Reject Unverified or Inactive Accounts
+    if (existingCustomer.isEmailVerified === false || existingCustomer.isActive === false) {
       setLoading(false);
       setUnverifiedCustomer(existingCustomer);
       setError(

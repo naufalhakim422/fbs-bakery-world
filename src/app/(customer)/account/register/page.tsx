@@ -111,6 +111,7 @@ export default function CustomerRegisterPage() {
       provider: 'FORM' as const,
       hashedPassword: hashedPassword,
       isEmailVerified: false,
+      isActive: false,
       otpCode: otpCode,
       otpExpiresAt: otpExpiresAt,
       address: 'Chukai, Terengganu',
@@ -121,7 +122,7 @@ export default function CustomerRegisterPage() {
       loginAt: new Date().toISOString(),
     };
 
-    // Save to DB as unverified customer
+    // Save to DB as unverified & inactive customer (NO session created, NO redirect)
     db.saveCustomer(newCustomer);
     setPendingCustomer(newCustomer);
 
@@ -151,6 +152,7 @@ export default function CustomerRegisterPage() {
     const verifiedCustomer = {
       ...pendingCustomer,
       isEmailVerified: true,
+      isActive: true,
       otpCode: undefined,
       otpExpiresAt: undefined,
       loginAt: new Date().toISOString(),

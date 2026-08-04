@@ -54,14 +54,6 @@ export default function FacebookButton() {
       .catch((err) => {
         console.warn('Facebook Redirect Result Warning:', err?.message || err);
       });
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.providerData.some(p => p.providerId === 'facebook.com')) {
-        handleUserSession(user);
-      }
-    });
-
-    return () => unsubscribe();
   }, []);
 
   const handleClick = async () => {
