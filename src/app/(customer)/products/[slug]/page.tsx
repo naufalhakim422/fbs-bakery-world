@@ -408,49 +408,13 @@ export default function ProductDetailPage() {
 
   const handleWhatsAppBundle = () => {
     if (!product || !selectedVariant) return;
-    const settings = db.getStoreSettings();
-    const itemsList = [
-      {
-        productId: product.id,
-        variantId: selectedVariant.id,
-        productName: product.productName,
-        variantName: selectedVariant.variantName,
-        price: selectedVariant.price,
-        weight: selectedVariant.weight,
-        quantity: quantity,
-        mainImage: product.mainImage,
-        sku: selectedVariant.sku,
-      },
-      ...frequentlyBoughtTogether
-        .filter(p => selectedBundleItemIds.includes(p.id) && p.variants?.[0])
-        .map(p => ({
-          productId: p.id,
-          variantId: p.variants[0].id,
-          productName: p.productName,
-          variantName: p.variants[0].variantName,
-          price: p.variants[0].price,
-          weight: p.variants[0].weight,
-          quantity: 1,
-          mainImage: p.mainImage,
-          sku: p.variants[0].sku,
-        }))
-    ];
-
-    const link = generateWhatsAppOrderLink({
-      orderNumber: `#BUNDLE-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerName: 'Bundle Customer',
-      customerPhone: '',
-      address: '',
-      city: '',
-      state: '',
-      postcode: '',
-      notes: `Frequently Bought Together Bundle Order (${itemsList.length} items)`,
-      items: itemsList,
-      subtotal: bundleSubtotal,
-      whatsappNumber: settings.whatsappNumber,
+    addToCart(product, selectedVariant, quantity);
+    frequentlyBoughtTogether.forEach(p => {
+      if (selectedBundleItemIds.includes(p.id) && p.variants?.[0]) {
+        addToCart(p, p.variants[0], 1);
+      }
     });
-
-    window.open(link, '_blank');
+    router.push('/checkout');
   };
 
   const isFavorite = isInWishlist(product.id);
@@ -465,31 +429,8 @@ export default function ProductDetailPage() {
 
   const handleDirectWhatsApp = () => {
     if (!selectedVariant) return;
-    const settings = db.getStoreSettings();
-    const link = generateWhatsAppOrderLink({
-      orderNumber: `#DIRECT-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerName: 'Direct Customer',
-      customerPhone: '',
-      address: '',
-      city: '',
-      state: '',
-      postcode: '',
-      notes: `Direct order inquiry for ${product.productName} (${selectedVariant.variantName})`,
-      items: [{
-        productId: product.id,
-        variantId: selectedVariant.id,
-        productName: product.productName,
-        variantName: selectedVariant.variantName,
-        price: selectedVariant.price,
-        weight: selectedVariant.weight,
-        quantity: quantity,
-        mainImage: product.mainImage,
-        sku: selectedVariant.sku
-      }],
-      subtotal: selectedVariant.price * quantity,
-      whatsappNumber: settings.whatsappNumber,
-    });
-    window.open(link, '_blank');
+    addToCart(product, selectedVariant, quantity);
+    router.push('/checkout');
   };
 
   // Review Video File Upload

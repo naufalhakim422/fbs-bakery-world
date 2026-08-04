@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Product, ProductVariant } from '@/types';
 import { formatMYR, formatSoldQuantity } from '@/lib/currency';
 import { useCart } from '@/lib/cart-context';
@@ -17,6 +18,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, viewMode = 'grid' }) => {
+  const router = useRouter();
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const { t, language } = useLanguage();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
@@ -44,31 +46,8 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
   const handleQuickWhatsApp = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const settings = db.getStoreSettings();
-    const link = generateWhatsAppOrderLink({
-      orderNumber: `#QUICK-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerName: 'Quick Inquiry',
-      customerPhone: '',
-      address: '',
-      city: '',
-      state: '',
-      postcode: '',
-      notes: `Quick order inquiry for ${product.productName} (${selectedVariant.variantName})`,
-      items: [{
-        productId: product.id,
-        variantId: selectedVariant.id,
-        productName: product.productName,
-        variantName: selectedVariant.variantName,
-        price: selectedVariant.price,
-        weight: selectedVariant.weight,
-        quantity: 1,
-        mainImage: product.mainImage,
-        sku: selectedVariant.sku
-      }],
-      subtotal: selectedVariant.price,
-      whatsappNumber: settings.whatsappNumber,
-    });
-    window.open(link, '_blank');
+    addToCart(product, selectedVariant, 1);
+    router.push('/checkout');
   };
 
   const isFavorite = isInWishlist(product.id);
