@@ -12,7 +12,8 @@ import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { BotChallenge } from '@/components/customer/bot-challenge';
 import { hashPassword, validatePassword } from '@/lib/auth-security';
 import { OtpModal } from '@/components/customer/otp-modal';
-import { PhoneOtpModal } from '@/components/auth/phone-otp-modal';
+import { FirebaseEmailVerificationModal } from '@/components/auth/firebase-email-verification-modal';
+import { auth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from '@/lib/firebase';
 import { User, Lock, Phone, Mail, ArrowRight, ShieldCheck, UserPlus, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
@@ -34,7 +35,7 @@ export default function CustomerRegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
-  const [showPhoneOtpModal, setShowPhoneOtpModal] = useState(false);
+  const [showFirebaseModal, setShowFirebaseModal] = useState(false);
 
   const passwordValidation = validatePassword(form.password);
 
@@ -77,7 +78,7 @@ export default function CustomerRegisterPage() {
     const cleanEmail = form.email.trim().toLowerCase();
     const cleanPhone = form.phone.replace(/[^0-9]/g, '');
 
-    // 1. Check Duplicate Email or Phone
+    // 1. Check Duplicate Email or Phone in Local DB
     const existingCustomers = db.getCustomers();
     const isDuplicate = existingCustomers.some(c => {
       const emailDup = cleanEmail && c.email && c.email.toLowerCase() === cleanEmail;
@@ -98,15 +99,41 @@ export default function CustomerRegisterPage() {
 
     setLoading(true);
 
-    // 2. Hash password using SHA-256 / Bcrypt equivalent
+    let firebaseUid = `cust-${Date.now()}`;
+
+    // 2. Firebase Auth Registration & Automatic Email Verification
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, form.password);
+      const user = userCredential.user;
+      firebaseUid = user.uid;
+
+      // Update Display Name in Firebase User Profile
+      await updateProfile(user, { displayName: form.fullName.trim() });
+
+      // AUTOMATICALLY SEND FIREBASE EMAIL VERIFICATION
+      await sendEmailVerification(user);
+    } catch (fbError: any) {
+      console.warn('Firebase Auth Registration Warning/Error:', fbError);
+      if (fbError.code === 'auth/email-already-in-use') {
+        setLoading(false);
+        setError(
+          language === 'EN'
+            ? 'This email address is already registered in Firebase. Please login.'
+            : 'Alamat email ini sudah terdaftar. Silakan login.'
+        );
+        return;
+      }
+    }
+
+    // 3. Hash password for local database sync
     const hashedPassword = await hashPassword(form.password);
 
-    // 3. Generate 6-digit OTP (Expires in 10 minutes)
+    // 4. Generate 6-digit OTP as additional option
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
     const newCustomer = {
-      id: `cust-${Date.now()}`,
+      id: firebaseUid,
       name: form.fullName.trim(),
       email: cleanEmail,
       phone: form.phone.trim(),
@@ -125,11 +152,11 @@ export default function CustomerRegisterPage() {
       loginAt: new Date().toISOString(),
     };
 
-    // Save to DB as unverified & inactive customer (NO session created, NO redirect)
+    // Save to DB as UNVERIFIED & INACTIVE customer (NO session created, NO auto login, NO dashboard redirect)
     db.saveCustomer(newCustomer);
     setPendingCustomer(newCustomer);
 
-    // Send OTP Email via Resend API
+    // Also dispatch background Resend OTP Email
     try {
       await fetch('/api/auth/send-otp', {
         method: 'POST',
@@ -146,7 +173,9 @@ export default function CustomerRegisterPage() {
     }
 
     setLoading(false);
-    setShowOtpModal(true);
+
+    // Show Firebase Email Verification Warning Pop-up Modal!
+    setShowFirebaseModal(true);
   };
 
   const handleOtpVerifiedSuccess = () => {
@@ -164,6 +193,7 @@ export default function CustomerRegisterPage() {
     db.saveCustomer(verifiedCustomer);
     localStorage.setItem('fbs_customer_session', JSON.stringify(verifiedCustomer));
     setShowOtpModal(false);
+    setShowFirebaseModal(false);
     router.push('/account');
   };
 
@@ -355,7 +385,19 @@ export default function CustomerRegisterPage() {
       <Footer />
       <FloatingWhatsApp />
 
-      {/* Email Verification OTP Modal */}
+      {/* Firebase Automatic Email Verification Warning Pop-up Modal */}
+      <FirebaseEmailVerificationModal
+        isOpen={showFirebaseModal}
+        onClose={() => setShowFirebaseModal(false)}
+        targetEmail={form.email}
+        customerData={pendingCustomer}
+        onVerificationConfirmed={() => {
+          setShowFirebaseModal(false);
+          router.push('/account');
+        }}
+      />
+
+      {/* Email Verification OTP Modal Fallback */}
       <OtpModal
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}

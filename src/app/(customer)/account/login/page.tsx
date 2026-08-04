@@ -15,6 +15,8 @@ import { User, Lock, Phone, ArrowRight, ShieldCheck, AlertTriangle, ShieldAlert,
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
 import { OtpModal } from '@/components/customer/otp-modal';
+import { FirebaseEmailVerificationModal } from '@/components/auth/firebase-email-verification-modal';
+import { auth, signInWithEmailAndPassword } from '@/lib/firebase';
 
 export default function CustomerLoginPage() {
   const router = useRouter();
@@ -26,6 +28,7 @@ export default function CustomerLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [showFirebaseModal, setShowFirebaseModal] = useState(false);
   const [unverifiedCustomer, setUnverifiedCustomer] = useState<any>(null);
 
   // Rate Limiting & Security State
@@ -69,8 +72,42 @@ export default function CustomerLoginPage() {
 
     const inputClean = identifier.toLowerCase();
     const cleanPhone = identifier.replace(/[^0-9]/g, '');
+    const isEmail = inputClean.includes('@');
 
-    // Search registered customers
+    // 1. Firebase Auth Login & Email Verification Check if email format
+    if (isEmail) {
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, inputClean, password);
+        const fbUser = userCredential.user;
+
+        // Reload user profile from Firebase to fetch updated emailVerified status
+        await fbUser.reload();
+
+        if (!fbUser.emailVerified) {
+          setLoading(false);
+          const targetCust = {
+            id: fbUser.uid,
+            email: inputClean,
+            name: fbUser.displayName || inputClean.split('@')[0],
+          };
+          setUnverifiedCustomer(targetCust);
+          setError(
+            language === 'EN'
+              ? 'Please verify your email address before logging in.'
+              : language === 'MS'
+              ? 'Sila sahkan e-mel anda sebelum log masuk.'
+              : 'Silakan verifikasi email Anda terlebih dahulu sebelum login.'
+          );
+          setShowFirebaseModal(true);
+          return;
+        }
+      } catch (fbAuthErr: any) {
+        console.log('[Firebase Auth Sign-In Info/Warning]:', fbAuthErr?.code || fbAuthErr?.message);
+        // Continue to local database fallback if user registered prior to Firebase setup
+      }
+    }
+
+    // 2. Search registered customers in Local DB
     const registeredCustomers = db.getCustomers();
     const existingCustomer = registeredCustomers.find(c => {
       const emailMatch = c.email && c.email.toLowerCase() === inputClean;
@@ -78,7 +115,7 @@ export default function CustomerLoginPage() {
       return emailMatch || phoneMatch;
     });
 
-    // 1. Unknown Email / Phone -> REJECT LOGIN (No session, no auto account creation)
+    // 3. Unknown Email / Phone -> REJECT LOGIN (No session, no auto account creation)
     if (!existingCustomer) {
       recordFailedAttempt(identifier);
       setLoading(false);
@@ -92,7 +129,7 @@ export default function CustomerLoginPage() {
       return;
     }
 
-    // 2. Incorrect Password -> REJECT LOGIN
+    // 4. Incorrect Password -> REJECT LOGIN
     let isPasswordValid = false;
     if (existingCustomer.hashedPassword) {
       isPasswordValid = await comparePassword(password, existingCustomer.hashedPassword);
@@ -114,7 +151,7 @@ export default function CustomerLoginPage() {
       return;
     }
 
-    // 3. Reject Unverified or Inactive Accounts
+    // 5. Reject Unverified or Inactive Accounts (PREVENT ACCESS TO DASHBOARD UNTIL VERIFIED)
     if (existingCustomer.isEmailVerified === false || existingCustomer.isActive === false) {
       setLoading(false);
       setUnverifiedCustomer(existingCustomer);
@@ -125,15 +162,17 @@ export default function CustomerLoginPage() {
           ? 'Sila sahkan e-mel anda sebelum log masuk.'
           : 'Silakan verifikasi email Anda sebelum login.'
       );
-      setShowOtpModal(true);
+      setShowFirebaseModal(true);
       return;
     }
 
-    // 4. SUCCESS -> Reset rate limit & create session
+    // 6. SUCCESS -> Reset rate limit & create session
     resetFailedAttempts(identifier);
 
     const updatedCustomer = {
       ...existingCustomer,
+      isEmailVerified: true,
+      isActive: true,
       loginAt: new Date().toISOString(),
     };
 
@@ -323,7 +362,19 @@ export default function CustomerLoginPage() {
       <Footer />
       <FloatingWhatsApp />
 
-      {/* Unverified Email OTP Verification Modal */}
+      {/* Firebase Automatic Email Verification Warning Pop-up Modal */}
+      <FirebaseEmailVerificationModal
+        isOpen={showFirebaseModal}
+        onClose={() => setShowFirebaseModal(false)}
+        targetEmail={unverifiedCustomer?.email || phoneOrEmail}
+        customerData={unverifiedCustomer}
+        onVerificationConfirmed={() => {
+          setShowFirebaseModal(false);
+          router.push('/account');
+        }}
+      />
+
+      {/* Unverified Email OTP Verification Modal Fallback */}
       <OtpModal
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}
