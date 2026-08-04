@@ -1,4 +1,4 @@
-import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog, ShippingCourier, ShippingState, WeightBracket, ShippingRate } from '@/types';
+import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog, ShippingCourier, ShippingState, WeightBracket, ShippingRate, ProductShareLog } from '@/types';
 
 let categoriesData: Category[] = [
   {
@@ -1589,6 +1589,45 @@ export const db = {
       fee,
       bracketName: matchedBracket ? matchedBracket.name : 'Standar',
       region: region === 'EAST_MALAYSIA' ? 'Malaysia Timur' : 'Semenanjung',
+    };
+  },
+
+  // Product Share Analytics API
+  recordProductShare: (productId: string, productName: string, platform: ProductShareLog['platform']): ProductShareLog => {
+    const list = loadFromStorage<ProductShareLog[]>('fbs_share_analytics', []);
+    const newLog: ProductShareLog = {
+      id: `share-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      productId,
+      productName,
+      platform,
+      timestamp: new Date().toISOString(),
+    };
+    list.unshift(newLog);
+    saveToStorage('fbs_share_analytics', list);
+    return newLog;
+  },
+
+  getShareAnalytics: (productId?: string) => {
+    const list = loadFromStorage<ProductShareLog[]>('fbs_share_analytics', []);
+    const filtered = productId ? list.filter(l => l.productId === productId) : list;
+
+    const total = filtered.length;
+    const whatsapp = filtered.filter(l => l.platform === 'WHATSAPP').length;
+    const facebook = filtered.filter(l => l.platform === 'FACEBOOK').length;
+    const telegram = filtered.filter(l => l.platform === 'TELEGRAM').length;
+    const copyLink = filtered.filter(l => l.platform === 'COPY_LINK').length;
+    const nativeShare = filtered.filter(l => l.platform === 'NATIVE_SHARE').length;
+    const qrCode = filtered.filter(l => l.platform === 'QR_CODE').length;
+
+    return {
+      total,
+      whatsapp,
+      facebook,
+      telegram,
+      copyLink,
+      nativeShare,
+      qrCode,
+      logs: filtered,
     };
   }
 };

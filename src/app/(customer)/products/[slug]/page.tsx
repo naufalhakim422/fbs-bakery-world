@@ -15,6 +15,7 @@ import { formatMYR, formatSoldQuantity } from '@/lib/currency';
 import { useCart } from '@/lib/cart-context';
 import { generateWhatsAppOrderLink } from '@/lib/whatsapp';
 import { ProductBadges } from '@/components/customer/product-badges';
+import { ShareModal } from '@/components/customer/share-modal';
 import { 
   ShoppingBag, 
   MessageCircle, 
@@ -41,7 +42,8 @@ import {
   ZoomOut,
   RotateCcw,
   ChevronLeft,
-  Clock
+  Clock,
+  Share2
 } from 'lucide-react';
 
 export default function ProductDetailPage() {
@@ -415,6 +417,25 @@ export default function ProductDetailPage() {
       }
     });
     router.push('/checkout');
+  };
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const handleOpenShare = () => {
+    if (typeof navigator !== 'undefined' && 'share' in navigator && product) {
+      navigator.share({
+        title: `${product.productName} - FBS Bakery World`,
+        text: `Cek bahan kue "${product.productName}" di FBS Bakery World!`,
+        url: window.location.href,
+      }).then(() => {
+        db.recordProductShare(product.id, product.productName, 'NATIVE_SHARE');
+      }).catch((err) => {
+        console.warn('Native share error/cancel, fallback to modal:', err);
+        setIsShareModalOpen(true);
+      });
+    } else {
+      setIsShareModalOpen(true);
+    }
   };
 
   const isFavorite = isInWishlist(product.id);
@@ -797,6 +818,15 @@ export default function ProductDetailPage() {
                 className="py-3.5 px-6 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
               >
                 <MessageCircle className="w-5 h-5 fill-white" /> {t.productDetail.orderWhatsApp}
+              </button>
+
+              <button
+                onClick={handleOpenShare}
+                className="col-span-1 sm:col-span-2 py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl text-sm font-bold transition-all border border-stone-300 flex items-center justify-center gap-2 active:scale-95 shadow-sm"
+                title="Bagikan Produk ini"
+              >
+                <Share2 className="w-5 h-5 text-[#800020]" />
+                <span>{language === 'EN' ? 'Share Product (WhatsApp / FB / Telegram / QR Code)' : language === 'MS' ? 'Kongsi Produk' : 'Bagikan Produk ini'}</span>
               </button>
             </div>
 
@@ -1268,6 +1298,15 @@ export default function ProductDetailPage() {
             )}
           </div>
         </div>
+      )}
+
+      {product && (
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          product={product}
+          selectedVariant={selectedVariant || undefined}
+        />
       )}
 
       <Footer />

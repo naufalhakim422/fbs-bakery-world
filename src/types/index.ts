@@ -286,11 +286,19 @@ export interface ShippingRate {
   price: number;
 }
 
+export interface ProductShareLog {
+  id: string;
+  productId: string;
+  productName: string;
+  platform: 'WHATSAPP' | 'FACEBOOK' | 'TELEGRAM' | 'COPY_LINK' | 'NATIVE_SHARE' | 'QR_CODE';
+  timestamp: string;
+}
+
 export interface AuditLog {
   id: string;
   adminName: string;
   action: string;
-  category: 'AUTH' | 'PRODUCT' | 'BANNER' | 'RECIPE' | 'BLOG' | 'ORDER' | 'SETTINGS' | 'SHIPPING';
+  category: 'AUTH' | 'PRODUCT' | 'BANNER' | 'RECIPE' | 'BLOG' | 'ORDER' | 'SETTINGS' | 'SHIPPING' | 'SHARE';
   details: string;
   timestamp: string;
 }

@@ -108,12 +108,57 @@ export default function AdminProductsPage() {
 
           <Link
             href="/admin/products/new"
-            className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow flex items-center gap-2"
+            className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-1.5 transition-all"
           >
-            <Plus className="w-4 h-4" /> Add New Product
+            <Plus className="w-4 h-4" /> Add Product
           </Link>
         </div>
       </div>
+
+      {/* SHARE ANALYTICS STATS CARD */}
+      {(() => {
+        const shareStats = db.getShareAnalytics();
+        return (
+          <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-[#800020] text-white p-5 rounded-3xl shadow-md border border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-[#D4AF37] border border-white/10">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-base">Product Share Analytics</h3>
+                <p className="text-xs text-stone-300">Total Pembagian Link &amp; QR Code Produk oleh Pelanggan</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs">
+              <div className="bg-white/10 p-2.5 rounded-xl border border-white/10">
+                <span className="text-[10px] text-stone-400 block font-bold">TOTAL SHARE</span>
+                <span className="font-serif font-extrabold text-base text-[#D4AF37]">{shareStats.total}</span>
+              </div>
+              <div className="bg-emerald-500/20 p-2.5 rounded-xl border border-emerald-500/30">
+                <span className="text-[10px] text-emerald-300 block font-bold">WHATSAPP</span>
+                <span className="font-serif font-extrabold text-base text-emerald-400">{shareStats.whatsapp}</span>
+              </div>
+              <div className="bg-blue-500/20 p-2.5 rounded-xl border border-blue-500/30">
+                <span className="text-[10px] text-blue-300 block font-bold">FACEBOOK</span>
+                <span className="font-serif font-extrabold text-base text-blue-400">{shareStats.facebook}</span>
+              </div>
+              <div className="bg-sky-500/20 p-2.5 rounded-xl border border-sky-500/30">
+                <span className="text-[10px] text-sky-300 block font-bold">TELEGRAM</span>
+                <span className="font-serif font-extrabold text-base text-sky-400">{shareStats.telegram}</span>
+              </div>
+              <div className="bg-amber-500/20 p-2.5 rounded-xl border border-amber-500/30">
+                <span className="text-[10px] text-amber-300 block font-bold">COPY LINK</span>
+                <span className="font-serif font-extrabold text-base text-amber-400">{shareStats.copyLink}</span>
+              </div>
+              <div className="bg-purple-500/20 p-2.5 rounded-xl border border-purple-500/30">
+                <span className="text-[10px] text-purple-300 block font-bold">QR CODE</span>
+                <span className="font-serif font-extrabold text-base text-purple-400">{shareStats.qrCode}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3">
