@@ -181,8 +181,8 @@ export default function CustomerRegisterPage() {
   };
 
   // STEP 2: VERIFY OTP SUBMIT
-  const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerifyOtpSubmit = async (e?: React.FormEvent, directCode?: string) => {
+    if (e) e.preventDefault();
     setError('');
     setSuccessMessage('');
 
@@ -191,7 +191,12 @@ export default function CustomerRegisterPage() {
       return;
     }
 
-    const codeClean = otpInput.trim();
+    const codeClean = (directCode || otpInput).trim();
+
+    if (!codeClean) {
+      setError('Masukkan 6-digit kode OTP.');
+      return;
+    }
 
     // Check OTP Expiry
     if (pendingCustomer.otpExpiresAt && Date.now() > new Date(pendingCustomer.otpExpiresAt).getTime()) {
@@ -229,11 +234,12 @@ export default function CustomerRegisterPage() {
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new CustomEvent('fbs_db_updated'));
 
-    setSuccessMessage('✓ Verifikasi akun berhasil! Mengalihkan ke dashboard...');
+    setSuccessMessage('✓ Verifikasi berhasil! Mengalihkan langsung ke profil Anda...');
 
+    // INSTANT REDIRECT TO PROFILE DASHBOARD
     setTimeout(() => {
       router.push('/account');
-    }, 1200);
+    }, 400);
   };
 
   // Resend OTP Code
@@ -514,6 +520,39 @@ export default function CustomerRegisterPage() {
                 </p>
               </div>
 
+              {/* Interactive OTP Email Bot Banner */}
+              {pendingCustomer?.otpCode && (
+                <div
+                  onClick={() => {
+                    const code = pendingCustomer.otpCode;
+                    setOtpInput(code);
+                    handleVerifyOtpSubmit(undefined, code);
+                  }}
+                  className="bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border-2 border-dashed border-amber-400 p-3.5 rounded-2xl cursor-pointer hover:bg-amber-100/50 transition-all text-left group relative shadow-sm"
+                  title="Klik untuk isi otomatis & verifikasi langsung ke profil"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow">
+                      <Mail className="w-4 h-4 animate-bounce" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-amber-900">
+                        <span>📩 BOT PENGESAHAN E-MEL / WA</span>
+                        <span className="bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded font-mono">
+                          BARU SAHAJA
+                        </span>
+                      </div>
+                      <p className="text-xs text-stone-700 mt-0.5 font-mono">
+                        Kod OTP Anda: <span className="font-black text-stone-900 text-sm tracking-wider underline">{pendingCustomer.otpCode}</span>
+                      </p>
+                      <span className="text-[10px] text-amber-800 font-medium block mt-0.5 group-hover:underline">
+                        ✨ Klik sepanduk ini untuk isi & verifikasi otomatis ke profil
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Yellow Notice Box matching Screenshot */}
               <div className="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-left text-xs text-amber-950 space-y-2 shadow-sm">
                 <div className="flex items-center gap-2 font-bold text-amber-900">
@@ -547,7 +586,13 @@ export default function CustomerRegisterPage() {
                     maxLength={6}
                     placeholder="345981"
                     value={otpInput}
-                    onChange={(e) => setOtpInput(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setOtpInput(val);
+                      if (val.trim().length === 6) {
+                        handleVerifyOtpSubmit(undefined, val.trim());
+                      }
+                    }}
                     className="w-full text-center font-mono text-3xl font-black tracking-widest px-4 py-3.5 border-2 border-stone-300 rounded-2xl focus:outline-none focus:border-[#800020] bg-stone-50 text-stone-900 shadow-inner"
                   />
                 </div>
