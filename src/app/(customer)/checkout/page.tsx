@@ -27,8 +27,17 @@ import {
   Phone,
   FileText,
   Sparkles,
-  Printer
+  Printer,
+  Truck
 } from 'lucide-react';
+
+const COURIERS = [
+  { id: 'J&T', name: 'J&T Express', icon: '🚚', peninsularFee: 8.00, eastMalaysiaFee: 16.00, estDays: '1-3 Hari' },
+  { id: 'Pos Laju', name: 'Pos Laju', icon: '📮', peninsularFee: 9.00, eastMalaysiaFee: 18.00, estDays: '2-4 Hari' },
+  { id: 'Ninja Van', name: 'Ninja Van', icon: '🥷', peninsularFee: 8.50, eastMalaysiaFee: 17.00, estDays: '2-3 Hari' },
+  { id: 'Flash Express', name: 'Flash Express', icon: '⚡', peninsularFee: 7.50, eastMalaysiaFee: 15.00, estDays: '1-3 Hari' },
+  { id: 'SPX', name: 'SPX Express', icon: '📦', peninsularFee: 7.00, eastMalaysiaFee: 14.50, estDays: '2-4 Hari' },
+];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -61,6 +70,7 @@ export default function CheckoutPage() {
     notes: '',
   });
 
+  const [selectedCourierId, setSelectedCourierId] = useState<string>('J&T');
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
@@ -116,7 +126,10 @@ export default function CheckoutPage() {
     });
   };
 
-  const finalTotal = subtotal;
+  const isEastMalaysia = ['Sabah', 'Sarawak', 'Labuan'].includes(formData.state);
+  const currentCourier = COURIERS.find(c => c.id === selectedCourierId) || COURIERS[0];
+  const shippingFee = isEastMalaysia ? currentCourier.eastMalaysiaFee : currentCourier.peninsularFee;
+  const grandTotal = subtotal + shippingFee;
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,7 +147,8 @@ export default function CheckoutPage() {
         state: formData.state,
         postcode: formData.postcode,
         notes: formData.notes,
-        totalAmount: finalTotal,
+        courierName: currentCourier.name,
+        totalAmount: grandTotal,
         orderStatus: 'NEW',
         items: cart.map(item => ({
           id: `oi-${Date.now()}-${Math.random()}`,
@@ -161,7 +175,10 @@ export default function CheckoutPage() {
         postcode: formData.postcode,
         notes: formData.notes,
         items: cart,
-        subtotal: finalTotal,
+        subtotal: subtotal,
+        courier: currentCourier.name,
+        shippingFee: shippingFee,
+        grandTotal: grandTotal,
         whatsappNumber: settings.whatsappNumber,
       });
 
@@ -400,6 +417,66 @@ export default function CheckoutPage() {
                         </select>
                       </div>
                     </div>
+
+                    {/* SECTION: SHIPPING CALCULATOR & COURIER SELECTION */}
+                    <div className="space-y-4 pt-4 border-t border-stone-200">
+                      <div className="flex items-center justify-between text-[#800020]">
+                        <div className="flex items-center gap-2">
+                          <Truck className="w-5 h-5" />
+                          <h2 className="font-serif text-lg font-bold">Kalkulator &amp; Pilihan Kurir Pengiriman</h2>
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                          {isEastMalaysia ? 'Tarif Malaysia Timur' : 'Tarif Semenanjung'}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-stone-600">
+                        Pilih layanan ekspedisi pengiriman yang Anda inginkan. Biaya ongkir dihitung otomatis berdasarkan lokasi provinsi &amp; kode pos Anda.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        {COURIERS.map(courier => {
+                          const fee = isEastMalaysia ? courier.eastMalaysiaFee : courier.peninsularFee;
+                          const isSelected = courier.id === selectedCourierId;
+
+                          return (
+                            <button
+                              key={courier.id}
+                              type="button"
+                              onClick={() => setSelectedCourierId(courier.id)}
+                              className={`p-3.5 rounded-2xl border-2 transition-all text-left flex items-center justify-between ${
+                                isSelected
+                                  ? 'border-[#800020] bg-[#800020]/5 shadow-sm'
+                                  : 'border-stone-200 bg-white hover:border-stone-300'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
+                                  isSelected ? 'bg-[#800020] text-white' : 'bg-stone-100 text-stone-700'
+                                }`}>
+                                  {courier.icon}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-bold text-xs text-stone-900">{courier.name}</span>
+                                    {isSelected && (
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-[#800020]" />
+                                    )}
+                                  </div>
+                                  <span className="text-[11px] text-stone-500 block">Estimasi: {courier.estDays}</span>
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <span className={`font-serif font-extrabold text-sm ${isSelected ? 'text-[#800020]' : 'text-stone-800'}`}>
+                                  {formatMYR(fee)}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-4 text-[#800020]">
@@ -420,7 +497,7 @@ export default function CheckoutPage() {
 
                 </div>
 
-                {/* Right Column: Order Review & Voucher Promo Input */}
+                {/* Right Column: Order Review & Shipping Summary */}
                 <div className="bg-white p-6 rounded-3xl border border-[#EADBC8] shadow-md h-fit space-y-6">
                   <h2 className="font-serif text-xl font-bold text-[#800020] border-b border-stone-200 pb-3">
                     {t.checkout.orderItems} ({totalItems})
@@ -438,16 +515,24 @@ export default function CheckoutPage() {
                     ))}
                   </div>
 
-                  {/* SUBTOTAL BREAKDOWN */}
-                  <div className="pt-2 space-y-2 text-xs border-t border-stone-200">
+                  {/* SUBTOTAL & SHIPPING BREAKDOWN */}
+                  <div className="pt-2 space-y-2.5 text-xs border-t border-stone-200">
                     <div className="flex justify-between text-stone-600">
                       <span>{t.checkout.subtotalProduk}</span>
                       <span>{formatMYR(subtotal)}</span>
                     </div>
 
-                    <div className="flex justify-between text-base font-extrabold text-[#800020] pt-2 border-t border-stone-200">
+                    <div className="flex justify-between text-stone-700 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Truck className="w-3.5 h-3.5 text-[#800020]" />
+                        <span>Ongkos Kirim ({currentCourier.name})</span>
+                      </span>
+                      <span className="font-bold text-stone-900">{formatMYR(shippingFee)}</span>
+                    </div>
+
+                    <div className="flex justify-between text-base font-extrabold text-[#800020] pt-2.5 border-t border-stone-200">
                       <span>{t.checkout.finalTotal}</span>
-                      <span>{formatMYR(finalTotal)}</span>
+                      <span>{formatMYR(grandTotal)}</span>
                     </div>
                   </div>
 

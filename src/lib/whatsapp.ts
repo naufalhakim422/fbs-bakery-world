@@ -12,6 +12,9 @@ export interface WhatsAppCheckoutData {
   notes?: string;
   items: CartItem[];
   subtotal: number;
+  courier?: string;
+  shippingFee?: number;
+  grandTotal?: number;
   whatsappNumber: string;
 }
 
@@ -149,6 +152,9 @@ export const generateWhatsAppOrderLink = (data: WhatsAppCheckoutData): string =>
   if (data.address) {
     message += `📍 *Delivery Address:* ${data.address}${data.city ? `, ${data.city}` : ''}${data.postcode ? ` ${data.postcode}` : ''}${data.state ? `, ${data.state}` : ''}\n`;
   }
+  if (data.courier) {
+    message += `🚚 *Selected Courier:* ${data.courier}\n`;
+  }
   message += `\n📦 *ORDERED ITEMS:*\n`;
 
   if (data.items && data.items.length > 0) {
@@ -162,7 +168,13 @@ export const generateWhatsAppOrderLink = (data: WhatsAppCheckoutData): string =>
     message += `• Product Inquiry / Quick Order\n`;
   }
 
-  message += `\n💰 *TOTAL ESTIMATE:* *${formatMYR(data.subtotal || 0)}*\n`;
+  const shipping = data.shippingFee ?? 0;
+  const grandTotal = data.grandTotal ?? ((data.subtotal || 0) + shipping);
+
+  message += `\n━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  message += `💵 *Subtotal Produk:* ${formatMYR(data.subtotal || 0)}\n`;
+  message += `🚚 *Ongkos Kirim (${data.courier || 'Kurir'}):* ${formatMYR(shipping)}\n`;
+  message += `💰 *TOTAL BAYAR:* *${formatMYR(grandTotal)}*\n`;
 
   if (data.notes && data.notes.trim()) {
     message += `\n📝 *Notes:* ${data.notes.trim()}\n`;
