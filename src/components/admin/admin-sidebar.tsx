@@ -59,7 +59,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { name: t.adminNav.blogs, href: '/admin/blogs', icon: BookOpen },
     { name: videoMenuName, href: '/admin/videos', icon: Film },
     { name: t.adminNav.banners, href: '/admin/banners', icon: ImageIcon },
-    { name: t.adminNav.vouchers, href: '/admin/vouchers', icon: Tag },
     { name: t.adminNav.customers, href: '/admin/customers', icon: Users },
     { name: t.adminNav.settings, href: '/admin/settings', icon: Settings },
   ];

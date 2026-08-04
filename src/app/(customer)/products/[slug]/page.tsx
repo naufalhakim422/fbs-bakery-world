@@ -1105,7 +1105,7 @@ export default function ProductDetailPage() {
                   {/* ATTACHED PHOTOS */}
                   {rev.images && rev.images.length > 0 && (
                     <div className="flex gap-2 overflow-x-auto pt-1">
-                      {rev.images.map((img, idx) => (
+                      {rev.images.map((img: string, idx: number) => (
                         <img 
                           key={idx}
                           src={img} 

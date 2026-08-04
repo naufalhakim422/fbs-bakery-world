@@ -151,19 +151,6 @@ export interface Banner {
   videoUrl?: string;
 }
 
-export interface Voucher {
-  id: string;
-  code: string;
-  title: string;
-  discountType: 'PERCENT' | 'FIXED';
-  discountValue: number;
-  minSpend: number;
-  targetTier: 'ALL' | 'RETAIL' | 'VIP' | 'WHOLESALE';
-  status: boolean;
-  expiryDate?: string;
-  createdAt: string;
-}
-
 export interface StoreSetting {
   whatsappNumber: string;
   whatsappNumber2?: string;
@@ -270,7 +257,7 @@ export interface AuditLog {
   id: string;
   adminName: string;
   action: string;
-  category: 'AUTH' | 'PRODUCT' | 'BANNER' | 'VOUCHER' | 'RECIPE' | 'BLOG' | 'ORDER' | 'SETTINGS';
+  category: 'AUTH' | 'PRODUCT' | 'BANNER' | 'RECIPE' | 'BLOG' | 'ORDER' | 'SETTINGS';
   details: string;
   timestamp: string;
 }

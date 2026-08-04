@@ -1,4 +1,4 @@
-import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, Voucher, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog } from '@/types';
+import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog } from '@/types';
 
 let categoriesData: Category[] = [
   {
@@ -455,45 +455,6 @@ let initialBanners: Banner[] = [
     buttonText: 'CEK BARANG BARU',
     buttonLink: '/products/professional-heavy-duty-stand-mixer-7l',
     status: true,
-  }
-];
-
-let initialVouchers: Voucher[] = [
-  {
-    id: 'vouch-1',
-    code: 'VIPBAKER20',
-    title: 'Diskon Spesial VIP Member 20% OFF',
-    discountType: 'PERCENT',
-    discountValue: 20,
-    minSpend: 100,
-    targetTier: 'VIP',
-    status: true,
-    expiryDate: '2026-12-31',
-    createdAt: '2026-07-01T08:00:00Z',
-  },
-  {
-    id: 'vouch-2',
-    code: 'WHOLESALE50',
-    title: 'Potongan Grosir Komersial RM50 OFF',
-    discountType: 'FIXED',
-    discountValue: 50,
-    minSpend: 300,
-    targetTier: 'WHOLESALE',
-    status: true,
-    expiryDate: '2026-12-31',
-    createdAt: '2026-07-10T08:00:00Z',
-  },
-  {
-    id: 'vouch-3',
-    code: 'WELCOMEFBS10',
-    title: 'Voucher Selamat Datang RM10 OFF',
-    discountType: 'FIXED',
-    discountValue: 10,
-    minSpend: 50,
-    targetTier: 'ALL',
-    status: true,
-    expiryDate: '2026-12-31',
-    createdAt: '2026-07-15T08:00:00Z',
   }
 ];
 
@@ -990,56 +951,6 @@ export const db = {
       banners[idx].status = !banners[idx].status;
       saveToStorage('fbs_banners', banners);
       return banners[idx];
-    }
-    return null;
-  },
-
-  // Vouchers CRUD API
-  getVouchers: (): Voucher[] => {
-    return loadFromStorage<Voucher[]>('fbs_vouchers', initialVouchers);
-  },
-
-  saveVoucher: (voucherInput: Partial<Voucher>): Voucher => {
-    const vouchers = loadFromStorage<Voucher[]>('fbs_vouchers', initialVouchers);
-    if (voucherInput.id) {
-      const idx = vouchers.findIndex(v => v.id === voucherInput.id);
-      if (idx !== -1) {
-        vouchers[idx] = { ...vouchers[idx], ...voucherInput };
-        saveToStorage('fbs_vouchers', vouchers);
-        return vouchers[idx];
-      }
-    }
-    const newVoucher: Voucher = {
-      id: `vouch-${Date.now()}`,
-      code: (voucherInput.code || 'PROMO10').toUpperCase().trim(),
-      title: voucherInput.title || 'Special Discount Voucher',
-      discountType: voucherInput.discountType || 'PERCENT',
-      discountValue: voucherInput.discountValue || 10,
-      minSpend: voucherInput.minSpend || 50,
-      targetTier: voucherInput.targetTier || 'ALL',
-      status: voucherInput.status ?? true,
-      expiryDate: voucherInput.expiryDate || '2026-12-31',
-      createdAt: new Date().toISOString(),
-    };
-    vouchers.unshift(newVoucher);
-    saveToStorage('fbs_vouchers', vouchers);
-    return newVoucher;
-  },
-
-  deleteVoucher: (id: string) => {
-    let vouchers = loadFromStorage<Voucher[]>('fbs_vouchers', initialVouchers);
-    vouchers = vouchers.filter(v => v.id !== id);
-    saveToStorage('fbs_vouchers', vouchers);
-    return true;
-  },
-
-  toggleVoucherStatus: (id: string) => {
-    const vouchers = loadFromStorage<Voucher[]>('fbs_vouchers', initialVouchers);
-    const idx = vouchers.findIndex(v => v.id === id);
-    if (idx !== -1) {
-      vouchers[idx].status = !vouchers[idx].status;
-      saveToStorage('fbs_vouchers', vouchers);
-      return vouchers[idx];
     }
     return null;
   },

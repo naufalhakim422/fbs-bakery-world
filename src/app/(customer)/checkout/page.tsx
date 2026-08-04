@@ -14,7 +14,7 @@ import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { InvoiceModal } from '@/components/customer/invoice-modal';
-import { Order, Voucher } from '@/types';
+import { Order } from '@/types';
 import { 
   MessageCircle, 
   CheckCircle2, 
@@ -26,7 +26,6 @@ import {
   User,
   Phone,
   FileText,
-  Tag,
   Sparkles,
   Printer
 } from 'lucide-react';
@@ -61,11 +60,6 @@ export default function CheckoutPage() {
     postcode: '40000',
     notes: '',
   });
-
-  const [voucherCode, setVoucherCode] = useState('');
-  const [appliedVoucher, setAppliedVoucher] = useState<Voucher | null>(null);
-  const [voucherError, setVoucherError] = useState('');
-  const [discountAmount, setDiscountAmount] = useState(0);
 
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,44 +109,6 @@ export default function CheckoutPage() {
     'Perlis'
   ];
 
-  const handleApplyVoucher = (e: React.FormEvent) => {
-    e.preventDefault();
-    setVoucherError('');
-    if (!voucherCode.trim()) return;
-
-    const vouchers = db.getVouchers();
-    const found = vouchers.find(v => v.code.toUpperCase() === voucherCode.trim().toUpperCase() && v.status);
-
-    if (!found) {
-      const errMsg = t.checkout.voucherNotFound;
-      setVoucherError(errMsg);
-      setAppliedVoucher(null);
-      setDiscountAmount(0);
-      showToast(language === 'EN' ? 'Invalid Voucher' : 'Voucher Tidak Sah', errMsg, 'error');
-      return;
-    }
-
-    if (subtotal < found.minSpend) {
-      const errMsg = `${t.checkout.voucherMinSpend} ${found.minSpend}.00`;
-      setVoucherError(errMsg);
-      setAppliedVoucher(null);
-      setDiscountAmount(0);
-      showToast(language === 'EN' ? 'Min Spend Requirement' : 'Syarat Kelayakan', errMsg, 'error');
-      return;
-    }
-
-    let calculatedDiscount = 0;
-    if (found.discountType === 'PERCENT') {
-      calculatedDiscount = (subtotal * found.discountValue) / 100;
-    } else {
-      calculatedDiscount = found.discountValue;
-    }
-
-    setAppliedVoucher(found);
-    setDiscountAmount(calculatedDiscount);
-    showToast(language === 'EN' ? 'Voucher Applied!' : language === 'MS' ? 'Voucher Berjaya!' : 'Voucher Berhasil!', `${language === 'EN' ? 'Savings discount' : 'Diskaun Penjimatan'} ${formatMYR(calculatedDiscount)}`, 'voucher');
-  };
-
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -160,7 +116,7 @@ export default function CheckoutPage() {
     });
   };
 
-  const finalTotal = Math.max(0, subtotal - discountAmount);
+  const finalTotal = subtotal;
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,7 +133,7 @@ export default function CheckoutPage() {
         city: formData.city,
         state: formData.state,
         postcode: formData.postcode,
-        notes: `${formData.notes}${appliedVoucher ? ` [Voucher Applied: ${appliedVoucher.code} (-${formatMYR(discountAmount)})]` : ''}`,
+        notes: formData.notes,
         totalAmount: finalTotal,
         orderStatus: 'NEW',
         items: cart.map(item => ({
@@ -203,7 +159,7 @@ export default function CheckoutPage() {
         city: formData.city,
         state: formData.state,
         postcode: formData.postcode,
-        notes: `${formData.notes}${appliedVoucher ? ` [Voucher Promo: ${appliedVoucher.code} (Diskon ${formatMYR(discountAmount)})]` : ''}`,
+        notes: formData.notes,
         items: cart,
         subtotal: finalTotal,
         whatsappNumber: settings.whatsappNumber,
@@ -482,56 +438,12 @@ export default function CheckoutPage() {
                     ))}
                   </div>
 
-                  {/* PROMO VOUCHER APPLICATION FORM */}
-                  <div className="pt-2 space-y-3 border-t border-stone-200">
-                    <label className="block text-xs font-bold text-stone-700 uppercase flex items-center gap-1.5">
-                      <Tag className="w-4 h-4 text-[#800020]" /> {t.checkout.voucherLabel}
-                    </label>
-
-                    <div className="flex gap-2">
-                      <input 
-                        type="text"
-                        placeholder={t.checkout.voucherPlaceholder}
-                        value={voucherCode}
-                        onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                        className="w-full px-3 py-2 border border-stone-300 rounded-xl text-xs font-mono font-bold uppercase text-[#800020]"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleApplyVoucher}
-                        className="px-4 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl flex-shrink-0"
-                      >
-                        {t.checkout.voucherApplyBtn}
-                      </button>
-                    </div>
-
-                    {voucherError && (
-                      <p className="text-[11px] font-medium text-red-600">{voucherError}</p>
-                    )}
-
-                    {appliedVoucher && (
-                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
-                        <div className="font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {t.checkout.voucherApplied}: {appliedVoucher.code}
-                        </div>
-                        <p className="text-[11px]">{appliedVoucher.title}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* SUBTOTAL & DISCOUNT BREAKDOWN */}
+                  {/* SUBTOTAL BREAKDOWN */}
                   <div className="pt-2 space-y-2 text-xs border-t border-stone-200">
                     <div className="flex justify-between text-stone-600">
                       <span>{t.checkout.subtotalProduk}</span>
                       <span>{formatMYR(subtotal)}</span>
                     </div>
-
-                    {discountAmount > 0 && (
-                      <div className="flex justify-between text-emerald-700 font-bold">
-                        <span>{t.checkout.discountVoucher} ({appliedVoucher?.code})</span>
-                        <span>-{formatMYR(discountAmount)}</span>
-                      </div>
-                    )}
 
                     <div className="flex justify-between text-base font-extrabold text-[#800020] pt-2 border-t border-stone-200">
                       <span>{t.checkout.finalTotal}</span>

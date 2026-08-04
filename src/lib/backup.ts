@@ -9,7 +9,6 @@ export interface FullBackupPayload {
     categories: any[];
     orders: any[];
     customers: any[];
-    vouchers: any[];
     banners: any[];
     blogs: any[];
     videos: any[];
@@ -36,7 +35,6 @@ export const createAndDownloadBackup = (): void => {
       categories: db.getCategories(),
       orders: db.getOrders(),
       customers: db.getCustomers(),
-      vouchers: db.getVouchers(),
       banners: db.getBanners(),
       blogs: db.getBlogs(),
       videos: db.getVideos(),
@@ -104,7 +102,6 @@ export const validateAndRestoreBackup = (jsonText: string): { success: boolean; 
     localStorage.setItem('fbs_orders', JSON.stringify(d.orders));
 
     if (Array.isArray(d.customers)) localStorage.setItem('fbs_customers', JSON.stringify(d.customers));
-    if (Array.isArray(d.vouchers)) localStorage.setItem('fbs_vouchers', JSON.stringify(d.vouchers));
     if (Array.isArray(d.banners)) localStorage.setItem('fbs_banners', JSON.stringify(d.banners));
     if (Array.isArray(d.blogs)) localStorage.setItem('fbs_blogs', JSON.stringify(d.blogs));
     if (Array.isArray(d.videos)) localStorage.setItem('fbs_videos', JSON.stringify(d.videos));

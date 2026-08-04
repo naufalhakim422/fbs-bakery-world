@@ -17,11 +17,9 @@ import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, Check
 
 export default function CustomerAccountPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'orders' | 'benefits' | 'wishlist' | 'profile'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'wishlist' | 'profile'>('orders');
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
-  const [vouchers, setVouchers] = useState<any[]>([]);
-  const [copiedCode, setCopiedCode] = useState<string>('');
 
   // Avatar & Cover State & Refs
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -100,20 +98,11 @@ export default function CustomerAccountPage() {
 
       setOrders(myOrders);
 
-      const allVouchers = db.getVouchers().filter(v => v.status);
-      setVouchers(allVouchers);
-
     } catch (e) {
       console.error(e);
       router.push('/account/login');
     }
   }, [router]);
-
-  const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(''), 2000);
-  };
 
   const handleCustomerLogout = () => {
     setShowLogoutModal(true);
@@ -238,11 +227,6 @@ export default function CustomerAccountPage() {
     .map(id => db.getProductBySlug(id))
     .filter(Boolean) as any[];
 
-  // Eligible Vouchers for Customer Member Tier
-  const eligibleVouchers = vouchers.filter(v => 
-    v.targetTier === 'ALL' || v.targetTier === customer.customerType
-  );
-
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
       <AnnouncementBar />
@@ -364,13 +348,6 @@ export default function CustomerAccountPage() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab('benefits')}
-                  className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-serif font-extrabold text-xs rounded-2xl shadow-lg transition-transform active:scale-95 flex items-center gap-2"
-                >
-                  <Award className="w-4 h-4" /> VOUCHER MEMBER <ArrowRight className="w-4 h-4" />
-                </button>
-
-                <button
                   onClick={handleCustomerLogout}
                   className="px-3.5 py-2.5 bg-stone-50 hover:bg-red-50 text-red-600 font-bold text-xs rounded-2xl border border-stone-200 transition-colors flex items-center gap-1.5"
                 >
@@ -380,7 +357,7 @@ export default function CustomerAccountPage() {
             </div>
 
             {/* Modern Minimalist Quick Metrics Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-stone-100 text-xs">
+            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-stone-100 text-xs">
               <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
                 <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Total Pesanan</span>
                 <span className="font-serif font-extrabold text-xl text-stone-900">{orders.length} Order</span>
@@ -388,16 +365,6 @@ export default function CustomerAccountPage() {
               <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
                 <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Wishlist Tersimpan</span>
                 <span className="font-serif font-extrabold text-xl text-[#800020]">{wishlist.length} Produk</span>
-              </div>
-              <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
-                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Voucher Aktif</span>
-                <span className="font-serif font-extrabold text-xl text-emerald-700">{eligibleVouchers.length} Klaim</span>
-              </div>
-              <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
-                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Status Keanggotaan</span>
-                <span className="font-serif font-extrabold text-xl text-stone-800 flex items-center gap-1">
-                  <UserCheck className="w-4 h-4 text-emerald-600 inline" /> Aktif
-                </span>
               </div>
             </div>
 
@@ -413,14 +380,6 @@ export default function CustomerAccountPage() {
             }`}
           >
             <Package className="w-4 h-4" /> Order History ({orders.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('benefits')}
-            className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap transition-colors ${
-              activeTab === 'benefits' ? 'border-[#800020] text-[#800020]' : 'border-transparent text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <Award className="w-4 h-4 text-[#D4AF37]" /> Klaim Voucher & Perks Member ⭐
           </button>
           <button
             onClick={() => setActiveTab('wishlist')}
@@ -439,200 +398,6 @@ export default function CustomerAccountPage() {
             <User className="w-4 h-4" /> Saved Profile & Address
           </button>
         </div>
-
-        {/* TAB: MEMBER BENEFITS & VOUCHER CLAIMS */}
-        {activeTab === 'benefits' && (
-          <div className="space-y-8 animate-fade-in">
-            
-            {/* SECTION 1: AVAILABLE VOUCHERS TO CLAIM FOR THIS MEMBER */}
-            <div className="bg-gradient-to-br from-[#800020] to-[#5A0015] text-[#FFF8F0] p-6 sm:p-8 rounded-3xl border-2 border-[#D4AF37]/40 shadow-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-white/20 pb-3">
-                <div>
-                  <span className="text-xs font-extrabold text-[#D4AF37] uppercase tracking-widest block">
-                    EXCLUSIVE MEMBER PROMO VOUCHERS
-                  </span>
-                  <h2 className="font-serif text-2xl font-extrabold text-white flex items-center gap-2">
-                    <Tag className="w-6 h-6 text-[#D4AF37]" /> Voucher Diskon Khusus Member {customer.customerType}
-                  </h2>
-                </div>
-                <span className="px-3 py-1 bg-[#D4AF37] text-[#800020] text-xs font-black rounded-full uppercase">
-                  {eligibleVouchers.length} Vouchers Available
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                {eligibleVouchers.map(v => (
-                  <div key={v.id} className="bg-white text-stone-900 p-5 rounded-2xl border-2 border-[#D4AF37] shadow-lg flex flex-col justify-between space-y-3">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black px-2 py-0.5 bg-[#800020] text-[#D4AF37] rounded uppercase">
-                          {v.targetTier === 'ALL' ? 'ALL MEMBERS' : `${v.targetTier} ONLY`}
-                        </span>
-                        <span className="text-xs font-bold text-emerald-700">
-                          Min Spend: RM {v.minSpend}
-                        </span>
-                      </div>
-
-                      <h3 className="font-serif font-bold text-base text-[#2B1B1B]">{v.title}</h3>
-                      
-                      <div className="font-mono text-lg font-black text-[#800020] tracking-wider my-2 bg-stone-100 p-2 rounded-xl border border-dashed border-[#800020]/40 text-center">
-                        {v.code}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleCopyCode(v.code)}
-                      className={`w-full py-2.5 rounded-xl font-bold text-xs shadow transition-all flex items-center justify-center gap-1.5 ${
-                        copiedCode === v.code
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37]'
-                      }`}
-                    >
-                      {copiedCode === v.code ? (
-                        <>
-                          <CheckCircle2 className="w-4 h-4" /> KODE VOUCHER TERSIMPAN!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" /> KLAIM & SALIN KODE
-                        </>
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* SECTION 2: MEMBER TIER PERKS COMPARISON */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-sm">
-              <span className="text-xs font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
-                FBS BAKERY WORLD LOYALTY PROGRAM
-              </span>
-              <h2 className="font-serif text-2xl font-extrabold text-[#2B1B1B]">
-                Panduan & Keuntungan Tingkat Keanggotaan
-              </h2>
-              <p className="text-stone-600 text-xs mt-1">
-                Keanggotaan di FBS Bakery World adalah <strong>100% GRATIS</strong>. Tingkatan member Anda akan meningkat secara otomatis seiring dengan frekuensi pembelian Anda.
-              </p>
-
-              {/* 3 Tier Perk Comparison Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                
-                {/* TIER 1: RETAIL */}
-                <div className={`p-6 rounded-3xl border-2 transition-all relative flex flex-col justify-between ${
-                  customer.customerType === 'RETAIL' ? 'border-[#800020] bg-white shadow-xl' : 'border-stone-200 bg-stone-50/60'
-                }`}>
-                  {customer.customerType === 'RETAIL' && (
-                    <span className="absolute -top-3 left-6 px-3 py-1 bg-[#800020] text-[#D4AF37] text-[10px] font-black rounded-full uppercase">
-                      TINGKATAN ANDA SAAT INI
-                    </span>
-                  )}
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-serif font-bold text-xl text-[#2B1B1B]">RETAIL MEMBER</h3>
-                      <span className="px-2.5 py-1 bg-stone-200 text-stone-800 text-[10px] font-black rounded-md">GRATIS</span>
-                    </div>
-                    <p className="text-stone-600 text-xs mb-4">Didapatkan otomatis saat pertama kali mendaftar atau berbelanja.</p>
-
-                    <ul className="space-y-2.5 text-xs text-stone-700">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                        <span><strong>Express WA Checkout:</strong> Alamat tersimpan otomatis tanpa perlu ketik ulang.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                        <span><strong>Pelacakan Resi Real-Time:</strong> Lacak status kurir (J&T, Pos Laju, Ninja Van) kapan saja.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                        <span><strong>Voucher Welcome:</strong> Klaim voucher RM10 OFF pada order pertama.</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="pt-6 border-t border-stone-200 mt-6 text-[11px] text-stone-500">
-                    💡 <i>Syarat: Cukup daftar akun atau beli 1 produk.</i>
-                  </div>
-                </div>
-
-                {/* TIER 2: VIP */}
-                <div className={`p-6 rounded-3xl border-2 transition-all relative flex flex-col justify-between ${
-                  customer.customerType === 'VIP' ? 'border-[#800020] bg-white shadow-xl ring-2 ring-[#D4AF37]' : 'border-[#D4AF37]/50 bg-amber-50/30'
-                }`}>
-                  {customer.customerType === 'VIP' && (
-                    <span className="absolute -top-3 left-6 px-3 py-1 bg-[#800020] text-[#D4AF37] text-[10px] font-black rounded-full uppercase flex items-center gap-1 shadow">
-                      <Sparkles className="w-3 h-3" /> TINGKATAN ANDA SAAT INI
-                    </span>
-                  )}
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-serif font-bold text-xl text-[#800020] flex items-center gap-1.5">
-                        VIP MEMBER ⭐
-                      </h3>
-                      <span className="px-2.5 py-1 bg-[#D4AF37] text-[#800020] text-[10px] font-black rounded-md">SPECIAL PERKS</span>
-                    </div>
-                    <p className="text-stone-600 text-xs mb-4">Diberikan untuk pelanggan setia yang sering berbelanja bahan baking.</p>
-
-                    <ul className="space-y-2.5 text-xs text-stone-700">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
-                        <span><strong>Voucher VIP 20% OFF:</strong> Akses klaim voucher diskon 20% khusus VIP Member.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
-                        <span><strong>Prioritas Pemrosesan Order:</strong> Order VIP langsung dipack & dikirim paling awal.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
-                        <span><strong>Free Bonus Sampel Baking:</strong> Sampel gratis Uji Matcha / Belgian Chocolate pada tiap order.</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="pt-6 border-t border-amber-200 mt-6 text-[11px] text-[#800020] font-medium">
-                    ⭐ <i>Diberikan otomatis oleh sistem seiring peningkatan order Anda.</i>
-                  </div>
-                </div>
-
-                {/* TIER 3: WHOLESALE B2B */}
-                <div className={`p-6 rounded-3xl border-2 transition-all relative flex flex-col justify-between ${
-                  customer.customerType === 'WHOLESALE' ? 'border-blue-600 bg-white shadow-xl' : 'border-blue-200 bg-blue-50/30'
-                }`}>
-                  {customer.customerType === 'WHOLESALE' && (
-                    <span className="absolute -top-3 left-6 px-3 py-1 bg-blue-700 text-white text-[10px] font-black rounded-full uppercase">
-                      TINGKATAN ANDA SAAT INI
-                    </span>
-                  )}
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-serif font-bold text-xl text-blue-900">WHOLESALE B2B</h3>
-                      <span className="px-2.5 py-1 bg-blue-100 text-blue-800 text-[10px] font-black rounded-md">BUSINESS</span>
-                    </div>
-                    <p className="text-stone-600 text-xs mb-4">Khusus pemilik toko roti, cafe, restoran, dan dessert designer commercial.</p>
-
-                    <ul className="space-y-2.5 text-xs text-stone-700">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <span><strong>Voucher RM50 OFF Grosir:</strong> Potongan harga khusus pembelian sak 5kg & 25kg.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <span><strong>Logistik Pengiriman Pallet:</strong> Pengiriman kurir kargo untuk bahan tonase besar.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <span><strong>Faktur & Invoicing Resmi Usaha:</strong> Penerbitan invoice resmi untuk pembukuan bisnis.</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="pt-6 border-t border-blue-200 mt-6 text-[11px] text-blue-800 font-medium">
-                    🏭 <i>Dapat diajukan melalui WhatsApp Admin dengan melampirkan nama usaha.</i>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        )}
 
         {/* TAB 1: ORDER HISTORY */}
         {activeTab === 'orders' && (
