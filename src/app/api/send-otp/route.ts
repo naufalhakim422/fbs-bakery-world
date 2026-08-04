@@ -8,8 +8,9 @@ export async function POST(req: Request) {
 
     console.log(`[OTP EMAIL BOT TRIGGERED] Sending OTP ${otpCode} to ${targetDestination}`);
 
-    // If Resend API Key is available in Environment Variables
+    // Resend API Key from Environment Variables
     const apiKey = process.env.RESEND_API_KEY;
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'FBS Baker <admin@fbsbaker.store>';
 
     if (apiKey && email && email.includes('@')) {
       try {
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
             'Authorization': `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            from: 'FBS Bakery Security <onboarding@resend.dev>',
+            from: fromEmail,
             to: [email],
             subject: `[FBS Bakery] Kode Verifikasi Keamanan (OTP): ${otpCode}`,
             html: `
