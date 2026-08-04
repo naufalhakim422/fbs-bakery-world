@@ -174,7 +174,7 @@ export function OtpModal({
         return;
       }
 
-      if (enteredCode === dbOtp || enteredCode === generatedCode || enteredCode === '123456') {
+      if (enteredCode === dbOtp || enteredCode === generatedCode) {
         // Mark customer as verified in DB
         if (customer) {
           const updated = customers.map((c: any) => {
