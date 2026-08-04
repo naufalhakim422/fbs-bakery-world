@@ -1,4 +1,4 @@
-import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog } from '@/types';
+import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog, ShippingCourier, ShippingState, WeightBracket, ShippingRate } from '@/types';
 
 let categoriesData: Category[] = [
   {
@@ -560,6 +560,121 @@ let initialCustomers: Customer[] = [
     postcode: '40000',
     createdAt: '2026-05-10T08:00:00Z',
   }
+];
+
+let initialReviewsData: ProductReview[] = [];
+
+let initialCouriers: ShippingCourier[] = [
+  { id: 'cour-jnt', name: 'J&T Express', code: 'JNT', logo: '🚚', status: true, sortOrder: 1 },
+  { id: 'cour-poslaju', name: 'Pos Laju', code: 'POSLAJU', logo: '📮', status: true, sortOrder: 2 },
+  { id: 'cour-ninja', name: 'Ninja Van', code: 'NINJAVAN', logo: '🥷', status: true, sortOrder: 3 },
+  { id: 'cour-flash', name: 'Flash Express', code: 'FLASH', logo: '⚡', status: true, sortOrder: 4 },
+  { id: 'cour-spx', name: 'SPX Express', code: 'SPX', logo: '📦', status: true, sortOrder: 5 },
+];
+
+let initialShippingStates: ShippingState[] = [
+  { id: 'st-sgr', name: 'Selangor', code: 'SGR', region: 'PENINSULAR', status: true },
+  { id: 'st-kl', name: 'Kuala Lumpur', code: 'KL', region: 'PENINSULAR', status: true },
+  { id: 'st-pj', name: 'Putrajaya', code: 'PJ', region: 'PENINSULAR', status: true },
+  { id: 'st-jhr', name: 'Johor', code: 'JHR', region: 'PENINSULAR', status: true },
+  { id: 'st-png', name: 'Penang', code: 'PNG', region: 'PENINSULAR', status: true },
+  { id: 'st-prk', name: 'Perak', code: 'PRK', region: 'PENINSULAR', status: true },
+  { id: 'st-mlk', name: 'Melaka', code: 'MLK', region: 'PENINSULAR', status: true },
+  { id: 'st-kdh', name: 'Kedah', code: 'KDH', region: 'PENINSULAR', status: true },
+  { id: 'st-phg', name: 'Pahang', code: 'PHG', region: 'PENINSULAR', status: true },
+  { id: 'st-trg', name: 'Terengganu', code: 'TRG', region: 'PENINSULAR', status: true },
+  { id: 'st-ktn', name: 'Kelantan', code: 'KTN', region: 'PENINSULAR', status: true },
+  { id: 'st-nsn', name: 'Negeri Sembilan', code: 'NSN', region: 'PENINSULAR', status: true },
+  { id: 'st-pls', name: 'Perlis', code: 'PLS', region: 'PENINSULAR', status: true },
+  { id: 'st-sbh', name: 'Sabah', code: 'SBH', region: 'EAST_MALAYSIA', status: true },
+  { id: 'st-swk', name: 'Sarawak', code: 'SWK', region: 'EAST_MALAYSIA', status: true },
+  { id: 'st-lbn', name: 'Labuan', code: 'LBN', region: 'EAST_MALAYSIA', status: true },
+];
+
+let initialWeightBrackets: WeightBracket[] = [
+  { id: 'wb-1', name: '0 - 1 kg', minWeightGrams: 0, maxWeightGrams: 1000, sortOrder: 1 },
+  { id: 'wb-2', name: '1 - 2 kg', minWeightGrams: 1001, maxWeightGrams: 2000, sortOrder: 2 },
+  { id: 'wb-3', name: '2 - 3 kg', minWeightGrams: 2001, maxWeightGrams: 3000, sortOrder: 3 },
+  { id: 'wb-4', name: '3 - 5 kg', minWeightGrams: 3001, maxWeightGrams: 5000, sortOrder: 4 },
+  { id: 'wb-5', name: '5 - 10 kg', minWeightGrams: 5001, maxWeightGrams: 10000, sortOrder: 5 },
+  { id: 'wb-6', name: '10 - 20 kg', minWeightGrams: 10001, maxWeightGrams: 20000, sortOrder: 6 },
+];
+
+let initialShippingRates: ShippingRate[] = [
+  // J&T Express rates
+  { id: 'sr-jnt-pen-1', courierId: 'cour-jnt', stateCode: 'PENINSULAR', weightBracketId: 'wb-1', price: 8.00 },
+  { id: 'sr-jnt-pen-2', courierId: 'cour-jnt', stateCode: 'PENINSULAR', weightBracketId: 'wb-2', price: 10.00 },
+  { id: 'sr-jnt-pen-3', courierId: 'cour-jnt', stateCode: 'PENINSULAR', weightBracketId: 'wb-3', price: 12.00 },
+  { id: 'sr-jnt-pen-4', courierId: 'cour-jnt', stateCode: 'PENINSULAR', weightBracketId: 'wb-4', price: 16.00 },
+  { id: 'sr-jnt-pen-5', courierId: 'cour-jnt', stateCode: 'PENINSULAR', weightBracketId: 'wb-5', price: 25.00 },
+  { id: 'sr-jnt-pen-6', courierId: 'cour-jnt', stateCode: 'PENINSULAR', weightBracketId: 'wb-6', price: 40.00 },
+
+  { id: 'sr-jnt-east-1', courierId: 'cour-jnt', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-1', price: 16.00 },
+  { id: 'sr-jnt-east-2', courierId: 'cour-jnt', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-2', price: 22.00 },
+  { id: 'sr-jnt-east-3', courierId: 'cour-jnt', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-3', price: 28.00 },
+  { id: 'sr-jnt-east-4', courierId: 'cour-jnt', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-4', price: 38.00 },
+  { id: 'sr-jnt-east-5', courierId: 'cour-jnt', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-5', price: 60.00 },
+  { id: 'sr-jnt-east-6', courierId: 'cour-jnt', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-6', price: 95.00 },
+
+  // Pos Laju rates
+  { id: 'sr-pos-pen-1', courierId: 'cour-poslaju', stateCode: 'PENINSULAR', weightBracketId: 'wb-1', price: 9.00 },
+  { id: 'sr-pos-pen-2', courierId: 'cour-poslaju', stateCode: 'PENINSULAR', weightBracketId: 'wb-2', price: 11.50 },
+  { id: 'sr-pos-pen-3', courierId: 'cour-poslaju', stateCode: 'PENINSULAR', weightBracketId: 'wb-3', price: 13.50 },
+  { id: 'sr-pos-pen-4', courierId: 'cour-poslaju', stateCode: 'PENINSULAR', weightBracketId: 'wb-4', price: 17.50 },
+  { id: 'sr-pos-pen-5', courierId: 'cour-poslaju', stateCode: 'PENINSULAR', weightBracketId: 'wb-5', price: 27.00 },
+  { id: 'sr-pos-pen-6', courierId: 'cour-poslaju', stateCode: 'PENINSULAR', weightBracketId: 'wb-6', price: 42.00 },
+
+  { id: 'sr-pos-east-1', courierId: 'cour-poslaju', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-1', price: 18.00 },
+  { id: 'sr-pos-east-2', courierId: 'cour-poslaju', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-2', price: 25.00 },
+  { id: 'sr-pos-east-3', courierId: 'cour-poslaju', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-3', price: 32.00 },
+  { id: 'sr-pos-east-4', courierId: 'cour-poslaju', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-4', price: 42.00 },
+  { id: 'sr-pos-east-5', courierId: 'cour-poslaju', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-5', price: 65.00 },
+  { id: 'sr-pos-east-6', courierId: 'cour-poslaju', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-6', price: 105.00 },
+
+  // Ninja Van rates
+  { id: 'sr-ninja-pen-1', courierId: 'cour-ninja', stateCode: 'PENINSULAR', weightBracketId: 'wb-1', price: 8.50 },
+  { id: 'sr-ninja-pen-2', courierId: 'cour-ninja', stateCode: 'PENINSULAR', weightBracketId: 'wb-2', price: 10.50 },
+  { id: 'sr-ninja-pen-3', courierId: 'cour-ninja', stateCode: 'PENINSULAR', weightBracketId: 'wb-3', price: 12.50 },
+  { id: 'sr-ninja-pen-4', courierId: 'cour-ninja', stateCode: 'PENINSULAR', weightBracketId: 'wb-4', price: 16.50 },
+  { id: 'sr-ninja-pen-5', courierId: 'cour-ninja', stateCode: 'PENINSULAR', weightBracketId: 'wb-5', price: 26.00 },
+  { id: 'sr-ninja-pen-6', courierId: 'cour-ninja', stateCode: 'PENINSULAR', weightBracketId: 'wb-6', price: 41.00 },
+
+  { id: 'sr-ninja-east-1', courierId: 'cour-ninja', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-1', price: 17.00 },
+  { id: 'sr-ninja-east-2', courierId: 'cour-ninja', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-2', price: 23.50 },
+  { id: 'sr-ninja-east-3', courierId: 'cour-ninja', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-3', price: 30.00 },
+  { id: 'sr-ninja-east-4', courierId: 'cour-ninja', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-4', price: 40.00 },
+  { id: 'sr-ninja-east-5', courierId: 'cour-ninja', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-5', price: 62.00 },
+  { id: 'sr-ninja-east-6', courierId: 'cour-ninja', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-6', price: 98.00 },
+
+  // Flash Express rates
+  { id: 'sr-flash-pen-1', courierId: 'cour-flash', stateCode: 'PENINSULAR', weightBracketId: 'wb-1', price: 7.50 },
+  { id: 'sr-flash-pen-2', courierId: 'cour-flash', stateCode: 'PENINSULAR', weightBracketId: 'wb-2', price: 9.50 },
+  { id: 'sr-flash-pen-3', courierId: 'cour-flash', stateCode: 'PENINSULAR', weightBracketId: 'wb-3', price: 11.50 },
+  { id: 'sr-flash-pen-4', courierId: 'cour-flash', stateCode: 'PENINSULAR', weightBracketId: 'wb-4', price: 15.00 },
+  { id: 'sr-flash-pen-5', courierId: 'cour-flash', stateCode: 'PENINSULAR', weightBracketId: 'wb-5', price: 24.00 },
+  { id: 'sr-flash-pen-6', courierId: 'cour-flash', stateCode: 'PENINSULAR', weightBracketId: 'wb-6', price: 38.00 },
+
+  { id: 'sr-flash-east-1', courierId: 'cour-flash', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-1', price: 15.00 },
+  { id: 'sr-flash-east-2', courierId: 'cour-flash', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-2', price: 21.00 },
+  { id: 'sr-flash-east-3', courierId: 'cour-flash', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-3', price: 27.00 },
+  { id: 'sr-flash-east-4', courierId: 'cour-flash', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-4', price: 36.00 },
+  { id: 'sr-flash-east-5', courierId: 'cour-flash', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-5', price: 55.00 },
+  { id: 'sr-flash-east-6', courierId: 'cour-flash', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-6', price: 90.00 },
+
+  // SPX Express rates
+  { id: 'sr-spx-pen-1', courierId: 'cour-spx', stateCode: 'PENINSULAR', weightBracketId: 'wb-1', price: 7.00 },
+  { id: 'sr-spx-pen-2', courierId: 'cour-spx', stateCode: 'PENINSULAR', weightBracketId: 'wb-2', price: 9.00 },
+  { id: 'sr-spx-pen-3', courierId: 'cour-spx', stateCode: 'PENINSULAR', weightBracketId: 'wb-3', price: 11.00 },
+  { id: 'sr-spx-pen-4', courierId: 'cour-spx', stateCode: 'PENINSULAR', weightBracketId: 'wb-4', price: 14.50 },
+  { id: 'sr-spx-pen-5', courierId: 'cour-spx', stateCode: 'PENINSULAR', weightBracketId: 'wb-5', price: 23.00 },
+  { id: 'sr-spx-pen-6', courierId: 'cour-spx', stateCode: 'PENINSULAR', weightBracketId: 'wb-6', price: 36.00 },
+
+  { id: 'sr-spx-east-1', courierId: 'cour-spx', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-1', price: 14.50 },
+  { id: 'sr-spx-east-2', courierId: 'cour-spx', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-2', price: 20.00 },
+  { id: 'sr-spx-east-3', courierId: 'cour-spx', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-3', price: 26.00 },
+  { id: 'sr-spx-east-4', courierId: 'cour-spx', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-4', price: 35.00 },
+  { id: 'sr-spx-east-5', courierId: 'cour-spx', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-5', price: 52.00 },
+  { id: 'sr-spx-east-6', courierId: 'cour-spx', stateCode: 'EAST_MALAYSIA', weightBracketId: 'wb-6', price: 85.00 },
 ];
 
 const loadFromStorage = <T>(key: string, fallback: T): T => {
@@ -1287,6 +1402,193 @@ export const db = {
       reviewCount: filtered.length,
     };
   },
-};
 
-const initialReviewsData: ProductReview[] = [];
+  // Shipping Management API
+  getCouriers: (): ShippingCourier[] => {
+    return loadFromStorage<ShippingCourier[]>('fbs_shipping_couriers', initialCouriers);
+  },
+
+  saveCourier: (courier: Partial<ShippingCourier>): ShippingCourier => {
+    const list = loadFromStorage<ShippingCourier[]>('fbs_shipping_couriers', initialCouriers);
+    if (courier.id) {
+      const idx = list.findIndex(c => c.id === courier.id);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...courier };
+        saveToStorage('fbs_shipping_couriers', list);
+        return list[idx];
+      }
+    }
+    const newCourier: ShippingCourier = {
+      id: `cour-${Date.now()}`,
+      name: courier.name || 'New Courier',
+      code: (courier.code || 'COURIER').toUpperCase(),
+      logo: courier.logo || '🚚',
+      status: courier.status ?? true,
+      sortOrder: courier.sortOrder || list.length + 1,
+    };
+    list.push(newCourier);
+    saveToStorage('fbs_shipping_couriers', list);
+    return newCourier;
+  },
+
+  toggleCourierStatus: (id: string) => {
+    const list = loadFromStorage<ShippingCourier[]>('fbs_shipping_couriers', initialCouriers);
+    const idx = list.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      list[idx].status = !list[idx].status;
+      saveToStorage('fbs_shipping_couriers', list);
+      return list[idx];
+    }
+    return null;
+  },
+
+  deleteCourier: (id: string) => {
+    let list = loadFromStorage<ShippingCourier[]>('fbs_shipping_couriers', initialCouriers);
+    list = list.filter(c => c.id !== id);
+    saveToStorage('fbs_shipping_couriers', list);
+    return true;
+  },
+
+  getShippingStates: (): ShippingState[] => {
+    return loadFromStorage<ShippingState[]>('fbs_shipping_states', initialShippingStates);
+  },
+
+  saveShippingState: (stateInput: Partial<ShippingState>): ShippingState => {
+    const list = loadFromStorage<ShippingState[]>('fbs_shipping_states', initialShippingStates);
+    if (stateInput.id) {
+      const idx = list.findIndex(s => s.id === stateInput.id);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...stateInput };
+        saveToStorage('fbs_shipping_states', list);
+        return list[idx];
+      }
+    }
+    const newState: ShippingState = {
+      id: `st-${Date.now()}`,
+      name: stateInput.name || 'State Name',
+      code: (stateInput.code || 'STATE').toUpperCase(),
+      region: stateInput.region || 'PENINSULAR',
+      status: stateInput.status ?? true,
+    };
+    list.push(newState);
+    saveToStorage('fbs_shipping_states', list);
+    return newState;
+  },
+
+  toggleStateStatus: (id: string) => {
+    const list = loadFromStorage<ShippingState[]>('fbs_shipping_states', initialShippingStates);
+    const idx = list.findIndex(s => s.id === id);
+    if (idx !== -1) {
+      list[idx].status = !list[idx].status;
+      saveToStorage('fbs_shipping_states', list);
+      return list[idx];
+    }
+    return null;
+  },
+
+  deleteShippingState: (id: string) => {
+    let list = loadFromStorage<ShippingState[]>('fbs_shipping_states', initialShippingStates);
+    list = list.filter(s => s.id !== id);
+    saveToStorage('fbs_shipping_states', list);
+    return true;
+  },
+
+  getWeightBrackets: (): WeightBracket[] => {
+    return loadFromStorage<WeightBracket[]>('fbs_weight_brackets', initialWeightBrackets);
+  },
+
+  saveWeightBracket: (bracketInput: Partial<WeightBracket>): WeightBracket => {
+    const list = loadFromStorage<WeightBracket[]>('fbs_weight_brackets', initialWeightBrackets);
+    if (bracketInput.id) {
+      const idx = list.findIndex(w => w.id === bracketInput.id);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...bracketInput };
+        saveToStorage('fbs_weight_brackets', list);
+        return list[idx];
+      }
+    }
+    const newBracket: WeightBracket = {
+      id: `wb-${Date.now()}`,
+      name: bracketInput.name || '0 - 1 kg',
+      minWeightGrams: bracketInput.minWeightGrams || 0,
+      maxWeightGrams: bracketInput.maxWeightGrams || 1000,
+      sortOrder: bracketInput.sortOrder || list.length + 1,
+    };
+    list.push(newBracket);
+    list.sort((a, b) => a.minWeightGrams - b.minWeightGrams);
+    saveToStorage('fbs_weight_brackets', list);
+    return newBracket;
+  },
+
+  deleteWeightBracket: (id: string) => {
+    let list = loadFromStorage<WeightBracket[]>('fbs_weight_brackets', initialWeightBrackets);
+    list = list.filter(w => w.id !== id);
+    saveToStorage('fbs_weight_brackets', list);
+    return true;
+  },
+
+  getShippingRates: (): ShippingRate[] => {
+    return loadFromStorage<ShippingRate[]>('fbs_shipping_rates', initialShippingRates);
+  },
+
+  saveShippingRate: (rateInput: Partial<ShippingRate>): ShippingRate => {
+    const list = loadFromStorage<ShippingRate[]>('fbs_shipping_rates', initialShippingRates);
+    const idx = list.findIndex(
+      r => r.courierId === rateInput.courierId && r.stateCode === rateInput.stateCode && r.weightBracketId === rateInput.weightBracketId
+    );
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...rateInput };
+      saveToStorage('fbs_shipping_rates', list);
+      return list[idx];
+    }
+    const newRate: ShippingRate = {
+      id: `sr-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      courierId: rateInput.courierId || '',
+      stateCode: rateInput.stateCode || 'PENINSULAR',
+      weightBracketId: rateInput.weightBracketId || '',
+      price: rateInput.price || 0,
+    };
+    list.push(newRate);
+    saveToStorage('fbs_shipping_rates', list);
+    return newRate;
+  },
+
+  calculateShippingFee: (courierId: string, stateNameOrCode: string, weightGrams: number): { fee: number; bracketName: string; region: string } => {
+    const couriers = db.getCouriers();
+    const states = db.getShippingStates();
+    const brackets = db.getWeightBrackets();
+    const rates = db.getShippingRates();
+
+    const currentCourier = couriers.find(c => c.id === courierId || c.code === courierId || c.name.toLowerCase() === courierId.toLowerCase());
+    const targetCourierId = currentCourier ? currentCourier.id : (couriers[0]?.id || '');
+
+    const targetState = states.find(s => s.name.toLowerCase() === stateNameOrCode.toLowerCase() || s.code.toLowerCase() === stateNameOrCode.toLowerCase());
+    const region = targetState ? targetState.region : (['Sabah', 'Sarawak', 'Labuan'].some(s => stateNameOrCode.toLowerCase().includes(s.toLowerCase())) ? 'EAST_MALAYSIA' : 'PENINSULAR');
+    const stateCode = targetState ? targetState.code : region;
+
+    // Match weight bracket
+    const cleanWeight = Math.max(0, weightGrams);
+    let matchedBracket = brackets.find(b => cleanWeight >= b.minWeightGrams && cleanWeight <= b.maxWeightGrams);
+    if (!matchedBracket && brackets.length > 0) {
+      // If weight exceeds max bracket, take the highest bracket
+      matchedBracket = brackets[brackets.length - 1];
+    }
+    const bracketId = matchedBracket ? matchedBracket.id : '';
+
+    // Match rate
+    let matchedRate = rates.find(r => r.courierId === targetCourierId && (r.stateCode === stateCode || r.stateCode === region) && r.weightBracketId === bracketId);
+
+    if (!matchedRate) {
+      matchedRate = rates.find(r => r.courierId === targetCourierId && r.stateCode === region && r.weightBracketId === bracketId);
+    }
+
+    const fallbackRate = region === 'EAST_MALAYSIA' ? 16.00 : 8.00;
+    const fee = matchedRate ? matchedRate.price : fallbackRate;
+
+    return {
+      fee,
+      bracketName: matchedBracket ? matchedBracket.name : 'Standar',
+      region: region === 'EAST_MALAYSIA' ? 'Malaysia Timur' : 'Semenanjung',
+    };
+  }
+};

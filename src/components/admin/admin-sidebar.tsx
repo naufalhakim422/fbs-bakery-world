@@ -24,7 +24,8 @@ import {
   Globe,
   X,
   Wallet,
-  Film
+  Film,
+  Truck
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -49,12 +50,19 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     ? 'Pengurusan Video' 
     : 'Video Management';
 
+  const shippingMenuName = language === 'ID'
+    ? 'Manajemen Pengiriman'
+    : language === 'MS'
+    ? 'Pengurusan Penghantaran'
+    : 'Shipping Management';
+
   const menuItems = [
     { name: t.adminNav.dashboard, href: '/admin', icon: LayoutDashboard },
     { name: t.adminNav.cashflow, href: '/admin/cashflow', icon: Wallet },
     { name: t.adminNav.orders, href: '/admin/orders', icon: ShoppingBag },
     { name: t.adminNav.products, href: '/admin/products', icon: Package },
     { name: t.adminNav.categories, href: '/admin/categories', icon: Layers },
+    { name: shippingMenuName, href: '/admin/shipping', icon: Truck },
     { name: t.adminNav.recipes, href: '/admin/recipes', icon: ChefHat },
     { name: t.adminNav.blogs, href: '/admin/blogs', icon: BookOpen },
     { name: videoMenuName, href: '/admin/videos', icon: Film },

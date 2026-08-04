@@ -27,19 +27,29 @@ import {
   Phone,
   FileText,
   Sparkles,
-  Printer
+  Printer,
+  Truck,
+  Scale
 } from 'lucide-react';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cart, subtotal, totalItems, clearCart } = useCart();
+  const { cart, subtotal, totalItems, totalWeightGrams, totalWeightKg, clearCart } = useCart();
   const { t, language } = useLanguage();
   const { showToast } = useNotification();
   const [settings, setSettings] = useState(db.getStoreSettings());
 
+  const [activeCouriers, setActiveCouriers] = useState(db.getCouriers().filter(c => c.status));
+  const [selectedCourierId, setSelectedCourierId] = useState<string>(activeCouriers[0]?.id || 'cour-jnt');
+
   useEffect(() => {
     const loadLiveData = () => {
       setSettings(db.getStoreSettings());
+      const loadedCouriers = db.getCouriers().filter(c => c.status);
+      setActiveCouriers(loadedCouriers);
+      if (loadedCouriers.length > 0 && !loadedCouriers.some(c => c.id === selectedCourierId)) {
+        setSelectedCourierId(loadedCouriers[0].id);
+      }
     };
     loadLiveData();
 
@@ -49,7 +59,7 @@ export default function CheckoutPage() {
       window.removeEventListener('storage', loadLiveData);
       window.removeEventListener('fbs_db_updated', loadLiveData);
     };
-  }, []);
+  }, [selectedCourierId]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -116,7 +126,18 @@ export default function CheckoutPage() {
     });
   };
 
-  const finalTotal = subtotal;
+  const selectedCourier = activeCouriers.find(c => c.id === selectedCourierId) || activeCouriers[0] || {
+    id: 'cour-jnt',
+    name: 'J&T Express',
+    code: 'JNT',
+    logo: '🚚',
+    status: true,
+    sortOrder: 1
+  };
+
+  const shippingCalc = db.calculateShippingFee(selectedCourier.id, formData.state, totalWeightGrams);
+  const shippingFee = shippingCalc.fee;
+  const grandTotal = subtotal + shippingFee;
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,7 +155,8 @@ export default function CheckoutPage() {
         state: formData.state,
         postcode: formData.postcode,
         notes: formData.notes,
-        totalAmount: finalTotal,
+        courierName: selectedCourier.name,
+        totalAmount: grandTotal,
         orderStatus: 'NEW',
         items: cart.map(item => ({
           id: `oi-${Date.now()}-${Math.random()}`,
@@ -159,9 +181,12 @@ export default function CheckoutPage() {
         city: formData.city,
         state: formData.state,
         postcode: formData.postcode,
-        notes: formData.notes,
+        notes: `${formData.notes} [Berat Total: ${totalWeightKg} kg]`,
         items: cart,
-        subtotal: finalTotal,
+        subtotal: subtotal,
+        courier: selectedCourier.name,
+        shippingFee: shippingFee,
+        grandTotal: grandTotal,
         whatsappNumber: settings.whatsappNumber,
       });
 
@@ -400,6 +425,76 @@ export default function CheckoutPage() {
                         </select>
                       </div>
                     </div>
+
+                    {/* SECTION: DYNAMIC SHIPPING CALCULATOR & COURIER SELECTION */}
+                    <div className="space-y-4 pt-4 border-t border-stone-200">
+                      <div className="flex items-center justify-between text-[#800020]">
+                        <div className="flex items-center gap-2">
+                          <Truck className="w-5 h-5" />
+                          <h2 className="font-serif text-lg font-bold">Kalkulator &amp; Pilihan Kurir Pengiriman</h2>
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                          {shippingCalc.region} ({shippingCalc.bracketName})
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-amber-50/60 rounded-xl border border-amber-200 text-xs text-stone-700">
+                        <span className="flex items-center gap-1.5 font-medium">
+                          <Scale className="w-4 h-4 text-[#800020]" />
+                          Total Berat Pesanan:
+                        </span>
+                        <span className="font-serif font-extrabold text-[#800020] text-sm">
+                          {totalWeightKg} kg ({totalWeightGrams} gram)
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-stone-600">
+                        Pilih layanan ekspedisi pengiriman yang Anda inginkan. Biaya ongkir dihitung otomatis berdasarkan berat paket &amp; lokasi pengiriman Anda.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        {activeCouriers.map(courier => {
+                          const calc = db.calculateShippingFee(courier.id, formData.state, totalWeightGrams);
+                          const isSelected = courier.id === selectedCourier.id;
+
+                          return (
+                            <button
+                              key={courier.id}
+                              type="button"
+                              onClick={() => setSelectedCourierId(courier.id)}
+                              className={`p-3.5 rounded-2xl border-2 transition-all text-left flex items-center justify-between ${
+                                isSelected
+                                  ? 'border-[#800020] bg-[#800020]/5 shadow-sm'
+                                  : 'border-stone-200 bg-white hover:border-stone-300'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
+                                  isSelected ? 'bg-[#800020] text-white' : 'bg-stone-100 text-stone-700'
+                                }`}>
+                                  {courier.logo}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-bold text-xs text-stone-900">{courier.name}</span>
+                                    {isSelected && (
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-[#800020]" />
+                                    )}
+                                  </div>
+                                  <span className="text-[11px] text-stone-500 block">Status: Aktif</span>
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <span className={`font-serif font-extrabold text-sm ${isSelected ? 'text-[#800020]' : 'text-stone-800'}`}>
+                                  {formatMYR(calc.fee)}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-4 text-[#800020]">
@@ -438,16 +533,32 @@ export default function CheckoutPage() {
                     ))}
                   </div>
 
-                  {/* SUBTOTAL BREAKDOWN */}
-                  <div className="pt-2 space-y-2 text-xs border-t border-stone-200">
+                  {/* SUBTOTAL & SHIPPING BREAKDOWN */}
+                  <div className="pt-2 space-y-2.5 text-xs border-t border-stone-200">
                     <div className="flex justify-between text-stone-600">
                       <span>{t.checkout.subtotalProduk}</span>
                       <span>{formatMYR(subtotal)}</span>
                     </div>
 
-                    <div className="flex justify-between text-base font-extrabold text-[#800020] pt-2 border-t border-stone-200">
+                    <div className="flex justify-between text-stone-600">
+                      <span className="flex items-center gap-1">
+                        <Scale className="w-3.5 h-3.5 text-stone-500" />
+                        <span>Total Berat Pesanan</span>
+                      </span>
+                      <span className="font-mono font-bold text-stone-800">{totalWeightKg} kg</span>
+                    </div>
+
+                    <div className="flex justify-between text-stone-700 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Truck className="w-3.5 h-3.5 text-[#800020]" />
+                        <span>Ongkos Kirim ({selectedCourier.name})</span>
+                      </span>
+                      <span className="font-bold text-stone-900">{formatMYR(shippingFee)}</span>
+                    </div>
+
+                    <div className="flex justify-between text-base font-extrabold text-[#800020] pt-2.5 border-t border-stone-200">
                       <span>{t.checkout.finalTotal}</span>
-                      <span>{formatMYR(finalTotal)}</span>
+                      <span>{formatMYR(grandTotal)}</span>
                     </div>
                   </div>
 

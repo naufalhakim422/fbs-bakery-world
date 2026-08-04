@@ -28,6 +28,8 @@ interface CartContextType {
   totalItems: number;
   subtotal: number;
   totalWeight: number;
+  totalWeightGrams: number;
+  totalWeightKg: number;
   freeShippingThreshold: number;
 }
 
@@ -145,6 +147,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const totalItems = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
   const subtotal = useMemo(() => cart.reduce((acc, item) => acc + item.price * item.quantity, 0), [cart]);
   const totalWeight = useMemo(() => cart.reduce((acc, item) => acc + item.weight * item.quantity, 0), [cart]);
+  const totalWeightGrams = useMemo(() => cart.reduce((acc, item) => {
+    const itemGrams = item.weight <= 50 ? item.weight * 1000 : item.weight;
+    return acc + (itemGrams * item.quantity);
+  }, 0), [cart]);
+  const totalWeightKg = useMemo(() => parseFloat((totalWeightGrams / 1000).toFixed(2)), [totalWeightGrams]);
 
   return (
     <CartContext.Provider
@@ -161,6 +168,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         totalItems,
         subtotal,
         totalWeight,
+        totalWeightGrams,
+        totalWeightKg,
         freeShippingThreshold,
       }}
     >

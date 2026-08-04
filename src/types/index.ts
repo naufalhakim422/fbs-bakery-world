@@ -253,11 +253,44 @@ export interface StockHistoryLog {
   timestamp: string;
 }
 
+export interface ShippingCourier {
+  id: string;
+  name: string;
+  code: string;
+  logo: string;
+  status: boolean;
+  sortOrder: number;
+}
+
+export interface ShippingState {
+  id: string;
+  name: string;
+  code: string;
+  region: 'PENINSULAR' | 'EAST_MALAYSIA';
+  status: boolean;
+}
+
+export interface WeightBracket {
+  id: string;
+  name: string;
+  minWeightGrams: number;
+  maxWeightGrams: number;
+  sortOrder: number;
+}
+
+export interface ShippingRate {
+  id: string;
+  courierId: string;
+  stateCode: string;
+  weightBracketId: string;
+  price: number;
+}
+
 export interface AuditLog {
   id: string;
   adminName: string;
   action: string;
-  category: 'AUTH' | 'PRODUCT' | 'BANNER' | 'RECIPE' | 'BLOG' | 'ORDER' | 'SETTINGS';
+  category: 'AUTH' | 'PRODUCT' | 'BANNER' | 'RECIPE' | 'BLOG' | 'ORDER' | 'SETTINGS' | 'SHIPPING';
   details: string;
   timestamp: string;
 }
