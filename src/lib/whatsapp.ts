@@ -168,13 +168,14 @@ export const generateWhatsAppOrderLink = (data: WhatsAppCheckoutData): string =>
     message += `• Product Inquiry / Quick Order\n`;
   }
 
-  const shipping = data.shippingFee ?? 0;
-  const grandTotal = data.grandTotal ?? ((data.subtotal || 0) + shipping);
-
   message += `\n━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  message += `💵 *Subtotal Produk:* ${formatMYR(data.subtotal || 0)}\n`;
-  message += `🚚 *Ongkos Kirim (${data.courier || 'Kurir'}):* ${formatMYR(shipping)}\n`;
-  message += `💰 *TOTAL BAYAR:* *${formatMYR(grandTotal)}*\n`;
+  if (data.shippingFee && data.shippingFee > 0) {
+    message += `💵 *Subtotal Produk:* ${formatMYR(data.subtotal || 0)}\n`;
+    message += `🚚 *Ongkos Kirim (${data.courier || 'Kurir'}):* ${formatMYR(data.shippingFee)}\n`;
+    message += `💰 *TOTAL BAYAR:* *${formatMYR(data.grandTotal || ((data.subtotal || 0) + data.shippingFee))}*\n`;
+  } else {
+    message += `💰 *TOTAL ESTIMATE:* *${formatMYR(data.subtotal || 0)}*\n`;
+  }
 
   if (data.notes && data.notes.trim()) {
     message += `\n📝 *Notes:* ${data.notes.trim()}\n`;
