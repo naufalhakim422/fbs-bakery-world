@@ -44,6 +44,9 @@ export default function CustomerRegisterPage() {
     e.preventDefault();
     setError('');
 
+    // Strictly destroy any prior session before registration
+    localStorage.removeItem('fbs_customer_session');
+
     // Validations
     if (!form.fullName.trim() || !form.email.trim() || !form.phone.trim()) {
       setError(language === 'EN' ? 'All fields are required.' : 'Semua bidang wajib diisi.');
