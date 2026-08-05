@@ -1163,6 +1163,19 @@ export const db = {
     return null;
   },
 
+  deleteOrder: (id: string) => {
+    let orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    orders = orders.filter(o => o.id !== id && o.orderNumber !== id);
+    saveToStorage('fbs_orders', orders);
+
+    if (typeof window !== 'undefined') {
+      fetch(`/api/orders?deleteId=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      }).catch(err => console.warn('Order delete sync warning:', err));
+    }
+    return true;
+  },
+
   // Stock History Logs API
   getStockLogs: (): StockHistoryLog[] => {
     return loadFromStorage<StockHistoryLog[]>('fbs_stock_logs', []);

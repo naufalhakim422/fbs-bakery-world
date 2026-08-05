@@ -8,7 +8,7 @@ import { recordAuditLog } from '@/lib/audit';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
-import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar } from 'lucide-react';
+import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 export default function AdminOrderDetailPage() {
@@ -44,6 +44,7 @@ export default function AdminOrderDetailPage() {
     'PROCESSING',
     'SHIPPED',
     'DELIVERED',
+    'CANCEL_REQUESTED',
     'CANCELLED'
   ];
 
@@ -115,6 +116,52 @@ export default function AdminOrderDetailPage() {
           <MessageCircle className="w-4 h-4 fill-white" /> {t.adminExtra.orderChatCustomer}
         </a>
       </div>
+
+      {order.orderStatus === 'CANCEL_REQUESTED' && (
+        <div className="p-5 bg-amber-500 text-stone-950 rounded-2xl shadow-lg border border-amber-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h3 className="font-extrabold text-sm uppercase flex items-center gap-1.5">
+              ⚠️ Permohonan Pembatalan Dari Pelanggan
+            </h3>
+            <p className="text-xs text-stone-900 mt-0.5">
+              Pelanggan mengajukan pembatalan untuk pesanan {order.orderNumber}.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm(`Setujui pembatalan pesanan ${order.orderNumber}? Stok produk akan otomatis dikembalikan ke inventaris.`)) {
+                  const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED');
+                  if (updated) {
+                    setOrder({ ...updated });
+                    setOrderStatus('CANCELLED');
+                  }
+                }
+              }}
+              className="px-4 py-2 bg-stone-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow"
+            >
+              ✅ Setujui Pembatalan
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm(`Tolak permohonan pembatalan pesanan ${order.orderNumber}? Pesanan akan tetap diproses.`)) {
+                  const updated = db.updateOrderStatusAndTracking(order.id, 'CONFIRMED');
+                  if (updated) {
+                    setOrder({ ...updated });
+                    setOrderStatus('CONFIRMED');
+                  }
+                }
+              }}
+              className="px-4 py-2 bg-white text-stone-900 hover:bg-stone-100 font-bold text-xs rounded-xl shadow"
+            >
+              ❌ Tolak Pembatalan
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Order Info & Status Update Form */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -279,6 +326,20 @@ export default function AdminOrderDetailPage() {
                   <Save className="w-4 h-4" /> {t.adminExtra.orderSaveTracking}
                 </>
               )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm(`Apakah Anda yakin ingin menghapus pesanan ${order.orderNumber}? Data yang dihapus dari database tidak dapat dikembalikan.`)) {
+                  db.deleteOrder(order.id);
+                  alert(`✅ Pesanan ${order.orderNumber} telah dihapus dari database!`);
+                  window.location.href = '/admin/orders';
+                }
+              }}
+              className="w-full py-2.5 bg-stone-100 hover:bg-red-100 text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center justify-center gap-2 mt-3"
+            >
+              <Trash2 className="w-4 h-4" /> Hapus Pesanan Dari Database
             </button>
           </form>
         </div>

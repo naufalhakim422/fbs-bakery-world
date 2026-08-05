@@ -7,7 +7,7 @@ import { useLanguage } from '@/lib/language-context';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
-import { ShoppingBag, Search, Truck, Clock, CheckCircle2, XCircle, ArrowRight, MessageCircle } from 'lucide-react';
+import { ShoppingBag, Search, Truck, Clock, CheckCircle2, XCircle, ArrowRight, MessageCircle, Trash2, Check, X, AlertTriangle } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const { t } = useLanguage();
@@ -49,7 +49,32 @@ export default function AdminOrdersPage() {
     return matchStatus && matchSearch;
   });
 
-  const statuses: OrderStatus[] = ['NEW', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+  const statuses: OrderStatus[] = ['NEW', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCEL_REQUESTED', 'CANCELLED'];
+
+  const handleDeleteOrder = (orderId: string, orderNumber: string) => {
+    if (confirm(`Apakah Anda yakin ingin menghapus pesanan ${orderNumber}? Data yang dihapus tidak dapat dikembalikan.`)) {
+      db.deleteOrder(orderId);
+      setOrders(prev => prev.filter(o => o.id !== orderId && o.orderNumber !== orderId));
+    }
+  };
+
+  const handleApproveCancel = (orderId: string, orderNumber: string) => {
+    if (confirm(`Setujui pembatalan pesanan ${orderNumber}? Stok produk akan otomatis dikembalikan ke inventaris.`)) {
+      const updated = db.updateOrderStatusAndTracking(orderId, 'CANCELLED');
+      if (updated) {
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: 'CANCELLED' } : o));
+      }
+    }
+  };
+
+  const handleRejectCancel = (orderId: string, orderNumber: string) => {
+    if (confirm(`Tolak permohonan pembatalan pesanan ${orderNumber}? Pesanan akan tetap diproses.`)) {
+      const updated = db.updateOrderStatusAndTracking(orderId, 'CONFIRMED');
+      if (updated) {
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: 'CONFIRMED' } : o));
+      }
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -189,27 +214,66 @@ export default function AdminOrdersPage() {
                       <td className="p-4 space-y-1">
                         <span className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md uppercase inline-block ${
                           o.orderStatus === 'SHIPPED' ? 'bg-emerald-100 text-emerald-800' :
-                          o.orderStatus === 'DELIVERED' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'
+                          o.orderStatus === 'DELIVERED' ? 'bg-blue-100 text-blue-800' : 
+                          o.orderStatus === 'CANCEL_REQUESTED' ? 'bg-amber-500 text-stone-950 font-black animate-pulse' :
+                          o.orderStatus === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
                         }`}>
-                          {o.orderStatus}
+                          {o.orderStatus === 'CANCEL_REQUESTED' ? '⚠️ MINTA BATAL' : o.orderStatus}
                         </span>
+                        {o.orderStatus === 'CANCEL_REQUESTED' && (
+                          <span className="block text-[10px] font-bold text-amber-700">Pelanggan Minta Batal</span>
+                        )}
                         {o.trackingNumber ? (
                           <span className="block text-[11px] font-mono text-emerald-700 font-bold">
                             {o.courierName}: {o.trackingNumber}
                           </span>
                         ) : (
-                          <span className="block text-[10px] text-amber-700 italic">{t.adminExtra.ordersResiPending}</span>
+                          o.orderStatus !== 'CANCEL_REQUESTED' && o.orderStatus !== 'CANCELLED' && (
+                            <span className="block text-[10px] text-amber-700 italic">{t.adminExtra.ordersResiPending}</span>
+                          )
                         )}
                       </td>
 
                       {/* ACTION */}
                       <td className="p-4 text-right">
-                        <Link
-                          href={`/admin/orders/${o.id}`}
-                          className="px-3.5 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow inline-flex items-center gap-1 transition-all active:scale-95"
-                        >
-                          {t.adminExtra.processOrder} <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                        <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                          {o.orderStatus === 'CANCEL_REQUESTED' && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleApproveCancel(o.id, o.orderNumber)}
+                                className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg shadow flex items-center gap-1"
+                                title="Setujui Pembatalan & Kembalikan Stok"
+                              >
+                                <Check className="w-3.5 h-3.5" /> Setujui
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleRejectCancel(o.id, o.orderNumber)}
+                                className="px-2.5 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-[11px] font-bold rounded-lg shadow flex items-center gap-1"
+                                title="Tolak Pembatalan & Lanjutkan Proses"
+                              >
+                                <X className="w-3.5 h-3.5" /> Tolak
+                              </button>
+                            </>
+                          )}
+
+                          <Link
+                            href={`/admin/orders/${o.id}`}
+                            className="px-3 py-1.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow inline-flex items-center gap-1 transition-all active:scale-95"
+                          >
+                            {t.adminExtra.processOrder} <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteOrder(o.id, o.orderNumber)}
+                            className="p-1.5 bg-stone-100 hover:bg-red-50 text-stone-500 hover:text-red-600 rounded-xl border border-stone-200 transition-colors"
+                            title="Hapus Order Dari Database"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

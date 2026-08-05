@@ -232,3 +232,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const deleteId = searchParams.get('deleteId');
+    if (!deleteId) {
+      return NextResponse.json({ success: false, error: 'deleteId parameter is required' }, { status: 400 });
+    }
+
+    let orders = readServerOrders();
+    orders = orders.filter((o: any) => o.id !== deleteId && o.orderNumber !== deleteId);
+    writeServerOrders(orders);
+
+    return NextResponse.json({ success: true, orders });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}

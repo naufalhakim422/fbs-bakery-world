@@ -527,18 +527,50 @@ export default function CustomerAccountPage() {
                     ))}
                   </div>
 
-                  {/* Actions: Repeat Order & Tracking */}
-                  <div className="flex flex-wrap gap-2 pt-2 justify-end">
+                  {/* Actions: Repeat Order, Cancel Request & Tracking */}
+                  <div className="flex flex-wrap gap-2 pt-2 justify-end items-center">
                     {order.orderStatus === 'DELIVERED' && (
                       <span className="px-3 py-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200 flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Pesanan Telah Sampai (Verified Delivered)
                       </span>
                     )}
+
+                    {order.orderStatus === 'CANCEL_REQUESTED' && (
+                      <span className="px-3.5 py-1.5 bg-amber-50 text-amber-800 text-xs font-bold rounded-xl border border-amber-300 flex items-center gap-1">
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> ⏳ Menunggu Konfirmasi Pembatalan Admin
+                      </span>
+                    )}
+
+                    {order.orderStatus === 'CANCELLED' && (
+                      <span className="px-3.5 py-1.5 bg-red-50 text-red-800 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-1">
+                        <X className="w-3.5 h-3.5 text-red-600" /> ❌ Pesanan Telah Dibatalkan
+                      </span>
+                    )}
+
+                    {(order.orderStatus === 'NEW' || order.orderStatus === 'CONFIRMED') && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const reason = prompt(`Masukkan alasan pembatalan untuk pesanan ${order.orderNumber}:`, 'Ingin merubah rincian pesanan');
+                          if (reason === null) return; // user cancelled prompt
+
+                          const updated = db.updateOrderStatusAndTracking(order.id, 'CANCEL_REQUESTED');
+                          if (updated) {
+                            setOrders(prev => prev.map(o => o.id === order.id ? { ...o, orderStatus: 'CANCEL_REQUESTED' } : o));
+                            alert(`✅ Permohonan pembatalan pesanan ${order.orderNumber} telah dikirim ke Admin toko!`);
+                          }
+                        }}
+                        className="px-3.5 py-2 bg-stone-50 hover:bg-red-50 text-red-600 hover:text-red-700 font-bold text-xs rounded-xl border border-red-200 transition-colors flex items-center gap-1.5"
+                      >
+                        <X className="w-3.5 h-3.5 text-red-500" /> Minta Pembatalan Pesanan
+                      </button>
+                    )}
+
                     <Link
                       href={`/track-order?orderNumber=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customerPhone)}`}
                       className="px-4 py-2 bg-[#800020] text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
                     >
-                      <Package className="w-3.5 h-3.5" /> Track Status & Courier Resi
+                      <Package className="w-3.5 h-3.5" /> Track Status & Resi
                     </Link>
                   </div>
                 </div>

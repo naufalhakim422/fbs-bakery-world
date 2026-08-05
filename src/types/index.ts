@@ -1,6 +1,6 @@
 export type Role = 'OWNER' | 'ADMIN' | 'STAFF';
 
-export type OrderStatus = 'NEW' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+export type OrderStatus = 'NEW' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCEL_REQUESTED' | 'CANCELLED';
 
 export interface ProductVariant {
   id: string;
