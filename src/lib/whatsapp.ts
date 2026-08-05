@@ -51,6 +51,20 @@ export const formatWhatsAppNumber = (phoneStr: string): string => {
   return rawClean || '60129876543';
 };
 
+export const normalizePhoneDigits = (phoneStr?: string): string => {
+  if (!phoneStr) return '';
+  let clean = phoneStr.replace(/[^0-9]/g, '');
+  if (clean.startsWith('60')) {
+    clean = clean.substring(2);
+  } else if (clean.startsWith('62')) {
+    clean = clean.substring(2);
+  }
+  if (clean.startsWith('0')) {
+    clean = clean.substring(1);
+  }
+  return clean;
+};
+
 export const extractMapsEmbedUrl = (input?: string, fallbackAddress?: string): string => {
   const defaultEmbed = "https://maps.google.com/maps?q=FBS%20Bakery%20World%2C%20K9694%2CK9695%2CK9696%20%26%20K9697%2C%20Taman%20Pajak%20Utama%2C%2024000%20Chukai%2C%20Terengganu%2C%20Malaysia&t=&z=15&ie=UTF8&iwloc=&output=embed";
 

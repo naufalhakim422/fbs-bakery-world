@@ -15,6 +15,8 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Award, HelpCircle, Gift, Truck, Tag, Info, Copy, LogOut, X, Video, Image as ImageIcon, Star, Camera, Upload, Edit2, Check, UserCheck, AlertTriangle } from 'lucide-react';
 
+import { normalizePhoneDigits } from '@/lib/whatsapp';
+
 export default function CustomerAccountPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'orders' | 'wishlist' | 'profile'>('orders');
@@ -149,12 +151,19 @@ export default function CustomerAccountPage() {
           }
         }
 
+        const custPhoneNormalized = normalizePhoneDigits(currentCust.phone);
+
         const myOrders = allOrders.filter(o => {
           const matchId = Boolean(o.customerId && custId && o.customerId === custId);
           const orderEmailClean = o.customerEmail ? o.customerEmail.trim().toLowerCase() : '';
           const matchEmail = Boolean(custEmailClean && orderEmailClean && custEmailClean === orderEmailClean);
-          const orderPhoneClean = o.customerPhone ? o.customerPhone.replace(/[^0-9]/g, '') : '';
-          const matchPhone = Boolean(custPhoneClean.length >= 6 && orderPhoneClean.length >= 6 && (custPhoneClean.includes(orderPhoneClean) || orderPhoneClean.includes(custPhoneClean)));
+          
+          const orderPhoneNormalized = normalizePhoneDigits(o.customerPhone);
+          const matchPhone = Boolean(
+            custPhoneNormalized.length >= 5 && 
+            orderPhoneNormalized.length >= 5 && 
+            (custPhoneNormalized === orderPhoneNormalized || custPhoneNormalized.includes(orderPhoneNormalized) || orderPhoneNormalized.includes(custPhoneNormalized))
+          );
           return Boolean(matchId || matchEmail || matchPhone);
         });
 
