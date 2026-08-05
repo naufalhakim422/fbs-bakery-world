@@ -1,35 +1,56 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'fbs_customers.json');
+declare global {
+  var __fbs_customers_cache: any[] | undefined;
+}
 
-function ensureDataDir() {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+function getDataFilePath(): string {
+  const localDir = path.join(process.cwd(), 'data');
+  const localFile = path.join(localDir, 'fbs_customers.json');
+  try {
+    if (!fs.existsSync(localDir)) {
+      fs.mkdirSync(localDir, { recursive: true });
+    }
+    fs.accessSync(localDir, fs.constants.W_OK);
+    return localFile;
+  } catch (e) {
+    return path.join(os.tmpdir(), 'fbs_customers.json');
   }
 }
 
 function readServerCustomers(): any[] {
+  if (globalThis.__fbs_customers_cache && globalThis.__fbs_customers_cache.length > 0) {
+    return globalThis.__fbs_customers_cache;
+  }
+  const file = getDataFilePath();
   try {
-    ensureDataDir();
-    if (fs.existsSync(DATA_FILE)) {
-      const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-      return JSON.parse(raw);
+    if (fs.existsSync(file)) {
+      const raw = fs.readFileSync(file, 'utf-8');
+      const parsed = JSON.parse(raw);
+      globalThis.__fbs_customers_cache = parsed;
+      return parsed;
     }
   } catch (err) {
-    console.error('Error reading fbs_customers.json:', err);
+    console.error('Error reading customers file:', err);
   }
-  return [];
+  return globalThis.__fbs_customers_cache || [];
 }
 
 function writeServerCustomers(customers: any[]) {
+  globalThis.__fbs_customers_cache = customers;
+  const file = getDataFilePath();
   try {
-    ensureDataDir();
-    fs.writeFileSync(DATA_FILE, JSON.stringify(customers, null, 2), 'utf-8');
+    fs.writeFileSync(file, JSON.stringify(customers, null, 2), 'utf-8');
   } catch (err) {
-    console.error('Error writing fbs_customers.json:', err);
+    try {
+      const tmpFile = path.join(os.tmpdir(), 'fbs_customers.json');
+      fs.writeFileSync(tmpFile, JSON.stringify(customers, null, 2), 'utf-8');
+    } catch (tmpErr) {
+      console.error('Error writing tmp customers:', tmpErr);
+    }
   }
 }
 
