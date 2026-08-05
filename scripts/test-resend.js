@@ -1,8 +1,8 @@
 const { Resend } = require('resend');
 
 const apiKey = process.env.RESEND_API_KEY || '';
-const fromEmail = 'FBS Bakery <onboarding@resend.dev>';
-const targetRecipient = 'naufalhakimmuzaki7@gmail.com';
+const fromEmail = process.env.RESEND_FROM_EMAIL || 'FBS Baker <admin@fbsbaker.store>';
+const targetRecipient = 'opaln9406@gmail.com';
 
 const resend = new Resend(apiKey);
 
@@ -16,17 +16,17 @@ async function testResendEmail() {
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: [targetRecipient],
-      subject: `[FBS Bakery] Test Verification Kode OTP: ${testOtp}`,
+      subject: `[FBS Bakery] Kode Verifikasi OTP 6-Digit: ${testOtp}`,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; background-color: #FFF8F0; border-radius: 16px; border: 1px solid #EADBC8;">
           <div style="text-align: center; margin-bottom: 20px;">
             <h2 style="color: #800020; font-size: 24px; margin: 0; font-family: serif;">FBS BAKERY WORLD</h2>
-            <p style="color: #666; font-size: 13px; margin-top: 4px;">Uji Pengiriman Email OTP via Resend SDK</p>
+            <p style="color: #666; font-size: 13px; margin-top: 4px;">Kode Verifikasi Email Pendaftaran & Login</p>
           </div>
           
           <div style="background-color: #FFFFFF; padding: 24px; border-radius: 12px; text-align: center; border: 1px solid #EADBC8;">
-            <p style="color: #444; font-size: 14px;">Halo <strong>opallbusiness@gmail.com</strong>,</p>
-            <p style="color: #666; font-size: 13px;">Berikut adalah Kode Verifikasi 6-Digit hasil pengujian sistem Resend:</p>
+            <p style="color: #444; font-size: 14px;">Halo <strong>opaln9406@gmail.com</strong>,</p>
+            <p style="color: #666; font-size: 13px;">Berikut adalah Kode Verifikasi 6-Digit Anda:</p>
             <div style="font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #800020; font-family: monospace; background-color: #800020; color: #FFF; padding: 14px 24px; border-radius: 12px; display: inline-block; margin: 16px 0; border: 2px dashed #D4AF37;">
               ${testOtp}
             </div>
