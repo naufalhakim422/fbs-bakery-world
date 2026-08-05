@@ -163,7 +163,7 @@ export default function CustomerAccountPage() {
     router.push('/account/login');
   };
 
-  const updateCustomerPhoto = (photoUrl: string) => {
+  const updateCustomerPhoto = async (photoUrl: string) => {
     if (!customer) return;
     const updated = { ...customer, photo: photoUrl };
     setCustomer(updated);
@@ -171,25 +171,19 @@ export default function CustomerAccountPage() {
     setTimeout(() => setAvatarNotice(''), 3500);
 
     try {
-      const session = JSON.parse(localStorage.getItem('fbs_customer_session') || '{}');
-      session.photo = photoUrl;
-      localStorage.setItem('fbs_customer_session', JSON.stringify(session));
-
-      const existingCusts: Customer[] = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
-      const idx = existingCusts.findIndex((c: Customer) => c.id === customer.id || (customer.email && c.email === customer.email));
-      if (idx !== -1) {
-        existingCusts[idx].photo = photoUrl;
-        localStorage.setItem('fbs_customers', JSON.stringify(existingCusts));
-      } else {
-        existingCusts.unshift(updated);
-        localStorage.setItem('fbs_customers', JSON.stringify(existingCusts));
-      }
+      localStorage.setItem('fbs_customer_session', JSON.stringify(updated));
+      db.saveCustomer(updated);
+      await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      });
     } catch (err) {
       console.error('Error updating avatar photo:', err);
     }
   };
 
-  const updateCustomerCover = (coverUrl: string) => {
+  const updateCustomerCover = async (coverUrl: string) => {
     if (!customer) return;
     const updated = { ...customer, coverPhoto: coverUrl };
     setCustomer(updated);
@@ -197,19 +191,13 @@ export default function CustomerAccountPage() {
     setTimeout(() => setAvatarNotice(''), 3500);
 
     try {
-      const session = JSON.parse(localStorage.getItem('fbs_customer_session') || '{}');
-      session.coverPhoto = coverUrl;
-      localStorage.setItem('fbs_customer_session', JSON.stringify(session));
-
-      const existingCusts: Customer[] = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
-      const idx = existingCusts.findIndex((c: Customer) => c.id === customer.id || (customer.email && c.email === customer.email));
-      if (idx !== -1) {
-        existingCusts[idx].coverPhoto = coverUrl;
-        localStorage.setItem('fbs_customers', JSON.stringify(existingCusts));
-      } else {
-        existingCusts.unshift(updated);
-        localStorage.setItem('fbs_customers', JSON.stringify(existingCusts));
-      }
+      localStorage.setItem('fbs_customer_session', JSON.stringify(updated));
+      db.saveCustomer(updated);
+      await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      });
     } catch (err) {
       console.error('Error updating cover photo:', err);
     }
@@ -660,24 +648,36 @@ export default function CustomerAccountPage() {
 
               {/* Address Edit Form */}
               <form 
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
+                  const formEl = e.currentTarget;
                   const updatedCust = {
                     ...customer,
-                    name: (e.currentTarget.elements.namedItem('name') as HTMLInputElement).value,
-                    phone: (e.currentTarget.elements.namedItem('phone') as HTMLInputElement).value,
-                    email: (e.currentTarget.elements.namedItem('email') as HTMLInputElement).value,
-                    address: (e.currentTarget.elements.namedItem('address') as HTMLTextAreaElement).value,
-                    city: (e.currentTarget.elements.namedItem('city') as HTMLInputElement).value,
-                    postcode: (e.currentTarget.elements.namedItem('postcode') as HTMLInputElement).value,
-                    state: (e.currentTarget.elements.namedItem('state') as HTMLSelectElement).value,
+                    name: (formEl.elements.namedItem('name') as HTMLInputElement).value,
+                    phone: (formEl.elements.namedItem('phone') as HTMLInputElement).value,
+                    email: (formEl.elements.namedItem('email') as HTMLInputElement).value,
+                    address: (formEl.elements.namedItem('address') as HTMLTextAreaElement).value,
+                    city: (formEl.elements.namedItem('city') as HTMLInputElement).value,
+                    postcode: (formEl.elements.namedItem('postcode') as HTMLInputElement).value,
+                    state: (formEl.elements.namedItem('state') as HTMLSelectElement).value,
                   };
 
                   setCustomer(updatedCust);
                   localStorage.setItem('fbs_customer_session', JSON.stringify(updatedCust));
                   db.saveCustomer(updatedCust);
 
-                  alert('✅ Data profil & alamat pengiriman utama Anda berhasil disimpan!');
+                  try {
+                    await fetch('/api/customers', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(updatedCust),
+                    });
+                  } catch (err) {
+                    console.error('Error syncing profile address:', err);
+                  }
+
+                  setAvatarNotice('✅ Data profil & alamat pengiriman utama Anda berhasil disimpan!');
+                  setTimeout(() => setAvatarNotice(''), 4000);
                 }} 
                 className="space-y-4"
               >
