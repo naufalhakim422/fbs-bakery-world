@@ -4,8 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY || '';
 
 export const resend = new Resend(resendApiKey);
 
-// Custom configured sender or default onboarding sender if domain pending verification
-export const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'FBS Bakery <onboarding@resend.dev>';
+export const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'FBS Baker <admin@fbsbaker.store>';
 
 export async function sendEmailViaResend({
   to,
