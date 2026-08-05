@@ -54,63 +54,95 @@ export default function CustomerAccountPage() {
   const { wishlist, addToCart } = useCart();
 
   useEffect(() => {
-    try {
-      const session = localStorage.getItem('fbs_customer_session');
-      if (!session) {
-        router.push('/account/login');
-        return;
-      }
+    const syncCustomerData = async () => {
+      try {
+        const session = localStorage.getItem('fbs_customer_session');
+        if (!session) {
+          router.push('/account/login');
+          return;
+        }
 
-      const sessObj = JSON.parse(session);
-      const customers = db.getCustomers();
-      const found = customers.find(c => 
-        c.id === sessObj.id || 
-        (sessObj.email && c.email && c.email.toLowerCase() === sessObj.email.toLowerCase()) ||
-        (sessObj.phone && c.phone && c.phone.replace(/[^0-9]/g, '') === sessObj.phone.replace(/[^0-9]/g, ''))
-      );
-      
-      if (found) {
-        // SECURITY GUARD: Reject unverified/inactive accounts
-        // Social auth providers (GOOGLE, FACEBOOK, PHONE) are always considered verified
-        const isSocialAuth = found.provider === 'GOOGLE' || found.provider === 'FACEBOOK' || found.provider === 'PHONE';
-        if (!isSocialAuth && (found.isEmailVerified === false || found.isActive === false)) {
-          // Customer is not verified — destroy session and redirect to login
+        const sessObj = JSON.parse(session);
+        let found: any = null;
+
+        // 1. Synchronize with server database API so Desktop, Mobile & Tablet have 100% identical data
+        if (sessObj.email) {
+          try {
+            const res = await fetch(`/api/customers?email=${encodeURIComponent(sessObj.email)}`);
+            const data = await res.json();
+            if (data.success && data.customer) {
+              found = data.customer;
+              db.saveCustomer(found);
+              localStorage.setItem('fbs_customer_session', JSON.stringify(found));
+            }
+          } catch (serverErr) {
+            console.warn('Server customer fetch warning:', serverErr);
+          }
+        }
+
+        // 2. Fallback to local DB if server fetch returned null
+        if (!found) {
+          const customers = db.getCustomers();
+          found = customers.find(c => 
+            c.id === sessObj.id || 
+            (sessObj.email && c.email && c.email.toLowerCase() === sessObj.email.toLowerCase()) ||
+            (sessObj.phone && c.phone && c.phone.replace(/[^0-9]/g, '') === sessObj.phone.replace(/[^0-9]/g, ''))
+          );
+        }
+
+        if (found) {
+          // SECURITY GUARD: Reject unverified/inactive accounts
+          const isSocialAuth = found.provider === 'GOOGLE' || found.provider === 'FACEBOOK' || found.provider === 'PHONE';
+          if (!isSocialAuth && (found.isEmailVerified === false || found.isActive === false)) {
+            localStorage.removeItem('fbs_customer_session');
+            router.push('/account/login');
+            return;
+          }
+
+          const merged = { 
+            ...found, 
+            name: found.name || sessObj.name, 
+            email: found.email || sessObj.email, 
+            photo: found.photo || sessObj.photo || '', 
+            coverPhoto: found.coverPhoto || sessObj.coverPhoto || '' 
+          };
+
+          setCustomer(merged);
+          // Auto-sync back to server database if server had incomplete data
+          if (sessObj.email) {
+            fetch('/api/customers', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(merged),
+            }).catch(() => {});
+          }
+        } else {
           localStorage.removeItem('fbs_customer_session');
           router.push('/account/login');
           return;
         }
 
-        setCustomer({ 
-          ...found, 
-          name: found.name || sessObj.name, 
-          email: found.email || sessObj.email, 
-          photo: found.photo || sessObj.photo || '', 
-          coverPhoto: found.coverPhoto || sessObj.coverPhoto || '' 
+        const allOrders = db.getOrders();
+        const currentCust = found || { id: sessObj.id, phone: sessObj.phone };
+        const custPhoneClean = (currentCust.phone || '').replace(/[^0-9]/g, '');
+        const custId = currentCust.id;
+
+        const myOrders = allOrders.filter(o => {
+          const matchId = o.customerId && custId && o.customerId === custId;
+          const orderPhoneClean = o.customerPhone ? o.customerPhone.replace(/[^0-9]/g, '') : '';
+          const matchPhone = custPhoneClean.length >= 7 && orderPhoneClean.length >= 7 && (custPhoneClean.includes(orderPhoneClean) || orderPhoneClean.includes(custPhoneClean));
+          return Boolean(matchId || matchPhone);
         });
-      } else {
-        localStorage.removeItem('fbs_customer_session');
+
+        setOrders(myOrders);
+
+      } catch (e) {
+        console.error(e);
         router.push('/account/login');
-        return;
       }
+    };
 
-      const allOrders = db.getOrders();
-      const currentCust = found || { id: sessObj.id, phone: sessObj.phone };
-      const custPhoneClean = (currentCust.phone || '').replace(/[^0-9]/g, '');
-      const custId = currentCust.id;
-
-      const myOrders = allOrders.filter(o => {
-        const matchId = o.customerId && custId && o.customerId === custId;
-        const orderPhoneClean = o.customerPhone ? o.customerPhone.replace(/[^0-9]/g, '') : '';
-        const matchPhone = custPhoneClean.length >= 7 && orderPhoneClean.length >= 7 && (custPhoneClean.includes(orderPhoneClean) || orderPhoneClean.includes(custPhoneClean));
-        return Boolean(matchId || matchPhone);
-      });
-
-      setOrders(myOrders);
-
-    } catch (e) {
-      console.error(e);
-      router.push('/account/login');
-    }
+    syncCustomerData();
   }, [router]);
 
   const handleCustomerLogout = () => {

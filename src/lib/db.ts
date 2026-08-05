@@ -1028,7 +1028,7 @@ export const db = {
     let target: Customer;
 
     if (customerInput.id) {
-      const idx = list.findIndex(c => c.id === customerInput.id);
+      const idx = list.findIndex(c => c.id === customerInput.id || (customerInput.email && c.email && c.email.toLowerCase() === customerInput.email.toLowerCase()));
       if (idx !== -1) {
         list[idx] = { ...list[idx], ...customerInput };
         target = list[idx];
