@@ -22,6 +22,14 @@ export default function AdminOrderDetailPage() {
   const [customCourier, setCustomCourier] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: string;
+    title: string;
+    message: string;
+    confirmBtnText: string;
+    confirmBtnClass: string;
+    action: () => void;
+  } | null>(null);
 
   const presetCouriers = [
     'J&T Express',
@@ -69,23 +77,20 @@ export default function AdminOrderDetailPage() {
 
   if (!order) {
     return (
-      <div className="p-8 text-center bg-white rounded-3xl border border-stone-200">
-        <h2 className="font-serif text-xl font-bold text-[#800020]">{t.adminExtra.orderNotFound}</h2>
-        <Link href="/admin/orders" className="mt-4 inline-block px-5 py-2.5 bg-[#800020] text-white text-xs font-bold rounded-xl">
-          {t.adminExtra.orderBackToList}
+      <div className="max-w-md mx-auto my-12 p-8 text-center bg-white rounded-3xl border border-stone-200 shadow-xl space-y-4 animate-fade-in">
+        <div className="w-16 h-16 bg-red-50 text-[#800020] rounded-full flex items-center justify-center mx-auto border-4 border-red-100">
+          <Trash2 className="w-8 h-8 text-[#800020]" />
+        </div>
+        <h2 className="font-serif text-xl font-extrabold text-[#800020]">Pesanan Tidak Ditemukan atau Telah Dihapus</h2>
+        <p className="text-stone-600 text-xs leading-relaxed">
+          Pesanan ini tidak tersedia atau telah dihapus secara permanen dari database terpusat.
+        </p>
+        <Link href="/admin/orders" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow transition-all">
+          <ArrowLeft className="w-4 h-4" /> Kembali ke Daftar Pesanan
         </Link>
       </div>
     );
   }
-
-  const [confirmAction, setConfirmAction] = useState<{
-    type: string;
-    title: string;
-    message: string;
-    confirmBtnText: string;
-    confirmBtnClass: string;
-    action: () => void;
-  } | null>(null);
 
   const executeSaveStatus = () => {
     const finalCourier = courierName === 'OTHER_CUSTOM' ? (customCourier || 'Other Expedition') : courierName;
