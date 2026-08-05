@@ -65,6 +65,39 @@ export const normalizePhoneDigits = (phoneStr?: string): string => {
   return clean;
 };
 
+export const getCourierTrackingUrl = (courierName: string = '', trackingNumber: string = ''): string => {
+  const cleanResi = trackingNumber.trim();
+  if (!cleanResi) return '#';
+
+  const courierLower = courierName.toLowerCase();
+  if (courierLower.includes('j&t') || courierLower.includes('jnt')) {
+    return `https://www.jtexpress.my/tracking/${encodeURIComponent(cleanResi)}`;
+  }
+  if (courierLower.includes('pos') || courierLower.includes('poslaju')) {
+    return `https://www.pos.com.my/tracking/${encodeURIComponent(cleanResi)}`;
+  }
+  if (courierLower.includes('ninja')) {
+    return `https://www.ninjavan.co/en-my/tracking?id=${encodeURIComponent(cleanResi)}`;
+  }
+  if (courierLower.includes('flash')) {
+    return `https://www.flashexpress.my/tracking/${encodeURIComponent(cleanResi)}`;
+  }
+  if (courierLower.includes('city') || courierLower.includes('city-link')) {
+    return `https://www.citylinkexpress.com/track-dropoff/`;
+  }
+  if (courierLower.includes('gdex')) {
+    return `https://www.gdexpress.com/malaysia/e-tracking/`;
+  }
+  if (courierLower.includes('dhl')) {
+    return `https://www.dhl.com/my-en/home/tracking.html?tracking-id=${encodeURIComponent(cleanResi)}`;
+  }
+  if (courierLower.includes('spx') || courierLower.includes('shopee')) {
+    return `https://spx.com.my/`;
+  }
+
+  return `https://www.google.com/search?q=${encodeURIComponent(courierName + ' ' + cleanResi)}`;
+};
+
 export const extractMapsEmbedUrl = (input?: string, fallbackAddress?: string): string => {
   const defaultEmbed = "https://maps.google.com/maps?q=FBS%20Bakery%20World%2C%20K9694%2CK9695%2CK9696%20%26%20K9697%2C%20Taman%20Pajak%20Utama%2C%2024000%20Chukai%2C%20Terengganu%2C%20Malaysia&t=&z=15&ie=UTF8&iwloc=&output=embed";
 

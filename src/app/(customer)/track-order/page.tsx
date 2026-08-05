@@ -7,7 +7,7 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
-import { formatWhatsAppNumber, normalizePhoneDigits } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, normalizePhoneDigits, getCourierTrackingUrl } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -21,7 +21,9 @@ import {
   AlertCircle, 
   Calendar,
   MessageCircle,
-  ExternalLink
+  ExternalLink,
+  Copy,
+  Check
 } from 'lucide-react';
 
 function TrackOrderContent() {
@@ -34,6 +36,18 @@ function TrackOrderContent() {
   const [phone, setPhone] = useState(initialPhone);
   const [orderResult, setOrderResult] = useState<Order | null>(null);
   const [searched, setSearched] = useState(false);
+  const [copiedResi, setCopiedResi] = useState(false);
+
+  const handleCopyResi = (resi: string) => {
+    if (!resi) return;
+    try {
+      navigator.clipboard.writeText(resi);
+      setCopiedResi(true);
+      setTimeout(() => setCopiedResi(false), 2000);
+    } catch (e) {
+      console.warn('Clipboard copy error:', e);
+    }
+  };
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -245,24 +259,52 @@ function TrackOrderContent() {
                   </span>
                 </div>
               ) : orderResult.courierName && orderResult.trackingNumber ? (
-                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center">
+                    <div className="w-11 h-11 rounded-full bg-emerald-700 text-white flex items-center justify-center flex-shrink-0 shadow">
                       <Truck className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">Dispatched Courier Resi</span>
-                      <h4 className="text-sm font-extrabold text-stone-900">{orderResult.courierName}: <span className="font-mono text-emerald-800">{orderResult.trackingNumber}</span></h4>
+                      <span className="text-[11px] font-extrabold text-emerald-900 uppercase tracking-wider block">Nombor Resi Kurier Disertakan</span>
+                      <h4 className="text-sm sm:text-base font-extrabold text-stone-900 flex items-center gap-2 flex-wrap">
+                        {orderResult.courierName}: 
+                        <span className="font-mono text-emerald-900 px-2.5 py-0.5 bg-emerald-100/80 rounded-md border border-emerald-300">
+                          {orderResult.trackingNumber}
+                        </span>
+                      </h4>
                     </div>
                   </div>
-                  <a
-                    href={`https://www.google.com/search?q=${encodeURIComponent(orderResult.courierName + ' ' + orderResult.trackingNumber)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
-                  >
-                    {language === 'EN' ? 'Track Package' : language === 'MS' ? 'Jejak Pakej' : 'Lacak Paket'} <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={() => handleCopyResi(orderResult.trackingNumber)}
+                      className={`px-3.5 py-2 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 shadow ${
+                        copiedResi 
+                          ? 'bg-emerald-700 text-white border-emerald-700 scale-105' 
+                          : 'bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                      }`}
+                    >
+                      {copiedResi ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-white" /> Resi Tersalin!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-emerald-700" /> Salin Resi
+                        </>
+                      )}
+                    </button>
+
+                    <a
+                      href={getCourierTrackingUrl(orderResult.courierName, orderResult.trackingNumber)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5 flex-1 sm:flex-initial justify-center"
+                    >
+                      {language === 'EN' ? 'Track on Logistics Portal' : language === 'MS' ? 'Jejak di Laman Kurier' : 'Lacak di Situs Ekspedisi'} <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 </div>
               ) : (
                 <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
