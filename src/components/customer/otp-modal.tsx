@@ -33,7 +33,9 @@ export function OtpModal({
   const [isVerifying, setIsVerifying] = useState(false);
   const [sendStatusMessage, setSendStatusMessage] = useState('');
 
-  // Generate 6-digit OTP code and send via SendGrid API
+  const [attempts, setAttempts] = useState(0);
+
+  // Generate 6-digit OTP code and send via Resend API
   const generateNewOtp = async () => {
     const code = initialOtpCode || Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode(code);
@@ -42,7 +44,8 @@ export function OtpModal({
     setResendCooldown(60); // Reset 60s resend cooldown
     setCanResend(false);
     setError('');
-    setSendStatusMessage('Mengirimkan email OTP 6-digit via SendGrid...');
+    setAttempts(0);
+    setSendStatusMessage('Mengirimkan email OTP 6-digit via Resend...');
 
     // Save OTP to customer DB in localStorage
     if (targetDestination) {
@@ -77,12 +80,12 @@ export function OtpModal({
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setSendStatusMessage(`Email OTP 6-digit terkirim via SendGrid ke ${targetDestination}!`);
+        setSendStatusMessage(`Email OTP 6-digit terkirim via Resend ke ${targetDestination}!`);
       } else {
         setSendStatusMessage(`Kode OTP 6-digit sedia untuk ${targetDestination}`);
       }
     } catch (e) {
-      console.log('[Send OTP SendGrid API Fetch Error]:', e);
+      console.log('[Send OTP Resend API Fetch Error]:', e);
       setSendStatusMessage(`Kode OTP 6-digit sedia untuk ${targetDestination}`);
     }
   };
@@ -175,6 +178,11 @@ export function OtpModal({
       return;
     }
 
+    if (attempts >= 5) {
+      setError('Batas maksimum percubaan (5 kali) telah dicapai. Sila minta kod OTP baharu.');
+      return;
+    }
+
     setIsVerifying(true);
     setError('');
 
@@ -210,8 +218,14 @@ export function OtpModal({
         setIsVerifying(false);
         onVerifySuccess();
       } else {
+        const nextAttempts = attempts + 1;
+        setAttempts(nextAttempts);
         setIsVerifying(false);
-        setError(language === 'EN' ? 'Invalid 6-digit OTP code. Please check again!' : 'Kode verifikasi 6-digit salah. Silakan periksa inbox email Anda!');
+        if (nextAttempts >= 5) {
+          setError('Batas maksimum percubaan (5 kali) telah dicapai. Sila klik Kirim Ulang Kode.');
+        } else {
+          setError(language === 'EN' ? `Invalid 6-digit OTP code (${nextAttempts}/5 attempts).` : `Kode verifikasi 6-digit salah (${nextAttempts}/5 percubaan). Silakan periksa inbox email Anda!`);
+        }
       }
     }, 300);
   };
@@ -239,7 +253,7 @@ export function OtpModal({
             {modalTitle}
           </h2>
           <p className="text-xs text-stone-600 mt-1.5 leading-relaxed">
-            Kode verifikasi OTP 6-digit telah dikirimkan via SendGrid ke:
+            Kode verifikasi OTP 6-digit telah dikirimkan via Resend ke:
             <br />
             <span className="font-mono font-bold text-[#800020] bg-[#FFF8F0] px-3 py-1 rounded-xl border border-[#EADBC8] text-sm mt-1 inline-block shadow-inner">
               {targetDestination || 'email Anda'}

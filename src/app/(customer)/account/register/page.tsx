@@ -94,7 +94,7 @@ export default function CustomerRegisterPage() {
     db.saveCustomer(newCustomer);
     setActiveCustomer(newCustomer);
 
-    // Send SendGrid OTP Email via /api/auth/send-otp
+    // Send Resend OTP Email via /api/auth/send-otp
     try {
       await fetch('/api/auth/send-otp', {
         method: 'POST',
@@ -107,7 +107,7 @@ export default function CustomerRegisterPage() {
         }),
       });
     } catch (err) {
-      console.error('Failed to send SendGrid OTP:', err);
+      console.error('Failed to send Resend OTP:', err);
     }
 
     setLoading(false);
@@ -159,7 +159,7 @@ export default function CustomerRegisterPage() {
             </h1>
             
             <p className="text-stone-600 text-xs leading-relaxed max-w-xs mx-auto">
-              Lengkapi formulir untuk menerima **Kode OTP SendGrid 6-Digit** verifikasi pendaftaran.
+              Lengkapi formulir untuk menerima **Kode OTP Resend 6-Digit** verifikasi pendaftaran.
             </p>
           </div>
 
@@ -270,13 +270,13 @@ export default function CustomerRegisterPage() {
       <Footer />
       <FloatingWhatsApp />
 
-      {/* SendGrid 6-Digit OTP Verification Modal */}
+      {/* Resend 6-Digit OTP Verification Modal */}
       <OtpModal
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}
         targetDestination={form.email}
         onVerifySuccess={handleOtpVerifySuccess}
-        title="Verifikasi Pendaftaran OTP SendGrid"
+        title="Verifikasi Pendaftaran OTP Resend"
         initialOtpCode={activeCustomer?.otpCode}
       />
     </div>

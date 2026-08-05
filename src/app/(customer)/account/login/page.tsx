@@ -46,44 +46,29 @@ export default function CustomerLoginPage() {
 
     setLoading(true);
 
-    // Look up or initialize customer record
+    // Look up customer record
     const customers = db.getCustomers();
     let customer = customers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
 
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min expiry
-
     if (!customer) {
-      customer = {
-        id: `cust-${Date.now()}`,
-        name: cleanEmail.split('@')[0],
-        email: cleanEmail,
-        phone: '',
-        customerType: 'RETAIL' as const,
-        provider: 'FORM' as const,
-        isEmailVerified: false,
-        isActive: false,
-        otpCode: otpCode,
-        otpExpiresAt: otpExpiresAt,
-        address: 'Chukai, Terengganu',
-        city: 'Chukai',
-        state: 'Terengganu',
-        postcode: '24000',
-        createdAt: new Date().toISOString(),
-        loginAt: new Date().toISOString(),
-      };
-    } else {
-      customer = {
-        ...customer,
-        otpCode: otpCode,
-        otpExpiresAt: otpExpiresAt,
-      };
+      setLoading(false);
+      setError(language === 'EN' ? 'This email is not registered.' : 'Alamat e-mel ini tidak berdaftar. Sila daftar akaun baharu.');
+      return;
     }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 min expiry
+
+    customer = {
+      ...customer,
+      otpCode: otpCode,
+      otpExpiresAt: otpExpiresAt,
+    };
 
     db.saveCustomer(customer);
     setActiveCustomer(customer);
 
-    // Send SendGrid OTP Email via /api/auth/send-otp
+    // Send Resend OTP Email via /api/auth/send-otp
     try {
       await fetch('/api/auth/send-otp', {
         method: 'POST',
@@ -96,7 +81,7 @@ export default function CustomerLoginPage() {
         }),
       });
     } catch (err) {
-      console.error('Failed to send SendGrid OTP:', err);
+      console.error('Failed to send Resend OTP:', err);
     }
 
     setLoading(false);
@@ -148,7 +133,7 @@ export default function CustomerLoginPage() {
             </h1>
             
             <p className="text-stone-600 text-xs leading-relaxed max-w-xs mx-auto">
-              Masukkan alamat email Anda untuk menerima **Kode OTP 6-Digit** via SendGrid.
+              Masukkan alamat email Anda untuk menerima **Kode OTP 6-Digit** via Resend.
             </p>
           </div>
 
@@ -224,13 +209,13 @@ export default function CustomerLoginPage() {
       <Footer />
       <FloatingWhatsApp />
 
-      {/* SendGrid 6-Digit OTP Verification Modal */}
+      {/* Resend 6-Digit OTP Verification Modal */}
       <OtpModal
         isOpen={showOtpModal}
         onClose={() => setShowOtpModal(false)}
         targetDestination={emailInput}
         onVerifySuccess={handleOtpVerifySuccess}
-        title="Verifikasi Kode OTP SendGrid"
+        title="Verifikasi Kode OTP Resend"
         initialOtpCode={activeCustomer?.otpCode}
       />
     </div>
