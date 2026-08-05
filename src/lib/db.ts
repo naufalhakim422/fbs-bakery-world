@@ -545,7 +545,86 @@ let adminCredentialData: AdminCredentialSetting = {
   password: 'admin123',
 };
 
-let initialOrders: Order[] = [];
+let initialOrders: Order[] = [
+  {
+    id: 'ord-1',
+    orderNumber: '#FBS-20260805-101',
+    customerId: 'cust-1',
+    customerName: 'Muhammad Jaka',
+    customerEmail: 'nopaldeso1@gmail.com',
+    customerPhone: '+60123456789',
+    address: 'No 45, Jalan Bunga Raya 7/2, Section 7',
+    city: 'Shah Alam',
+    state: 'Selangor',
+    postcode: '40000',
+    notes: 'Mohon kemas rapi dengan bubble wrap tebal',
+    courierName: 'J&T Express',
+    totalAmount: 145.00,
+    orderStatus: 'CONFIRMED',
+    trackingNumber: 'JT6829104829MY',
+    shippedAt: '2026-08-05T14:30:00Z',
+    createdAt: '2026-08-05T10:15:00Z',
+    updatedAt: '2026-08-05T14:30:00Z',
+    items: [
+      {
+        id: 'oi-1-1',
+        orderId: 'ord-1',
+        productId: 'prod-1',
+        productVariantId: 'var-1-2',
+        productName: 'Semolina Flour Premium Grade',
+        variantName: '1kg',
+        price: 15.00,
+        quantity: 2,
+        subtotal: 30.00,
+        mainImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
+      },
+      {
+        id: 'oi-1-2',
+        orderId: 'ord-1',
+        productId: 'prod-3',
+        productVariantId: 'var-3-2',
+        productName: 'Belgian Dark Chocolate Chips 70%',
+        variantName: '1kg Pack',
+        price: 62.00,
+        quantity: 1,
+        subtotal: 62.00,
+        mainImage: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=800&auto=format&fit=crop',
+      }
+    ]
+  },
+  {
+    id: 'ord-2',
+    orderNumber: '#FBS-20260805-102',
+    customerId: 'cust-2',
+    customerName: 'Siti Nurhaliza',
+    customerEmail: 'siti@example.com',
+    customerPhone: '+60129876543',
+    address: 'No 12, Jalan Bunga Raya, Section 7',
+    city: 'Shah Alam',
+    state: 'Selangor',
+    postcode: '40000',
+    notes: 'Pengiriman via Pos Laju',
+    courierName: 'Pos Laju',
+    totalAmount: 90.00,
+    orderStatus: 'NEW',
+    createdAt: '2026-08-05T16:20:00Z',
+    updatedAt: '2026-08-05T16:20:00Z',
+    items: [
+      {
+        id: 'oi-2-1',
+        orderId: 'ord-2',
+        productId: 'prod-2',
+        productVariantId: 'var-2-2',
+        productName: 'Uji Matcha Powder Grade A (Kyoto Import)',
+        variantName: '250g Pack',
+        price: 75.00,
+        quantity: 1,
+        subtotal: 75.00,
+        mainImage: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop',
+      }
+    ]
+  }
+];
 
 let initialCustomers: Customer[] = [
   {
