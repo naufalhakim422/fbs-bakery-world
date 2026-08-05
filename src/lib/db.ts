@@ -996,13 +996,23 @@ export const db = {
   // Orders
   getOrders: () => {
     const deletedIds = loadFromStorage<string[]>('fbs_deleted_order_ids', []);
-    const orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    const rawOrders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    const overrides = loadFromStorage<Record<string, any>>('fbs_order_status_overrides', {});
+    const orders = rawOrders.map(o => {
+      const ov = overrides[o.id] || overrides[o.orderNumber];
+      return ov ? { ...o, ...ov } : o;
+    });
     return orders.filter(o => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
   },
 
   getOrderByNumberAndPhone: (orderNumber: string, phone: string) => {
     const deletedIds = loadFromStorage<string[]>('fbs_deleted_order_ids', []);
-    const orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    const rawOrders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    const overrides = loadFromStorage<Record<string, any>>('fbs_order_status_overrides', {});
+    const orders = rawOrders.map(o => {
+      const ov = overrides[o.id] || overrides[o.orderNumber];
+      return ov ? { ...o, ...ov } : o;
+    });
     const cleanNum = orderNumber ? orderNumber.trim().toUpperCase() : '';
     const normPhone = phone ? normalizePhoneDigits(phone) : '';
 
@@ -1118,6 +1128,17 @@ export const db = {
       if (trackingNumber) orders[idx].trackingNumber = trackingNumber;
       if (status === 'SHIPPED') orders[idx].shippedAt = new Date().toISOString();
       orders[idx].updatedAt = new Date().toISOString();
+      
+      const overrides = loadFromStorage<Record<string, any>>('fbs_order_status_overrides', {});
+      const ovData = {
+        orderStatus: status,
+        courierName: orders[idx].courierName,
+        trackingNumber: orders[idx].trackingNumber,
+        updatedAt: orders[idx].updatedAt,
+      };
+      if (orders[idx].id) overrides[orders[idx].id] = ovData;
+      if (orders[idx].orderNumber) overrides[orders[idx].orderNumber] = ovData;
+      saveToStorage('fbs_order_status_overrides', overrides);
       
       // AUTO-RESTORE VARIANT STOCK IF ORDER IS CANCELLED WITH STOCK HISTORY LOGGING
       if (status === 'CANCELLED' && previousStatus !== 'CANCELLED') {

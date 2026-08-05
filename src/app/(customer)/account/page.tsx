@@ -186,8 +186,12 @@ export default function CustomerAccountPage() {
         const custPhoneNormalized = normalizePhoneDigits(currentCust.phone);
 
         const deletedIds: string[] = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]');
+        const statusOverrides: Record<string, any> = JSON.parse(localStorage.getItem('fbs_order_status_overrides') || '{}');
 
-        const myOrders = allOrders.filter(o => {
+        const myOrders = allOrders.map(o => {
+          const ov = statusOverrides[o.id] || statusOverrides[o.orderNumber];
+          return ov ? { ...o, ...ov } : o;
+        }).filter(o => {
           if (deletedIds.includes(o.id) || deletedIds.includes(o.orderNumber)) return false;
 
           const matchId = Boolean(o.customerId && custId && o.customerId === custId);

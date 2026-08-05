@@ -5,6 +5,8 @@ import os from 'os';
 
 declare global {
   var __fbs_orders_cache: any[] | undefined;
+  var __fbs_deleted_orders_cache: string[] | undefined;
+  var __fbs_status_overrides_cache: Record<string, any> | undefined;
 }
 
 const defaultInitialOrders = [
@@ -187,31 +189,96 @@ function writeDeletedOrderIds(deletedIds: string[]) {
   } catch (e) {}
 }
 
-function readServerOrders(): any[] {
-  if (globalThis.__fbs_orders_cache !== undefined) {
-    const deletedIds = readDeletedOrderIds();
-    return globalThis.__fbs_orders_cache.filter((o: any) => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
+function getOverridesFilePath(): string {
+  const localDir = path.join(process.cwd(), 'data');
+  const localFile = path.join(localDir, 'fbs_status_overrides.json');
+  try {
+    if (!fs.existsSync(localDir)) {
+      fs.mkdirSync(localDir, { recursive: true });
+    }
+    fs.accessSync(localDir, fs.constants.W_OK);
+    return localFile;
+  } catch (e) {
+    return path.join(os.tmpdir(), 'fbs_status_overrides.json');
   }
-  const file = getDataFilePath();
+}
+
+function readStatusOverrides(): Record<string, any> {
+  if (globalThis.__fbs_status_overrides_cache) {
+    return globalThis.__fbs_status_overrides_cache;
+  }
+  const file = getOverridesFilePath();
   try {
     if (fs.existsSync(file)) {
       const raw = fs.readFileSync(file, 'utf-8');
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        const deletedIds = readDeletedOrderIds();
-        const clean = parsed.filter((o: any) => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
-        globalThis.__fbs_orders_cache = clean;
-        return clean;
+      if (typeof parsed === 'object' && parsed !== null) {
+        globalThis.__fbs_status_overrides_cache = parsed;
+        return parsed;
       }
     }
-  } catch (err) {
-    console.error('Error reading orders file:', err);
+  } catch (e) {}
+  globalThis.__fbs_status_overrides_cache = {};
+  return {};
+}
+
+function writeStatusOverride(orderId: string, orderNumber: string, statusData: any) {
+  const overrides = readStatusOverrides();
+  if (orderId) overrides[orderId] = statusData;
+  if (orderNumber) overrides[orderNumber] = statusData;
+  globalThis.__fbs_status_overrides_cache = overrides;
+  const file = getOverridesFilePath();
+  try {
+    fs.writeFileSync(file, JSON.stringify(overrides, null, 2), 'utf-8');
+  } catch (e) {}
+}
+
+function applyStatusOverrides(ordersList: any[]): any[] {
+  const overrides = readStatusOverrides();
+  return ordersList.map(o => {
+    const ov = overrides[o.id] || overrides[o.orderNumber];
+    if (ov) {
+      return {
+        ...o,
+        orderStatus: ov.orderStatus || o.orderStatus,
+        courierName: ov.courierName || o.courierName,
+        trackingNumber: ov.trackingNumber !== undefined ? ov.trackingNumber : o.trackingNumber,
+        updatedAt: ov.updatedAt || o.updatedAt,
+      };
+    }
+    return o;
+  });
+}
+
+function readServerOrders(): any[] {
+  let baseOrders: any[] = [];
+  if (globalThis.__fbs_orders_cache !== undefined && globalThis.__fbs_orders_cache.length > 0) {
+    baseOrders = globalThis.__fbs_orders_cache;
+  } else {
+    const file = getDataFilePath();
+    let loadedFromFile = false;
+    try {
+      if (fs.existsSync(file)) {
+        const raw = fs.readFileSync(file, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          baseOrders = parsed;
+          loadedFromFile = true;
+        }
+      }
+    } catch (err) {
+      console.error('Error reading orders file:', err);
+    }
+
+    if (!loadedFromFile) {
+      baseOrders = defaultInitialOrders;
+    }
+    globalThis.__fbs_orders_cache = baseOrders;
   }
 
   const deletedIds = readDeletedOrderIds();
-  const initial = defaultInitialOrders.filter((o: any) => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
-  globalThis.__fbs_orders_cache = initial;
-  return initial;
+  const filtered = baseOrders.filter((o: any) => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
+  return applyStatusOverrides(filtered);
 }
 
 function writeServerOrders(orders: any[]) {
@@ -270,6 +337,15 @@ export async function POST(request: Request) {
       };
     } else {
       orders.unshift(body);
+    }
+
+    if (body.id || body.orderNumber) {
+      writeStatusOverride(body.id, body.orderNumber, {
+        orderStatus: body.orderStatus,
+        courierName: body.courierName,
+        trackingNumber: body.trackingNumber,
+        updatedAt: body.updatedAt || new Date().toISOString(),
+      });
     }
 
     const targetIdx = idx !== -1 ? idx : 0;
