@@ -31,7 +31,12 @@ export default function AdminLoginPage() {
     const activeCreds = db.getAdminCredentials();
 
     setTimeout(() => {
-      const isEmailMatch = email.trim().toLowerCase() === activeCreds.email.trim().toLowerCase() || email.trim().toLowerCase() === 'admin';
+      const cleanInput = email.trim().toLowerCase();
+      const isEmailMatch = 
+        cleanInput === activeCreds.email.trim().toLowerCase() || 
+        cleanInput === 'admin' ||
+        cleanInput === 'admin@fbsbaker.store' ||
+        cleanInput === 'admin@fbsbakeryworld.store';
       const isPasswordMatch = password === activeCreds.password;
 
       if (isEmailMatch && isPasswordMatch) {
