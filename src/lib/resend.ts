@@ -4,7 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY || '';
 
 export const resend = new Resend(resendApiKey);
 
-export const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'FBS Baker World <admin@fbsbaker.store>';
+export const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'FBS Bakery World <admin@fbsbaker.store>';
 
 export async function sendEmailViaResend({
   to,
@@ -20,7 +20,7 @@ export async function sendEmailViaResend({
   const recipients = Array.isArray(to) ? to : [to];
   
   // Try sending with primary configured sender
-  const primaryFrom = process.env.RESEND_FROM_EMAIL || 'FBS Baker World <admin@fbsbaker.store>';
+  const primaryFrom = process.env.RESEND_FROM_EMAIL || 'FBS Bakery World <admin@fbsbaker.store>';
   
   const primaryResult = await resend.emails.send({
     from: primaryFrom,
