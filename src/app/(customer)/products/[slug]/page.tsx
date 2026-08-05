@@ -339,9 +339,43 @@ export default function ProductDetailPage() {
     }
   }, [slug]);
 
+  const productJsonLd = useMemo(() => {
+    if (!product) return null;
+    const activeVar = selectedVariant || product.variants?.[0];
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.productName,
+      image: [product.mainImage, ...(product.galleryImages || [])].filter(Boolean),
+      description: product.description || product.shortDescription,
+      sku: activeVar?.sku || product.sku,
+      brand: {
+        '@type': 'Brand',
+        name: product.brand || 'FBS Bakery World',
+      },
+      offers: {
+        '@type': 'Offer',
+        url: `https://fbsbaker.store/products/${product.slug}`,
+        priceCurrency: 'MYR',
+        price: activeVar ? activeVar.price.toFixed(2) : '0.00',
+        availability: (activeVar?.stock || 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        seller: {
+          '@type': 'Organization',
+          name: 'FBS Bakery World',
+        },
+      },
+    };
+  }, [product, selectedVariant]);
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+        {productJsonLd && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+          />
+        )}
         <AnnouncementBar />
         <HeaderNav />
         <main className="flex-1 flex flex-col items-center justify-center py-20 text-center px-4">
@@ -519,31 +553,6 @@ export default function ProductDetailPage() {
     }, 600);
   };
 
-  const productJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.productName,
-    image: product.mainImage,
-    description: product.shortDescription || product.description,
-    sku: product.sku,
-    brand: {
-      '@type': 'Brand',
-      name: product.brand || 'FBS Bakery World',
-    },
-    offers: {
-      '@type': 'Offer',
-      url: `https://fbsbakeryworld.com/products/${product.slug}`,
-      priceCurrency: 'MYR',
-      price: selectedVariant ? selectedVariant.price : 20.0,
-      availability: product.status ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-    },
-    aggregateRating: ratingStats.reviewCount > 0 ? {
-      '@type': 'AggregateRating',
-      ratingValue: ratingStats.averageRating,
-      reviewCount: ratingStats.reviewCount,
-    } : undefined,
-  };
-
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -552,19 +561,19 @@ export default function ProductDetailPage() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://fbsbakeryworld.com',
+        item: 'https://fbsbaker.store',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Products',
-        item: 'https://fbsbakeryworld.com/products',
+        item: 'https://fbsbaker.store/products',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: product.productName,
-        item: `https://fbsbakeryworld.com/products/${product.slug}`,
+        item: `https://fbsbaker.store/products/${product.slug}`,
       },
     ],
   };
