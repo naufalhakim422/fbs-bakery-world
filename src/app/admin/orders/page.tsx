@@ -17,12 +17,14 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     const loadLiveData = async () => {
+      const deletedIds: string[] = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]');
       try {
         const res = await fetch('/api/orders');
         const data = await res.json();
         if (data.success && Array.isArray(data.orders)) {
-          setOrders(data.orders);
-          localStorage.setItem('fbs_orders', JSON.stringify(data.orders));
+          const cleanOrders = data.orders.filter((o: any) => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
+          setOrders(cleanOrders);
+          localStorage.setItem('fbs_orders', JSON.stringify(cleanOrders));
           return;
         }
       } catch (e) {
@@ -41,6 +43,9 @@ export default function AdminOrdersPage() {
   }, []);
 
   const filtered = orders.filter(o => {
+    const deletedIds: string[] = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]') : [];
+    if (deletedIds.includes(o.id) || deletedIds.includes(o.orderNumber)) return false;
+
     const matchStatus = statusFilter === 'ALL' || o.orderStatus === statusFilter;
     const matchSearch = 
       o.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -67,9 +72,23 @@ export default function AdminOrdersPage() {
       message: `Apakah Anda yakin ingin menghapus pesanan ${orderNumber}? Data yang dihapus dari database terpusat tidak dapat dikembalikan lagi.`,
       confirmBtnText: 'Ya, Hapus Permanen',
       confirmBtnClass: 'bg-red-600 hover:bg-red-700 text-white',
-      action: () => {
+      action: async () => {
         db.deleteOrder(orderId);
-        setOrders(prev => prev.filter(o => o.id !== orderId && o.orderNumber !== orderId));
+        if (orderNumber) db.deleteOrder(orderNumber);
+
+        setOrders(prev => prev.filter(o => o.id !== orderId && o.orderNumber !== orderId && o.id !== orderNumber && o.orderNumber !== orderNumber));
+
+        try {
+          await fetch(`/api/orders?deleteId=${encodeURIComponent(orderId)}`, { method: 'DELETE' });
+          if (orderNumber) {
+            await fetch(`/api/orders?deleteId=${encodeURIComponent(orderNumber)}`, { method: 'DELETE' });
+          }
+        } catch (e) {}
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new CustomEvent('fbs_db_updated'));
+        }
       }
     });
   };

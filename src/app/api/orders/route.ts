@@ -367,11 +367,21 @@ export async function DELETE(request: Request) {
     const deletedIds = readDeletedOrderIds();
     if (!deletedIds.includes(deleteId)) {
       deletedIds.push(deleteId);
-      writeDeletedOrderIds(deletedIds);
     }
 
     let orders = readServerOrders();
-    orders = orders.filter((o: any) => o.id !== deleteId && o.orderNumber !== deleteId);
+    const targetObj = orders.find((o: any) => o.id === deleteId || o.orderNumber === deleteId);
+    if (targetObj) {
+      if (targetObj.id && !deletedIds.includes(targetObj.id)) deletedIds.push(targetObj.id);
+      if (targetObj.orderNumber && !deletedIds.includes(targetObj.orderNumber)) deletedIds.push(targetObj.orderNumber);
+    }
+    writeDeletedOrderIds(deletedIds);
+
+    orders = orders.filter((o: any) => 
+      o.id !== deleteId && 
+      o.orderNumber !== deleteId && 
+      (!targetObj || (o.id !== targetObj.id && o.orderNumber !== targetObj.orderNumber))
+    );
     writeServerOrders(orders);
 
     return NextResponse.json({ success: true, orders, deletedIds });
