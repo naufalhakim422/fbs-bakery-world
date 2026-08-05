@@ -85,6 +85,50 @@ const defaultInitialOrders = [
         mainImage: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop',
       }
     ]
+  },
+  {
+    id: 'ord-3',
+    orderNumber: '#FBS-20260805-103',
+    customerId: 'cust-3',
+    customerName: 'Naufal Hakim Muzaki',
+    customerEmail: 'nopalberak1@gmail.com',
+    customerPhone: '0183942147',
+    address: 'No 88, Jalan Universiti, Section 11',
+    city: 'Petaling Jaya',
+    state: 'Selangor',
+    postcode: '46200',
+    notes: 'Kirim saat jam kerja',
+    courierName: 'J&T Express',
+    totalAmount: 285.00,
+    orderStatus: 'NEW',
+    createdAt: '2026-08-05T17:45:00Z',
+    updatedAt: '2026-08-05T17:45:00Z',
+    items: [
+      {
+        id: 'oi-3-1',
+        orderId: 'ord-3',
+        productId: 'prod-1',
+        productVariantId: 'var-1-2',
+        productName: 'Semolina Flour Premium Grade',
+        variantName: '1kg',
+        price: 15.00,
+        quantity: 1,
+        subtotal: 15.00,
+        mainImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
+      },
+      {
+        id: 'oi-3-2',
+        orderId: 'ord-3',
+        productId: 'prod-2',
+        productVariantId: 'var-2-3',
+        productName: 'Uji Matcha Powder Grade A (Kyoto Import)',
+        variantName: '1kg Bakery Pack',
+        price: 270.00,
+        quantity: 1,
+        subtotal: 270.00,
+        mainImage: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop',
+      }
+    ]
   }
 ];
 
