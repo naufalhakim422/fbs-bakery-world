@@ -8,7 +8,7 @@ import { recordAuditLog } from '@/lib/audit';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
-import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar, Trash2, X } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 export default function AdminOrderDetailPage() {
@@ -80,6 +80,16 @@ export default function AdminOrderDetailPage() {
 
   const handleSaveStatus = (e: React.FormEvent) => {
     e.preventDefault();
+    if (orderStatus === 'CANCELLED') {
+      if (!confirm(`⚠️ Konfirmasi Pembatalan: Apakah Anda yakin ingin mengubah status pesanan ${order.orderNumber} menjadi DIBATALKAN (CANCELLED)? Stok produk akan otomatis dikembalikan ke inventaris toko.`)) {
+        return;
+      }
+    } else {
+      if (!confirm(`Konfirmasi Perubahan Status: Simpan perubahan status pesanan ${order.orderNumber} menjadi [${orderStatus}]?`)) {
+        return;
+      }
+    }
+
     const finalCourier = courierName === 'OTHER_CUSTOM' ? (customCourier || 'Other Expedition') : courierName;
     const updated = db.updateOrderStatusAndTracking(order.id, orderStatus, finalCourier, trackingNumber);
     if (updated) {
@@ -328,6 +338,25 @@ export default function AdminOrderDetailPage() {
               )}
             </button>
 
+            {order.orderStatus !== 'CANCELLED' && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm(`⚠️ Konfirmasi Pembatalan: Apakah Anda yakin ingin membatalkan pesanan ${order.orderNumber}? Status akan diubah menjadi CANCELLED dan stok produk akan otomatis dikembalikan ke inventaris toko.`)) {
+                    const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED');
+                    if (updated) {
+                      setOrder({ ...updated });
+                      setOrderStatus('CANCELLED');
+                      alert(`✅ Pesanan ${order.orderNumber} berhasil dibatalkan dan stok produk telah dikembalikan ke inventaris!`);
+                    }
+                  }
+                }}
+                className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs rounded-xl border border-red-200 transition-colors flex items-center justify-center gap-2 mt-2"
+              >
+                <X className="w-4 h-4 text-red-600" /> Batalkan Pesanan Ini (Cancel Order)
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => {
@@ -337,7 +366,7 @@ export default function AdminOrderDetailPage() {
                   window.location.href = '/admin/orders';
                 }
               }}
-              className="w-full py-2.5 bg-stone-100 hover:bg-red-100 text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center justify-center gap-2 mt-3"
+              className="w-full py-2.5 bg-stone-100 hover:bg-red-100 text-stone-600 hover:text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center justify-center gap-2 mt-2"
             >
               <Trash2 className="w-4 h-4" /> Hapus Pesanan Dari Database
             </button>
