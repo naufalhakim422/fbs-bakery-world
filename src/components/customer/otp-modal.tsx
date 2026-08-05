@@ -31,7 +31,6 @@ export function OtpModal({
   const [canResend, setCanResend] = useState(false);
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
-  const [showBotBanner, setShowBotBanner] = useState(true);
   const [sendStatusMessage, setSendStatusMessage] = useState('');
 
   // Generate 6-digit OTP code and send via SendGrid API
@@ -43,7 +42,6 @@ export function OtpModal({
     setResendCooldown(60); // Reset 60s resend cooldown
     setCanResend(false);
     setError('');
-    setShowBotBanner(true);
     setSendStatusMessage('Mengirimkan email OTP 6-digit via SendGrid...');
 
     // Save OTP to customer DB in localStorage
@@ -213,15 +211,9 @@ export function OtpModal({
         onVerifySuccess();
       } else {
         setIsVerifying(false);
-        setError(language === 'EN' ? 'Invalid 6-digit OTP code. Please check again!' : 'Kode verifikasi 6-digit salah. Silakan periksa kembali!');
+        setError(language === 'EN' ? 'Invalid 6-digit OTP code. Please check again!' : 'Kode verifikasi 6-digit salah. Silakan periksa inbox email Anda!');
       }
     }, 300);
-  };
-
-  const autoFillCode = () => {
-    const digits = generatedCode.split('');
-    setOtpValues(digits);
-    verifyCode(generatedCode);
   };
 
   return (
@@ -263,35 +255,6 @@ export function OtpModal({
           </div>
         )}
 
-        {/* Interactive OTP Banner */}
-        {showBotBanner && generatedCode && (
-          <div
-            onClick={autoFillCode}
-            className="bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border-2 border-dashed border-amber-400 p-3.5 rounded-2xl cursor-pointer hover:bg-amber-100/50 transition-all text-left group relative shadow-sm"
-            title="Klik untuk isi otomatis & verifikasi langsung"
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow">
-                <Mail className="w-4 h-4 animate-bounce" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between text-[10px] font-bold text-amber-900">
-                  <span>📩 SENDGRID OTP EMAIL</span>
-                  <span className="bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded font-mono">
-                    BARU SAJA
-                  </span>
-                </div>
-                <p className="text-xs text-stone-700 mt-0.5 font-mono">
-                  Kode OTP Anda: <span className="font-black text-stone-900 text-sm tracking-wider underline">{generatedCode}</span>
-                </p>
-                <span className="text-[10px] text-amber-800 font-medium block mt-0.5 group-hover:underline">
-                  ✨ Klik sepanduk ini untuk isi & verifikasi otomatis
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* 5-Minute Expiry Timer Header */}
         <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-stone-600 bg-stone-100 px-3 py-1.5 rounded-full w-fit mx-auto border border-stone-200">
           <Clock className="w-3.5 h-3.5 text-[#800020]" />
@@ -304,7 +267,7 @@ export function OtpModal({
         {/* 6-Digit OTP Inputs */}
         <div className="space-y-2">
           <label className="block text-[11px] font-bold text-stone-600 uppercase tracking-wider">
-            Masukkan Kode OTP 6-Digit:
+            Masukkan Kode OTP 6-Digit dari Inbox Email:
           </label>
           <div className="flex justify-center gap-2 sm:gap-2.5">
             {otpValues.map((digit, index) => (
@@ -346,7 +309,7 @@ export function OtpModal({
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4 text-[#D4AF37]" />
-                <span>VERIFIKASI TOKEN (✓)</span>
+                <span>VERIFIKASI KODE (✓)</span>
               </>
             )}
           </button>

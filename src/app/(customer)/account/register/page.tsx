@@ -32,6 +32,10 @@ export default function CustomerRegisterPage() {
     e.preventDefault();
     setError('');
 
+    // Ensure session is strictly cleared until OTP is verified
+    localStorage.removeItem('fbs_customer_session');
+    window.dispatchEvent(new Event('storage'));
+
     if (!form.fullName.trim() || !form.email.trim()) {
       setError(language === 'EN' ? 'All required fields must be filled.' : 'Semua bidang wajib diisi.');
       return;

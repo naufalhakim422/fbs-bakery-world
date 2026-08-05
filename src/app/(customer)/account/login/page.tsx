@@ -27,6 +27,10 @@ export default function CustomerLoginPage() {
     e.preventDefault();
     setError('');
 
+    // Ensure session is strictly cleared until OTP is verified
+    localStorage.removeItem('fbs_customer_session');
+    window.dispatchEvent(new Event('storage'));
+
     const cleanEmail = emailInput.trim().toLowerCase();
 
     if (!cleanEmail) {
