@@ -994,30 +994,39 @@ export const db = {
   },
 
   // Orders
-  getOrders: () => {
+  mergeOrderStatusOverrides: (ordersList: Order[]): Order[] => {
     const deletedIds = loadFromStorage<string[]>('fbs_deleted_order_ids', []);
-    const rawOrders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
     const overrides = loadFromStorage<Record<string, any>>('fbs_order_status_overrides', {});
-    const orders = rawOrders.map(o => {
-      const ov = overrides[o.id] || overrides[o.orderNumber];
-      return ov ? { ...o, ...ov } : o;
-    });
-    return orders.filter(o => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
+    
+    return ordersList
+      .filter(o => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber))
+      .map(o => {
+        const ov = overrides[o.id] || overrides[o.orderNumber];
+        if (ov) {
+          return {
+            ...o,
+            orderStatus: ov.orderStatus || o.orderStatus,
+            courierName: ov.courierName || o.courierName,
+            trackingNumber: ov.trackingNumber !== undefined ? ov.trackingNumber : o.trackingNumber,
+            updatedAt: ov.updatedAt || o.updatedAt,
+          };
+        }
+        return o;
+      });
+  },
+
+  getOrders: () => {
+    const rawOrders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    return db.mergeOrderStatusOverrides(rawOrders);
   },
 
   getOrderByNumberAndPhone: (orderNumber: string, phone: string) => {
-    const deletedIds = loadFromStorage<string[]>('fbs_deleted_order_ids', []);
     const rawOrders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
-    const overrides = loadFromStorage<Record<string, any>>('fbs_order_status_overrides', {});
-    const orders = rawOrders.map(o => {
-      const ov = overrides[o.id] || overrides[o.orderNumber];
-      return ov ? { ...o, ...ov } : o;
-    });
+    const orders = db.mergeOrderStatusOverrides(rawOrders);
     const cleanNum = orderNumber ? orderNumber.trim().toUpperCase() : '';
     const normPhone = phone ? normalizePhoneDigits(phone) : '';
 
     return orders.find(o => {
-      if (deletedIds.includes(o.id) || deletedIds.includes(o.orderNumber)) return false;
       const matchNum = Boolean(cleanNum && (o.orderNumber.toUpperCase() === cleanNum || o.id === cleanNum));
       const oPhoneNorm = normalizePhoneDigits(o.customerPhone);
       const matchPhone = Boolean(normPhone && oPhoneNorm && (normPhone === oPhoneNorm || normPhone.includes(oPhoneNorm) || oPhoneNorm.includes(normPhone)));

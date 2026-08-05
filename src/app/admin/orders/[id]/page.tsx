@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { recordAuditLog } from '@/lib/audit';
@@ -13,6 +13,9 @@ import { useLanguage } from '@/lib/language-context';
 
 export default function AdminOrderDetailPage() {
   const params = useParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const adminBase = pathname?.startsWith('/admin2026') ? '/admin2026' : '/admin';
   const { t, language } = useLanguage();
   const id = params?.id as string;
 
@@ -85,7 +88,7 @@ export default function AdminOrderDetailPage() {
         <p className="text-stone-600 text-xs leading-relaxed">
           Pesanan ini tidak tersedia atau telah dihapus secara permanen dari database terpusat.
         </p>
-        <Link href="/admin/orders" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow transition-all">
+        <Link href={`${adminBase}/orders`} className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow transition-all">
           <ArrowLeft className="w-4 h-4" /> Kembali ke Daftar Pesanan
         </Link>
       </div>
@@ -139,7 +142,7 @@ export default function AdminOrderDetailPage() {
       
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <Link href="/admin/orders" className="inline-flex items-center gap-1 text-xs font-bold text-[#800020] hover:underline">
+        <Link href={`${adminBase}/orders`} className="inline-flex items-center gap-1 text-xs font-bold text-[#800020] hover:underline">
           <ArrowLeft className="w-4 h-4" /> {t.adminExtra.orderBackToList}
         </Link>
 
@@ -414,7 +417,7 @@ export default function AdminOrderDetailPage() {
                   confirmBtnClass: 'bg-red-700 hover:bg-red-800 text-white',
                   action: () => {
                     db.deleteOrder(order.id);
-                    window.location.href = '/admin/orders';
+                    window.location.href = `${adminBase}/orders`;
                   }
                 });
               }}

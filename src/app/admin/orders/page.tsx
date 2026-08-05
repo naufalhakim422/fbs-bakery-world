@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { Order, OrderStatus } from '@/types';
@@ -11,6 +12,9 @@ import { ShoppingBag, Search, Truck, Clock, CheckCircle2, XCircle, ArrowRight, M
 
 export default function AdminOrdersPage() {
   const { t } = useLanguage();
+  const pathname = usePathname();
+  const router = useRouter();
+  const adminBase = pathname?.startsWith('/admin2026') ? '/admin2026' : '/admin';
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [search, setSearch] = useState('');
   const [orders, setOrders] = useState<Order[]>(db.getOrders());
@@ -308,8 +312,12 @@ export default function AdminOrdersPage() {
                           )}
 
                           <Link
-                            href={`/admin/orders/${o.id}`}
-                            className="px-3 py-1.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow inline-flex items-center gap-1 transition-all active:scale-95"
+                            href={`${adminBase}/orders/${o.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`${adminBase}/orders/${o.id}`);
+                            }}
+                            className="px-3 py-1.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow inline-flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
                           >
                             {t.adminExtra.processOrder} <ArrowRight className="w-3.5 h-3.5" />
                           </Link>
