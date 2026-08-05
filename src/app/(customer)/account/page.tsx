@@ -122,16 +122,40 @@ export default function CustomerAccountPage() {
           return;
         }
 
-        const allOrders = db.getOrders();
-        const currentCust = found || { id: sessObj.id, phone: sessObj.phone };
+        const currentCust = found || { id: sessObj.id, phone: sessObj.phone, email: sessObj.email };
         const custPhoneClean = (currentCust.phone || '').replace(/[^0-9]/g, '');
         const custId = currentCust.id;
+        const custEmailClean = (currentCust.email || '').trim().toLowerCase();
+
+        let allOrders = db.getOrders();
+
+        // Synchronize orders from server database API
+        if (custEmailClean || custPhoneClean || custId) {
+          try {
+            const queryParams = new URLSearchParams();
+            if (custEmailClean) queryParams.set('email', custEmailClean);
+            if (custPhoneClean) queryParams.set('phone', custPhoneClean);
+            if (custId) queryParams.set('customerId', custId);
+
+            const resOrders = await fetch(`/api/orders?${queryParams.toString()}`);
+            const dataOrders = await resOrders.json();
+            if (dataOrders.success && Array.isArray(dataOrders.allOrders)) {
+              allOrders = dataOrders.allOrders;
+              // Save to local storage for offline / quick load
+              localStorage.setItem('fbs_orders', JSON.stringify(allOrders));
+            }
+          } catch (serverOrderErr) {
+            console.warn('Server orders fetch warning:', serverOrderErr);
+          }
+        }
 
         const myOrders = allOrders.filter(o => {
-          const matchId = o.customerId && custId && o.customerId === custId;
+          const matchId = Boolean(o.customerId && custId && o.customerId === custId);
+          const orderEmailClean = o.customerEmail ? o.customerEmail.trim().toLowerCase() : '';
+          const matchEmail = Boolean(custEmailClean && orderEmailClean && custEmailClean === orderEmailClean);
           const orderPhoneClean = o.customerPhone ? o.customerPhone.replace(/[^0-9]/g, '') : '';
-          const matchPhone = custPhoneClean.length >= 7 && orderPhoneClean.length >= 7 && (custPhoneClean.includes(orderPhoneClean) || orderPhoneClean.includes(custPhoneClean));
-          return Boolean(matchId || matchPhone);
+          const matchPhone = Boolean(custPhoneClean.length >= 6 && orderPhoneClean.length >= 6 && (custPhoneClean.includes(orderPhoneClean) || orderPhoneClean.includes(custPhoneClean)));
+          return Boolean(matchId || matchEmail || matchPhone);
         });
 
         setOrders(myOrders);

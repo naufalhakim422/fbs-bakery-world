@@ -948,6 +948,15 @@ export const db = {
     }
 
     saveToStorage('fbs_customers', customers);
+
+    if (typeof window !== 'undefined') {
+      fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrder),
+      }).catch(err => console.warn('Order server sync warning:', err));
+    }
+
     return newOrder;
   },
 

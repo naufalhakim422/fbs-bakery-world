@@ -146,8 +146,21 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      let custId = '';
+      let custEmail = '';
+      try {
+        const session = localStorage.getItem('fbs_customer_session');
+        if (session) {
+          const sessObj = JSON.parse(session);
+          custId = sessObj.id || '';
+          custEmail = sessObj.email || '';
+        }
+      } catch (e) {}
+
       // 1. Create order record in Database
       const newOrder = db.createOrder({
+        customerId: custId,
+        customerEmail: custEmail,
         customerName: formData.name,
         customerPhone: formData.phone,
         address: formData.address,
