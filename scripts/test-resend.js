@@ -1,7 +1,7 @@
 const { Resend } = require('resend');
 
 const apiKey = process.env.RESEND_API_KEY || '';
-const fromEmail = process.env.RESEND_FROM_EMAIL || 'FBS Baker <admin@fbsbaker.store>';
+const fromEmail = process.env.RESEND_FROM_EMAIL || 'FBS Bakery World <admin@fbsbaker.store>';
 const targetRecipient = 'opaln9406@gmail.com';
 
 const resend = new Resend(apiKey);
