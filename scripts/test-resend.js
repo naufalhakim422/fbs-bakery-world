@@ -2,7 +2,7 @@ const { Resend } = require('resend');
 
 const apiKey = process.env.RESEND_API_KEY || '';
 const fromEmail = 'FBS Bakery <onboarding@resend.dev>';
-const targetRecipient = 'opallbusiness@gmail.com';
+const targetRecipient = 'naufalhakimmuzaki7@gmail.com';
 
 const resend = new Resend(apiKey);
 
