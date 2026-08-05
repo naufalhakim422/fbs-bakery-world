@@ -79,12 +79,24 @@ export default function AdminDashboardPage() {
   const defaultExpenses: any[] = [];
 
   useEffect(() => {
-    const loadLiveData = () => {
-      setOrders(db.getOrders());
+    const loadLiveData = async () => {
       setProducts(db.getProducts());
       setCustomers(db.getCustomers());
       setCategories(db.getCategories());
       setRecipes(db.getRecipes());
+
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+          localStorage.setItem('fbs_orders', JSON.stringify(data.orders));
+        } else {
+          setOrders(db.getOrders());
+        }
+      } catch (e) {
+        setOrders(db.getOrders());
+      }
 
       try {
         const saved = localStorage.getItem('fbs_cashflow_expenses');

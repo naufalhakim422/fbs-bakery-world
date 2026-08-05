@@ -16,7 +16,18 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(db.getOrders());
 
   useEffect(() => {
-    const loadLiveData = () => {
+    const loadLiveData = async () => {
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+          localStorage.setItem('fbs_orders', JSON.stringify(data.orders));
+          return;
+        }
+      } catch (e) {
+        console.warn('Failed to fetch server orders in AdminOrdersPage:', e);
+      }
       setOrders(db.getOrders());
     };
     loadLiveData();

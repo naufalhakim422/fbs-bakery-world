@@ -1005,6 +1005,16 @@ export const db = {
         }
       }
 
+      saveToStorage('fbs_orders', orders);
+
+      if (typeof window !== 'undefined') {
+        fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orders[idx]),
+        }).catch(err => console.warn('Order status sync warning:', err));
+      }
+
       return orders[idx];
     }
     return null;
