@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { resend } from '@/lib/resend';
 
 export async function POST(request: Request) {
   try {
@@ -71,7 +72,8 @@ export async function POST(request: Request) {
       </html>
     `;
 
-    // 1. Send via SendGrid v3 API
+    // 1. Try SendGrid v3 API First
+    let sendgridErrorMsg = '';
     try {
       const sendgridRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
         method: 'POST',
@@ -104,21 +106,45 @@ export async function POST(request: Request) {
         return NextResponse.json({
           success: true,
           provider: 'SENDGRID',
-          message: `Kode OTP 6-digit berhasil dikirimkan via SendGrid ke ${email.trim()}`,
+          message: `Email OTP 6-digit terkirim via SendGrid ke ${email.trim()}!`,
         });
       }
 
       const errorText = await sendgridRes.text();
-      console.warn('[SendGrid API Warning Response]:', sendgridRes.status, errorText);
+      sendgridErrorMsg = `SendGrid Status ${sendgridRes.status}: ${errorText}`;
+      console.warn('[SendGrid API Warning Response]:', sendgridErrorMsg);
     } catch (sendgridErr: any) {
-      console.error('[SendGrid Fetch Error]:', sendgridErr?.message || sendgridErr);
+      sendgridErrorMsg = sendgridErr?.message || 'SendGrid fetch failed';
+      console.error('[SendGrid Fetch Error]:', sendgridErrorMsg);
     }
 
-    // Fallback success response with OTP for testing
+    // 2. Backup: Fallback to Resend API if SendGrid fails
+    try {
+      const resendRes = await resend.emails.send({
+        from: 'FBS Baker <admin@fbsbaker.store>',
+        to: [email.trim()],
+        subject: subject,
+        html: htmlContent,
+      });
+
+      if (!resendRes.error) {
+        return NextResponse.json({
+          success: true,
+          provider: 'RESEND_FALLBACK',
+          message: `Email OTP 6-digit terkirim via Backup Resend ke ${email.trim()}!`,
+        });
+      }
+    } catch (resendErr) {
+      console.error('[Resend Backup Error]:', resendErr);
+    }
+
+    // 3. Fallback response with notice for testing
     return NextResponse.json({
       success: true,
       provider: 'SIMULATION',
-      message: `Kode OTP 6-digit sedia untuk ${email.trim()}`,
+      message: sendgridErrorMsg 
+        ? `SendGrid Notice: ${sendgridErrorMsg.slice(0, 100)}` 
+        : `Kode OTP 6-digit: ${otp.trim()}`,
       otp: otp.trim(),
     });
   } catch (error: any) {
