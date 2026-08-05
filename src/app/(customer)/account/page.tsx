@@ -185,7 +185,11 @@ export default function CustomerAccountPage() {
 
         const custPhoneNormalized = normalizePhoneDigits(currentCust.phone);
 
+        const deletedIds: string[] = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]');
+
         const myOrders = allOrders.filter(o => {
+          if (deletedIds.includes(o.id) || deletedIds.includes(o.orderNumber)) return false;
+
           const matchId = Boolean(o.customerId && custId && o.customerId === custId);
           const orderEmailClean = o.customerEmail ? o.customerEmail.trim().toLowerCase() : '';
           const matchEmail = Boolean(custEmailClean && orderEmailClean && custEmailClean === orderEmailClean);

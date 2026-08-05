@@ -995,15 +995,19 @@ export const db = {
 
   // Orders
   getOrders: () => {
-    return loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    const deletedIds = loadFromStorage<string[]>('fbs_deleted_order_ids', []);
+    const orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    return orders.filter(o => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
   },
 
   getOrderByNumberAndPhone: (orderNumber: string, phone: string) => {
+    const deletedIds = loadFromStorage<string[]>('fbs_deleted_order_ids', []);
     const orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
     const cleanNum = orderNumber ? orderNumber.trim().toUpperCase() : '';
     const normPhone = phone ? normalizePhoneDigits(phone) : '';
 
     return orders.find(o => {
+      if (deletedIds.includes(o.id) || deletedIds.includes(o.orderNumber)) return false;
       const matchNum = Boolean(cleanNum && (o.orderNumber.toUpperCase() === cleanNum || o.id === cleanNum));
       const oPhoneNorm = normalizePhoneDigits(o.customerPhone);
       const matchPhone = Boolean(normPhone && oPhoneNorm && (normPhone === oPhoneNorm || normPhone.includes(oPhoneNorm) || oPhoneNorm.includes(normPhone)));
@@ -1115,8 +1119,6 @@ export const db = {
       if (status === 'SHIPPED') orders[idx].shippedAt = new Date().toISOString();
       orders[idx].updatedAt = new Date().toISOString();
       
-      saveToStorage('fbs_orders', orders);
-
       // AUTO-RESTORE VARIANT STOCK IF ORDER IS CANCELLED WITH STOCK HISTORY LOGGING
       if (status === 'CANCELLED' && previousStatus !== 'CANCELLED') {
         try {
@@ -1164,7 +1166,20 @@ export const db = {
   },
 
   deleteOrder: (id: string) => {
+    const deletedIds = loadFromStorage<string[]>('fbs_deleted_order_ids', []);
+    if (!deletedIds.includes(id)) {
+      deletedIds.push(id);
+      saveToStorage('fbs_deleted_order_ids', deletedIds);
+    }
+
     let orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
+    const targetOrder = orders.find(o => o.id === id || o.orderNumber === id);
+    if (targetOrder) {
+      if (!deletedIds.includes(targetOrder.id)) deletedIds.push(targetOrder.id);
+      if (!deletedIds.includes(targetOrder.orderNumber)) deletedIds.push(targetOrder.orderNumber);
+      saveToStorage('fbs_deleted_order_ids', deletedIds);
+    }
+
     orders = orders.filter(o => o.id !== id && o.orderNumber !== id);
     saveToStorage('fbs_orders', orders);
 

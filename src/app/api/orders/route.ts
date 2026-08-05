@@ -146,26 +146,72 @@ function getDataFilePath(): string {
   }
 }
 
+function getDeletedIdsFilePath(): string {
+  const localDir = path.join(process.cwd(), 'data');
+  const localFile = path.join(localDir, 'fbs_deleted_orders.json');
+  try {
+    if (!fs.existsSync(localDir)) {
+      fs.mkdirSync(localDir, { recursive: true });
+    }
+    fs.accessSync(localDir, fs.constants.W_OK);
+    return localFile;
+  } catch (e) {
+    return path.join(os.tmpdir(), 'fbs_deleted_orders.json');
+  }
+}
+
+function readDeletedOrderIds(): string[] {
+  if (globalThis.__fbs_deleted_orders_cache) {
+    return globalThis.__fbs_deleted_orders_cache;
+  }
+  const file = getDeletedIdsFilePath();
+  try {
+    if (fs.existsSync(file)) {
+      const raw = fs.readFileSync(file, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        globalThis.__fbs_deleted_orders_cache = parsed;
+        return parsed;
+      }
+    }
+  } catch (e) {}
+  globalThis.__fbs_deleted_orders_cache = [];
+  return [];
+}
+
+function writeDeletedOrderIds(deletedIds: string[]) {
+  globalThis.__fbs_deleted_orders_cache = deletedIds;
+  const file = getDeletedIdsFilePath();
+  try {
+    fs.writeFileSync(file, JSON.stringify(deletedIds, null, 2), 'utf-8');
+  } catch (e) {}
+}
+
 function readServerOrders(): any[] {
-  if (globalThis.__fbs_orders_cache && globalThis.__fbs_orders_cache.length > 0) {
-    return globalThis.__fbs_orders_cache;
+  if (globalThis.__fbs_orders_cache !== undefined) {
+    const deletedIds = readDeletedOrderIds();
+    return globalThis.__fbs_orders_cache.filter((o: any) => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
   }
   const file = getDataFilePath();
   try {
     if (fs.existsSync(file)) {
       const raw = fs.readFileSync(file, 'utf-8');
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        globalThis.__fbs_orders_cache = parsed;
-        return parsed;
+      if (Array.isArray(parsed)) {
+        const deletedIds = readDeletedOrderIds();
+        const clean = parsed.filter((o: any) => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
+        globalThis.__fbs_orders_cache = clean;
+        return clean;
       }
     }
   } catch (err) {
     console.error('Error reading orders file:', err);
   }
 
-  globalThis.__fbs_orders_cache = defaultInitialOrders;
-  return defaultInitialOrders;
+  const deletedIds = readDeletedOrderIds();
+  const initial = defaultInitialOrders.filter((o: any) => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber));
+  globalThis.__fbs_orders_cache = initial;
+  return initial;
 }
 
 function writeServerOrders(orders: any[]) {
@@ -242,11 +288,17 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: 'deleteId parameter is required' }, { status: 400 });
     }
 
+    const deletedIds = readDeletedOrderIds();
+    if (!deletedIds.includes(deleteId)) {
+      deletedIds.push(deleteId);
+      writeDeletedOrderIds(deletedIds);
+    }
+
     let orders = readServerOrders();
     orders = orders.filter((o: any) => o.id !== deleteId && o.orderNumber !== deleteId);
     writeServerOrders(orders);
 
-    return NextResponse.json({ success: true, orders });
+    return NextResponse.json({ success: true, orders, deletedIds });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
