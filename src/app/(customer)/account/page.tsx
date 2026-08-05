@@ -10,6 +10,7 @@ import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { formatMYR } from '@/lib/currency';
+import { useLanguage } from '@/lib/language-context';
 import { useCart } from '@/lib/cart-context';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -17,11 +18,40 @@ import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, Check
 
 import { normalizePhoneDigits } from '@/lib/whatsapp';
 
+const getInitialOrdersForSession = (): any[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const session = localStorage.getItem('fbs_customer_session');
+    if (!session) return [];
+    const sessObj = JSON.parse(session);
+    const custEmailClean = (sessObj.email || '').trim().toLowerCase();
+    const custPhoneNorm = normalizePhoneDigits(sessObj.phone);
+    const custId = sessObj.id;
+
+    const allOrders = db.getOrders();
+    return allOrders.filter(o => {
+      const matchId = Boolean(o.customerId && custId && o.customerId === custId);
+      const orderEmailClean = o.customerEmail ? o.customerEmail.trim().toLowerCase() : '';
+      const matchEmail = Boolean(custEmailClean && orderEmailClean && custEmailClean === orderEmailClean);
+      const orderPhoneNorm = normalizePhoneDigits(o.customerPhone);
+      const matchPhone = Boolean(
+        custPhoneNorm.length >= 5 &&
+        orderPhoneNorm.length >= 5 &&
+        (custPhoneNorm === orderPhoneNorm || custPhoneNorm.includes(orderPhoneNorm) || orderPhoneNorm.includes(custPhoneNorm))
+      );
+      return Boolean(matchId || matchEmail || matchPhone);
+    });
+  } catch (e) {
+    return [];
+  }
+};
+
 export default function CustomerAccountPage() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'orders' | 'wishlist' | 'profile'>('orders');
   const [customer, setCustomer] = useState<Customer | null>(null);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>(() => getInitialOrdersForSession());
 
   // Avatar & Cover State & Refs
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -428,12 +458,20 @@ export default function CustomerAccountPage() {
             {/* Modern Minimalist Quick Metrics Grid */}
             <div className="grid grid-cols-2 gap-4 pt-6 border-t border-stone-100 text-xs">
               <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
-                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Total Pesanan</span>
-                <span className="font-serif font-extrabold text-xl text-stone-900">{orders.length} Order</span>
+                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">
+                  {language === 'EN' ? 'TOTAL ORDERS' : language === 'MS' ? 'JUMLAH PESANAN' : 'TOTAL PESANAN'}
+                </span>
+                <span className="font-serif font-extrabold text-xl text-stone-900">
+                  {orders.length} {language === 'EN' ? (orders.length === 1 ? 'Order' : 'Orders') : 'Pesanan'}
+                </span>
               </div>
               <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
-                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Wishlist Tersimpan</span>
-                <span className="font-serif font-extrabold text-xl text-[#800020]">{wishlist.length} Produk</span>
+                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">
+                  {language === 'EN' ? 'SAVED WISHLIST' : language === 'MS' ? 'WISHLIST TERSIMPAN' : 'WISHLIST TERSIMPAN'}
+                </span>
+                <span className="font-serif font-extrabold text-xl text-[#800020]">
+                  {wishlist.length} {language === 'EN' ? (wishlist.length === 1 ? 'Product' : 'Products') : 'Produk'}
+                </span>
               </div>
             </div>
 
@@ -448,7 +486,7 @@ export default function CustomerAccountPage() {
               activeTab === 'orders' ? 'border-[#800020] text-[#800020]' : 'border-transparent text-stone-500 hover:text-stone-800'
             }`}
           >
-            <Package className="w-4 h-4" /> Order History ({orders.length})
+            <Package className="w-4 h-4" /> {language === 'EN' ? 'Order History' : language === 'MS' ? 'Riwayat Pesanan' : 'Riwayat Pesanan'} ({orders.length})
           </button>
           <button
             onClick={() => setActiveTab('wishlist')}
@@ -456,7 +494,7 @@ export default function CustomerAccountPage() {
               activeTab === 'wishlist' ? 'border-[#800020] text-[#800020]' : 'border-transparent text-stone-500 hover:text-stone-800'
             }`}
           >
-            <Heart className="w-4 h-4" /> Saved Wishlist ({wishlist.length})
+            <Heart className="w-4 h-4" /> {language === 'EN' ? 'Saved Wishlist' : language === 'MS' ? 'Wishlist Tersimpan' : 'Wishlist Tersimpan'} ({wishlist.length})
           </button>
           <button
             onClick={() => setActiveTab('profile')}
@@ -464,7 +502,7 @@ export default function CustomerAccountPage() {
               activeTab === 'profile' ? 'border-[#800020] text-[#800020]' : 'border-transparent text-stone-500 hover:text-stone-800'
             }`}
           >
-            <User className="w-4 h-4" /> Saved Profile & Address
+            <User className="w-4 h-4" /> {language === 'EN' ? 'Saved Profile & Address' : language === 'MS' ? 'Profil & Alamat Tersimpan' : 'Profil & Alamat Tersimpan'}
           </button>
         </div>
 
