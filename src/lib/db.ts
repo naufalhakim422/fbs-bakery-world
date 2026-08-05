@@ -1025,32 +1025,61 @@ export const db = {
 
   saveCustomer: (customerInput: Partial<Customer>): Customer => {
     const list = loadFromStorage<Customer[]>('fbs_customers', initialCustomers);
+    let target: Customer;
+
     if (customerInput.id) {
       const idx = list.findIndex(c => c.id === customerInput.id);
       if (idx !== -1) {
         list[idx] = { ...list[idx], ...customerInput };
-        saveToStorage('fbs_customers', list);
-        return list[idx];
+        target = list[idx];
+      } else {
+        target = {
+          id: customerInput.id,
+          name: customerInput.name || 'Pelanggan FBS',
+          email: customerInput.email || '',
+          phone: customerInput.phone || '',
+          customerType: customerInput.customerType || 'RETAIL',
+          provider: customerInput.provider || 'FORM',
+          address: customerInput.address || 'Chukai, Terengganu',
+          city: customerInput.city || 'Chukai',
+          state: customerInput.state || 'Terengganu',
+          postcode: customerInput.postcode || '24000',
+          createdAt: customerInput.createdAt || new Date().toISOString(),
+          loginAt: customerInput.loginAt || new Date().toISOString(),
+          ...customerInput
+        };
+        list.unshift(target);
       }
+    } else {
+      target = {
+        id: `cust-${Date.now()}`,
+        name: customerInput.name || 'Pelanggan FBS',
+        email: customerInput.email || '',
+        phone: customerInput.phone || '',
+        customerType: customerInput.customerType || 'RETAIL',
+        provider: customerInput.provider || 'FORM',
+        address: customerInput.address || 'Chukai, Terengganu',
+        city: customerInput.city || 'Chukai',
+        state: customerInput.state || 'Terengganu',
+        postcode: customerInput.postcode || '24000',
+        createdAt: customerInput.createdAt || new Date().toISOString(),
+        loginAt: customerInput.loginAt || new Date().toISOString(),
+        ...customerInput
+      };
+      list.unshift(target);
     }
-    const newCustomer: Customer = {
-      id: customerInput.id || `cust-${Date.now()}`,
-      name: customerInput.name || 'Pelanggan FBS',
-      email: customerInput.email || '',
-      phone: customerInput.phone || '',
-      customerType: customerInput.customerType || 'RETAIL',
-      provider: customerInput.provider || 'FORM',
-      hashedPassword: customerInput.hashedPassword,
-      address: customerInput.address || 'Chukai, Terengganu',
-      city: customerInput.city || 'Chukai',
-      state: customerInput.state || 'Terengganu',
-      postcode: customerInput.postcode || '24000',
-      createdAt: customerInput.createdAt || new Date().toISOString(),
-      loginAt: customerInput.loginAt || new Date().toISOString(),
-    };
-    list.unshift(newCustomer);
+
     saveToStorage('fbs_customers', list);
-    return newCustomer;
+
+    if (typeof window !== 'undefined') {
+      fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(target),
+      }).catch(err => console.warn('Customer server sync warning:', err));
+    }
+
+    return target;
   },
 
   // Banners & Banner Builder API

@@ -161,8 +161,23 @@ export default function CustomerLoginPage() {
 
     setLoading(true);
 
-    const customers = db.getCustomers();
-    let customer = customers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
+    let customer: any = null;
+
+    try {
+      const serverRes = await fetch(`/api/customers?email=${encodeURIComponent(cleanEmail)}`);
+      const serverData = await serverRes.json();
+      if (serverRes.ok && serverData?.customer) {
+        customer = serverData.customer;
+        db.saveCustomer(customer);
+      }
+    } catch (e) {
+      console.warn('Server customer lookup error:', e);
+    }
+
+    if (!customer) {
+      const customers = db.getCustomers();
+      customer = customers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
+    }
 
     if (!customer) {
       customer = {

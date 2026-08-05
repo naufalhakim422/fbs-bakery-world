@@ -82,10 +82,10 @@ export default function CustomerAccountPage() {
 
         setCustomer({ 
           ...found, 
-          name: sessObj.name || found.name, 
-          email: sessObj.email || found.email, 
-          photo: sessObj.photo || found.photo || '', 
-          coverPhoto: sessObj.coverPhoto || found.coverPhoto || '' 
+          name: found.name || sessObj.name, 
+          email: found.email || sessObj.email, 
+          photo: found.photo || sessObj.photo || '', 
+          coverPhoto: found.coverPhoto || sessObj.coverPhoto || '' 
         });
       } else {
         localStorage.removeItem('fbs_customer_session');
@@ -643,16 +643,7 @@ export default function CustomerAccountPage() {
 
                   setCustomer(updatedCust);
                   localStorage.setItem('fbs_customer_session', JSON.stringify(updatedCust));
-
-                  const existingCusts = JSON.parse(localStorage.getItem('fbs_customers') || '[]');
-                  const idx = existingCusts.findIndex((c: any) => c.id === customer.id || (customer.email && c.email === customer.email));
-                  if (idx !== -1) {
-                    existingCusts[idx] = { ...existingCusts[idx], ...updatedCust };
-                    localStorage.setItem('fbs_customers', JSON.stringify(existingCusts));
-                  } else {
-                    existingCusts.unshift(updatedCust);
-                    localStorage.setItem('fbs_customers', JSON.stringify(existingCusts));
-                  }
+                  db.saveCustomer(updatedCust);
 
                   alert('✅ Data profil & alamat pengiriman utama Anda berhasil disimpan!');
                 }} 
