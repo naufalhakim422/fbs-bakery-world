@@ -168,30 +168,30 @@ export const HeaderNav: React.FC = () => {
   return (
     <>
       <header className="bg-gradient-to-r from-[#180A0E] via-[#3A0612] to-[#180A0E] text-[#FFF8F0] sticky top-0 z-40 shadow-xl border-b border-[#D4AF37]/30" suppressHydrationWarning>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           
           {/* Main Header Bar */}
-          <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
+          <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
             
             {/* Left: Brand Logo & Typography */}
-            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group flex-shrink-0 notranslate" translate="no">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 notranslate" translate="no">
               <img 
                 src="/logo.jpg" 
                 alt="FBS Bakery World Logo" 
-                className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full object-cover shadow-md border-2 border-[#D4AF37] group-hover:scale-105 transition-transform bg-white"
+                className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full object-cover shadow-md border-2 border-[#D4AF37] group-hover:scale-105 transition-transform bg-white flex-shrink-0"
               />
               <div className="flex flex-col">
-                <span className="font-sans font-black text-sm sm:text-lg md:text-xl tracking-wider text-[#F7E7CE] uppercase leading-none">
+                <span className="font-sans font-black text-xs sm:text-base md:text-lg lg:text-xl tracking-wider text-[#F7E7CE] uppercase leading-none whitespace-nowrap">
                   FBS BAKERY WORLD
                 </span>
-                <span className="hidden sm:block text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.18em] uppercase text-[#F7E7CE]/80 font-medium mt-1">
+                <span className="hidden md:block text-[9px] lg:text-[10px] tracking-[0.18em] uppercase text-[#F7E7CE]/70 font-medium mt-1 whitespace-nowrap">
                   PREMIUM BAKING SUPPLY MALAYSIA
                 </span>
               </div>
             </Link>
 
-            {/* Middle: Integrated Search Bar (Tablet & Desktop - md and up) */}
-            <div ref={searchContainerRef} className="hidden md:flex flex-1 max-w-xs lg:max-w-sm relative mx-2 lg:mx-4">
+            {/* Middle: Integrated Search Bar (Desktop - lg and up) */}
+            <div ref={searchContainerRef} className="hidden lg:flex flex-1 max-w-sm xl:max-w-md relative mx-4">
               <form onSubmit={handleSearchSubmit} className="w-full relative">
                 <input
                   type="text"
@@ -288,13 +288,13 @@ export const HeaderNav: React.FC = () => {
               )}
             </div>
 
-            {/* Right: Actions & User Buttons (Optimized for Mobile, Tablet & Desktop) */}
+            {/* Right: Actions & User Buttons (Clean, Streamlined for Mobile, Tablet & Desktop) */}
             <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
               
-              {/* Order Tracking Pill Button (Tablet & Desktop) */}
+              {/* Order Tracking Pill Button (Desktop only) */}
               <Link 
                 href="/track-order" 
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-[#4A1313] hover:bg-[#3D0F0F] text-[#D4AF37] rounded-full text-xs font-bold border border-[#D4AF37]/40 transition-all hover:scale-105"
+                className="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 bg-[#4A1313] hover:bg-[#3D0F0F] text-[#D4AF37] rounded-full text-xs font-bold border border-[#D4AF37]/40 transition-all hover:scale-105 shadow-sm"
               >
                 <PackageCheck className="w-4 h-4 text-[#D4AF37]" />
                 <span>{t.nav.trackOrder}</span>
@@ -303,11 +303,11 @@ export const HeaderNav: React.FC = () => {
               {/* Wishlist Link */}
               <Link 
                 href={customerSession ? "/account" : "/account/login"} 
-                className="relative p-1.5 sm:p-2 text-stone-200 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/5" 
+                className="relative p-2 text-stone-200 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/10" 
                 title={t.customerAccount.wishlistTitle}
                 aria-label={t.customerAccount.wishlistTitle}
               >
-                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Heart className="w-5 h-5 text-stone-200 hover:text-[#D4AF37]" />
                 {wishlist.length > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-[#D4AF37] text-[#800020] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md">
                     {wishlist.length}
@@ -315,14 +315,14 @@ export const HeaderNav: React.FC = () => {
                 )}
               </Link>
 
-              {/* Product Comparison Link */}
+              {/* Product Comparison Link (Desktop lg+) */}
               <Link 
                 href="/compare" 
-                className="relative p-1.5 sm:p-2 text-stone-200 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/5" 
+                className="hidden lg:flex relative p-2 text-stone-200 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/10" 
                 title="Perbandingan Produk"
                 aria-label="Perbandingan Produk"
               >
-                <Scale className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Scale className="w-5 h-5" />
                 {totalCompare > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-[#800020] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-[#D4AF37]">
                     {totalCompare}
@@ -333,12 +333,12 @@ export const HeaderNav: React.FC = () => {
               {/* Shopping Cart Button */}
               <button 
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-1.5 sm:px-3 sm:py-1.5 lg:px-3.5 lg:py-2 bg-gradient-to-r from-[#4A1313] to-[#800020] hover:brightness-110 text-[#FFF8F0] rounded-full border border-[#D4AF37]/50 transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                className="relative p-2 lg:px-3.5 lg:py-2 bg-gradient-to-r from-[#4A1313] to-[#800020] hover:brightness-110 text-[#FFF8F0] rounded-full border border-[#D4AF37]/50 transition-all active:scale-95 shadow-md flex items-center gap-1.5"
                 title={t.nav.cart}
                 aria-label={t.nav.cart}
               >
-                <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-[#D4AF37]" />
-                <span className="hidden sm:inline text-xs font-extrabold tracking-wide">{t.nav.cart}</span>
+                <ShoppingBag className="w-5 h-5 text-[#D4AF37]" />
+                <span className="hidden lg:inline text-xs font-extrabold tracking-wide">{t.nav.cart}</span>
                 <span className="bg-[#D4AF37] text-[#800020] text-[10px] sm:text-[11px] font-black px-1.5 py-0.2 rounded-full shadow">
                   {totalItems}
                 </span>
@@ -347,30 +347,26 @@ export const HeaderNav: React.FC = () => {
               {/* Customer Account or Login Button */}
               <Link 
                 href={customerSession ? "/account" : "/account/login"} 
-                className="p-1.5 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/20 text-[#FFF8F0] hover:text-[#D4AF37] rounded-full border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5"
+                className="p-2 lg:px-3 lg:py-1.5 bg-white/10 hover:bg-white/20 text-[#FFF8F0] hover:text-[#D4AF37] rounded-full border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5"
                 title={customerSession ? `${language === 'EN' ? 'Hello' : 'Halo'}, ${customerSession.name}` : t.nav.signIn}
               >
-                <User className="w-4 h-4 text-[#D4AF37]" />
-                <span className="hidden md:inline text-xs">
+                <User className="w-5 h-5 text-[#D4AF37]" />
+                <span className="hidden lg:inline text-xs">
                   {customerSession ? customerSession.name.split(' ')[0] : t.nav.signIn}
                 </span>
               </Link>
 
-
-              {/* Mobile & Tablet Menu Hamburger Button (Shown on screens smaller than lg) */}
+              {/* Mobile & Tablet Hamburger Menu Button (Sleek Icon Button on < lg) */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 sm:p-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] active:scale-95 rounded-xl border border-[#D4AF37]/50 shadow-md transition-all flex items-center justify-center gap-1"
+                className="lg:hidden p-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] active:scale-95 rounded-xl border border-[#D4AF37]/50 shadow-md transition-all flex items-center justify-center"
                 title={isMobileMenuOpen ? (language === 'EN' ? 'Close Navigation Menu' : 'Tutup Menu Navigasi') : (language === 'EN' ? 'Open Navigation Menu' : 'Buka Menu Navigasi')}
                 aria-label={isMobileMenuOpen ? (language === 'EN' ? 'Close Navigation Menu' : 'Tutup Menu Navigasi') : (language === 'EN' ? 'Open Navigation Menu' : 'Buka Menu Navigasi')}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <X className="w-5 h-5 text-white" />
                 ) : (
-                  <>
-                    <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
-                    <span className="text-[10px] sm:text-xs font-black uppercase text-[#F7E7CE]">Menu</span>
-                  </>
+                  <Menu className="w-5 h-5 text-[#D4AF37]" />
                 )}
               </button>
 

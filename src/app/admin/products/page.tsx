@@ -57,11 +57,19 @@ export default function AdminProductsPage() {
     };
   }, []);
 
-  const filtered = products.filter(p => 
-    p.productName.toLowerCase().includes(search.toLowerCase()) ||
-    p.sku.toLowerCase().includes(search.toLowerCase()) ||
-    p.brand.toLowerCase().includes(search.toLowerCase())
-  );
+  const [stockFilter, setStockFilter] = useState<'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'>('ALL');
+
+  const filtered = products.filter(p => {
+    const matchesSearch = p.productName.toLowerCase().includes(search.toLowerCase()) ||
+      p.sku.toLowerCase().includes(search.toLowerCase()) ||
+      p.brand.toLowerCase().includes(search.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    if (stockFilter === 'ALL') return true;
+    const statusInfo = db.getProductStockStatus(p);
+    return statusInfo.status === stockFilter;
+  });
 
   const handleDelete = (id: string) => {
     setDeleteId(id);
@@ -160,8 +168,8 @@ export default function AdminProductsPage() {
         );
       })()}
 
-      {/* Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3">
+      {/* Search & Inventory Filter Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center gap-3">
         <div className="relative flex-1">
           <input 
             type="text"
@@ -172,6 +180,51 @@ export default function AdminProductsPage() {
           />
           <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
         </div>
+
+        {/* Inventory Stock Status Filters */}
+        {(() => {
+          const invSummary = db.getInventoryAlertSummary();
+          return (
+            <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-xs font-bold self-start md:self-auto overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setStockFilter('ALL')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  stockFilter === 'ALL' ? 'bg-[#800020] text-white shadow' : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                All ({invSummary.totalProducts})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStockFilter('IN_STOCK')}
+                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  stockFilter === 'IN_STOCK' ? 'bg-emerald-600 text-white shadow' : 'text-emerald-700 hover:bg-emerald-50'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400" /> In Stock ({invSummary.inStockCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStockFilter('LOW_STOCK')}
+                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  stockFilter === 'LOW_STOCK' ? 'bg-amber-500 text-stone-950 shadow' : 'text-amber-700 hover:bg-amber-50'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" /> Low Stock ({invSummary.lowStockCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStockFilter('OUT_OF_STOCK')}
+                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  stockFilter === 'OUT_OF_STOCK' ? 'bg-red-600 text-white shadow' : 'text-red-700 hover:bg-red-50'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-red-400" /> Out Of Stock ({invSummary.outOfStockCount})
+              </button>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Product Table */}
@@ -183,48 +236,58 @@ export default function AdminProductsPage() {
                 <th className="p-4">Product</th>
                 <th className="p-4">SKU</th>
                 <th className="p-4">Category</th>
-                <th className="p-4">Variants & Pricing</th>
-                <th className="p-4">Badges</th>
+                <th className="p-4">Variants &amp; Pricing</th>
+                <th className="p-4">Status &amp; Badges</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {filtered.map(p => (
-                <tr key={p.id} className="hover:bg-stone-50/60 transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <img src={p.mainImage} alt={p.productName} className="w-12 h-12 object-cover rounded-xl border border-stone-200" />
-                      <div>
-                        <span className="font-serif font-bold text-sm text-stone-900 block">{p.productName}</span>
-                        <span className="text-[11px] text-stone-400">Brand: {p.brand}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4 font-mono font-bold text-[#800020]">{p.sku}</td>
-                  <td className="p-4 text-stone-700">{p.categoryName}</td>
-                  <td className="p-4">
-                    <div className="space-y-1">
-                      {p.variants.map(v => (
-                        <div key={v.id} className="text-[11px] text-stone-700">
-                          <span className="font-semibold">{v.variantName}:</span> <strong className="text-[#800020]">{formatMYR(v.price)}</strong> (Stock: {v.stock})
+              {filtered.map(p => {
+                const stockStatus = db.getProductStockStatus(p);
+                return (
+                  <tr key={p.id} className="hover:bg-stone-50/60 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <img src={p.mainImage} alt={p.productName} className="w-12 h-12 object-cover rounded-xl border border-stone-200" />
+                        <div>
+                          <span className="font-serif font-bold text-sm text-stone-900 block">{p.productName}</span>
+                          <span className="text-[11px] text-stone-400">Brand: {p.brand}</span>
                         </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex flex-col gap-1 items-start">
-                      {p.isHalal && (
-                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded flex items-center gap-1">
-                          <ShieldCheck className="w-3 h-3" /> HALAL
+                      </div>
+                    </td>
+                    <td className="p-4 font-mono font-bold text-[#800020]">{p.sku}</td>
+                    <td className="p-4 text-stone-700">{p.categoryName}</td>
+                    <td className="p-4">
+                      <div className="space-y-1">
+                        {p.variants.map(v => (
+                          <div key={v.id} className="text-[11px] text-stone-700">
+                            <span className="font-semibold">{v.variantName}:</span> <strong className="text-[#800020]">{formatMYR(v.price)}</strong> (Stock: {v.stock})
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex flex-col gap-1 items-start">
+                        {/* Colored Inventory Status Badge */}
+                        <span className={`px-2.5 py-0.5 ${stockStatus.badgeBg} ${stockStatus.badgeText} text-[10px] font-black rounded-md shadow-sm uppercase flex items-center gap-1`}>
+                          {stockStatus.status === 'IN_STOCK' && '🟢 IN STOCK'}
+                          {stockStatus.status === 'LOW_STOCK' && '🟡 LOW STOCK'}
+                          {stockStatus.status === 'OUT_OF_STOCK' && '🔴 OUT OF STOCK'}
+                          <span className="font-mono text-[9px]">({stockStatus.totalStock} units)</span>
                         </span>
-                      )}
-                      {p.isBestSeller && (
-                        <span className="px-2 py-0.5 bg-amber-100 text-amber-900 text-[10px] font-bold rounded flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" /> BEST SELLER
-                        </span>
-                      )}
-                    </div>
-                  </td>
+
+                        {p.isHalal && (
+                          <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3" /> HALAL
+                          </span>
+                        )}
+                        {p.isBestSeller && (
+                          <span className="px-2 py-0.5 bg-amber-100 text-amber-900 text-[10px] font-bold rounded flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" /> BEST SELLER
+                          </span>
+                        )}
+                      </div>
+                    </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link
@@ -244,7 +307,8 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

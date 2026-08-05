@@ -2646,6 +2646,7 @@ const dictionaries: Record<LanguageCode, Translations> = {
       categoriesUploadFile: 'Upload File',
       uploadFile: 'Upload File',
       confirmDeleteTitle: 'Confirm Delete',
+      confirmDeleteMsg: 'Adakah anda pasti mahu memadamkan item ini?',
       noData: 'No data',
     },
   },

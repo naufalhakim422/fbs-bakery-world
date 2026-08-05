@@ -798,6 +798,36 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
+      {/* INVENTORY ALERT NOTIFICATION BANNER (Auto-disappears when stock updated > threshold) */}
+      {(() => {
+        const summary = db.getInventoryAlertSummary();
+        const attentionCount = summary.lowStockCount + summary.outOfStockCount;
+        if (attentionCount === 0) return null;
+        return (
+          <div className="p-4 sm:p-5 bg-rose-50 border border-rose-200 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center flex-shrink-0 font-bold">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-extrabold text-rose-950 uppercase tracking-wider flex items-center gap-1.5">
+                  🚨 Inventory Stock Alert Notice ({attentionCount} Items Attention Required)
+                </h4>
+                <p className="text-[11px] text-rose-800 mt-0.5">
+                  There are {summary.outOfStockCount} OUT OF STOCK products and {summary.lowStockCount} LOW STOCK products (&le; {db.getStockThreshold()} units). Notification auto-disappears upon restock.
+                </p>
+              </div>
+            </div>
+            <Link 
+              href="/admin/products" 
+              className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow transition-colors whitespace-nowrap"
+            >
+              Restock Products Now &rarr;
+            </Link>
+          </div>
+        );
+      })()}
+
       {/* Action Needed Alert Bar */}
       {pendingOrders.length > 0 && (
         <div className="p-4 sm:p-5 bg-amber-50 border border-amber-200 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
@@ -818,6 +848,109 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
       )}
+
+      {/* INVENTORY SUMMARY & ALERT SYSTEM WIDGET */}
+      <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-stone-100 pb-4 gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-[#800020]/10 text-[#800020]">
+                <Package className="w-4 h-4" />
+              </span>
+              <h3 className="font-serif text-lg font-extrabold text-stone-900">Inventory Alert Widget</h3>
+            </div>
+            <p className="text-stone-500 text-xs mt-0.5">
+              Automatic stock classification (🟢 IN STOCK, 🟡 LOW STOCK, 🔴 OUT OF STOCK) based on threshold limit ({db.getStockThreshold()} units).
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs">
+            <Link
+              href="/admin/settings"
+              className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl border border-stone-300 transition-colors flex items-center gap-1.5"
+            >
+              <Settings className="w-3.5 h-3.5" /> Threshold: {db.getStockThreshold()} Units
+            </Link>
+          </div>
+        </div>
+
+        {/* Inventory Summary Cards */}
+        {(() => {
+          const inv = db.getInventoryAlertSummary();
+          return (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+              <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200">
+                <span className="text-[10px] text-stone-400 font-bold uppercase block">Total Products</span>
+                <span className="font-serif font-black text-2xl text-stone-900">{inv.totalProducts}</span>
+              </div>
+              <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200">
+                <span className="text-[10px] text-emerald-800 font-bold uppercase block">🟢 In Stock</span>
+                <span className="font-serif font-black text-2xl text-emerald-700">{inv.inStockCount}</span>
+              </div>
+              <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200">
+                <span className="text-[10px] text-amber-800 font-bold uppercase block">🟡 Low Stock</span>
+                <span className="font-serif font-black text-2xl text-amber-700">{inv.lowStockCount}</span>
+              </div>
+              <div className="p-3.5 bg-rose-50 rounded-2xl border border-rose-200">
+                <span className="text-[10px] text-rose-800 font-bold uppercase block">🔴 Out Of Stock</span>
+                <span className="font-serif font-black text-2xl text-rose-700">{inv.outOfStockCount}</span>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Inventory Alert Product Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-stone-50 text-stone-500 border-b border-stone-200 uppercase tracking-wider text-[11px] font-bold">
+                <th className="p-3.5">Product</th>
+                <th className="p-3.5">SKU</th>
+                <th className="p-3.5 text-center">Current Stock</th>
+                <th className="p-3.5 text-center">Threshold</th>
+                <th className="p-3.5">Status</th>
+                <th className="p-3.5 text-right">Last Updated</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {db.getInventoryAlertSummary().products.map(({ product: p, sku, currentStock, threshold, status, lastUpdated }) => {
+                const stockStatus = db.getProductStockStatus(p);
+                return (
+                  <tr 
+                    key={`inv-${p.id}`} 
+                    className="hover:bg-stone-50/80 transition-colors cursor-pointer"
+                  >
+                    <td className="p-3.5">
+                      <Link href={`/admin/products/new?edit=${p.id}`} className="flex items-center gap-3 group">
+                        <img src={p.mainImage} alt={p.productName} className="w-10 h-10 object-cover rounded-xl border border-stone-200 flex-shrink-0" />
+                        <div>
+                          <span className="font-extrabold text-stone-900 group-hover:text-[#800020] transition-colors block truncate max-w-[200px]">
+                            {p.productName}
+                          </span>
+                          <span className="text-[10px] text-stone-400">{p.brand}</span>
+                        </div>
+                      </Link>
+                    </td>
+                    <td className="p-3.5 font-mono font-bold text-[#800020]">{sku}</td>
+                    <td className="p-3.5 text-center font-bold font-mono text-sm">{currentStock}</td>
+                    <td className="p-3.5 text-center font-mono text-stone-500">{threshold}</td>
+                    <td className="p-3.5">
+                      <span className={`px-2.5 py-1 ${stockStatus.badgeBg} ${stockStatus.badgeText} text-[10px] font-black rounded-md uppercase inline-block shadow-sm`}>
+                        {status === 'IN_STOCK' && '🟢 IN STOCK'}
+                        {status === 'LOW_STOCK' && '🟡 LOW STOCK'}
+                        {status === 'OUT_OF_STOCK' && '🔴 OUT OF STOCK'}
+                      </span>
+                    </td>
+                    <td className="p-3.5 text-right font-mono text-[11px] text-stone-500">
+                      {new Date(lastUpdated).toLocaleDateString()}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Modern Quick Shortcuts Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">

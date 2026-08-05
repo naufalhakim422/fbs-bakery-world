@@ -178,6 +178,7 @@ export interface StoreSetting {
   address: string;
   googleMapsEmbedUrl?: string;
   googleMapsAppUrl?: string;
+  stockThreshold?: number;
 }
 
 export interface AboutSetting {
@@ -304,7 +305,7 @@ export interface ProductShareLog {
   id: string;
   productId: string;
   productName: string;
-  platform: 'WHATSAPP' | 'FACEBOOK' | 'TELEGRAM' | 'COPY_LINK' | 'NATIVE_SHARE' | 'QR_CODE';
+  platform: 'WHATSAPP' | 'FACEBOOK' | 'TELEGRAM' | 'TWITTER' | 'COPY_LINK' | 'NATIVE_SHARE' | 'QR_CODE';
   timestamp: string;
 }
 

@@ -26,6 +26,12 @@ const FacebookIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const TwitterIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -78,6 +84,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     recordAuditLog('Share Product', 'SHARE', `Shared ${product.productName} via Telegram`);
     const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(canonicalUrl)}&text=${encodeURIComponent(shareTitle)}`;
     window.open(tgUrl, '_blank');
+    onClose();
+  };
+
+  const handleTwitterShare = () => {
+    db.recordProductShare(product.id, product.productName, 'TWITTER');
+    recordAuditLog('Share Product', 'SHARE', `Shared ${product.productName} via X (Twitter)`);
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(canonicalUrl)}&text=${encodeURIComponent(shareTitle)}`;
+    window.open(twitterUrl, '_blank');
     onClose();
   };
 
@@ -198,35 +212,45 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         {activeView === 'menu' && (
           <div className="space-y-4 pt-1">
             {/* Social Share Grid */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-4 gap-2">
               <button
                 onClick={handleWhatsAppShare}
-                className="flex flex-col items-center justify-center gap-2 p-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-2xl transition-all group"
+                className="flex flex-col items-center justify-center gap-1.5 p-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-2xl transition-all group"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#25D366] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                  <MessageCircle className="w-5 h-5 fill-white" />
+                <div className="w-9 h-9 rounded-xl bg-[#25D366] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                  <MessageCircle className="w-4 h-4 fill-white" />
                 </div>
-                <span className="text-xs font-bold text-emerald-900">WhatsApp</span>
+                <span className="text-[11px] font-bold text-emerald-900 truncate max-w-full">WhatsApp</span>
               </button>
 
               <button
                 onClick={handleFacebookShare}
-                className="flex flex-col items-center justify-center gap-2 p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl transition-all group"
+                className="flex flex-col items-center justify-center gap-1.5 p-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl transition-all group"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#1877F2] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                  <FacebookIcon className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 rounded-xl bg-[#1877F2] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                  <FacebookIcon className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xs font-bold text-blue-900">Facebook</span>
+                <span className="text-[11px] font-bold text-blue-900 truncate max-w-full">Facebook</span>
               </button>
 
               <button
                 onClick={handleTelegramShare}
-                className="flex flex-col items-center justify-center gap-2 p-3 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-2xl transition-all group"
+                className="flex flex-col items-center justify-center gap-1.5 p-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-2xl transition-all group"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#229ED9] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                  <Send className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 rounded-xl bg-[#229ED9] text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                  <Send className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xs font-bold text-sky-900">Telegram</span>
+                <span className="text-[11px] font-bold text-sky-900 truncate max-w-full">Telegram</span>
+              </button>
+
+              <button
+                onClick={handleTwitterShare}
+                className="flex flex-col items-center justify-center gap-1.5 p-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-2xl transition-all group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                  <TwitterIcon className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-900 truncate max-w-full">X (Twitter)</span>
               </button>
             </div>
 

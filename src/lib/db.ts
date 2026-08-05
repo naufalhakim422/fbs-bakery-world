@@ -1344,6 +1344,7 @@ export const db = {
 
     return {
       ...storeSettingData,
+      stockThreshold: typeof res?.stockThreshold === 'number' ? res.stockThreshold : 10,
       ...res,
       address,
       companyRegistrationName: res?.companyRegistrationName || storeSettingData.companyRegistrationName,
@@ -1664,6 +1665,94 @@ export const db = {
       nativeShare,
       qrCode,
       logs: filtered,
+    };
+  },
+
+  // Inventory Alert System API
+  getStockThreshold: (): number => {
+    const settings = db.getStoreSettings();
+    const val = settings.stockThreshold;
+    return typeof val === 'number' && val > 0 ? val : 10;
+  },
+
+  getProductTotalStock: (product: Product): number => {
+    if (product.variants && product.variants.length > 0) {
+      return product.variants.reduce((sum, v) => sum + (typeof v.stock === 'number' ? v.stock : 0), 0);
+    }
+    return typeof (product as any).stock === 'number' ? (product as any).stock : 0;
+  },
+
+  getProductStockStatus: (product: Product, customThreshold?: number): {
+    status: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+    label: string;
+    badgeBg: string;
+    badgeText: string;
+    totalStock: number;
+    threshold: number;
+  } => {
+    const thresh = customThreshold !== undefined ? customThreshold : db.getStockThreshold();
+    const totalStock = db.getProductTotalStock(product);
+    if (totalStock === 0) {
+      return {
+        status: 'OUT_OF_STOCK',
+        label: 'OUT OF STOCK',
+        badgeBg: 'bg-red-600',
+        badgeText: 'text-white font-bold',
+        totalStock,
+        threshold: thresh,
+      };
+    }
+    if (totalStock <= thresh) {
+      return {
+        status: 'LOW_STOCK',
+        label: 'LOW STOCK',
+        badgeBg: 'bg-amber-500',
+        badgeText: 'text-stone-950 font-black',
+        totalStock,
+        threshold: thresh,
+      };
+    }
+    return {
+      status: 'IN_STOCK',
+      label: 'IN STOCK',
+      badgeBg: 'bg-emerald-600',
+      badgeText: 'text-white font-bold',
+      totalStock,
+      threshold: thresh,
+    };
+  },
+
+  getInventoryAlertSummary: (customThreshold?: number) => {
+    const products = db.getProducts();
+    const thresh = customThreshold !== undefined ? customThreshold : db.getStockThreshold();
+
+    let inStockCount = 0;
+    let lowStockCount = 0;
+    let outOfStockCount = 0;
+
+    const alertProducts = products.map(p => {
+      const info = db.getProductStockStatus(p, thresh);
+      if (info.status === 'IN_STOCK') inStockCount++;
+      else if (info.status === 'LOW_STOCK') lowStockCount++;
+      else if (info.status === 'OUT_OF_STOCK') outOfStockCount++;
+
+      return {
+        product: p,
+        sku: p.sku || (p.variants?.[0]?.sku) || 'SKU-N/A',
+        currentStock: info.totalStock,
+        threshold: thresh,
+        status: info.status,
+        statusLabel: info.label,
+        lastUpdated: (p as any).updatedAt || p.createdAt || new Date().toISOString(),
+      };
+    });
+
+    return {
+      totalProducts: products.length,
+      inStockCount,
+      lowStockCount,
+      outOfStockCount,
+      products: alertProducts,
     };
   }
 };

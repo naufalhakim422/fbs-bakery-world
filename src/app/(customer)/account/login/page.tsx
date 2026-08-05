@@ -162,12 +162,26 @@ export default function CustomerLoginPage() {
     setLoading(true);
 
     const customers = db.getCustomers();
-    const customer = customers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
+    let customer = customers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
 
     if (!customer) {
-      setLoading(false);
-      setError(language === 'EN' ? 'This email is not registered.' : 'Alamat e-mel ini tidak berdaftar. Sila daftar akaun baharu.');
-      return;
+      customer = {
+        id: `cust-${Date.now()}`,
+        name: cleanEmail.split('@')[0],
+        email: cleanEmail,
+        phone: '',
+        customerType: 'RETAIL' as const,
+        provider: 'FORM' as const,
+        isEmailVerified: false,
+        isActive: false,
+        address: 'Chukai, Terengganu',
+        city: 'Chukai',
+        state: 'Terengganu',
+        postcode: '24000',
+        createdAt: new Date().toISOString(),
+        loginAt: new Date().toISOString(),
+      };
+      db.saveCustomer(customer);
     }
 
     await dispatchOtp(cleanEmail, customer.name);
@@ -490,7 +504,7 @@ export default function CustomerLoginPage() {
                     {otpValues.map((digit, index) => (
                       <input
                         key={index}
-                        ref={(el) => (inputRefs.current[index] = el)}
+                        ref={(el) => { inputRefs.current[index] = el; }}
                         type="text"
                         maxLength={6}
                         value={digit}

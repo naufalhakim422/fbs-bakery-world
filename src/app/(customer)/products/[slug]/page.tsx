@@ -335,6 +335,32 @@ export default function ProductDetailPage() {
         } catch (e) {
           console.warn('Failed to parse customer session for review form:', e);
         }
+
+        // Dynamic Open Graph & Page Metadata
+        if (typeof document !== 'undefined') {
+          document.title = `${foundProd.productName} | FBS Bakery World`;
+          const updateMetaTag = (propName: string, propVal: string, useNameAttr = false) => {
+            const attr = useNameAttr ? 'name' : 'property';
+            let meta = document.querySelector(`meta[${attr}="${propName}"]`);
+            if (!meta) {
+              meta = document.createElement('meta');
+              meta.setAttribute(attr, propName);
+              document.head.appendChild(meta);
+            }
+            meta.setAttribute('content', propVal);
+          };
+
+          const curUrl = typeof window !== 'undefined' ? window.location.href : `https://fbsbaker.store/products/${foundProd.slug}`;
+          updateMetaTag('og:title', `${foundProd.productName} - FBS Bakery World`);
+          updateMetaTag('og:description', foundProd.shortDescription || 'Bahan & Perlengkapan Bakeri Premium');
+          updateMetaTag('og:image', foundProd.mainImage);
+          updateMetaTag('og:url', curUrl);
+          updateMetaTag('og:type', 'product');
+          updateMetaTag('twitter:card', 'summary_large_image', true);
+          updateMetaTag('twitter:title', `${foundProd.productName} - FBS Bakery World`, true);
+          updateMetaTag('twitter:description', foundProd.shortDescription || 'Bahan & Perlengkapan Bakeri Premium', true);
+          updateMetaTag('twitter:image', foundProd.mainImage, true);
+        }
       }
     }
   }, [slug]);

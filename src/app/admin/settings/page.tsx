@@ -33,6 +33,7 @@ export default function AdminSettingsPage() {
     address: currentStore.address,
     googleMapsEmbedUrl: currentStore.googleMapsEmbedUrl || 'https://maps.google.com/maps?q=FBS%20Bakery%20World%2C%20K9694%2CK9695%2CK9696%20%26%20K9697%2C%20Taman%20Pajak%20Utama%2C%2024000%20Chukai%2C%20Terengganu%2C%20Malaysia&t=&z=15&ie=UTF8&iwloc=&output=embed',
     googleMapsAppUrl: currentStore.googleMapsAppUrl || 'https://maps.google.com/?q=FBS+Bakery+World+Chukai+Terengganu',
+    stockThreshold: currentStore.stockThreshold || 10,
   });
 
   const [aboutForm, setAboutForm] = useState({
@@ -500,6 +501,33 @@ export default function AdminSettingsPage() {
                     <a href={extractMapsAppUrl(storeForm.googleMapsAppUrl, storeForm.googleMapsEmbedUrl, storeForm.address)} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">Coba Buka Aplikasi &rarr;</a>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* INVENTORY ALERT SYSTEM THRESHOLD CONFIGURATION */}
+            <div className="pt-3 space-y-3 bg-amber-50/80 p-4 sm:p-5 rounded-2xl border border-amber-200">
+              <h3 className="font-serif text-sm font-bold text-[#800020] uppercase tracking-wider flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600" /> INVENTORY ALERT THRESHOLD CONFIGURATION
+              </h3>
+              <p className="text-[11px] text-stone-600">
+                Set the stock threshold limit for automatic LOW STOCK classification and notifications across Admin Dashboard &amp; Catalog.
+              </p>
+              
+              <div className="max-w-xs space-y-1">
+                <label className="block font-bold text-stone-700 uppercase text-[11px]">Ambang Stok Minimum (Low Stock Threshold)</label>
+                <select
+                  value={storeForm.stockThreshold}
+                  onChange={(e) => setStoreForm({ ...storeForm, stockThreshold: Number(e.target.value) })}
+                  className="w-full px-4 py-2.5 bg-white border border-amber-300 rounded-xl font-bold text-xs text-[#800020] focus:outline-none shadow-sm"
+                >
+                  <option value={5}>5 Units (Strict / Critical Restock)</option>
+                  <option value={10}>10 Units (Default Standard)</option>
+                  <option value={20}>20 Units (High Turnover)</option>
+                  <option value={50}>50 Units (Wholesale Bulk Bulk)</option>
+                </select>
+                <span className="text-[10px] text-stone-500 block">
+                  Produk dengan total stok &le; {storeForm.stockThreshold} unit akan otomatis diklasifikasikan sebagai 🟡 <strong>LOW STOCK</strong>.
+                </span>
               </div>
             </div>
           </div>
