@@ -1,5 +1,19 @@
 import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog, ShippingCourier, ShippingState, WeightBracket, ShippingRate, ProductShareLog } from '@/types';
 
+function normalizePhoneDigits(phoneStr?: string): string {
+  if (!phoneStr) return '';
+  let clean = phoneStr.replace(/[^0-9]/g, '');
+  if (clean.startsWith('60')) {
+    clean = clean.substring(2);
+  } else if (clean.startsWith('62')) {
+    clean = clean.substring(2);
+  }
+  if (clean.startsWith('0')) {
+    clean = clean.substring(1);
+  }
+  return clean;
+}
+
 let categoriesData: Category[] = [
   {
     id: 'cat-1',
@@ -986,12 +1000,18 @@ export const db = {
 
   getOrderByNumberAndPhone: (orderNumber: string, phone: string) => {
     const orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
-    const cleanNum = orderNumber.trim().toUpperCase();
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const cleanNum = orderNumber ? orderNumber.trim().toUpperCase() : '';
+    const normPhone = phone ? normalizePhoneDigits(phone) : '';
+
     return orders.find(o => {
-      const matchNum = o.orderNumber.toUpperCase() === cleanNum || o.id === orderNumber;
-      const matchPhone = o.customerPhone.replace(/[^0-9]/g, '').includes(cleanPhone) || cleanPhone.includes(o.customerPhone.replace(/[^0-9]/g, ''));
-      return matchNum && matchPhone;
+      const matchNum = Boolean(cleanNum && (o.orderNumber.toUpperCase() === cleanNum || o.id === cleanNum));
+      const oPhoneNorm = normalizePhoneDigits(o.customerPhone);
+      const matchPhone = Boolean(normPhone && oPhoneNorm && (normPhone === oPhoneNorm || normPhone.includes(oPhoneNorm) || oPhoneNorm.includes(normPhone)));
+      
+      if (cleanNum && normPhone) {
+        return matchNum && matchPhone;
+      }
+      return matchNum || matchPhone;
     });
   },
 

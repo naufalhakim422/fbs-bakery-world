@@ -7,7 +7,7 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, normalizePhoneDigits } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -35,33 +35,49 @@ function TrackOrderContent() {
   const [orderResult, setOrderResult] = useState<Order | null>(null);
   const [searched, setSearched] = useState(false);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!orderNumber || !phone) return;
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const queryNum = (orderNumber || initialOrderNum).trim().toUpperCase();
+    const queryPhone = (phone || initialPhone).trim();
+    if (!queryNum && !queryPhone) return;
 
-    const res = db.getOrderByNumberAndPhone(orderNumber, phone);
-    setOrderResult(res || null);
+    let found: Order | null = null;
+    const normSearchPhone = normalizePhoneDigits(queryPhone);
+
+    // 1. Try server API fetch
+    try {
+      const res = await fetch(`/api/orders`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.orders)) {
+        found = data.orders.find((o: Order) => {
+          const matchNum = Boolean(queryNum && (o.orderNumber.toUpperCase() === queryNum || o.id === queryNum));
+          const oPhoneNorm = normalizePhoneDigits(o.customerPhone);
+          const matchPh = Boolean(normSearchPhone && oPhoneNorm && (normSearchPhone === oPhoneNorm || normSearchPhone.includes(oPhoneNorm) || oPhoneNorm.includes(normSearchPhone)));
+          if (queryNum && queryPhone) return matchNum && matchPh;
+          return matchNum || matchPh;
+        }) || null;
+      }
+    } catch (err) {
+      console.warn('Track server fetch error:', err);
+    }
+
+    // 2. Fallback to local DB
+    if (!found) {
+      found = db.getOrderByNumberAndPhone(queryNum, queryPhone) || null;
+    }
+
+    setOrderResult(found);
     setSearched(true);
   };
 
   useEffect(() => {
-    const refreshOrder = () => {
-      const activeNum = orderNumber || initialOrderNum;
-      const activePh = phone || initialPhone;
-      if (activeNum && activePh) {
-        const res = db.getOrderByNumberAndPhone(activeNum, activePh);
-        setOrderResult(res || null);
-        setSearched(true);
-      }
-    };
+    handleSearch();
 
-    refreshOrder();
-
-    window.addEventListener('storage', refreshOrder);
-    window.addEventListener('fbs_db_updated', refreshOrder);
+    window.addEventListener('storage', handleSearch);
+    window.addEventListener('fbs_db_updated', handleSearch);
     return () => {
-      window.removeEventListener('storage', refreshOrder);
-      window.removeEventListener('fbs_db_updated', refreshOrder);
+      window.removeEventListener('storage', handleSearch);
+      window.removeEventListener('fbs_db_updated', handleSearch);
     };
   }, [initialOrderNum, initialPhone, orderNumber, phone]);
 
