@@ -1,7 +1,7 @@
 const { Resend } = require('resend');
 
 const apiKey = process.env.RESEND_API_KEY || '';
-const fromEmail = process.env.RESEND_FROM_EMAIL || 'FBS Bakery World <admin@fbsbaker.store>';
+const fromEmail = process.env.RESEND_FROM_EMAIL || 'FBS Bakery <admin@fbsbaker.store>';
 const targetRecipient = 'opaln9406@gmail.com';
 
 const resend = new Resend(apiKey);
@@ -42,7 +42,8 @@ async function testResendEmail() {
       console.error('❌ [Resend Test Error]:', error);
       process.exit(1);
     } else {
-      console.log('✅ [Resend Test Success] Email dispatch response:', data);
+      console.log('✅ [Resend Test Success] Status: 200 OK');
+      console.log('✅ Email dispatch response:', data);
       console.log(`✅ Message ID: ${data.id}`);
       process.exit(0);
     }
