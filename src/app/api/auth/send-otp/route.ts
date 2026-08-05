@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { sendEmailViaResend } from '@/lib/resend';
 
 export async function POST(request: Request) {
   try {
@@ -19,11 +20,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const sendgridParts = ['SG.', 'Tb9nYA42Q2a1F-9MKZH9Yw.', 'DKgMsqlgTsXmkkTUehsi99h9mC_KLHrlUXkkleiUKtM'];
-    const sendgridApiKey = process.env.SENDGRID_API_KEY || sendgridParts.join('');
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'admin@fbsbaker.store';
-    const fromName = 'FBS Bakery';
 
     const isForgot = type === 'FORGOT_PASSWORD';
     const subject = isForgot 
@@ -79,49 +75,28 @@ export async function POST(request: Request) {
       </html>
     `;
 
-    // Send via SendGrid ONLY v3 API
-    const sendgridRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${sendgridApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        personalizations: [
-          {
-            to: [{ email: email.trim() }],
-          },
-        ],
-        from: {
-          email: fromEmail,
-          name: fromName,
-        },
-        subject: subject,
-        content: [
-          {
-            type: 'text/html',
-            value: htmlContent,
-          },
-        ],
-      }),
+    // Send via Resend SDK Helper
+    const { data, error } = await sendEmailViaResend({
+      to: email.trim(),
+      subject: subject,
+      html: htmlContent,
     });
 
-    if (sendgridRes.ok || sendgridRes.status === 202) {
-      console.log(`[SendGrid API Success] Sent OTP ${otp.trim()} to recipient ${email.trim()}`);
-      return NextResponse.json({
-        success: true,
-        provider: 'SENDGRID',
-        message: `Email OTP 6-digit terkirim via SendGrid ke ${email.trim()}!`,
-      });
+    if (error) {
+      console.error('[Resend API Error]:', error);
+      return NextResponse.json(
+        { success: false, message: `Resend Error: ${error.message}` },
+        { status: 500 }
+      );
     }
 
-    const errorText = await sendgridRes.text();
-    console.error('[SendGrid API Error]:', sendgridRes.status, errorText);
-
-    return NextResponse.json(
-      { success: false, message: `SendGrid API Error ${sendgridRes.status}: ${errorText}` },
-      { status: sendgridRes.status || 500 }
-    );
+    console.log(`[Resend SDK Success] Sent OTP ${otp.trim()} to recipient ${email.trim()}, ID: ${data?.id}`);
+    return NextResponse.json({
+      success: true,
+      provider: 'RESEND',
+      id: data?.id,
+      message: `Email OTP 6-digit terkirim via Resend ke ${email.trim()}!`,
+    });
   } catch (error: any) {
     console.error('Send OTP Route Error:', error);
     return NextResponse.json(

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { resend, RESEND_FROM } from '@/lib/resend';
 
 export async function POST(request: Request) {
   try {
@@ -20,9 +21,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const sendgridParts = ['SG.', 'Tb9nYA42Q2a1F-9MKZH9Yw.', 'DKgMsqlgTsXmkkTUehsi99h9mC_KLHrlUXkkleiUKtM'];
-    const sendgridApiKey = process.env.SENDGRID_API_KEY || sendgridParts.join('');
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'admin@fbsbaker.store';
     const toEmail = 'opallbusiness@gmail.com';
 
     const htmlContent = `
@@ -83,45 +81,23 @@ export async function POST(request: Request) {
       </html>
     `;
 
-    const sendgridRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${sendgridApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        personalizations: [
-          {
-            to: [{ email: toEmail }],
-          },
-        ],
-        from: {
-          email: fromEmail,
-          name: 'FBS Baker Contact Form',
-        },
-        reply_to: {
-          email: email.trim(),
-          name: name.trim(),
-        },
-        subject: `New Contact Form - FBS Baker: ${subject.trim()}`,
-        content: [
-          {
-            type: 'text/html',
-            value: htmlContent,
-          },
-        ],
-      }),
+    const { data, error } = await resend.emails.send({
+      from: RESEND_FROM,
+      to: [toEmail],
+      replyTo: email.trim(),
+      subject: `New Contact Form - FBS Baker: ${subject.trim()}`,
+      html: htmlContent,
     });
 
-    if (sendgridRes.ok || sendgridRes.status === 202) {
-      return NextResponse.json({ success: true, message: 'Message sent successfully via SendGrid' });
+    if (error) {
+      console.error('[Resend Contact Form Error]:', error);
+      return NextResponse.json(
+        { success: false, error: `Resend Error: ${error.message}` },
+        { status: 500 }
+      );
     }
 
-    const errorText = await sendgridRes.text();
-    return NextResponse.json(
-      { success: false, error: `SendGrid Error ${sendgridRes.status}: ${errorText}` },
-      { status: sendgridRes.status || 500 }
-    );
+    return NextResponse.json({ success: true, message: 'Message sent successfully via Resend', id: data?.id });
   } catch (error: any) {
     console.error('Contact Form Route Internal Error:', error);
     return NextResponse.json(
