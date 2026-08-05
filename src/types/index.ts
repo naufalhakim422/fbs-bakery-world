@@ -62,6 +62,7 @@ export interface Order {
   orderNumber: string; // #FBS-YYYYMMDD-XXX
   customerId?: string;
   customerName: string;
+  customerEmail?: string;
   customerPhone: string;
   address: string;
   city: string;

@@ -87,11 +87,12 @@ function TrackOrderContent() {
   useEffect(() => {
     handleSearch();
 
-    window.addEventListener('storage', handleSearch);
-    window.addEventListener('fbs_db_updated', handleSearch);
+    const onUpdate = () => handleSearch();
+    window.addEventListener('storage', onUpdate);
+    window.addEventListener('fbs_db_updated', onUpdate);
     return () => {
-      window.removeEventListener('storage', handleSearch);
-      window.removeEventListener('fbs_db_updated', handleSearch);
+      window.removeEventListener('storage', onUpdate);
+      window.removeEventListener('fbs_db_updated', onUpdate);
     };
   }, [initialOrderNum, initialPhone, orderNumber, phone]);
 
@@ -130,6 +131,7 @@ function TrackOrderContent() {
       'PROCESSING': 2,
       'SHIPPED': 3,
       'DELIVERED': 4,
+      'CANCEL_REQUESTED': 2,
       'CANCELLED': -1,
     };
     return map[status] ?? 0;
@@ -278,7 +280,7 @@ function TrackOrderContent() {
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <button
                       type="button"
-                      onClick={() => handleCopyResi(orderResult.trackingNumber)}
+                      onClick={() => handleCopyResi(orderResult.trackingNumber || '')}
                       className={`px-3.5 py-2 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 shadow ${
                         copiedResi 
                           ? 'bg-emerald-700 text-white border-emerald-700 scale-105' 
