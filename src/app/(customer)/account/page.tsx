@@ -311,7 +311,7 @@ export default function CustomerAccountPage() {
                     {customer.photo ? (
                       <img src={customer.photo} alt={customer.name} className="w-full h-full object-cover" />
                     ) : (
-                      <span>{customer.name ? customer.name.charAt(0).toUpperCase() : 'U'}</span>
+                      <img src="/logo.jpg" alt={customer.name || 'FBS Bakery World'} className="w-full h-full object-cover" />
                     )}
                   </div>
 
