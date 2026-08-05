@@ -226,8 +226,9 @@ export async function POST(request: Request) {
       orders.unshift(body);
     }
 
+    const targetIdx = idx !== -1 ? idx : 0;
     writeServerOrders(orders);
-    return NextResponse.json({ success: true, order: orders[0], orders });
+    return NextResponse.json({ success: true, order: orders[targetIdx], orders });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

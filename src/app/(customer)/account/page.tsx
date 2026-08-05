@@ -176,6 +176,13 @@ export default function CustomerAccountPage() {
     };
 
     syncCustomerData();
+
+    window.addEventListener('storage', syncCustomerData);
+    window.addEventListener('fbs_db_updated', syncCustomerData);
+    return () => {
+      window.removeEventListener('storage', syncCustomerData);
+      window.removeEventListener('fbs_db_updated', syncCustomerData);
+    };
   }, [router]);
 
   const handleCustomerLogout = () => {
