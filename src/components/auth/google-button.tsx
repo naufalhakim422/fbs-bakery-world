@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
-
 import { useLanguage } from '@/lib/language-context';
+
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
 
 export default function GoogleButton() {
   const { language } = useLanguage();
@@ -14,13 +17,25 @@ export default function GoogleButton() {
   const [pressed, setPressed] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!document.getElementById('google-gsi-script')) {
+      const script = document.createElement('script');
+      script.id = 'google-gsi-script';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  }, []);
+
   const handleUserSession = (user: any) => {
     const session = {
-      id: `google-${user.uid}`,
-      name: user.displayName || user.email?.split('@')[0] || 'Pengguna Google',
+      id: `google-${user.uid || Date.now()}`,
+      name: user.displayName || user.name || user.email?.split('@')[0] || 'Pengguna Google',
       email: user.email || '',
       phone: user.phoneNumber || '',
-      photo: user.photoURL || '',
+      photo: user.photoURL || user.photo || user.picture || '',
       provider: 'GOOGLE',
       customerType: 'RETAIL',
       isEmailVerified: true,
@@ -46,42 +61,77 @@ export default function GoogleButton() {
     router.push('/account');
   };
 
-  useEffect(() => {
-    // Check redirect result only when user initiated redirect flow
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          handleUserSession(result.user);
-        }
-      })
-      .catch((err) => {
-        console.warn('Google Redirect Result Warning:', err?.message || err);
-      });
-  }, []);
-
-  const handleClick = async () => {
+  const handleClick = () => {
     if (loading) return;
     setLoading(true);
-    try {
-      // Mencoba login via popup lebih dulu
-      const result = await signInWithPopup(auth, googleProvider);
-      if (result?.user) {
-        handleUserSession(result.user);
-      }
-    } catch (err: any) {
-      console.warn('Google Popup Gagal/Diblokir, mencoba mode Redirect fallback...', err?.code, err?.message);
-      
-      // Fallback otomatis ke mode Redirect jika Popup diblokir/gagal
+
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '101297846532-web14a7e0f18b512a30b7b851.apps.googleusercontent.com';
+
+    if (window.google?.accounts?.oauth2) {
       try {
-        await signInWithRedirect(auth, googleProvider);
-      } catch (redirectErr: any) {
-        console.error('Google Redirect Error:', redirectErr);
-        if (err.code !== 'auth/popup-closed-by-user') {
-          alert(`Gagal login Google: ${redirectErr.message || redirectErr.code}`);
-        }
+        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'email profile openid',
+          callback: async (tokenResponse: any) => {
+            if (tokenResponse?.access_token) {
+              try {
+                const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                });
+                const userInfo = await res.json();
+                handleUserSession({
+                  uid: userInfo.sub,
+                  displayName: userInfo.name,
+                  email: userInfo.email,
+                  photoURL: userInfo.picture,
+                });
+              } catch (err) {
+                console.error('Google UserInfo Fetch Error:', err);
+              } finally {
+                setLoading(false);
+              }
+            } else {
+              setLoading(false);
+            }
+          },
+          error_callback: () => setLoading(false),
+        });
+        tokenClient.requestAccessToken();
+      } catch (e) {
+        console.error('GIS OAuth2 Error:', e);
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
+    } else if (window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: (response: any) => {
+            try {
+              const base64Url = response.credential.split('.')[1];
+              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+              const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+              const payload = JSON.parse(jsonPayload);
+
+              handleUserSession({
+                uid: payload.sub,
+                displayName: payload.name,
+                email: payload.email,
+                photoURL: payload.picture,
+              });
+            } catch (err) {
+              console.error('JWT Token Parse Error:', err);
+            } finally {
+              setLoading(false);
+            }
+          }
+        });
+        window.google.accounts.id.prompt();
+      } catch (e) {
+        console.error('GIS ID Error:', e);
+        setLoading(false);
+      }
+    } else {
+      setTimeout(() => setLoading(false), 1500);
     }
   };
 

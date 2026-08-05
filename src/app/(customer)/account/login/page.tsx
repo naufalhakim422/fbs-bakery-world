@@ -120,8 +120,8 @@ export default function CustomerLoginPage() {
           
           {/* Header Badge & Icon */}
           <div className="text-center space-y-2">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#800020] via-[#500014] to-[#3A0612] text-[#D4AF37] border-2 border-[#D4AF37] flex items-center justify-center mx-auto shadow-lg">
-              <ShieldCheck className="w-8 h-8" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#800020] via-[#500014] to-[#3A0612] border-2 border-[#D4AF37] overflow-hidden flex items-center justify-center mx-auto shadow-lg p-1">
+              <img src="/logo.jpg" alt="FBS Bakery World Logo" className="w-full h-full object-cover rounded-xl" />
             </div>
             
             <span className="text-[10px] font-black text-[#800020] uppercase tracking-widest bg-[#800020]/10 px-3 py-1 rounded-full inline-block">
