@@ -12,6 +12,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid email address format.' },
+        { status: 400 }
+      );
+    }
+
     const sendgridParts = ['SG.', 'Tb9nYA42Q2a1F-9MKZH9Yw.', 'DKgMsqlgTsXmkkTUehsi99h9mC_KLHrlUXkkleiUKtM'];
     const sendgridApiKey = process.env.SENDGRID_API_KEY || sendgridParts.join('');
     const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'admin@fbsbaker.store';
