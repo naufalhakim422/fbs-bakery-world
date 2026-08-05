@@ -59,6 +59,8 @@ export default function CustomerAccountPage() {
   const [avatarNotice, setAvatarNotice] = useState<string>('');
   const [showPresetAvatars, setShowPresetAvatars] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [cancelModalOrder, setCancelModalOrder] = useState<{ id: string; orderNumber: string } | null>(null);
+  const [cancelReason, setCancelReason] = useState<string>('Ingin merubah rincian pesanan');
 
   const defaultCoverPhoto = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1600&auto=format&fit=crop';
 
@@ -595,19 +597,13 @@ export default function CustomerAccountPage() {
                     {(order.orderStatus === 'NEW' || order.orderStatus === 'CONFIRMED') && (
                       <button
                         type="button"
-                        onClick={async () => {
-                          const reason = prompt(`Masukkan alasan pembatalan untuk pesanan ${order.orderNumber}:`, 'Ingin merubah rincian pesanan');
-                          if (reason === null) return; // user cancelled prompt
-
-                          const updated = db.updateOrderStatusAndTracking(order.id, 'CANCEL_REQUESTED');
-                          if (updated) {
-                            setOrders(prev => prev.map(o => o.id === order.id ? { ...o, orderStatus: 'CANCEL_REQUESTED' } : o));
-                            alert(`✅ Permohonan pembatalan pesanan ${order.orderNumber} telah dikirim ke Admin toko!`);
-                          }
+                        onClick={() => {
+                          setCancelModalOrder({ id: order.id, orderNumber: order.orderNumber });
+                          setCancelReason('Ingin merubah rincian pesanan');
                         }}
                         className="px-3.5 py-2 bg-stone-50 hover:bg-red-50 text-red-600 hover:text-red-700 font-bold text-xs rounded-xl border border-red-200 transition-colors flex items-center gap-1.5"
                       >
-                        <X className="w-3.5 h-3.5 text-red-500" /> Minta Pembatalan Pesanan
+                        <X className="w-3.5 h-3.5 text-red-500" /> Permintaan Pembatalan Pesanan
                       </button>
                     )}
 
@@ -1159,6 +1155,68 @@ export default function CustomerAccountPage() {
                 className="py-3 px-4 bg-[#800020] hover:bg-red-900 text-[#D4AF37] rounded-2xl font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5"
               >
                 <LogOut className="w-4 h-4" /> Ya, Keluar Akun
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM ORDER CANCELLATION REQUEST MODAL */}
+      {cancelModalOrder && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 sm:p-8 border-2 border-amber-200 shadow-2xl space-y-5 text-center relative animate-fade-in">
+            <button 
+              onClick={() => setCancelModalOrder(null)}
+              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto border-4 border-amber-50">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+
+            <div>
+              <h3 className="font-serif text-2xl font-extrabold text-[#800020]">
+                Permohonan Pembatalan
+              </h3>
+              <p className="text-stone-600 text-xs mt-2 leading-relaxed">
+                Silakan masukkan alasan pembatalan untuk pesanan <strong>{cancelModalOrder.orderNumber}</strong>:
+              </p>
+            </div>
+
+            <div>
+              <textarea
+                rows={3}
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Berikan alasan pembatalan..."
+                className="w-full px-4 py-3 border border-stone-300 rounded-2xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setCancelModalOrder(null)}
+                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl font-bold text-xs transition-colors"
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (!cancelModalOrder) return;
+                  const updated = db.updateOrderStatusAndTracking(cancelModalOrder.id, 'CANCEL_REQUESTED');
+                  if (updated) {
+                    setOrders(prev => prev.map(o => o.id === cancelModalOrder.id ? { ...o, orderStatus: 'CANCEL_REQUESTED' } : o));
+                    setCancelModalOrder(null);
+                  }
+                }}
+                className="py-3 px-4 bg-[#800020] hover:bg-red-900 text-[#D4AF37] rounded-2xl font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+              >
+                <X className="w-4 h-4" /> Kirim Permohonan
               </button>
             </div>
           </div>

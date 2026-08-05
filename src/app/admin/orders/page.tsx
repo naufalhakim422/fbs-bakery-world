@@ -51,29 +51,59 @@ export default function AdminOrdersPage() {
 
   const statuses: OrderStatus[] = ['NEW', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCEL_REQUESTED', 'CANCELLED'];
 
+  const [confirmModal, setConfirmModal] = useState<{
+    type: string;
+    title: string;
+    message: string;
+    confirmBtnText: string;
+    confirmBtnClass: string;
+    action: () => void;
+  } | null>(null);
+
   const handleDeleteOrder = (orderId: string, orderNumber: string) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus pesanan ${orderNumber}? Data yang dihapus tidak dapat dikembalikan.`)) {
-      db.deleteOrder(orderId);
-      setOrders(prev => prev.filter(o => o.id !== orderId && o.orderNumber !== orderId));
-    }
+    setConfirmModal({
+      type: 'DELETE',
+      title: 'Hapus Pesanan Dari Database',
+      message: `Apakah Anda yakin ingin menghapus pesanan ${orderNumber}? Data yang dihapus dari database terpusat tidak dapat dikembalikan lagi.`,
+      confirmBtnText: 'Ya, Hapus Permanen',
+      confirmBtnClass: 'bg-red-600 hover:bg-red-700 text-white',
+      action: () => {
+        db.deleteOrder(orderId);
+        setOrders(prev => prev.filter(o => o.id !== orderId && o.orderNumber !== orderId));
+      }
+    });
   };
 
   const handleApproveCancel = (orderId: string, orderNumber: string) => {
-    if (confirm(`Setujui pembatalan pesanan ${orderNumber}? Stok produk akan otomatis dikembalikan ke inventaris.`)) {
-      const updated = db.updateOrderStatusAndTracking(orderId, 'CANCELLED');
-      if (updated) {
-        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: 'CANCELLED' } : o));
+    setConfirmModal({
+      type: 'APPROVE',
+      title: 'Setujui Pembatalan Pelanggan',
+      message: `Setujui permohonan pembatalan pesanan ${orderNumber}? Stok produk akan otomatis dikembalikan ke inventaris toko.`,
+      confirmBtnText: '✅ Setujui Pembatalan',
+      confirmBtnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white',
+      action: () => {
+        const updated = db.updateOrderStatusAndTracking(orderId, 'CANCELLED');
+        if (updated) {
+          setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: 'CANCELLED' } : o));
+        }
       }
-    }
+    });
   };
 
   const handleRejectCancel = (orderId: string, orderNumber: string) => {
-    if (confirm(`Tolak permohonan pembatalan pesanan ${orderNumber}? Pesanan akan tetap diproses.`)) {
-      const updated = db.updateOrderStatusAndTracking(orderId, 'CONFIRMED');
-      if (updated) {
-        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: 'CONFIRMED' } : o));
+    setConfirmModal({
+      type: 'REJECT',
+      title: 'Tolak Pembatalan Pelanggan',
+      message: `Tolak permohonan pembatalan pesanan ${orderNumber}? Pesanan akan tetap diproses secara normal.`,
+      confirmBtnText: '❌ Tolak Pembatalan',
+      confirmBtnClass: 'bg-[#800020] hover:bg-red-900 text-white',
+      action: () => {
+        const updated = db.updateOrderStatusAndTracking(orderId, 'CONFIRMED');
+        if (updated) {
+          setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: 'CONFIRMED' } : o));
+        }
       }
-    }
+    });
   };
 
   return (
@@ -283,6 +313,63 @@ export default function AdminOrdersPage() {
           </table>
         </div>
       </div>
+
+      {/* CUSTOM ADMIN CONFIRMATION MODAL DIALOG */}
+      {confirmModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 sm:p-8 border-2 border-stone-200 shadow-2xl space-y-5 text-center relative animate-fade-in">
+            <button 
+              onClick={() => setConfirmModal(null)}
+              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto border-4 ${
+              confirmModal.type === 'DELETE' 
+                ? 'bg-red-100 text-red-600 border-red-50' 
+                : 'bg-amber-100 text-amber-600 border-amber-50'
+            }`}>
+              {confirmModal.type === 'DELETE' ? (
+                <Trash2 className="w-8 h-8" />
+              ) : (
+                <AlertTriangle className="w-8 h-8 text-amber-600" />
+              )}
+            </div>
+
+            <div>
+              <h3 className="font-serif text-2xl font-extrabold text-[#800020]">
+                {confirmModal.title}
+              </h3>
+              <p className="text-stone-600 text-xs mt-2 leading-relaxed">
+                {confirmModal.message}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl font-bold text-xs transition-colors"
+              >
+                Batal (Tutup)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const act = confirmModal.action;
+                  setConfirmModal(null);
+                  act();
+                }}
+                className={`py-3 px-4 rounded-2xl font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5 ${confirmModal.confirmBtnClass}`}
+              >
+                {confirmModal.confirmBtnText}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

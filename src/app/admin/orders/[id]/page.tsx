@@ -78,18 +78,16 @@ export default function AdminOrderDetailPage() {
     );
   }
 
-  const handleSaveStatus = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (orderStatus === 'CANCELLED') {
-      if (!confirm(`⚠️ Konfirmasi Pembatalan: Apakah Anda yakin ingin mengubah status pesanan ${order.orderNumber} menjadi DIBATALKAN (CANCELLED)? Stok produk akan otomatis dikembalikan ke inventaris toko.`)) {
-        return;
-      }
-    } else {
-      if (!confirm(`Konfirmasi Perubahan Status: Simpan perubahan status pesanan ${order.orderNumber} menjadi [${orderStatus}]?`)) {
-        return;
-      }
-    }
+  const [confirmAction, setConfirmAction] = useState<{
+    type: string;
+    title: string;
+    message: string;
+    confirmBtnText: string;
+    confirmBtnClass: string;
+    action: () => void;
+  } | null>(null);
 
+  const executeSaveStatus = () => {
     const finalCourier = courierName === 'OTHER_CUSTOM' ? (customCourier || 'Other Expedition') : courierName;
     const updated = db.updateOrderStatusAndTracking(order.id, orderStatus, finalCourier, trackingNumber);
     if (updated) {
@@ -97,6 +95,29 @@ export default function AdminOrderDetailPage() {
       recordAuditLog('Update Status Order', 'ORDER', `Order ${order.orderNumber} status updated to ${orderStatus} (${finalCourier} - Resi: ${trackingNumber || 'N/A'}).`);
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
+    }
+  };
+
+  const handleSaveStatus = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (orderStatus === 'CANCELLED') {
+      setConfirmAction({
+        type: 'CANCEL_ORDER',
+        title: 'Konfirmasi Pembatalan Pesanan',
+        message: `Apakah Anda yakin ingin membatalkan pesanan ${order.orderNumber}? Status akan diubah menjadi CANCELLED dan stok produk akan otomatis dikembalikan ke inventaris toko.`,
+        confirmBtnText: 'Ya, Batalkan Pesanan',
+        confirmBtnClass: 'bg-red-600 hover:bg-red-700 text-white',
+        action: () => executeSaveStatus()
+      });
+    } else {
+      setConfirmAction({
+        type: 'SAVE_STATUS',
+        title: 'Konfirmasi Perubahan Status',
+        message: `Simpan perubahan status pesanan ${order.orderNumber} menjadi [${orderStatus}]?`,
+        confirmBtnText: 'Ya, Simpan Status',
+        confirmBtnClass: 'bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37]',
+        action: () => executeSaveStatus()
+      });
     }
   };
 
@@ -142,13 +163,20 @@ export default function AdminOrderDetailPage() {
             <button
               type="button"
               onClick={() => {
-                if (confirm(`Setujui pembatalan pesanan ${order.orderNumber}? Stok produk akan otomatis dikembalikan ke inventaris.`)) {
-                  const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED');
-                  if (updated) {
-                    setOrder({ ...updated });
-                    setOrderStatus('CANCELLED');
+                setConfirmAction({
+                  type: 'APPROVE_CANCEL',
+                  title: 'Setujui Pembatalan Pelanggan',
+                  message: `Setujui permohonan pembatalan pesanan ${order.orderNumber}? Stok produk akan otomatis dikembalikan ke inventaris toko.`,
+                  confirmBtnText: '✅ Setujui Pembatalan',
+                  confirmBtnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white',
+                  action: () => {
+                    const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED');
+                    if (updated) {
+                      setOrder({ ...updated });
+                      setOrderStatus('CANCELLED');
+                    }
                   }
-                }
+                });
               }}
               className="px-4 py-2 bg-stone-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow"
             >
@@ -157,13 +185,20 @@ export default function AdminOrderDetailPage() {
             <button
               type="button"
               onClick={() => {
-                if (confirm(`Tolak permohonan pembatalan pesanan ${order.orderNumber}? Pesanan akan tetap diproses.`)) {
-                  const updated = db.updateOrderStatusAndTracking(order.id, 'CONFIRMED');
-                  if (updated) {
-                    setOrder({ ...updated });
-                    setOrderStatus('CONFIRMED');
+                setConfirmAction({
+                  type: 'REJECT_CANCEL',
+                  title: 'Tolak Pembatalan Pelanggan',
+                  message: `Tolak permohonan pembatalan pesanan ${order.orderNumber}? Pesanan akan tetap diproses secara normal.`,
+                  confirmBtnText: '❌ Tolak Pembatalan',
+                  confirmBtnClass: 'bg-[#800020] hover:bg-red-900 text-white',
+                  action: () => {
+                    const updated = db.updateOrderStatusAndTracking(order.id, 'CONFIRMED');
+                    if (updated) {
+                      setOrder({ ...updated });
+                      setOrderStatus('CONFIRMED');
+                    }
                   }
-                }
+                });
               }}
               className="px-4 py-2 bg-white text-stone-900 hover:bg-stone-100 font-bold text-xs rounded-xl shadow"
             >
@@ -342,14 +377,20 @@ export default function AdminOrderDetailPage() {
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm(`⚠️ Konfirmasi Pembatalan: Apakah Anda yakin ingin membatalkan pesanan ${order.orderNumber}? Status akan diubah menjadi CANCELLED dan stok produk akan otomatis dikembalikan ke inventaris toko.`)) {
-                    const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED');
-                    if (updated) {
-                      setOrder({ ...updated });
-                      setOrderStatus('CANCELLED');
-                      alert(`✅ Pesanan ${order.orderNumber} berhasil dibatalkan dan stok produk telah dikembalikan ke inventaris!`);
+                  setConfirmAction({
+                    type: 'CANCEL_ORDER',
+                    title: 'Konfirmasi Pembatalan Pesanan',
+                    message: `Apakah Anda yakin ingin membatalkan pesanan ${order.orderNumber}? Status akan diubah menjadi CANCELLED dan stok produk akan otomatis dikembalikan ke inventaris toko.`,
+                    confirmBtnText: 'Ya, Batalkan Pesanan',
+                    confirmBtnClass: 'bg-red-600 hover:bg-red-700 text-white',
+                    action: () => {
+                      const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED');
+                      if (updated) {
+                        setOrder({ ...updated });
+                        setOrderStatus('CANCELLED');
+                      }
                     }
-                  }
+                  });
                 }}
                 className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs rounded-xl border border-red-200 transition-colors flex items-center justify-center gap-2 mt-2"
               >
@@ -360,11 +401,17 @@ export default function AdminOrderDetailPage() {
             <button
               type="button"
               onClick={() => {
-                if (confirm(`Apakah Anda yakin ingin menghapus pesanan ${order.orderNumber}? Data yang dihapus dari database tidak dapat dikembalikan.`)) {
-                  db.deleteOrder(order.id);
-                  alert(`✅ Pesanan ${order.orderNumber} telah dihapus dari database!`);
-                  window.location.href = '/admin/orders';
-                }
+                setConfirmAction({
+                  type: 'DELETE_ORDER',
+                  title: 'Hapus Pesanan Dari Database',
+                  message: `Apakah Anda yakin ingin menghapus pesanan ${order.orderNumber}? Data yang dihapus dari database terpusat tidak dapat dikembalikan lagi.`,
+                  confirmBtnText: 'Ya, Hapus Permanen',
+                  confirmBtnClass: 'bg-red-700 hover:bg-red-800 text-white',
+                  action: () => {
+                    db.deleteOrder(order.id);
+                    window.location.href = '/admin/orders';
+                  }
+                });
               }}
               className="w-full py-2.5 bg-stone-100 hover:bg-red-100 text-stone-600 hover:text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center justify-center gap-2 mt-2"
             >
@@ -374,6 +421,65 @@ export default function AdminOrderDetailPage() {
         </div>
 
       </div>
+
+      {/* CUSTOM ADMIN CONFIRMATION MODAL DIALOG */}
+      {confirmAction && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 sm:p-8 border-2 border-stone-200 shadow-2xl space-y-5 text-center relative animate-fade-in">
+            <button 
+              onClick={() => setConfirmAction(null)}
+              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto border-4 ${
+              confirmAction.type === 'DELETE_ORDER' || confirmAction.type === 'CANCEL_ORDER' 
+                ? 'bg-red-100 text-red-600 border-red-50' 
+                : 'bg-amber-100 text-amber-600 border-amber-50'
+            }`}>
+              {confirmAction.type === 'DELETE_ORDER' ? (
+                <Trash2 className="w-8 h-8" />
+              ) : confirmAction.type === 'CANCEL_ORDER' ? (
+                <X className="w-8 h-8" />
+              ) : (
+                <Truck className="w-8 h-8 text-[#800020]" />
+              )}
+            </div>
+
+            <div>
+              <h3 className="font-serif text-2xl font-extrabold text-[#800020]">
+                {confirmAction.title}
+              </h3>
+              <p className="text-stone-600 text-xs mt-2 leading-relaxed">
+                {confirmAction.message}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmAction(null)}
+                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl font-bold text-xs transition-colors"
+              >
+                Batal (Tutup)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const act = confirmAction.action;
+                  setConfirmAction(null);
+                  act();
+                }}
+                className={`py-3 px-4 rounded-2xl font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5 ${confirmAction.confirmBtnClass}`}
+              >
+                {confirmAction.confirmBtnText}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
