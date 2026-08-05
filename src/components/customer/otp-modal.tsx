@@ -26,7 +26,7 @@ export function OtpModal({
 
   const [generatedCode, setGeneratedCode] = useState(initialOtpCode || '');
   const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', '']);
-  const [totalTimer, setTotalTimer] = useState(300); // 5 Minutes = 300 seconds
+  const [totalTimer, setTotalTimer] = useState(600); // 10 Minutes = 600 seconds
   const [resendCooldown, setResendCooldown] = useState(60); // 60 Seconds cooldown for Resend button
   const [canResend, setCanResend] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +38,7 @@ export function OtpModal({
     const code = initialOtpCode || Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode(code);
     setOtpValues(['', '', '', '', '', '']);
-    setTotalTimer(300); // Reset 5-minute countdown
+    setTotalTimer(600); // Reset 10-minute countdown
     setResendCooldown(60); // Reset 60s resend cooldown
     setCanResend(false);
     setError('');
@@ -57,7 +57,7 @@ export function OtpModal({
         customers[idx] = {
           ...customers[idx],
           otpCode: code,
-          otpExpiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 min expiry
+          otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 min expiry
         };
         localStorage.setItem('fbs_customers', JSON.stringify(customers));
       }
@@ -189,7 +189,7 @@ export function OtpModal({
 
       const dbOtp = customer?.otpCode || generatedCode;
 
-      if (enteredCode === dbOtp || enteredCode === generatedCode || enteredCode === '123456') {
+      if (enteredCode === dbOtp || enteredCode === generatedCode) {
         // Mark customer as verified in DB
         if (customer) {
           const updated = customers.map((c: any) => {

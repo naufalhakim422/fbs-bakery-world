@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { resend } from '@/lib/resend';
 
 export async function POST(request: Request) {
   try {
@@ -60,7 +59,7 @@ export async function POST(request: Request) {
               <div class="otp-box">${otp.trim()}</div>
 
               <br />
-              <div class="expiry">⏰ Kode verifikasi ini berlaku selama 5 menit.</div>
+              <div class="expiry">⏰ Kode verifikasi ini berlaku selama 10 menit.</div>
             </div>
 
             <div class="footer">
@@ -72,81 +71,49 @@ export async function POST(request: Request) {
       </html>
     `;
 
-    // 1. Try SendGrid v3 API First
-    let sendgridErrorMsg = '';
-    try {
-      const sendgridRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${sendgridApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          personalizations: [
-            {
-              to: [{ email: email.trim() }],
-            },
-          ],
-          from: {
-            email: fromEmail,
-            name: fromName,
+    // Send via SendGrid ONLY v3 API
+    const sendgridRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sendgridApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        personalizations: [
+          {
+            to: [{ email: email.trim() }],
           },
-          subject: subject,
-          content: [
-            {
-              type: 'text/html',
-              value: htmlContent,
-            },
-          ],
-        }),
-      });
-
-      if (sendgridRes.ok || sendgridRes.status === 202) {
-        console.log(`[SendGrid API Success] Sent OTP ${otp.trim()} to ${email.trim()}`);
-        return NextResponse.json({
-          success: true,
-          provider: 'SENDGRID',
-          message: `Email OTP 6-digit terkirim via SendGrid ke ${email.trim()}!`,
-        });
-      }
-
-      const errorText = await sendgridRes.text();
-      sendgridErrorMsg = `SendGrid Status ${sendgridRes.status}: ${errorText}`;
-      console.warn('[SendGrid API Warning Response]:', sendgridErrorMsg);
-    } catch (sendgridErr: any) {
-      sendgridErrorMsg = sendgridErr?.message || 'SendGrid fetch failed';
-      console.error('[SendGrid Fetch Error]:', sendgridErrorMsg);
-    }
-
-    // 2. Backup: Fallback to Resend API if SendGrid fails
-    try {
-      const resendRes = await resend.emails.send({
-        from: 'FBS Baker <admin@fbsbaker.store>',
-        to: [email.trim()],
+        ],
+        from: {
+          email: fromEmail,
+          name: fromName,
+        },
         subject: subject,
-        html: htmlContent,
-      });
+        content: [
+          {
+            type: 'text/html',
+            value: htmlContent,
+          },
+        ],
+      }),
+    });
 
-      if (!resendRes.error) {
-        return NextResponse.json({
-          success: true,
-          provider: 'RESEND_FALLBACK',
-          message: `Email OTP 6-digit terkirim via Backup Resend ke ${email.trim()}!`,
-        });
-      }
-    } catch (resendErr) {
-      console.error('[Resend Backup Error]:', resendErr);
+    if (sendgridRes.ok || sendgridRes.status === 202) {
+      console.log(`[SendGrid API Success] Sent OTP ${otp.trim()} to recipient ${email.trim()}`);
+      return NextResponse.json({
+        success: true,
+        provider: 'SENDGRID',
+        message: `Email OTP 6-digit terkirim via SendGrid ke ${email.trim()}!`,
+      });
     }
 
-    // 3. Fallback response with notice for testing
-    return NextResponse.json({
-      success: true,
-      provider: 'SIMULATION',
-      message: sendgridErrorMsg 
-        ? `SendGrid Notice: ${sendgridErrorMsg.slice(0, 100)}` 
-        : `Kode OTP 6-digit: ${otp.trim()}`,
-      otp: otp.trim(),
-    });
+    const errorText = await sendgridRes.text();
+    console.error('[SendGrid API Error]:', sendgridRes.status, errorText);
+
+    return NextResponse.json(
+      { success: false, message: `SendGrid API Error ${sendgridRes.status}: ${errorText}` },
+      { status: sendgridRes.status || 500 }
+    );
   } catch (error: any) {
     console.error('Send OTP Route Error:', error);
     return NextResponse.json(

@@ -42,18 +42,34 @@ export default function CustomerRegisterPage() {
     }
 
     const cleanEmail = form.email.trim().toLowerCase();
+    const cleanPhone = form.phone.trim().replace(/[^0-9]/g, '');
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(cleanEmail)) {
       setError(language === 'EN' ? 'Please enter a valid email address.' : 'Sila masukkan alamat e-mel yang sah.');
       return;
     }
 
+    const customers = db.getCustomers();
+    const existingVerifiedEmail = customers.find(c => c.email && c.email.toLowerCase() === cleanEmail && c.isEmailVerified);
+    if (existingVerifiedEmail) {
+      setError(language === 'EN' ? 'This email address is already registered. Please sign in.' : 'Alamat e-mel ini telah terdaftar. Sila log masuk.');
+      return;
+    }
+
+    if (cleanPhone) {
+      const existingVerifiedPhone = customers.find(c => c.phone && c.phone.replace(/[^0-9]/g, '') === cleanPhone && c.isEmailVerified);
+      if (existingVerifiedPhone) {
+        setError(language === 'EN' ? 'This phone number is already registered.' : 'Nombor telefon ini telah terdaftar.');
+        return;
+      }
+    }
+
     setLoading(true);
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min expiry
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 min expiry
 
-    const customers = db.getCustomers();
     let existing = customers.find(c => c.email && c.email.toLowerCase() === cleanEmail);
 
     const newCustomer = {

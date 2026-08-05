@@ -36,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Dynamic Blog routes
   const blogs = db.getBlogs();
-  const blogEntries: MetadataRoute.Sitemap = blogs.map((b) => ({
+  const blogEntries: MetadataRoute.Sitemap = blogs.map((b: any) => ({
     url: `${baseUrl}/blog/${b.slug}`,
     lastModified: new Date(b.updatedAt || b.createdAt || Date.now()),
     changeFrequency: 'monthly',
@@ -45,7 +45,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Dynamic Recipe routes
   const recipes = db.getRecipes();
-  const recipeEntries: MetadataRoute.Sitemap = recipes.map((r) => ({
+  const recipeEntries: MetadataRoute.Sitemap = recipes.map((r: any) => ({
     url: `${baseUrl}/recipes/${r.slug}`,
     lastModified: new Date(r.updatedAt || r.createdAt || Date.now()),
     changeFrequency: 'monthly',

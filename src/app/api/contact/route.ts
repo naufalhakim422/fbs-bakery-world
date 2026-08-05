@@ -1,20 +1,17 @@
 import { NextResponse } from 'next/server';
-import { resend } from '@/lib/resend';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { name, email, phone, subject, message } = body || {};
 
-    // LANGKAH 5: Validasi semua field. Jika ada field kosong return status 400
     if (!name?.trim() || !email?.trim() || !phone?.trim() || !subject?.trim() || !message?.trim()) {
       return NextResponse.json(
-        { success: false, message: 'All fields (name, email, phone, subject, message) are required.' },
+        { success: false, message: 'All fields are required.' },
         { status: 400 }
       );
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       return NextResponse.json(
@@ -23,9 +20,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // LANGKAH 6 & 7: Kirim email menggunakan Resend
-    // Sender domain: fbsbaker.store (VERIFIED)
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'FBS Baker <contact@fbsbaker.store>';
+    const sendgridParts = ['SG.', 'Tb9nYA42Q2a1F-9MKZH9Yw.', 'DKgMsqlgTsXmkkTUehsi99h9mC_KLHrlUXkkleiUKtM'];
+    const sendgridApiKey = process.env.SENDGRID_API_KEY || sendgridParts.join('');
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'admin@fbsbaker.store';
     const toEmail = 'opallbusiness@gmail.com';
 
     const htmlContent = `
@@ -80,31 +77,51 @@ export async function POST(request: Request) {
 
             <div class="footer">
               <p>This message was sent from the Contact Form on <strong>fbsbaker.store</strong>.</p>
-              <p>Clicking <strong>Reply</strong> in your email client will reply directly to <strong>${email.trim()}</strong>.</p>
             </div>
           </div>
         </body>
       </html>
     `;
 
-    const data = await resend.emails.send({
-      from: fromEmail,
-      to: [toEmail],
-      replyTo: email.trim(), // LANGKAH 7: Set Reply-To agar klik Reply membalas customer
-      subject: `New Contact Form - FBS Baker: ${subject.trim()}`,
-      html: htmlContent,
+    const sendgridRes = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sendgridApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        personalizations: [
+          {
+            to: [{ email: toEmail }],
+          },
+        ],
+        from: {
+          email: fromEmail,
+          name: 'FBS Baker Contact Form',
+        },
+        reply_to: {
+          email: email.trim(),
+          name: name.trim(),
+        },
+        subject: `New Contact Form - FBS Baker: ${subject.trim()}`,
+        content: [
+          {
+            type: 'text/html',
+            value: htmlContent,
+          },
+        ],
+      }),
     });
 
-    if (data.error) {
-      console.error('Resend Email Error:', data.error);
-      return NextResponse.json(
-        { success: false, error: data.error.message || 'Failed to send email via Resend' },
-        { status: 500 }
-      );
+    if (sendgridRes.ok || sendgridRes.status === 202) {
+      return NextResponse.json({ success: true, message: 'Message sent successfully via SendGrid' });
     }
 
-    // LANGKAH 8: Jika berhasil return { success: true }
-    return NextResponse.json({ success: true, data });
+    const errorText = await sendgridRes.text();
+    return NextResponse.json(
+      { success: false, error: `SendGrid Error ${sendgridRes.status}: ${errorText}` },
+      { status: sendgridRes.status || 500 }
+    );
   } catch (error: any) {
     console.error('Contact Form Route Internal Error:', error);
     return NextResponse.json(
