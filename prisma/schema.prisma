@@ -564,3 +564,25 @@ model GoodsReceipt {
   notes       String?
   po          PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
 }
+
+model CustomerNote {
+  id         String   @id @default(uuid())
+  customerId String
+  note       String
+  adminId    String?
+  createdAt  DateTime @default(now())
+}
+
+model CustomerTag {
+  id         String   @id @default(uuid())
+  customerId String
+  tagName    String
+  createdAt  DateTime @default(now())
+}
+
+model CustomerSegment {
+  id          String   @id @default(uuid())
+  segmentName String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+}
