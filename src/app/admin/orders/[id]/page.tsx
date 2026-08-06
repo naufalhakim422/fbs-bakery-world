@@ -99,7 +99,7 @@ export default function AdminOrderDetailPage() {
     );
   }
 
-  const executeSaveStatus = () => {
+  const executeSaveStatus = async () => {
     const finalCourier = courierName === 'OTHER_CUSTOM' ? (customCourier || 'Other Expedition') : courierName;
     const updated = db.updateOrderStatusAndTracking(order.id, orderStatus, finalCourier, trackingNumber);
     if (updated) {
@@ -107,6 +107,23 @@ export default function AdminOrderDetailPage() {
       recordAuditLog('Update Status Order', 'ORDER', `Order ${order.orderNumber} status updated to ${orderStatus} (${finalCourier} - Resi: ${trackingNumber || 'N/A'}).`);
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
+    }
+
+    try {
+      await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: order.id,
+          orderNumber: order.orderNumber,
+          orderStatus,
+          courierName: finalCourier,
+          trackingNumber,
+          updatedBy: 'Admin Store',
+        }),
+      });
+    } catch (err) {
+      console.warn('API PATCH Sync Warning:', err);
     }
   };
 

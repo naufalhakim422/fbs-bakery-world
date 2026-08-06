@@ -490,6 +490,164 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, orderNumber, orderStatus, courierName, trackingNumber, updatedBy } = body || {};
+
+    if (!id && !orderNumber) {
+      return NextResponse.json({ success: false, error: 'Order ID or Order Number is required' }, { status: 400 });
+    }
+
+    try {
+      // PRISMA ATOMIC TRANSACTION FOR ORDER STATUS, TIMELINE, TRACKING & STOCK RESTORATION
+      const updatedOrder = await prisma.$transaction(async (tx) => {
+        const existing = await tx.order.findFirst({
+          where: {
+            OR: [
+              { id: id || '' },
+              { orderNumber: orderNumber || '' },
+            ],
+          },
+          include: { items: true, tracking: true, timelines: true },
+        });
+
+        if (!existing) {
+          throw new Error('Order not found in database');
+        }
+
+        const newStatus = orderStatus || existing.status;
+        const previousStatus = existing.status;
+
+        // Idempotency: If status, courier, and tracking number are identical, return early without duplicate timeline
+        if (
+          existing.status === newStatus &&
+          (!courierName || existing.tracking?.courierName === courierName) &&
+          (trackingNumber === undefined || existing.tracking?.trackingNumber === trackingNumber)
+        ) {
+          return existing;
+        }
+
+        // Update Order Status
+        const updated = await tx.order.update({
+          where: { id: existing.id },
+          data: {
+            status: newStatus as any,
+            updatedAt: new Date(),
+          },
+        });
+
+        // Update / Create Tracking Info if courier or tracking number provided
+        if (courierName || trackingNumber) {
+          await tx.tracking.upsert({
+            where: { orderId: existing.id },
+            update: {
+              courierName: courierName || existing.tracking?.courierName || 'J&T Express',
+              trackingNumber: trackingNumber !== undefined ? trackingNumber : existing.tracking?.trackingNumber,
+              trackingUrl: trackingNumber ? `https://www.jtexpress.my/tracking/${encodeURIComponent(trackingNumber)}` : undefined,
+            },
+            create: {
+              orderId: existing.id,
+              courierName: courierName || 'J&T Express',
+              trackingNumber: trackingNumber || '',
+              trackingUrl: trackingNumber ? `https://www.jtexpress.my/tracking/${encodeURIComponent(trackingNumber)}` : '',
+            },
+          });
+        }
+
+        // Automatically create EXACTLY ONE Timeline entry
+        const statusTitleMap: Record<string, string> = {
+          PENDING_PAYMENT: 'Menunggu Pembayaran',
+          PAYMENT_VERIFIED: 'Pembayaran Terverifikasi',
+          CONFIRMED: 'Pesanan Dikonfirmasi',
+          PACKING: 'Sedang Dikemas',
+          READY_TO_SHIP: 'Siap Dikirim',
+          SHIPPING: 'Dalam Pengiriman',
+          SHIPPED: 'Dalam Pengiriman',
+          DELIVERED: 'Pesanan Diterima',
+          COMPLETED: 'Pesanan Selesai',
+          CANCEL_REQUESTED: 'Permintaan Pembatalan',
+          CANCELLED: 'Pesanan Dibatalkan',
+          REFUND: 'Pengembalian Dana',
+        };
+
+        const title = statusTitleMap[newStatus] || `Status: ${newStatus}`;
+        const description = trackingNumber
+          ? `Status pesanan diperbarui menjadi ${newStatus} (${courierName || 'Kurir'} - Resi: ${trackingNumber}).`
+          : `Status pesanan diperbarui menjadi ${newStatus}.`;
+
+        await tx.timeline.create({
+          data: {
+            orderId: existing.id,
+            status: newStatus as any,
+            title,
+            description,
+            updatedBy: updatedBy || 'Admin Store',
+          },
+        });
+
+        // Stock Restoration if order transitioned to CANCELLED
+        if (
+          ((newStatus as string) === 'CANCELLED' || (newStatus as string) === 'Cancelled') &&
+          (previousStatus as string) !== 'CANCELLED' &&
+          (previousStatus as string) !== 'Cancelled'
+        ) {
+          for (const item of existing.items) {
+            if (item.variantId) {
+              await tx.variant.update({
+                where: { id: item.variantId },
+                data: { stock: { increment: item.quantity } },
+              }).catch(err => console.warn('Stock restoration warning:', err));
+            }
+          }
+        }
+
+        return tx.order.findUnique({
+          where: { id: existing.id },
+          include: { items: true, timelines: true, tracking: true },
+        });
+      });
+
+      console.log('✅ [Prisma PATCH Success] Order status updated:', updatedOrder?.orderNumber);
+      return NextResponse.json({ success: true, order: updatedOrder, source: 'PRISMA_POSTGRES' });
+    } catch (dbErr) {
+      console.warn('[Prisma PATCH Warning] Falling back to JSON update:', dbErr);
+    }
+
+    // JSON FALLBACK UPDATE
+    const orders = readServerOrders();
+    const targetIdx = orders.findIndex((o: any) => o.id === id || o.orderNumber === orderNumber);
+
+    if (targetIdx !== -1) {
+      orders[targetIdx] = {
+        ...orders[targetIdx],
+        orderStatus: orderStatus || orders[targetIdx].orderStatus,
+        courierName: courierName || orders[targetIdx].courierName,
+        trackingNumber: trackingNumber !== undefined ? trackingNumber : orders[targetIdx].trackingNumber,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (!orders[targetIdx].timeline) orders[targetIdx].timeline = [];
+      orders[targetIdx].timeline.push({
+        id: `tl-${Date.now()}`,
+        orderId: orders[targetIdx].id,
+        status: orderStatus || orders[targetIdx].orderStatus,
+        title: `Status: ${orderStatus}`,
+        description: `Status pesanan diperbarui.`,
+        timestamp: new Date().toISOString(),
+        updatedBy: updatedBy || 'Admin Store',
+      });
+
+      writeServerOrders(orders);
+      return NextResponse.json({ success: true, order: orders[targetIdx], source: 'JSON_FALLBACK' });
+    }
+
+    return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
