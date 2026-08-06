@@ -1015,3 +1015,40 @@ ALTER TABLE "WarehouseStock" ADD CONSTRAINT "WarehouseStock_warehouseId_fkey" FO
 
 -- AddForeignKey
 ALTER TABLE "StockTransferItem" ADD CONSTRAINT "StockTransferItem_transferId_fkey" FOREIGN KEY ("transferId") REFERENCES "StockTransfer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateTable
+CREATE TABLE "AutomationRule" (
+    "id" TEXT NOT NULL,
+    "ruleName" TEXT NOT NULL,
+    "trigger" TEXT NOT NULL,
+    "conditions" TEXT,
+    "actions" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AutomationRule_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AutomationExecution" (
+    "id" TEXT NOT NULL,
+    "ruleId" TEXT NOT NULL,
+    "trigger" TEXT NOT NULL,
+    "action" TEXT NOT NULL,
+    "module" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'SUCCESS',
+    "executionTime" INTEGER NOT NULL DEFAULT 0,
+    "errorMessage" TEXT,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AutomationExecution_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "AutomationExecution_status_idx" ON "AutomationExecution"("status");
+CREATE INDEX "AutomationExecution_module_idx" ON "AutomationExecution"("module");
+CREATE INDEX "AutomationExecution_timestamp_idx" ON "AutomationExecution"("timestamp");
+
+-- AddForeignKey
+ALTER TABLE "AutomationExecution" ADD CONSTRAINT "AutomationExecution_ruleId_fkey" FOREIGN KEY ("ruleId") REFERENCES "AutomationRule"("id") ON DELETE CASCADE ON UPDATE CASCADE;

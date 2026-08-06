@@ -771,3 +771,32 @@ model StockTransferItem {
   quantity   Int
   transfer   StockTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
 }
+
+model AutomationRule {
+  id          String                @id @default(uuid())
+  ruleName    String
+  trigger     String
+  conditions  String?
+  actions     String
+  isActive    Boolean               @default(true)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  executions  AutomationExecution[]
+}
+
+model AutomationExecution {
+  id             String         @id @default(uuid())
+  ruleId         String
+  trigger        String
+  action         String
+  module         String
+  status         String         @default("SUCCESS")
+  executionTime  Int            @default(0)
+  errorMessage   String?
+  timestamp      DateTime       @default(now())
+  rule           AutomationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([module])
+  @@index([timestamp])
+}
