@@ -651,3 +651,73 @@ CREATE INDEX "InventoryBatch_expiryDate_idx" ON "InventoryBatch"("expiryDate");
 
 -- AddForeignKey
 ALTER TABLE "BatchHistory" ADD CONSTRAINT "BatchHistory_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "InventoryBatch"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateTable
+CREATE TABLE "Supplier" (
+    "id" TEXT NOT NULL,
+    "supplierName" TEXT NOT NULL,
+    "company" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "whatsapp" TEXT,
+    "email" TEXT,
+    "address" TEXT,
+    "pic" TEXT,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Supplier_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PurchaseOrder" (
+    "id" TEXT NOT NULL,
+    "poNumber" TEXT NOT NULL,
+    "supplierId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'Draft',
+    "totalCost" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PurchaseOrder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PurchaseOrderItem" (
+    "id" TEXT NOT NULL,
+    "poId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "variantId" TEXT,
+    "quantity" INTEGER NOT NULL,
+    "unitCost" DOUBLE PRECISION NOT NULL,
+    "totalCost" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "PurchaseOrderItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GoodsReceipt" (
+    "id" TEXT NOT NULL,
+    "poId" TEXT NOT NULL,
+    "receiptNo" TEXT NOT NULL,
+    "receivedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "notes" TEXT,
+
+    CONSTRAINT "GoodsReceipt_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PurchaseOrder_poNumber_key" ON "PurchaseOrder"("poNumber");
+CREATE INDEX "PurchaseOrder_poNumber_idx" ON "PurchaseOrder"("poNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GoodsReceipt_receiptNo_key" ON "GoodsReceipt"("receiptNo");
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "Supplier"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrderItem" ADD CONSTRAINT "PurchaseOrderItem_poId_fkey" FOREIGN KEY ("poId") REFERENCES "PurchaseOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GoodsReceipt" ADD CONSTRAINT "GoodsReceipt_poId_fkey" FOREIGN KEY ("poId") REFERENCES "PurchaseOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;

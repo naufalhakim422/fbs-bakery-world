@@ -514,3 +514,53 @@ model BatchHistory {
   createdAt    DateTime       @default(now())
   batch        InventoryBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
 }
+
+model Supplier {
+  id             String          @id @default(uuid())
+  supplierName   String
+  company        String
+  phone          String
+  whatsapp       String?
+  email          String?
+  address        String?
+  pic            String?
+  status         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id          String              @id @default(uuid())
+  poNumber    String              @unique
+  supplierId  String
+  status      String              @default("Draft")
+  totalCost   Float               @default(0.0)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  supplier    Supplier            @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  items       PurchaseOrderItem[]
+  receipts    GoodsReceipt[]
+
+  @@index([poNumber])
+}
+
+model PurchaseOrderItem {
+  id          String        @id @default(uuid())
+  poId        String
+  productId   String
+  variantId   String?
+  quantity    Int
+  unitCost    Float
+  totalCost   Float
+  po          PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+}
+
+model GoodsReceipt {
+  id          String        @id @default(uuid())
+  poId        String
+  receiptNo   String        @unique
+  receivedAt  DateTime      @default(now())
+  notes       String?
+  po          PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+}
