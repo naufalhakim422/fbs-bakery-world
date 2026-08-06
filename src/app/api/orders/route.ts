@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -303,8 +304,66 @@ export async function GET(request: Request) {
   const email = searchParams.get('email');
   const phone = searchParams.get('phone');
   const customerId = searchParams.get('customerId');
-  const orders = readServerOrders();
 
+  try {
+    const prismaOrders = await prisma.order.findMany({
+      where: { deletedAt: null },
+      include: { items: true, timelines: true, tracking: true, payments: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (prismaOrders && prismaOrders.length > 0) {
+      const formatted = prismaOrders.map(o => ({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        customerId: o.customerId || undefined,
+        customerName: o.customerName,
+        customerEmail: o.customerEmail || undefined,
+        customerPhone: o.customerPhone,
+        address: o.address,
+        city: o.city,
+        state: o.state,
+        postcode: o.postcode,
+        notes: o.notes || undefined,
+        totalAmount: o.totalAmount,
+        orderStatus: o.status === 'Pending' ? 'PENDING_PAYMENT' : o.status.toUpperCase(),
+        courierName: o.tracking?.courierName,
+        trackingNumber: o.tracking?.trackingNumber,
+        items: o.items.map(i => ({
+          id: i.id,
+          orderId: i.orderId,
+          productId: i.productId,
+          productVariantId: i.variantId || '',
+          productName: i.productName,
+          variantName: i.variantName,
+          price: i.price,
+          quantity: i.quantity,
+          subtotal: i.subtotal,
+          mainImage: i.mainImage || undefined,
+        })),
+        createdAt: o.createdAt.toISOString(),
+        updatedAt: o.updatedAt.toISOString(),
+      }));
+
+      if (email || phone || customerId) {
+        const cleanEmail = (email || '').trim().toLowerCase();
+        const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+        const filtered = formatted.filter(o => {
+          const matchEmail = cleanEmail && o.customerEmail && o.customerEmail.trim().toLowerCase() === cleanEmail;
+          const matchPhone = cleanPhone && cleanPhone.length >= 6 && o.customerPhone && o.customerPhone.replace(/[^0-9]/g, '').includes(cleanPhone);
+          const matchId = customerId && o.customerId && o.customerId === customerId;
+          return Boolean(matchEmail || matchPhone || matchId);
+        });
+        return NextResponse.json({ success: true, orders: filtered, allOrders: formatted, source: 'PRISMA_POSTGRES' });
+      }
+      return NextResponse.json({ success: true, orders: formatted, allOrders: formatted, source: 'PRISMA_POSTGRES' });
+    }
+  } catch (dbErr) {
+    console.warn('[Prisma DB Warning] Falling back to JSON database:', dbErr);
+  }
+
+  // JSON FALLBACK
+  const orders = readServerOrders();
   if (email || phone || customerId) {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
@@ -315,10 +374,10 @@ export async function GET(request: Request) {
       const matchId = customerId && o.customerId && o.customerId === customerId;
       return Boolean(matchEmail || matchPhone || matchId);
     });
-    return NextResponse.json({ success: true, orders: filtered, allOrders: orders });
+    return NextResponse.json({ success: true, orders: filtered, allOrders: orders, source: 'JSON_FALLBACK' });
   }
 
-  return NextResponse.json({ success: true, orders, allOrders: orders });
+  return NextResponse.json({ success: true, orders, allOrders: orders, source: 'JSON_FALLBACK' });
 }
 
 export async function POST(request: Request) {
@@ -326,6 +385,70 @@ export async function POST(request: Request) {
     const body = await request.json();
     if (!body || !body.orderNumber) {
       return NextResponse.json({ success: false, error: 'Order Number is required' }, { status: 400 });
+    }
+
+    try {
+      // PRISMA ATOMIC TRANSACTION
+      const savedPrismaOrder = await prisma.$transaction(async (tx) => {
+        const orderId = body.id || `ord-${Date.now()}`;
+        const statusEnum = body.orderStatus === 'PENDING_PAYMENT' ? 'Pending' : 'Paid';
+
+        const updatedOrder = await tx.order.upsert({
+          where: { orderNumber: body.orderNumber },
+          update: {
+            customerName: body.customerName,
+            customerPhone: body.customerPhone,
+            totalAmount: body.totalAmount || 0,
+            status: statusEnum as any,
+          },
+          create: {
+            id: orderId,
+            orderNumber: body.orderNumber,
+            customerName: body.customerName,
+            customerEmail: body.customerEmail || 'customer@fbsbaker.store',
+            customerPhone: body.customerPhone,
+            address: body.address || 'Alamat Utama',
+            city: body.city || 'Kuala Lumpur',
+            state: body.state || 'Wilayah Persekutuan',
+            postcode: body.postcode || '50000',
+            notes: body.notes,
+            subtotal: body.totalAmount || 0,
+            shippingFee: 10.0,
+            discount: 0.0,
+            totalAmount: body.totalAmount || 0,
+            status: statusEnum as any,
+          },
+        });
+
+        if (body.trackingNumber) {
+          await tx.tracking.upsert({
+            where: { orderId: updatedOrder.id },
+            update: { trackingNumber: body.trackingNumber, courierName: body.courierName || 'J&T Express' },
+            create: {
+              orderId: updatedOrder.id,
+              courierName: body.courierName || 'J&T Express',
+              trackingNumber: body.trackingNumber,
+              trackingUrl: `https://www.jtexpress.my/tracking/${encodeURIComponent(body.trackingNumber)}`,
+            },
+          });
+        }
+
+        await tx.timeline.create({
+          data: {
+            orderId: updatedOrder.id,
+            status: statusEnum as any,
+            title: `Status: ${body.orderStatus}`,
+            description: `Pesanan telah diperbarui.`,
+            updatedBy: 'Admin Store',
+          },
+        });
+
+        return updatedOrder;
+      });
+
+      console.log('✅ [Prisma Transaction Success] Saved order:', savedPrismaOrder.orderNumber);
+    } catch (dbErr) {
+      console.warn('[Prisma POST Warning] Failed to write Prisma, using JSON fallback:', dbErr);
     }
 
     const orders = readServerOrders();

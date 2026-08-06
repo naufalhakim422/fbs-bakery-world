@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -59,15 +60,33 @@ function writeServerCustomers(customers: any[]) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get('email');
-  const customers = readServerCustomers();
 
+  try {
+    const dbCustomers = await prisma.customer.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (dbCustomers && dbCustomers.length > 0) {
+      if (email) {
+        const cleanEmail = email.trim().toLowerCase();
+        const customer = dbCustomers.find(c => c.email && c.email.trim().toLowerCase() === cleanEmail);
+        return NextResponse.json({ success: true, customer: customer || null, customers: dbCustomers, source: 'PRISMA_POSTGRES' });
+      }
+      return NextResponse.json({ success: true, customers: dbCustomers, source: 'PRISMA_POSTGRES' });
+    }
+  } catch (err) {
+    console.warn('[Prisma Customer Warning] Fallback to JSON store:', err);
+  }
+
+  const customers = readServerCustomers();
   if (email) {
     const cleanEmail = email.trim().toLowerCase();
     const customer = customers.find((c: any) => c.email && c.email.trim().toLowerCase() === cleanEmail);
-    return NextResponse.json({ success: true, customer: customer || null, customers });
+    return NextResponse.json({ success: true, customer: customer || null, customers, source: 'JSON_FALLBACK' });
   }
 
-  return NextResponse.json({ success: true, customers });
+  return NextResponse.json({ success: true, customers, source: 'JSON_FALLBACK' });
 }
 
 export async function POST(request: Request) {
@@ -75,6 +94,30 @@ export async function POST(request: Request) {
     const body = await request.json();
     if (!body || (!body.email && !body.phone)) {
       return NextResponse.json({ success: false, error: 'Email or Phone is required' }, { status: 400 });
+    }
+
+    try {
+      const cleanEmail = (body.email || `customer-${Date.now()}@fbsbaker.store`).trim().toLowerCase();
+      const cleanPhone = (body.phone || `01${Date.now()}`).trim();
+
+      const upserted = await prisma.customer.upsert({
+        where: { email: cleanEmail },
+        update: {
+          name: body.name || 'Pelanggan FBS',
+          phone: cleanPhone,
+        },
+        create: {
+          id: body.id || `cust-${Date.now()}`,
+          name: body.name || 'Pelanggan FBS',
+          email: cleanEmail,
+          phone: cleanPhone,
+          customerType: 'RETAIL',
+        },
+      });
+
+      console.log('✅ [Prisma Customer Upsert Success]:', upserted.email);
+    } catch (dbErr) {
+      console.warn('[Prisma Customer POST Warning] Falling back to JSON write:', dbErr);
     }
 
     const customers = readServerCustomers();
@@ -88,27 +131,16 @@ export async function POST(request: Request) {
     );
 
     if (idx !== -1) {
-      customers[idx] = { 
-        ...customers[idx], 
-        ...body, 
-        updatedAt: new Date().toISOString() 
-      };
+      customers[idx] = { ...customers[idx], ...body, updatedAt: new Date().toISOString() };
     } else {
       const newCust = {
         id: body.id || `cust-${Date.now()}`,
-        name: body.name || (cleanEmail ? cleanEmail.split('@')[0] : 'Pelanggan FBS'),
-        email: cleanEmail,
+        name: body.name || 'Pelanggan',
+        email: body.email || 'customer@fbsbakeryworld.com',
         phone: body.phone || '',
         customerType: body.customerType || 'RETAIL',
-        provider: body.provider || 'FORM',
-        isEmailVerified: body.isEmailVerified ?? true,
-        isActive: body.isActive ?? true,
-        address: body.address || 'Chukai, Terengganu',
-        city: body.city || 'Chukai',
-        state: body.state || 'Terengganu',
-        postcode: body.postcode || '24000',
-        createdAt: body.createdAt || new Date().toISOString(),
-        loginAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        ...body,
       };
       customers.unshift(newCust);
     }
