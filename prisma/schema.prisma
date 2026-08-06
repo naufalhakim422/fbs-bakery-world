@@ -621,3 +621,23 @@ model RolePermission {
   role         RoleModel       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   PermissionModel @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 }
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  userName  String?
+  role      String?
+  module    String
+  action    String
+  recordId  String?
+  oldValue  String?
+  newValue  String?
+  ipAddress String?
+  device    String?
+  browser   String?
+  timestamp DateTime @default(now())
+
+  @@index([module])
+  @@index([action])
+  @@index([timestamp])
+}

@@ -807,3 +807,27 @@ ALTER TABLE "RolePermission" ADD CONSTRAINT "RolePermission_roleId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "RolePermission" ADD CONSTRAINT "RolePermission_permissionId_fkey" FOREIGN KEY ("permissionId") REFERENCES "PermissionModel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateTable
+CREATE TABLE "AuditLog" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT,
+    "userName" TEXT,
+    "role" TEXT,
+    "module" TEXT NOT NULL,
+    "action" TEXT NOT NULL,
+    "recordId" TEXT,
+    "oldValue" TEXT,
+    "newValue" TEXT,
+    "ipAddress" TEXT,
+    "device" TEXT,
+    "browser" TEXT,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "AuditLog_module_idx" ON "AuditLog"("module");
+CREATE INDEX "AuditLog_action_idx" ON "AuditLog"("action");
+CREATE INDEX "AuditLog_timestamp_idx" ON "AuditLog"("timestamp");
