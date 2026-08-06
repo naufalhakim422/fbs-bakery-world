@@ -473,3 +473,44 @@ model Session {
 
   @@index([token])
 }
+
+model InventoryBatch {
+  id          String         @id @default(uuid())
+  productId   String
+  variantId   String?
+  batchNumber String         @unique
+  quantity    Int
+  expiryDate  DateTime
+  receiveDate DateTime       @default(now())
+  supplier    String         @default("FBS Bakery Supplier")
+  status      String         @default("Fresh")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  histories   BatchHistory[]
+
+  @@index([batchNumber])
+  @@index([expiryDate])
+}
+
+model ExpiryAlert {
+  id          String   @id @default(uuid())
+  productId   String
+  batchNumber String
+  daysLeft    Int
+  alertStatus String   @default("WARNING")
+  message     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BatchHistory {
+  id           String         @id @default(uuid())
+  batchId      String
+  batchNumber  String
+  stockRemoved Int
+  reason       String
+  adminId      String?
+  createdAt    DateTime       @default(now())
+  batch        InventoryBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+}

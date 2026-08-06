@@ -598,3 +598,56 @@ ALTER TABLE "Session" ADD CONSTRAINT "Session_adminId_fkey" FOREIGN KEY ("adminI
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateTable
+CREATE TABLE "InventoryBatch" (
+    "id" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "variantId" TEXT,
+    "batchNumber" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "expiryDate" TIMESTAMP(3) NOT NULL,
+    "receiveDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "supplier" TEXT NOT NULL DEFAULT 'FBS Bakery Supplier',
+    "status" TEXT NOT NULL DEFAULT 'Fresh',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "InventoryBatch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ExpiryAlert" (
+    "id" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "batchNumber" TEXT NOT NULL,
+    "daysLeft" INTEGER NOT NULL,
+    "alertStatus" TEXT NOT NULL DEFAULT 'WARNING',
+    "message" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ExpiryAlert_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BatchHistory" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "batchNumber" TEXT NOT NULL,
+    "stockRemoved" INTEGER NOT NULL,
+    "reason" TEXT NOT NULL,
+    "adminId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BatchHistory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "InventoryBatch_batchNumber_key" ON "InventoryBatch"("batchNumber");
+CREATE INDEX "InventoryBatch_batchNumber_idx" ON "InventoryBatch"("batchNumber");
+CREATE INDEX "InventoryBatch_expiryDate_idx" ON "InventoryBatch"("expiryDate");
+
+-- AddForeignKey
+ALTER TABLE "BatchHistory" ADD CONSTRAINT "BatchHistory_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "InventoryBatch"("id") ON DELETE CASCADE ON UPDATE CASCADE;
