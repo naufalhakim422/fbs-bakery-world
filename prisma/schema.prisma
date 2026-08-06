@@ -586,3 +586,38 @@ model CustomerSegment {
   description String?
   createdAt   DateTime @default(now())
 }
+
+model RoleModel {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  userRoles   UserRole[]
+  permissions RolePermission[]
+}
+
+model PermissionModel {
+  id          String           @id @default(uuid())
+  action      String           @unique
+  description String?
+  createdAt   DateTime         @default(now())
+  roles       RolePermission[]
+}
+
+model UserRole {
+  id        String    @id @default(uuid())
+  adminId   String
+  roleId    String
+  createdAt DateTime  @default(now())
+  role      RoleModel @relation(fields: [roleId], references: [id], onDelete: Cascade)
+}
+
+model RolePermission {
+  id           String          @id @default(uuid())
+  roleId       String
+  permissionId String
+  createdAt    DateTime        @default(now())
+  role         RoleModel       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   PermissionModel @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+}
