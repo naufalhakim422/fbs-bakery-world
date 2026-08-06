@@ -1042,9 +1042,9 @@ export const db = {
     const orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
     const customers = loadFromStorage<Customer[]>('fbs_customers', initialCustomers);
 
-    const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const seq = String(orders.length + 101).padStart(3, '0');
-    const orderNumber = `#FBS-${today}-${seq}`;
+    const yearSuffix = new Date().getFullYear().toString().slice(-2);
+    const seqNum = String(orders.length + 1).padStart(6, '0');
+    const orderNumber = `FB${yearSuffix}${seqNum}`;
     const orderId = `ord-${Date.now()}`;
     const initialStatus = orderInput.orderStatus || 'PENDING_PAYMENT';
     
