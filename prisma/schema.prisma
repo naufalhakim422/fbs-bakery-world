@@ -50,26 +50,26 @@ model Admin {
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
-  sessions       Session[]
-  notifications  Notification[]
+  sessions      Session[]
+  notifications Notification[]
 
   @@index([email])
 }
 
 model Customer {
-  id            String       @id @default(uuid())
-  name          String
-  email         String       @unique
-  phone         String       @unique
-  photo         String?
-  coverPhoto    String?
-  customerType  CustomerType @default(RETAIL)
-  provider      AuthProvider @default(EMAIL)
-  isVerified    Boolean      @default(false)
-  isActive      Boolean      @default(true)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  deletedAt     DateTime?
+  id           String       @id @default(uuid())
+  name         String
+  email        String       @unique
+  phone        String       @unique
+  photo        String?
+  coverPhoto   String?
+  customerType CustomerType @default(RETAIL)
+  provider     AuthProvider @default(EMAIL)
+  isVerified   Boolean      @default(false)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
 
   addresses     Address[]
   orders        Order[]
@@ -99,7 +99,7 @@ model Address {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
-  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([customerId])
 }
@@ -115,39 +115,39 @@ model Category {
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
-  products    Product[]
+  products Product[]
 
   @@index([slug])
 }
 
 model Product {
-  id               String      @id @default(uuid())
+  id               String    @id @default(uuid())
   categoryId       String
-  sku              String      @unique
+  sku              String    @unique
   productName      String
-  slug             String      @unique
-  brand            String      @default("FBS Bakery")
+  slug             String    @unique
+  brand            String    @default("FBS Bakery")
   shortDescription String?
   description      String
   mainImage        String
-  galleryImages    String[]    @default([])
-  isHalal          Boolean     @default(true)
-  isFeatured       Boolean     @default(false)
-  isBestSeller     Boolean     @default(false)
-  isNew            Boolean     @default(true)
-  status           Boolean     @default(true)
-  totalSold        Int         @default(0)
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  galleryImages    String[]  @default([])
+  isHalal          Boolean   @default(true)
+  isFeatured       Boolean   @default(false)
+  isBestSeller     Boolean   @default(false)
+  isNew            Boolean   @default(true)
+  status           Boolean   @default(true)
+  totalSold        Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
 
-  category         Category    @relation(fields: [categoryId], references: [id])
-  variants         Variant[]
-  inventories      Inventory[]
-  orderItems       OrderItem[]
-  wishlists        Wishlist[]
-  cartItems        CartItem[]
-  reviews          Review[]
+  category    Category    @relation(fields: [categoryId], references: [id])
+  variants    Variant[]
+  inventories Inventory[]
+  orderItems  OrderItem[]
+  wishlists   Wishlist[]
+  cartItems   CartItem[]
+  reviews     Review[]
 
   @@index([slug])
   @@index([sku])
@@ -155,15 +155,15 @@ model Product {
 }
 
 model Variant {
-  id          String      @id @default(uuid())
+  id          String    @id @default(uuid())
   productId   String
   variantName String
   weight      Float
   price       Float
-  sku         String      @unique
-  stock       Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  sku         String    @unique
+  stock       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
   product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -188,40 +188,40 @@ model Inventory {
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
-  product        Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  variant        Variant?  @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  product Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
 
   @@index([productId])
   @@index([variantId])
 }
 
 model Order {
-  id           String      @id @default(uuid())
-  orderNumber  String      @unique
-  customerId   String?
-  customerName String
+  id            String      @id @default(uuid())
+  orderNumber   String      @unique
+  customerId    String?
+  customerName  String
   customerEmail String?
   customerPhone String
-  address      String
-  city         String
-  state        String
-  postcode     String
-  notes        String?
-  subtotal     Float
-  shippingFee  Float       @default(0)
-  discount     Float       @default(0)
-  totalAmount  Float
-  status       OrderStatus @default(Pending)
-  cancelReason String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  deletedAt    DateTime?
+  address       String
+  city          String
+  state         String
+  postcode      String
+  notes         String?
+  subtotal      Float
+  shippingFee   Float       @default(0)
+  discount      Float       @default(0)
+  totalAmount   Float
+  status        OrderStatus @default(Pending)
+  cancelReason  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
 
-  customer     Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  items        OrderItem[]
-  timelines    Timeline[]
-  tracking     Tracking?
-  payments     Payment[]
+  customer  Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items     OrderItem[]
+  timelines Timeline[]
+  tracking  Tracking?
+  payments  Payment[]
 
   @@index([orderNumber])
   @@index([customerId])
@@ -244,9 +244,9 @@ model OrderItem {
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
-  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product     Product   @relation(fields: [productId], references: [id])
-  variant     Variant?  @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product  @relation(fields: [productId], references: [id])
+  variant Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
 
   @@index([orderId])
   @@index([productId])
@@ -264,7 +264,7 @@ model Timeline {
   updatedAt   DateTime    @updatedAt
   deletedAt   DateTime?
 
-  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
 }
@@ -281,7 +281,7 @@ model Tracking {
   updatedAt         DateTime  @updatedAt
   deletedAt         DateTime?
 
-  order             Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([trackingNumber])
@@ -345,8 +345,8 @@ model Notification {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
-  admin      Admin?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  admin    Admin?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([adminId])
   @@index([customerId])
@@ -360,22 +360,22 @@ model Wishlist {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
-  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([customerId, productId])
   @@index([customerId])
 }
 
 model Cart {
-  id         String     @id @default(uuid())
-  customerId String     @unique
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id         String    @id @default(uuid())
+  customerId String    @unique
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
-  customer   Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  items      CartItem[]
+  customer Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items    CartItem[]
 
   @@index([customerId])
 }
@@ -390,9 +390,9 @@ model CartItem {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  cart      Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  variant   Variant?  @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  cart    Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
 
   @@index([cartId])
 }
@@ -408,7 +408,7 @@ model Payment {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
-  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
 }
@@ -423,8 +423,8 @@ model Review {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
-  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@index([customerId])
@@ -443,26 +443,26 @@ model OTP {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
-  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([email])
   @@index([phone])
 }
 
 model Session {
-  id           String    @id @default(uuid())
-  adminId      String?
-  customerId   String?
-  token        String    @unique
-  expiresAt    DateTime
-  ipAddress    String?
-  userAgent    String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
+  id         String    @id @default(uuid())
+  adminId    String?
+  customerId String?
+  token      String    @unique
+  expiresAt  DateTime
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
 
-  admin        Admin?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  customer     Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  admin    Admin?    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([token])
 }
