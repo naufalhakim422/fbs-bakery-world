@@ -234,3 +234,32 @@ export const generateWhatsAppOrderLink = (data: WhatsAppCheckoutData): string =>
   const encodedMsg = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
 };
+
+export const generateWhatsAppStatusUpdateLink = (
+  customerName: string,
+  customerPhone: string,
+  orderNumber: string,
+  orderStatus: string,
+  courierName?: string,
+  trackingNumber?: string
+): string => {
+  const cleanPhone = formatWhatsAppNumber(customerPhone || '60129876543');
+  
+  let msg = `📣 *FBS BAKERY WORLD - UPDATE PESANAN*\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  msg += `Halo *${customerName || 'Pelanggan'}*,\n`;
+  msg += `Berikut update terbaru mengenai pesanan Anda:\n\n`;
+  msg += `📋 *Nomor Pesanan:* ${orderNumber}\n`;
+  msg += `📌 *Status Terbaru:* *${orderStatus}*\n`;
+  if (courierName) {
+    msg += `🚚 *Ekspedisi:* ${courierName}\n`;
+  }
+  if (trackingNumber) {
+    msg += `📦 *Nomor Resi Tracking:* *${trackingNumber}*\n`;
+  }
+  msg += `\nPelacakan live dapat diakses di:\n`;
+  msg += `https://www.fbsbaker.store/track-order?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(customerPhone)}\n\n`;
+  msg += `Terima kasih telah berbelanja di FBS Bakery World! 🙏`;
+
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+};

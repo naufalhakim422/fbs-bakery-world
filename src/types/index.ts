@@ -1,6 +1,20 @@
 export type Role = 'OWNER' | 'ADMIN' | 'STAFF';
 
-export type OrderStatus = 'NEW' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCEL_REQUESTED' | 'CANCELLED';
+export type OrderStatus = 
+  | 'PENDING_PAYMENT' 
+  | 'PAYMENT_VERIFIED' 
+  | 'CONFIRMED' 
+  | 'PACKING' 
+  | 'READY_TO_SHIP' 
+  | 'SHIPPING' 
+  | 'DELIVERED' 
+  | 'COMPLETED' 
+  | 'CANCEL_REQUESTED'
+  | 'CANCELLED' 
+  | 'REFUND'
+  | 'NEW'
+  | 'PROCESSING'
+  | 'SHIPPED';
 
 export interface ProductVariant {
   id: string;
@@ -44,6 +58,16 @@ export interface Category {
   sortOrder: number;
 }
 
+export interface OrderTimelineEvent {
+  id: string;
+  orderId: string;
+  status: OrderStatus;
+  title: string;
+  description: string;
+  timestamp: string;
+  updatedBy?: string;
+}
+
 export interface OrderItem {
   id: string;
   orderId: string;
@@ -74,8 +98,11 @@ export interface Order {
   courierName?: string;
   trackingNumber?: string;
   shippedAt?: string;
+  estimatedDelivery?: string;
   whatsappUrl?: string;
   items: OrderItem[];
+  timeline?: OrderTimelineEvent[];
+  cancelReason?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -50,13 +50,17 @@ export default function AdminOrderDetailPage() {
   ];
 
   const statusOptions: OrderStatus[] = [
-    'NEW',
+    'PENDING_PAYMENT',
+    'PAYMENT_VERIFIED',
     'CONFIRMED',
-    'PROCESSING',
-    'SHIPPED',
+    'PACKING',
+    'READY_TO_SHIP',
+    'SHIPPING',
     'DELIVERED',
+    'COMPLETED',
     'CANCEL_REQUESTED',
-    'CANCELLED'
+    'CANCELLED',
+    'REFUND'
   ];
 
   useEffect(() => {

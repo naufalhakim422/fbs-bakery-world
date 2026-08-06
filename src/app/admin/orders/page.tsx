@@ -58,7 +58,19 @@ export default function AdminOrdersPage() {
     return matchStatus && matchSearch;
   });
 
-  const statuses: OrderStatus[] = ['NEW', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCEL_REQUESTED', 'CANCELLED'];
+  const statuses: OrderStatus[] = [
+    'PENDING_PAYMENT',
+    'PAYMENT_VERIFIED',
+    'CONFIRMED',
+    'PACKING',
+    'READY_TO_SHIP',
+    'SHIPPING',
+    'DELIVERED',
+    'COMPLETED',
+    'CANCEL_REQUESTED',
+    'CANCELLED',
+    'REFUND'
+  ];
 
   const [confirmModal, setConfirmModal] = useState<{
     type: string;

@@ -126,13 +126,20 @@ function TrackOrderContent() {
 
   const getStepIndex = (status: OrderStatus) => {
     const map: Record<OrderStatus, number> = {
-      'NEW': 0,
+      'PENDING_PAYMENT': 0,
+      'PAYMENT_VERIFIED': 1,
       'CONFIRMED': 1,
+      'PACKING': 2,
+      'READY_TO_SHIP': 3,
+      'SHIPPING': 3,
+      'DELIVERED': 4,
+      'COMPLETED': 4,
+      'NEW': 0,
       'PROCESSING': 2,
       'SHIPPED': 3,
-      'DELIVERED': 4,
       'CANCEL_REQUESTED': 2,
       'CANCELLED': -1,
+      'REFUND': -1,
     };
     return map[status] ?? 0;
   };

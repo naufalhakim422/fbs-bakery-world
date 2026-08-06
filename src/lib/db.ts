@@ -1,4 +1,4 @@
-import { Product, Category, Order, Recipe, Blog, Banner, StoreSetting, Customer, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog, ShippingCourier, ShippingState, WeightBracket, ShippingRate, ProductShareLog } from '@/types';
+import { Product, Category, Order, OrderTimelineEvent, Recipe, Blog, Banner, StoreSetting, Customer, AboutSetting, HomePageSetting, AdminCredentialSetting, ProductReview, VideoPost, StockHistoryLog, ShippingCourier, ShippingState, WeightBracket, ShippingRate, ProductShareLog } from '@/types';
 
 function normalizePhoneDigits(phoneStr?: string): string {
   if (!phoneStr) return '';
@@ -1045,11 +1045,27 @@ export const db = {
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const seq = String(orders.length + 101).padStart(3, '0');
     const orderNumber = `#FBS-${today}-${seq}`;
+    const orderId = `ord-${Date.now()}`;
+    const initialStatus = orderInput.orderStatus || 'PENDING_PAYMENT';
     
+    const initialTimeline: OrderTimelineEvent[] = [
+      {
+        id: `tl-${Date.now()}`,
+        orderId,
+        status: initialStatus,
+        title: 'Pesanan Diterima',
+        description: 'Pesanan baru telah berhasil dibuat dan disimpan di database.',
+        timestamp: new Date().toISOString(),
+        updatedBy: 'Pelanggan'
+      }
+    ];
+
     const newOrder: Order = {
       ...orderInput,
-      id: `ord-${Date.now()}`,
+      id: orderId,
       orderNumber,
+      orderStatus: initialStatus,
+      timeline: initialTimeline,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -1137,6 +1153,53 @@ export const db = {
       if (trackingNumber) orders[idx].trackingNumber = trackingNumber;
       if (status === 'SHIPPED') orders[idx].shippedAt = new Date().toISOString();
       orders[idx].updatedAt = new Date().toISOString();
+
+      if (!orders[idx].timeline) orders[idx].timeline = [];
+      const getTitle = (st: string) => {
+        switch (st) {
+          case 'PENDING_PAYMENT': return 'Menunggu Pembayaran';
+          case 'PAYMENT_VERIFIED': return 'Pembayaran Terverifikasi';
+          case 'CONFIRMED': return 'Pesanan Dikonfirmasi';
+          case 'PACKING': return 'Sedang Dikemas';
+          case 'READY_TO_SHIP': return 'Siap Dikirim';
+          case 'SHIPPING': return 'Dalam Pengiriman';
+          case 'DELIVERED': return 'Pesanan Diterima';
+          case 'COMPLETED': return 'Pesanan Selesai';
+          case 'CANCEL_REQUESTED': return 'Permintaan Pembatalan';
+          case 'CANCELLED': return 'Pesanan Dibatalkan';
+          case 'REFUND': return 'Pengembalian Dana';
+          default: return st;
+        }
+      };
+
+      const getDesc = (st: string, cour?: string, resi?: string) => {
+        switch (st) {
+          case 'PENDING_PAYMENT': return 'Pesanan menunggu proses verifikasi pembayaran.';
+          case 'PAYMENT_VERIFIED': return 'Pembayaran telah terverifikasi oleh Admin Toko.';
+          case 'CONFIRMED': return 'Pesanan telah disetujui & dikonfirmasi oleh Admin Toko.';
+          case 'PACKING': return 'Barang sedang diproses dan dikemas di gudang bakery.';
+          case 'READY_TO_SHIP': return 'Paket disiapkan dan menunggu penjemputan oleh kurir.';
+          case 'SHIPPING': return `Paket diserahkan ke ekspedisi ${cour || 'Kurir'}${resi ? ` (No. Resi: ${resi})` : ''}.`;
+          case 'DELIVERED': return 'Paket telah berhasil diserahkan kepada penerima.';
+          case 'COMPLETED': return 'Pesanan telah selesai diselesaikan oleh pelanggan.';
+          case 'CANCEL_REQUESTED': return 'Pelanggan mengajukan permintaan pembatalan pesanan.';
+          case 'CANCELLED': return 'Pesanan dibatalkan & stok dikembalikan ke inventaris.';
+          case 'REFUND': return 'Dana pembayaran telah dikembalikan kepada pelanggan.';
+          default: return 'Status pesanan diperbarui.';
+        }
+      };
+
+      const finalCour = courierName || orders[idx].courierName;
+      const finalResi = trackingNumber || orders[idx].trackingNumber;
+      orders[idx].timeline.push({
+        id: `tl-${Date.now()}`,
+        orderId: orders[idx].id,
+        status: status,
+        title: getTitle(status),
+        description: getDesc(status, finalCour, finalResi),
+        timestamp: new Date().toISOString(),
+        updatedBy: 'Admin Store'
+      });
       
       const overrides = loadFromStorage<Record<string, any>>('fbs_order_status_overrides', {});
       const ovData = {
