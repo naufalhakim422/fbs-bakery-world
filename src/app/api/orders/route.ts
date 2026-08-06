@@ -304,13 +304,46 @@ export async function GET(request: Request) {
   const email = searchParams.get('email');
   const phone = searchParams.get('phone');
   const customerId = searchParams.get('customerId');
+  const search = searchParams.get('search') || '';
+  const statusFilter = searchParams.get('status') || '';
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '50', 10);
 
   try {
-    const prismaOrders = await prisma.order.findMany({
-      where: { deletedAt: null },
-      include: { items: true, timelines: true, tracking: true, payments: true },
-      orderBy: { createdAt: 'desc' },
-    });
+    // Build Prisma query condition
+    const whereCondition: any = { deletedAt: null };
+
+    if (statusFilter && statusFilter !== 'ALL') {
+      const statusMap: Record<string, string> = {
+        PENDING_PAYMENT: 'Pending',
+        PAYMENT_VERIFIED: 'Paid',
+      };
+      whereCondition.status = (statusMap[statusFilter] || statusFilter) as any;
+    }
+
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      whereCondition.OR = [
+        { orderNumber: { contains: q, mode: 'insensitive' } },
+        { customerName: { contains: q, mode: 'insensitive' } },
+        { customerPhone: { contains: q, mode: 'insensitive' } },
+        { customerEmail: { contains: q, mode: 'insensitive' } },
+        { items: { some: { productName: { contains: q, mode: 'insensitive' } } } },
+      ];
+    }
+
+    const skip = (Math.max(1, page) - 1) * limit;
+
+    const [prismaOrders, totalCount] = await Promise.all([
+      prisma.order.findMany({
+        where: whereCondition,
+        include: { items: true, timelines: true, tracking: true, payments: true },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.order.count({ where: whereCondition }),
+    ]);
 
     if (prismaOrders) {
       const formatted = prismaOrders.map(o => ({
@@ -354,9 +387,9 @@ export async function GET(request: Request) {
           const matchId = customerId && o.customerId && o.customerId === customerId;
           return Boolean(matchEmail || matchPhone || matchId);
         });
-        return NextResponse.json({ success: true, orders: filtered, allOrders: formatted, source: 'PRISMA_POSTGRES' });
+        return NextResponse.json({ success: true, orders: filtered, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' });
       }
-      return NextResponse.json({ success: true, orders: formatted, allOrders: formatted, source: 'PRISMA_POSTGRES' });
+      return NextResponse.json({ success: true, orders: formatted, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' });
     }
   } catch (dbErr) {
     console.warn('[Prisma DB Warning] Falling back to JSON database:', dbErr);
@@ -388,20 +421,23 @@ export async function POST(request: Request) {
     }
 
     try {
-      // PRISMA ATOMIC TRANSACTION
+      // PRISMA ATOMIC TRANSACTION FOR ORDER CREATION & DEDUCTION
       const savedPrismaOrder = await prisma.$transaction(async (tx) => {
+        // Idempotency: If order number already exists, return existing order without duplicate items/deductions
+        const existingOrder = await tx.order.findUnique({
+          where: { orderNumber: body.orderNumber },
+          include: { items: true, tracking: true, timelines: true },
+        });
+
+        if (existingOrder) {
+          return existingOrder;
+        }
+
         const orderId = body.id || `ord-${Date.now()}`;
         const statusEnum = body.orderStatus === 'PENDING_PAYMENT' ? 'Pending' : 'Paid';
 
-        const updatedOrder = await tx.order.upsert({
-          where: { orderNumber: body.orderNumber },
-          update: {
-            customerName: body.customerName,
-            customerPhone: body.customerPhone,
-            totalAmount: body.totalAmount || 0,
-            status: statusEnum as any,
-          },
-          create: {
+        const createdOrder = await tx.order.create({
+          data: {
             id: orderId,
             orderNumber: body.orderNumber,
             customerName: body.customerName,
@@ -421,11 +457,9 @@ export async function POST(request: Request) {
         });
 
         if (body.trackingNumber) {
-          await tx.tracking.upsert({
-            where: { orderId: updatedOrder.id },
-            update: { trackingNumber: body.trackingNumber, courierName: body.courierName || 'J&T Express' },
-            create: {
-              orderId: updatedOrder.id,
+          await tx.tracking.create({
+            data: {
+              orderId: createdOrder.id,
               courierName: body.courierName || 'J&T Express',
               trackingNumber: body.trackingNumber,
               trackingUrl: `https://www.jtexpress.my/tracking/${encodeURIComponent(body.trackingNumber)}`,
@@ -435,23 +469,23 @@ export async function POST(request: Request) {
 
         await tx.timeline.create({
           data: {
-            orderId: updatedOrder.id,
+            orderId: createdOrder.id,
             status: statusEnum as any,
-            title: `Status: ${body.orderStatus}`,
-            description: `Pesanan telah diperbarui.`,
-            updatedBy: 'Admin Store',
+            title: `Pesanan Diterima`,
+            description: `Pesanan baru ${body.orderNumber} telah berhasil dibuat.`,
+            updatedBy: 'Pelanggan',
           },
         });
 
         await tx.notification.create({
           data: {
-            title: `Update Pesanan ${body.orderNumber}`,
-            message: `Status pesanan Anda telah diperbarui menjadi ${body.orderStatus}.`,
+            title: `Pesanan Baru ${body.orderNumber}`,
+            message: `Pesanan baru senilai RM ${body.totalAmount || 0} telah diterima.`,
             type: 'ORDER_UPDATE',
           },
         });
 
-        return updatedOrder;
+        return createdOrder;
       });
 
       console.log('✅ [Prisma Transaction Success] Saved order:', savedPrismaOrder.orderNumber);
@@ -493,7 +527,42 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, orderNumber, orderStatus, courierName, trackingNumber, updatedBy } = body || {};
+    const { id, orderNumber, orderStatus, courierName, trackingNumber, updatedBy, bulkOrderIds } = body || {};
+
+    // HANDLE BULK STATUS UPDATE
+    if (Array.isArray(bulkOrderIds) && bulkOrderIds.length > 0 && orderStatus) {
+      try {
+        const updatedCount = await prisma.$transaction(async (tx) => {
+          let count = 0;
+          for (const targetId of bulkOrderIds) {
+            const existing = await tx.order.findFirst({
+              where: { OR: [{ id: targetId }, { orderNumber: targetId }] },
+            });
+            if (existing) {
+              await tx.order.update({
+                where: { id: existing.id },
+                data: { status: orderStatus as any, updatedAt: new Date() },
+              });
+              await tx.timeline.create({
+                data: {
+                  orderId: existing.id,
+                  status: orderStatus as any,
+                  title: `Status: ${orderStatus}`,
+                  description: `Status pesanan diperbarui secara masal.`,
+                  updatedBy: updatedBy || 'Admin Store',
+                },
+              });
+              count++;
+            }
+          }
+          return count;
+        });
+
+        return NextResponse.json({ success: true, count: updatedCount, source: 'PRISMA_POSTGRES' });
+      } catch (bulkErr) {
+        console.warn('Bulk update warning:', bulkErr);
+      }
+    }
 
     if (!id && !orderNumber) {
       return NextResponse.json({ success: false, error: 'Order ID or Order Number is required' }, { status: 400 });
@@ -656,6 +725,22 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: 'deleteId parameter is required' }, { status: 400 });
     }
 
+    // PRISMA SOFT DELETE (NEVER REMOVE PRODUCTION DATA PERMANENTLY)
+    try {
+      await prisma.order.updateMany({
+        where: {
+          OR: [
+            { id: deleteId },
+            { orderNumber: deleteId },
+          ],
+        },
+        data: { deletedAt: new Date() },
+      });
+      console.log('✅ [Prisma Soft Delete Success]:', deleteId);
+    } catch (dbErr) {
+      console.warn('Prisma soft delete warning:', dbErr);
+    }
+
     const deletedIds = readDeletedOrderIds();
     if (!deletedIds.includes(deleteId)) {
       deletedIds.push(deleteId);
@@ -676,7 +761,7 @@ export async function DELETE(request: Request) {
     );
     writeServerOrders(orders);
 
-    return NextResponse.json({ success: true, orders, deletedIds });
+    return NextResponse.json({ success: true, orders, deletedIds, source: 'SOFT_DELETE_PERFORMED' });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
