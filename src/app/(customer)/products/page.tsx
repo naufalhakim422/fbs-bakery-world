@@ -43,7 +43,10 @@ function CatalogContent() {
     setSelectedCategory(catParam);
   }, [searchParams]);
 
-  const [allProducts, setAllProducts] = useState<Product[]>(() => db.getProducts());
+  const [allProducts, setAllProducts] = useState<Product[]>(() => {
+    const prods = db.getProducts();
+    return prods && prods.length > 0 ? prods : [];
+  });
   const categories = useMemo(() => db.getCategories(), []);
 
   useEffect(() => {
@@ -51,10 +54,17 @@ function CatalogContent() {
     const loadLiveData = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        setAllProducts(db.getProducts());
+        const fetched = db.getProducts();
+        if (fetched && fetched.length > 0) {
+          setAllProducts(fetched);
+        }
       }, 50);
     };
-    setAllProducts(db.getProducts());
+
+    const initialFetch = db.getProducts();
+    if (initialFetch && initialFetch.length > 0) {
+      setAllProducts(initialFetch);
+    }
 
     window.addEventListener('storage', loadLiveData);
     window.addEventListener('fbs_db_updated', loadLiveData);
@@ -347,7 +357,14 @@ export default function ProductCatalogPage() {
       <HeaderNav />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
-        <Suspense fallback={<div className="p-8 text-center text-xs font-bold text-[#800020]">Loading Catalog...</div>}>
+        <Suspense 
+          fallback={
+            <div className="py-20 text-center space-y-4">
+              <div className="w-10 h-10 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p className="text-xs font-bold text-stone-600 uppercase tracking-wider">Memuat Katalog Produk FBS Bakery...</p>
+            </div>
+          }
+        >
           <CatalogContent />
         </Suspense>
       </main>

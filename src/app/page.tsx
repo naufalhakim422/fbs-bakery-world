@@ -66,9 +66,11 @@ export default function HomePage() {
       }
     ]);
     setCategories(db.getCategories());
-    setRecipes(db.getRecipes());
-    setFeaturedProducts(db.getProducts({ featured: true }));
-    setBestSellers(db.getProducts({ bestSeller: true }));
+    const allProds = db.getProducts();
+    const feat = db.getProducts({ featured: true });
+    const best = db.getProducts({ bestSeller: true });
+    setFeaturedProducts(feat.length > 0 ? feat : allProds.slice(0, 4));
+    setBestSellers(best.length > 0 ? best : allProds.slice(0, 4));
     
     // Load Latest Articles (type ARTICLE, max 6) and Latest Videos (status PUBLISHED, max 6)
     const allBlogs = db.getBlogs();

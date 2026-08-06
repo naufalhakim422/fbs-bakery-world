@@ -884,6 +884,10 @@ export const db = {
   // Products
   getProducts: (params?: { category?: string; search?: string; featured?: boolean; bestSeller?: boolean }) => {
     let list = loadFromStorage<Product[]>('fbs_products', initialProducts);
+    if (!list || !Array.isArray(list) || list.length === 0) {
+      list = initialProducts;
+      saveToStorage('fbs_products', initialProducts);
+    }
 
     // Auto-migrate legacy cached localStorage values (1420, 850, 2100) to 0
     let hasLegacy = false;
