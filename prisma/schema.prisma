@@ -144,6 +144,10 @@ model Product {
   isNew            Boolean   @default(true)
   status           Boolean   @default(true)
   totalSold        Int       @default(0)
+  barcode          String?   @unique
+  qrCode           String?   @unique
+  barcodeType      String?   @default("CODE128")
+  generatedAt      DateTime? @default(now())
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
@@ -158,6 +162,7 @@ model Product {
 
   @@index([slug])
   @@index([sku])
+  @@index([barcode])
   @@index([categoryId])
 }
 
@@ -169,6 +174,10 @@ model Variant {
   price       Float
   sku         String    @unique
   stock       Int       @default(0)
+  barcode     String?   @unique
+  qrCode      String?   @unique
+  barcodeType String?   @default("CODE128")
+  generatedAt DateTime? @default(now())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
@@ -180,6 +189,7 @@ model Variant {
 
   @@index([productId])
   @@index([sku])
+  @@index([barcode])
 }
 
 model Inventory {

@@ -858,3 +858,22 @@ CREATE TABLE "SystemHealth" (
 
     CONSTRAINT "SystemHealth_pkey" PRIMARY KEY ("id")
 );
+
+-- AlterTable Product & Variant Barcode & QR Code
+ALTER TABLE "Product" ADD COLUMN "barcode" TEXT,
+ADD COLUMN "qrCode" TEXT,
+ADD COLUMN "barcodeType" TEXT DEFAULT 'CODE128',
+ADD COLUMN "generatedAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE "Variant" ADD COLUMN "barcode" TEXT,
+ADD COLUMN "qrCode" TEXT,
+ADD COLUMN "barcodeType" TEXT DEFAULT 'CODE128',
+ADD COLUMN "generatedAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;
+
+CREATE UNIQUE INDEX "Product_barcode_key" ON "Product"("barcode");
+CREATE UNIQUE INDEX "Product_qrCode_key" ON "Product"("qrCode");
+CREATE INDEX "Product_barcode_idx" ON "Product"("barcode");
+
+CREATE UNIQUE INDEX "Variant_barcode_key" ON "Variant"("barcode");
+CREATE UNIQUE INDEX "Variant_qrCode_key" ON "Variant"("qrCode");
+CREATE INDEX "Variant_barcode_idx" ON "Variant"("barcode");
