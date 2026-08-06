@@ -67,7 +67,7 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-    if (dbCustomers && dbCustomers.length > 0) {
+    if (dbCustomers) {
       if (email) {
         const cleanEmail = email.trim().toLowerCase();
         const customer = dbCustomers.find(c => c.email && c.email.trim().toLowerCase() === cleanEmail);
@@ -116,6 +116,7 @@ export async function POST(request: Request) {
       });
 
       console.log('✅ [Prisma Customer Upsert Success]:', upserted.email);
+      return NextResponse.json({ success: true, customer: upserted, source: 'PRISMA_POSTGRES' });
     } catch (dbErr) {
       console.warn('[Prisma Customer POST Warning] Falling back to JSON write:', dbErr);
     }

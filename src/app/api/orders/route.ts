@@ -312,7 +312,7 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-    if (prismaOrders && prismaOrders.length > 0) {
+    if (prismaOrders) {
       const formatted = prismaOrders.map(o => ({
         id: o.id,
         orderNumber: o.orderNumber,
@@ -455,6 +455,7 @@ export async function POST(request: Request) {
       });
 
       console.log('✅ [Prisma Transaction Success] Saved order:', savedPrismaOrder.orderNumber);
+      return NextResponse.json({ success: true, order: savedPrismaOrder, source: 'PRISMA_POSTGRES' });
     } catch (dbErr) {
       console.warn('[Prisma POST Warning] Failed to write Prisma, using JSON fallback:', dbErr);
     }

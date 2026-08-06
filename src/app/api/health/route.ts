@@ -32,5 +32,5 @@ export async function GET() {
       storage: { status: 'HEALTHY', provider: 'Railway / Vercel' },
       memory: { heapUsedMb, heapTotalMb }
     }
-  });
+  }, { status: dbStatus === 'ONLINE' ? 200 : 503 });
 }

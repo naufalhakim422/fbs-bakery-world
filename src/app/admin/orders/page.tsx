@@ -21,7 +21,10 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     const loadLiveData = async () => {
-      const deletedIds: string[] = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]');
+      let deletedIds: string[] = [];
+      try {
+        deletedIds = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]');
+      } catch (e) {}
       try {
         const res = await fetch('/api/orders');
         const data = await res.json();
@@ -46,15 +49,21 @@ export default function AdminOrdersPage() {
     };
   }, []);
 
+  let deletedIds: string[] = [];
+  if (typeof window !== 'undefined') {
+    try {
+      deletedIds = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]');
+    } catch (e) {}
+  }
+  
   const filtered = orders.filter(o => {
-    const deletedIds: string[] = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]') : [];
     if (deletedIds.includes(o.id) || deletedIds.includes(o.orderNumber)) return false;
 
     const matchStatus = statusFilter === 'ALL' || o.orderStatus === statusFilter;
     const matchSearch = 
-      o.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
-      o.customerName.toLowerCase().includes(search.toLowerCase()) ||
-      o.customerPhone.includes(search);
+      (o.orderNumber || '').toLowerCase().includes(search.toLowerCase()) ||
+      (o.customerName || '').toLowerCase().includes(search.toLowerCase()) ||
+      (o.customerPhone || '').includes(search);
     return matchStatus && matchSearch;
   });
 
@@ -120,6 +129,10 @@ export default function AdminOrdersPage() {
         const updated = db.updateOrderStatusAndTracking(orderId, 'CANCELLED');
         if (updated) {
           setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: 'CANCELLED' } : o));
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('storage'));
+            window.dispatchEvent(new CustomEvent('fbs_db_updated'));
+          }
         }
       }
     });
@@ -136,6 +149,10 @@ export default function AdminOrdersPage() {
         const updated = db.updateOrderStatusAndTracking(orderId, 'CONFIRMED');
         if (updated) {
           setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: 'CONFIRMED' } : o));
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('storage'));
+            window.dispatchEvent(new CustomEvent('fbs_db_updated'));
+          }
         }
       }
     });
@@ -237,7 +254,7 @@ export default function AdminOrdersPage() {
                               {firstItem ? firstItem.productName : t.adminExtra.bakingPackage}
                             </span>
                             <span className="text-[11px] text-stone-500 block truncate">
-                              {firstItem ? `${t.adminExtra.variant}: ${firstItem.variantName}` : `${o.items?.length || 1} ${t.adminExtra.item}`}
+                              {firstItem ? `${t.adminExtra.variant}: ${firstItem.variantName || '-'}` : `${o.items?.length || 1} ${t.adminExtra.item}`}
                             </span>
                           </div>
                         </div>
@@ -278,8 +295,9 @@ export default function AdminOrdersPage() {
                       {/* STATUS & RESI */}
                       <td className="p-4 space-y-1">
                         <span className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md uppercase inline-block ${
-                          o.orderStatus === 'SHIPPED' ? 'bg-emerald-100 text-emerald-800' :
-                          o.orderStatus === 'DELIVERED' ? 'bg-blue-100 text-blue-800' : 
+                          o.orderStatus === 'SHIPPED' || o.orderStatus === 'SHIPPING' ? 'bg-emerald-100 text-emerald-800' :
+                          o.orderStatus === 'DELIVERED' || o.orderStatus === 'COMPLETED' ? 'bg-blue-100 text-blue-800' : 
+                          o.orderStatus === 'CONFIRMED' || o.orderStatus === 'PACKING' || o.orderStatus === 'READY_TO_SHIP' || o.orderStatus === 'PAYMENT_VERIFIED' ? 'bg-indigo-100 text-indigo-800' : 
                           o.orderStatus === 'CANCEL_REQUESTED' ? 'bg-amber-500 text-stone-950 font-black animate-pulse' :
                           o.orderStatus === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
                         }`}>
@@ -325,10 +343,6 @@ export default function AdminOrdersPage() {
 
                           <Link
                             href={`${adminBase}/orders/${o.id}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`${adminBase}/orders/${o.id}`);
-                            }}
                             className="px-3 py-1.5 bg-[#800020] hover:bg-[#6F1D1B] text-white text-xs font-bold rounded-xl shadow inline-flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
                           >
                             {t.adminExtra.processOrder} <ArrowRight className="w-3.5 h-3.5" />

@@ -61,8 +61,8 @@ export default function AdminProductsPage() {
 
   const filtered = products.filter(p => {
     const matchesSearch = p.productName.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase()) ||
-      p.brand.toLowerCase().includes(search.toLowerCase());
+      (p.sku || '').toLowerCase().includes(search.toLowerCase()) ||
+      (p.brand || '').toLowerCase().includes(search.toLowerCase());
 
     if (!matchesSearch) return false;
 
@@ -108,7 +108,7 @@ export default function AdminProductsPage() {
             <Upload className="w-4 h-4" /> Import Excel
             <input 
               type="file" 
-              accept=".csv, .xlsx, text/csv"
+              accept=".csv, text/csv"
               onChange={handleFileImport}
               className="hidden"
             />
@@ -259,7 +259,7 @@ export default function AdminProductsPage() {
                     <td className="p-4 text-stone-700">{p.categoryName}</td>
                     <td className="p-4">
                       <div className="space-y-1">
-                        {p.variants.map(v => (
+                        {(p.variants || []).map(v => (
                           <div key={v.id} className="text-[11px] text-stone-700">
                             <span className="font-semibold">{v.variantName}:</span> <strong className="text-[#800020]">{formatMYR(v.price)}</strong> (Stock: {v.stock})
                           </div>
