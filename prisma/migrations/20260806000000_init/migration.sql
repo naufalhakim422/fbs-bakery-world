@@ -926,3 +926,92 @@ CREATE INDEX "SystemLog_module_idx" ON "SystemLog"("module");
 CREATE INDEX "ErrorLog_errorType_idx" ON "ErrorLog"("errorType");
 CREATE INDEX "ErrorLog_module_idx" ON "ErrorLog"("module");
 CREATE INDEX "ErrorLog_timestamp_idx" ON "ErrorLog"("timestamp");
+
+-- CreateTable
+CREATE TABLE "Branch" (
+    "id" TEXT NOT NULL,
+    "branchName" TEXT NOT NULL,
+    "branchCode" TEXT NOT NULL,
+    "address" TEXT,
+    "phone" TEXT,
+    "email" TEXT,
+    "manager" TEXT,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Branch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Warehouse" (
+    "id" TEXT NOT NULL,
+    "branchId" TEXT NOT NULL,
+    "warehouseName" TEXT NOT NULL,
+    "warehouseCode" TEXT NOT NULL,
+    "address" TEXT,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Warehouse_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WarehouseStock" (
+    "id" TEXT NOT NULL,
+    "warehouseId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "variantId" TEXT,
+    "stock" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "WarehouseStock_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StockTransfer" (
+    "id" TEXT NOT NULL,
+    "transferNo" TEXT NOT NULL,
+    "sourceWhId" TEXT NOT NULL,
+    "destWhId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'Draft',
+    "createdBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "StockTransfer_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StockTransferItem" (
+    "id" TEXT NOT NULL,
+    "transferId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "variantId" TEXT,
+    "quantity" INTEGER NOT NULL,
+
+    CONSTRAINT "StockTransferItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Branch_branchCode_key" ON "Branch"("branchCode");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Warehouse_warehouseCode_key" ON "Warehouse"("warehouseCode");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WarehouseStock_warehouseId_productId_variantId_key" ON "WarehouseStock"("warehouseId", "productId", "variantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "StockTransfer_transferNo_key" ON "StockTransfer"("transferNo");
+
+-- AddForeignKey
+ALTER TABLE "Warehouse" ADD CONSTRAINT "Warehouse_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WarehouseStock" ADD CONSTRAINT "WarehouseStock_warehouseId_fkey" FOREIGN KEY ("warehouseId") REFERENCES "Warehouse"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockTransferItem" ADD CONSTRAINT "StockTransferItem_transferId_fkey" FOREIGN KEY ("transferId") REFERENCES "StockTransfer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
