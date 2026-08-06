@@ -672,3 +672,41 @@ model SystemHealth {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  logLevel  String   @default("INFO")
+  module    String
+  message   String
+  metadata  String?
+  timestamp DateTime @default(now())
+
+  @@index([logLevel])
+  @@index([module])
+}
+
+model ErrorLog {
+  id         String   @id @default(uuid())
+  errorType  String
+  module     String
+  api        String?
+  message    String
+  stackTrace String?
+  userId     String?
+  timestamp  DateTime @default(now())
+
+  @@index([errorType])
+  @@index([module])
+  @@index([timestamp])
+}
+
+model HealthStatus {
+  id          String   @id @default(uuid())
+  appStatus   String   @default("HEALTHY")
+  dbStatus    String   @default("ONLINE")
+  apiStatus   String   @default("OPTIMAL")
+  storagePct  Float    @default(15.0)
+  memoryPct   Float    @default(32.5)
+  cpuPct      Float    @default(8.2)
+  lastChecked DateTime @default(now())
+}

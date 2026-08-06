@@ -877,3 +877,52 @@ CREATE INDEX "Product_barcode_idx" ON "Product"("barcode");
 CREATE UNIQUE INDEX "Variant_barcode_key" ON "Variant"("barcode");
 CREATE UNIQUE INDEX "Variant_qrCode_key" ON "Variant"("qrCode");
 CREATE INDEX "Variant_barcode_idx" ON "Variant"("barcode");
+
+-- CreateTable
+CREATE TABLE "SystemLog" (
+    "id" TEXT NOT NULL,
+    "logLevel" TEXT NOT NULL DEFAULT 'INFO',
+    "module" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "metadata" TEXT,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "SystemLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ErrorLog" (
+    "id" TEXT NOT NULL,
+    "errorType" TEXT NOT NULL,
+    "module" TEXT NOT NULL,
+    "api" TEXT,
+    "message" TEXT NOT NULL,
+    "stackTrace" TEXT,
+    "userId" TEXT,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ErrorLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "HealthStatus" (
+    "id" TEXT NOT NULL,
+    "appStatus" TEXT NOT NULL DEFAULT 'HEALTHY',
+    "dbStatus" TEXT NOT NULL DEFAULT 'ONLINE',
+    "apiStatus" TEXT NOT NULL DEFAULT 'OPTIMAL',
+    "storagePct" DOUBLE PRECISION NOT NULL DEFAULT 15.0,
+    "memoryPct" DOUBLE PRECISION NOT NULL DEFAULT 32.5,
+    "cpuPct" DOUBLE PRECISION NOT NULL DEFAULT 8.2,
+    "lastChecked" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "HealthStatus_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "SystemLog_logLevel_idx" ON "SystemLog"("logLevel");
+CREATE INDEX "SystemLog_module_idx" ON "SystemLog"("module");
+
+-- CreateIndex
+CREATE INDEX "ErrorLog_errorType_idx" ON "ErrorLog"("errorType");
+CREATE INDEX "ErrorLog_module_idx" ON "ErrorLog"("module");
+CREATE INDEX "ErrorLog_timestamp_idx" ON "ErrorLog"("timestamp");
