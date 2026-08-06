@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('Pending', 'WaitingPayment', 'Paid', 'Packing', 'ReadyToShip', 'Shipped', 'Completed', 'Cancelled', 'Refunded');
+CREATE TYPE "OrderStatus" AS ENUM ('Pending', 'WaitingPayment', 'PaymentVerified', 'Preparing', 'Packing', 'ReadyToShip', 'Shipped', 'OutForDelivery', 'Delivered', 'Completed', 'Cancelled', 'RefundRequested', 'RefundApproved', 'RefundRejected', 'Paid', 'Refunded');
 
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('OWNER', 'ADMIN', 'STAFF');
