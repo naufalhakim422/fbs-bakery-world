@@ -443,6 +443,14 @@ export async function POST(request: Request) {
           },
         });
 
+        await tx.notification.create({
+          data: {
+            title: `Update Pesanan ${body.orderNumber}`,
+            message: `Status pesanan Anda telah diperbarui menjadi ${body.orderStatus}.`,
+            type: 'ORDER_UPDATE',
+          },
+        });
+
         return updatedOrder;
       });
 
