@@ -112,6 +112,14 @@ export default function AdminOrderDetailPage() {
 
   const handleSaveStatus = (e: React.FormEvent) => {
     e.preventDefault();
+    if (order.orderStatus === 'CANCELLED') {
+      alert('Pesanan yang telah dibatalkan tidak dapat diubah status pengirimannya.');
+      return;
+    }
+    if ((orderStatus === 'SHIPPING' || orderStatus === 'SHIPPED') && courierName !== 'Self-Pickup / Penghantaran Sendiri' && !trackingNumber.trim()) {
+      alert('⚠️ Nomor Resi (Tracking Number) WAJIB diisi sebelum mengubah status pesanan menjadi SHIPPED / Dalam Pengiriman!');
+      return;
+    }
     if (orderStatus === 'CANCELLED') {
       setConfirmAction({
         type: 'CANCEL_ORDER',
