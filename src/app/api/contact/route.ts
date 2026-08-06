@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { resend, RESEND_FROM } from '@/lib/resend';
+import { getResendClient, RESEND_FROM } from '@/lib/resend';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
@@ -81,7 +83,9 @@ export async function POST(request: Request) {
       </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const resendClient = getResendClient();
+
+    const { data, error } = await resendClient.emails.send({
       from: RESEND_FROM,
       to: [toEmail],
       replyTo: email.trim(),

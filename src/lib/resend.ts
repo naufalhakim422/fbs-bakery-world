@@ -1,8 +1,13 @@
 import { Resend } from 'resend';
 
-const resendApiKey = process.env.RESEND_API_KEY || '';
+const resendApiKey = process.env.RESEND_API_KEY || 're_dummy_key_for_build';
 
 export const resend = new Resend(resendApiKey);
+
+export function getResendClient(): Resend {
+  const key = process.env.RESEND_API_KEY || 're_dummy_key_for_build';
+  return new Resend(key);
+}
 
 export const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'FBS Bakery World <admin@fbsbaker.store>';
 
