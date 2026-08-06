@@ -8,7 +8,7 @@ import { recordAuditLog } from '@/lib/audit';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
-import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar, Trash2, X } from 'lucide-react';
+import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar, Trash2, X, Clock, XCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 export default function AdminOrderDetailPage() {
@@ -301,6 +301,58 @@ export default function AdminOrderDetailPage() {
           </h2>
 
           <form onSubmit={handleSaveStatus} className="space-y-4">
+            {/* Quick Manual Payment Verification Actions for Phase 9 */}
+            {(orderStatus === 'NEW' || orderStatus === 'PENDING_PAYMENT' || order?.orderStatus === 'PENDING_PAYMENT') && (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-amber-700" /> Verifikasi Pembayaran Manual WhatsApp
+                  </span>
+                  <span className="px-2 py-0.5 bg-amber-200 text-amber-900 text-[10px] font-bold rounded-full">
+                    Action Required
+                  </span>
+                </div>
+                <p className="text-[11px] text-amber-800 leading-snug">
+                  Pelanggan telah melakukan transfer manual & mengirimkan bukti resi via WhatsApp. Pilih tindakan untuk mengubah status secara aman di PostgreSQL:
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOrderStatus('PAYMENT_VERIFIED');
+                      const updated = db.updateOrderStatusAndTracking(order.id, 'PAYMENT_VERIFIED', courierName, trackingNumber);
+                      if (updated) {
+                        setOrder({ ...updated });
+                        recordAuditLog('Verifikasi Pembayaran', 'ORDER', `Payment verified manually for order ${order.orderNumber}.`);
+                        setIsSaved(true);
+                        setTimeout(() => setIsSaved(false), 2000);
+                      }
+                    }}
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <CheckCircle2 className="w-4 h-4" /> Verify Payment
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOrderStatus('CANCELLED');
+                      const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED', courierName, trackingNumber);
+                      if (updated) {
+                        setOrder({ ...updated });
+                        recordAuditLog('Tolak Pembayaran', 'ORDER', `Payment rejected for order ${order.orderNumber}.`);
+                        setIsSaved(true);
+                        setTimeout(() => setIsSaved(false), 2000);
+                      }
+                    }}
+                    className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <XCircle className="w-4 h-4" /> Reject Payment
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">{t.adminExtra.orderUpdateStatus}</label>
               <select
