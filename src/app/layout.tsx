@@ -93,7 +93,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className="overflow-x-hidden max-w-full">
+    <html lang="en" className="overflow-x-hidden max-w-full" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="anonymous" />
@@ -108,7 +108,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
-      <body className="antialiased selection:bg-[#800020] selection:text-[#D4AF37] overflow-x-hidden max-w-full w-full font-satoshi">
+      <body className="antialiased selection:bg-[#800020] selection:text-[#D4AF37] overflow-x-hidden max-w-full w-full font-satoshi" suppressHydrationWarning>
         <LanguageProvider>
           <CartProvider>
             <NotificationProvider>

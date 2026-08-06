@@ -44,12 +44,12 @@ export default function ComparePage() {
   const availableToAdd = allProducts.filter(p => !compareList.includes(p.id));
   const filteredAvailable = availableToAdd.filter(p =>
     p.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.brand || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.categoryName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Difference detection helpers
-  const brandsDiffer = products.length > 1 && new Set(products.map(p => p.brand.toLowerCase())).size > 1;
+  const brandsDiffer = products.length > 1 && new Set(products.map(p => (p.brand || '').toLowerCase())).size > 1;
   const categoriesDiffer = products.length > 1 && new Set(products.map(p => (p.categoryName || '').toLowerCase())).size > 1;
   const pricesDiffer = products.length > 1 && new Set(products.map(p => p.variants?.[0]?.price || 0)).size > 1;
   const stocksDiffer = products.length > 1 && new Set(products.map(p => (p.variants?.[0]?.stock || 0) > 0)).size > 1;
@@ -241,7 +241,7 @@ export default function ComparePage() {
                     {products.map(p => (
                       <td key={p.id} className="p-4 text-center border-r border-stone-200 last:border-r-0">
                         <div className="space-y-1">
-                          {p.variants.map(v => (
+                          {(p.variants || []).map(v => (
                             <div key={v.id} className="inline-block px-2 py-1 bg-stone-100 rounded-md text-[11px] font-mono mx-0.5">
                               {v.variantName}: <strong className="text-[#800020]">{formatMYR(v.price)}</strong>
                             </div>

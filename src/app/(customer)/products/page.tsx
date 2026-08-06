@@ -40,9 +40,7 @@ function CatalogContent() {
     const qParam = searchParams.get('search') || '';
     const catParam = searchParams.get('category') || '';
     setSearchQuery(qParam);
-    if (catParam) {
-      setSelectedCategory(catParam);
-    }
+    setSelectedCategory(catParam);
   }, [searchParams]);
 
   const [allProducts, setAllProducts] = useState<Product[]>(() => db.getProducts());
@@ -81,13 +79,13 @@ function CatalogContent() {
     if (debouncedSearchQuery.trim()) {
       const q = debouncedSearchQuery.toLowerCase().trim();
       list = list.filter(p => 
-        p.productName.toLowerCase().includes(q) || 
-        p.brand.toLowerCase().includes(q) || 
-        p.sku.toLowerCase().includes(q) ||
-        p.shortDescription.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
+        (p.productName || '').toLowerCase().includes(q) || 
+        (p.brand || '').toLowerCase().includes(q) || 
+        (p.sku || '').toLowerCase().includes(q) ||
+        (p.shortDescription || '').toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q) ||
         p.categoryName?.toLowerCase().includes(q) ||
-        p.variants.some(v => v.variantName.toLowerCase().includes(q) || v.sku.toLowerCase().includes(q))
+        (p.variants || []).some(v => (v.variantName || '').toLowerCase().includes(q) || (v.sku || '').toLowerCase().includes(q))
       );
     }
 
@@ -108,15 +106,15 @@ function CatalogContent() {
 
     // Advanced Sort Order
     if (sortBy === 'price-asc') {
-      list.sort((a, b) => (a.variants[0]?.price || 0) - (b.variants[0]?.price || 0));
+      list.sort((a, b) => ((a.variants || [])[0]?.price || 0) - ((b.variants || [])[0]?.price || 0));
     } else if (sortBy === 'price-desc') {
-      list.sort((a, b) => (b.variants[0]?.price || 0) - (a.variants[0]?.price || 0));
+      list.sort((a, b) => ((b.variants || [])[0]?.price || 0) - ((a.variants || [])[0]?.price || 0));
     } else if (sortBy === 'newest') {
       list.sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime());
     } else if (sortBy === 'bestseller') {
       list.sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0));
     } else if (sortBy === 'name-asc') {
-      list.sort((a, b) => a.productName.localeCompare(b.productName));
+      list.sort((a, b) => (a.productName || '').localeCompare(b.productName || ''));
     }
 
     return list;

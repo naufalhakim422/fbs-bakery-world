@@ -3,12 +3,15 @@ import { Product, Category, Order, OrderTimelineEvent, Recipe, Blog, Banner, Sto
 function normalizePhoneDigits(phoneStr?: string): string {
   if (!phoneStr) return '';
   let clean = phoneStr.replace(/[^0-9]/g, '');
+  while (clean.startsWith('0')) {
+    clean = clean.substring(1);
+  }
   if (clean.startsWith('60')) {
     clean = clean.substring(2);
   } else if (clean.startsWith('62')) {
     clean = clean.substring(2);
   }
-  if (clean.startsWith('0')) {
+  while (clean.startsWith('0')) {
     clean = clean.substring(1);
   }
   return clean;

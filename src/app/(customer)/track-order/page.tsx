@@ -64,7 +64,7 @@ function TrackOrderContent() {
       const data = await res.json();
       if (data.success && Array.isArray(data.orders)) {
         found = data.orders.find((o: Order) => {
-          const matchNum = Boolean(queryNum && (o.orderNumber.toUpperCase() === queryNum || o.id === queryNum));
+          const matchNum = Boolean(queryNum && ((o.orderNumber || '').toUpperCase() === queryNum || o.id === queryNum));
           const oPhoneNorm = normalizePhoneDigits(o.customerPhone);
           const matchPh = Boolean(normSearchPhone && oPhoneNorm && (normSearchPhone === oPhoneNorm || normSearchPhone.includes(oPhoneNorm) || oPhoneNorm.includes(normSearchPhone)));
           if (queryNum && queryPhone) return matchNum && matchPh;
@@ -94,7 +94,7 @@ function TrackOrderContent() {
       window.removeEventListener('storage', onUpdate);
       window.removeEventListener('fbs_db_updated', onUpdate);
     };
-  }, [initialOrderNum, initialPhone, orderNumber, phone]);
+  }, [initialOrderNum, initialPhone]);
 
   const timelineSteps: { key: OrderStatus; label: string; desc: string }[] = [
     { 
@@ -357,7 +357,7 @@ function TrackOrderContent() {
               <div className="border-t border-stone-200 pt-6">
                 <h3 className="text-sm font-bold text-[#2B1B1B] mb-3">{language === 'EN' ? 'Purchased Items' : language === 'MS' ? 'Barang Dibeli' : 'Daftar Barang Dibeli'}</h3>
                 <div className="space-y-3">
-                  {orderResult.items.map(item => (
+                  {(orderResult.items || []).map(item => (
                     <div key={item.id} className="flex justify-between items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl border border-stone-200">
                       <div className="flex items-center gap-3">
                         {item.mainImage && (

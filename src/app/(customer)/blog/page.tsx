@@ -136,7 +136,7 @@ export default function BlogListPage() {
                       <div className="flex items-center gap-3 text-[11px] text-stone-400 mb-2">
                         <span className="flex items-center gap-1"><User className="w-3.5 h-3.5 text-[#800020]" /> {blog.author}</span>
                         <span>•</span>
-                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-[#800020]" /> {new Date(blog.createdAt).toLocaleDateString()}</span>
+                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-[#800020]" /> {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : '-'}</span>
                       </div>
                       <h2 className="font-serif font-bold text-xl sm:text-2xl text-[#2B1B1B] group-hover:text-[#800020] transition-colors mb-2 line-clamp-2">
                         {blog.title}
@@ -206,7 +206,7 @@ export default function BlogListPage() {
                     </div>
 
                     <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-semibold">
-                      <span>{new Date(video.createdAt).toLocaleDateString()}</span>
+                      <span>{video.createdAt ? new Date(video.createdAt).toLocaleDateString() : '-'}</span>
                       <button
                         onClick={() => setSelectedVideo(video)}
                         className="px-3.5 py-1.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl border border-[#D4AF37]/30 flex items-center gap-1.5 shadow"
@@ -277,7 +277,7 @@ export default function BlogListPage() {
                 </div>
 
                 {/* Direct Link Banner if Video requires permissions or external viewing */}
-                {selectedVideo.embedUrl.startsWith('http') && !parsed.isDirectVideo && (
+                {(selectedVideo.embedUrl || '').startsWith('http') && !parsed.isDirectVideo && (
                   <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#800020]/30 border border-[#D4AF37]/30 text-stone-200 text-xs">
                     <span>{language === 'EN' ? `Video cannot play? Watch directly on ${selectedVideo.platform}:` : language === 'MS' ? `Video tidak boleh dimainkan? Tonton secara langsung di ${selectedVideo.platform}:` : `Video tidak bisa diputar? Tonton langsung di ${selectedVideo.platform}:`}</span>
                     <a

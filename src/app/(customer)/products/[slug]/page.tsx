@@ -266,6 +266,7 @@ export default function ProductDetailPage() {
   };
 
   useEffect(() => {
+    const addedMetaTags: HTMLMetaElement[] = [];
     if (slug) {
       const foundProd = db.getProductBySlug(slug);
       if (foundProd) {
@@ -337,6 +338,7 @@ export default function ProductDetailPage() {
         }
 
         // Dynamic Open Graph & Page Metadata
+        let addedMetaTags: HTMLMetaElement[] = [];
         if (typeof document !== 'undefined') {
           document.title = `${foundProd.productName} | FBS Bakery World`;
           const updateMetaTag = (propName: string, propVal: string, useNameAttr = false) => {
@@ -346,6 +348,7 @@ export default function ProductDetailPage() {
               meta = document.createElement('meta');
               meta.setAttribute(attr, propName);
               document.head.appendChild(meta);
+              addedMetaTags.push(meta as HTMLMetaElement);
             }
             meta.setAttribute('content', propVal);
           };
@@ -361,8 +364,18 @@ export default function ProductDetailPage() {
           updateMetaTag('twitter:description', foundProd.shortDescription || 'Bahan & Perlengkapan Bakeri Premium', true);
           updateMetaTag('twitter:image', foundProd.mainImage, true);
         }
+      } else {
+        setProduct(null);
       }
     }
+
+    return () => {
+      addedMetaTags.forEach(meta => {
+        if (meta && meta.parentNode) {
+          meta.parentNode.removeChild(meta);
+        }
+      });
+    };
   }, [slug]);
 
   const productJsonLd = useMemo(() => {
@@ -393,6 +406,42 @@ export default function ProductDetailPage() {
     };
   }, [product, selectedVariant]);
 
+  const relatedProducts = useMemo(() => {
+    if (!product) return [];
+    return db.getProducts({ category: product.categoryId }).filter(p => p.id !== product.id).slice(0, 4);
+  }, [product]);
+
+  const frequentlyBoughtTogether = useMemo(() => {
+    if (!product) return [];
+    const allProds = db.getProducts();
+    return allProds
+      .filter(p => p.id !== product.id && (p.categoryId === product.categoryId || p.brand === product.brand || p.isBestSeller))
+      .slice(0, 4);
+  }, [product]);
+
+  const [selectedBundleItemIds, setSelectedBundleItemIds] = useState<string[]>([]);
+  const [isBundleAdded, setIsBundleAdded] = useState(false);
+
+  useEffect(() => {
+    if (frequentlyBoughtTogether.length > 0) {
+      setSelectedBundleItemIds(frequentlyBoughtTogether.map(p => p.id));
+    }
+  }, [frequentlyBoughtTogether]);
+
+  const bundleSubtotal = useMemo(() => {
+    if (!product || !selectedVariant) return 0;
+    const mainTotal = selectedVariant.price * quantity;
+    const recommendedTotal = frequentlyBoughtTogether
+      .filter(p => selectedBundleItemIds.includes(p.id))
+      .reduce((sum, p) => {
+        const v = p.variants?.[0];
+        return sum + (v ? v.price : 0);
+      }, 0);
+    return mainTotal + recommendedTotal;
+  }, [product, selectedVariant, quantity, frequentlyBoughtTogether, selectedBundleItemIds]);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
@@ -416,45 +465,11 @@ export default function ProductDetailPage() {
     );
   }
 
-  const relatedProducts = useMemo(() => {
-    if (!product) return [];
-    return db.getProducts({ category: product.categoryId }).filter(p => p.id !== product.id).slice(0, 4);
-  }, [product]);
-
-  const frequentlyBoughtTogether = useMemo(() => {
-    if (!product) return [];
-    const allProds = db.getProducts();
-    return allProds
-      .filter(p => p.id !== product.id && (p.categoryId === product.categoryId || p.brand === product.brand || p.isBestSeller))
-      .slice(0, 4);
-  }, [product]);
-
-  const [selectedBundleItemIds, setSelectedBundleItemIds] = useState<string[]>([]);
-  const [isBundleAdded, setIsBundleAdded] = useState(false);
-
-  useEffect(() => {
-    if (frequentlyBoughtTogether.length > 0) {
-      setSelectedBundleItemIds(frequentlyBoughtTogether.map(p => p.id));
-    }
-  }, [frequentlyBoughtTogether]);
-
   const toggleBundleItem = (id: string) => {
     setSelectedBundleItemIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
-
-  const bundleSubtotal = useMemo(() => {
-    if (!product || !selectedVariant) return 0;
-    const mainTotal = selectedVariant.price * quantity;
-    const recommendedTotal = frequentlyBoughtTogether
-      .filter(p => selectedBundleItemIds.includes(p.id))
-      .reduce((sum, p) => {
-        const v = p.variants?.[0];
-        return sum + (v ? v.price : 0);
-      }, 0);
-    return mainTotal + recommendedTotal;
-  }, [product, selectedVariant, quantity, frequentlyBoughtTogether, selectedBundleItemIds]);
 
   const handleAddBundleToCart = () => {
     if (!product || !selectedVariant) return;
@@ -479,8 +494,6 @@ export default function ProductDetailPage() {
     router.push('/checkout');
   };
 
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-
   const handleOpenShare = () => {
     if (typeof navigator !== 'undefined' && 'share' in navigator && product) {
       navigator.share({
@@ -501,7 +514,7 @@ export default function ProductDetailPage() {
   const isFavorite = isInWishlist(product.id);
 
   const handleAddToCart = () => {
-    if (selectedVariant) {
+    if (product && selectedVariant) {
       addToCart(product, selectedVariant, quantity);
       setIsAdded(true);
       setTimeout(() => setIsAdded(false), 2000);
@@ -598,8 +611,8 @@ export default function ProductDetailPage() {
       {
         '@type': 'ListItem',
         position: 3,
-        name: product.productName,
-        item: `https://fbsbaker.store/products/${product.slug}`,
+        name: product?.productName || '',
+        item: `https://fbsbaker.store/products/${product?.slug || ''}`,
       },
     ],
   };

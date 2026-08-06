@@ -12,7 +12,7 @@ import { ChefHat, Clock, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function RecipeCenterPage() {
   const { t, language } = useLanguage();
-  const [recipes, setRecipes] = useState(db.getRecipes());
+  const [recipes, setRecipes] = useState(db.getRecipes() || []);
 
   useEffect(() => {
     const loadLiveData = () => {
@@ -81,7 +81,7 @@ export default function RecipeCenterPage() {
 
                 <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
                   <span className="text-xs font-bold text-stone-500 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> {recipe.ingredients.length} {language === 'EN' ? 'Key Ingredients' : language === 'MS' ? 'Bahan Utama' : 'Bahan Utama'}
+                    <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> {(recipe.ingredients || []).length} {language === 'EN' ? 'Key Ingredients' : language === 'MS' ? 'Bahan Utama' : 'Bahan Utama'}
                   </span>
                   <Link
                     href={`/recipes/${recipe.slug}`}

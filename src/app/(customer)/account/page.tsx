@@ -185,8 +185,10 @@ export default function CustomerAccountPage() {
 
         const custPhoneNormalized = normalizePhoneDigits(currentCust.phone);
 
-        const deletedIds: string[] = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]');
-        const statusOverrides: Record<string, any> = JSON.parse(localStorage.getItem('fbs_order_status_overrides') || '{}');
+        let deletedIds: string[] = [];
+        try { deletedIds = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]'); } catch (e) {}
+        let statusOverrides: Record<string, any> = {};
+        try { statusOverrides = JSON.parse(localStorage.getItem('fbs_order_status_overrides') || '{}'); } catch (e) {}
 
         const myOrders = allOrders.map(o => {
           const ov = statusOverrides[o.id] || statusOverrides[o.orderNumber];
@@ -554,7 +556,7 @@ export default function CustomerAccountPage() {
 
                   {/* Item Preview */}
                   <div className="space-y-2">
-                    {order.items.map((item: OrderItem) => (
+                    {(order.items || []).map((item: OrderItem) => (
                       <div key={item.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl gap-2 border border-stone-200">
                         <div>
                           <span className="font-bold text-stone-900 block">{item.productName}</span>
@@ -644,10 +646,10 @@ export default function CustomerAccountPage() {
                     <div>
                       <img src={p.mainImage} alt={p.productName} className="w-full h-40 object-cover rounded-xl mb-3" />
                       <h4 className="font-serif font-bold text-sm text-[#2B1B1B]">{p.productName}</h4>
-                      <span className="text-xs font-bold text-[#800020] block mt-1">{formatMYR(p.variants[0]?.price || 0)}</span>
+                      <span className="text-xs font-bold text-[#800020] block mt-1">{formatMYR((p.variants || [])[0]?.price || 0)}</span>
                     </div>
                     <button
-                      onClick={() => addToCart(p, p.variants[0], 1)}
+                      onClick={() => { if (p.variants && p.variants[0]) addToCart(p, p.variants[0], 1); }}
                       className="mt-4 w-full py-2 bg-[#800020] text-white text-xs font-bold rounded-xl"
                     >
                       Add To Cart

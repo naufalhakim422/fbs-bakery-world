@@ -16,7 +16,7 @@ export default function CartPage() {
   const { t, language } = useLanguage();
 
   const amountToFreeShipping = freeShippingThreshold - subtotal;
-  const progressPercent = Math.min(100, (subtotal / freeShippingThreshold) * 100);
+  const progressPercent = freeShippingThreshold > 0 ? Math.min(100, (subtotal / freeShippingThreshold) * 100) : 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
@@ -70,7 +70,7 @@ export default function CartPage() {
               {/* Free Shipping Meter */}
               <div className="bg-[#5A0015] text-[#FFF8F0] p-4 rounded-2xl border border-[#D4AF37]/30 shadow-md">
                 {amountToFreeShipping > 0 ? (
-                  <p className="text-xs">{t.cart.freeShippingAdd.replace('{amount}', formatMYR(amountToFreeShipping))}</p>
+                  <p className="text-xs">{(t.cart?.freeShippingAdd || '').replace('{amount}', formatMYR(amountToFreeShipping))}</p>
                 ) : (
                   <p className="text-xs text-[#D4AF37] font-semibold">{t.cart.freeShippingUnlocked}</p>
                 )}

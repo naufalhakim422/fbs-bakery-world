@@ -136,7 +136,7 @@ export default function CheckoutPage() {
   };
 
   const shippingCalc = db.calculateShippingFee(selectedCourier.id, formData.state, totalWeightGrams);
-  const shippingFee = shippingCalc.fee;
+  const shippingFee = shippingCalc?.fee || 0;
   const grandTotal = subtotal + shippingFee;
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
@@ -161,9 +161,9 @@ export default function CheckoutPage() {
       const newOrder = db.createOrder({
         customerId: custId,
         customerEmail: custEmail,
-        customerName: formData.name,
-        customerPhone: formData.phone,
-        address: formData.address,
+        customerName: formData.name.trim(),
+        customerPhone: formData.phone.trim(),
+        address: formData.address.trim(),
         city: formData.city,
         state: formData.state,
         postcode: formData.postcode,
@@ -188,9 +188,9 @@ export default function CheckoutPage() {
       // 2. Generate WhatsApp Message Link
       const waLink = generateWhatsAppOrderLink({
         orderNumber: newOrder.orderNumber,
-        customerName: formData.name,
-        customerPhone: formData.phone,
-        address: formData.address,
+        customerName: formData.name.trim(),
+        customerPhone: formData.phone.trim(),
+        address: formData.address.trim(),
         city: formData.city,
         state: formData.state,
         postcode: formData.postcode,
@@ -200,7 +200,7 @@ export default function CheckoutPage() {
         courier: selectedCourier.name,
         shippingFee: shippingFee,
         grandTotal: grandTotal,
-        whatsappNumber: settings.whatsappNumber,
+        whatsappNumber: settings?.whatsappNumber || '60123456789',
       });
 
       newOrder.whatsappUrl = waLink;
@@ -447,7 +447,7 @@ export default function CheckoutPage() {
                           <h2 className="font-serif text-lg font-bold">Kalkulator &amp; Pilihan Kurir Pengiriman</h2>
                         </div>
                         <span className="text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                          {shippingCalc.region} ({shippingCalc.bracketName})
+                          {shippingCalc?.region} ({shippingCalc?.bracketName})
                         </span>
                       </div>
 
@@ -500,7 +500,7 @@ export default function CheckoutPage() {
 
                               <div className="text-right">
                                 <span className={`font-serif font-extrabold text-sm ${isSelected ? 'text-[#800020]' : 'text-stone-800'}`}>
-                                  {formatMYR(calc.fee)}
+                                  {formatMYR(calc?.fee || 0)}
                                 </span>
                               </div>
                             </button>

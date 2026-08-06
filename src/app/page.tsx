@@ -112,12 +112,12 @@ export default function HomePage() {
   // AUTO PLAY SLIDER CAROUSEL TIMER (DEFAULT 1 MINUTE / 60,000 MS)
   useEffect(() => {
     if (banners.length <= 1) return;
-    const slideDuration = homeCms.bannerSpeed ? Number(homeCms.bannerSpeed) : 60000; // 1 min default
+    const slideDuration = homeCms?.bannerSpeed ? Number(homeCms.bannerSpeed) : 60000; // 1 min default
     const interval = setInterval(() => {
       setCurrentSlideIndex((prev) => (prev + 1) % banners.length);
     }, slideDuration);
     return () => clearInterval(interval);
-  }, [banners, homeCms.bannerSpeed]);
+  }, [banners, homeCms?.bannerSpeed]);
 
   const nextSlide = () => {
     if (!banners || banners.length === 0) return;
@@ -130,7 +130,7 @@ export default function HomePage() {
   };
 
   const currentBanner = banners[currentSlideIndex] || banners[0] || {};
-  const cleanWaNumber = formatWhatsAppNumber(settings.whatsappNumber);
+  const cleanWaNumber = formatWhatsAppNumber(settings?.whatsappNumber || '60123456789');
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
@@ -376,7 +376,7 @@ export default function HomePage() {
           </div>
 
           {(() => {
-            const list = homeCms.wholesaleBanners && homeCms.wholesaleBanners.length > 0 ? homeCms.wholesaleBanners : [
+            const list = homeCms?.wholesaleBanners && homeCms.wholesaleBanners.length > 0 ? homeCms.wholesaleBanners : [
               {
                 id: 'wpromo-1',
                 title: homeCms.promoTitle || (language === 'EN' ? 'Baker Wholesale Supply & Bulk Discounts' : language === 'MS' ? 'Bekalan Pukal & Diskaun Komersial Baker' : 'Pasokan Grosir & Diskon Komersial Baker'),
@@ -475,7 +475,7 @@ export default function HomePage() {
                       <div className="flex items-center gap-3 text-[10px] text-stone-400 mb-1">
                         <span className="flex items-center gap-1"><User className="w-3 h-3 text-[#800020]" /> {article.author}</span>
                         <span>•</span>
-                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-[#800020]" /> {new Date(article.createdAt).toLocaleDateString()}</span>
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-[#800020]" /> {article.createdAt ? new Date(article.createdAt).toLocaleDateString() : '-'}</span>
                       </div>
                       <h3 className="font-serif font-bold text-lg text-[#2B1B1B] group-hover:text-[#800020] transition-colors line-clamp-2 leading-snug">
                         {article.title}
@@ -564,7 +564,7 @@ export default function HomePage() {
                     </div>
 
                     <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-semibold">
-                      <span>{new Date(video.createdAt).toLocaleDateString()}</span>
+                      <span>{video.createdAt ? new Date(video.createdAt).toLocaleDateString() : '-'}</span>
                       <button
                         onClick={() => setSelectedVideo(video)}
                         className="px-3 py-1 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-[10px] font-bold rounded-lg border border-[#D4AF37]/30 flex items-center gap-1 shadow"
@@ -634,7 +634,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Direct Link Banner if Video requires permissions or external viewing */}
-                {selectedVideo.embedUrl.startsWith('http') && !parsed.isDirectVideo && (
+                {(selectedVideo.embedUrl || '').startsWith('http') && !parsed.isDirectVideo && (
                   <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#800020]/30 border border-[#D4AF37]/30 text-stone-200 text-xs">
                     <span>{language === 'EN' ? `Video cannot play? Watch directly on ${selectedVideo.platform}:` : language === 'MS' ? `Video tidak boleh dimainkan? Tonton di ${selectedVideo.platform}:` : `Video tidak bisa diputar? Tonton langsung di ${selectedVideo.platform}:`}</span>
                     <a

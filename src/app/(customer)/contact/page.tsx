@@ -60,6 +60,10 @@ export default function ContactPage() {
         body: JSON.stringify(formData),
       });
 
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
       const result = await response.json();
 
       if (response.ok && result.success) {
@@ -125,7 +129,7 @@ export default function ContactPage() {
                 <MapPin className="w-5 h-5 text-[#800020] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-stone-900 font-bold mb-0.5">{language === 'EN' ? 'Warehouse Address:' : language === 'MS' ? 'Alamat Gudang:' : 'Alamat Gudang:'}</strong>
-                  <span>{settings.address}</span>
+                  <span>{settings?.address}</span>
                 </div>
               </div>
 
@@ -133,7 +137,7 @@ export default function ContactPage() {
                 <Phone className="w-5 h-5 text-[#800020] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-stone-900 font-bold mb-0.5">{language === 'EN' ? 'WhatsApp Support Line:' : language === 'MS' ? 'Talian Sokongan WhatsApp:' : 'Layanan WhatsApp:'}</strong>
-                  <span>+{settings.whatsappNumber}</span>
+                  <span>+{settings?.whatsappNumber}</span>
                 </div>
               </div>
 
@@ -141,7 +145,7 @@ export default function ContactPage() {
                 <Mail className="w-5 h-5 text-[#800020] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-stone-900 font-bold mb-0.5">{language === 'EN' ? 'Email Inquiry:' : language === 'MS' ? 'E-mel Pertanyaan:' : 'Email Pertanyaan:'}</strong>
-                  <span>{settings.supportEmail}</span>
+                  <span>{settings?.supportEmail}</span>
                 </div>
               </div>
 
@@ -156,7 +160,7 @@ export default function ContactPage() {
 
             <div className="pt-4">
               <a
-                href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber)}`}
+                href={`https://wa.me/${formatWhatsAppNumber(settings?.whatsappNumber || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs rounded-2xl shadow-lg flex items-center justify-center gap-2"

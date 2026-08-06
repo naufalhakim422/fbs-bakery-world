@@ -58,16 +58,14 @@ export async function POST(req: Request) {
         success: true,
         message: `Kode OTP 6-digit terkirim via Resend ke ${email}!`,
         mode: 'RESEND_SENT',
-        otpCode: cleanOtp,
         id: data?.id,
       });
     }
 
     return NextResponse.json({
       success: true,
-      message: `Kode OTP (${cleanOtp}) siap digunakan untuk ${targetDestination}.`,
+      message: `Kode OTP terkirim ke ${targetDestination}.`,
       mode: 'SMS_OTP',
-      otpCode: cleanOtp,
     });
   } catch (err: any) {
     console.error('[API Send OTP Error]:', err);
