@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
 
+export const dynamic = 'force-dynamic';
+
 // Fallback client ID (replace with your actual client ID in production)
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||

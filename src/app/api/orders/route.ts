@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
+export const dynamic = 'force-dynamic';
+
 declare global {
   var __fbs_orders_cache: any[] | undefined;
   var __fbs_deleted_orders_cache: string[] | undefined;
