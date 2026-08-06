@@ -84,6 +84,13 @@ export async function POST(request: Request) {
     `;
 
     const resendClient = getResendClient();
+    if (!resendClient) {
+      console.warn('[Contact Route] RESEND_API_KEY is not configured in server environment variables.');
+      return NextResponse.json(
+        { success: false, error: 'Email service is not configured (RESEND_API_KEY is missing).' },
+        { status: 500 }
+      );
+    }
 
     const { data, error } = await resendClient.emails.send({
       from: RESEND_FROM,

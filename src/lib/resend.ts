@@ -1,12 +1,11 @@
 import { Resend } from 'resend';
 
-const resendApiKey = process.env.RESEND_API_KEY || 're_dummy_key_for_build';
-
-export const resend = new Resend(resendApiKey);
-
-export function getResendClient(): Resend {
-  const key = process.env.RESEND_API_KEY || 're_dummy_key_for_build';
-  return new Resend(key);
+export function getResendClient(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !apiKey.trim()) {
+    return null;
+  }
+  return new Resend(apiKey.trim());
 }
 
 export const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'FBS Bakery World <admin@fbsbaker.store>';
@@ -22,12 +21,19 @@ export async function sendEmailViaResend({
   html: string;
   replyTo?: string;
 }) {
+  const client = getResendClient();
+  if (!client) {
+    console.warn('[Resend] RESEND_API_KEY is missing in environment variables.');
+    return {
+      data: null,
+      error: { message: 'RESEND_API_KEY is missing in server environment variables.', name: 'missing_api_key' },
+    };
+  }
+
   const recipients = Array.isArray(to) ? to : [to];
-  
-  // Try sending with primary configured sender
   const primaryFrom = process.env.RESEND_FROM_EMAIL || 'FBS Bakery World <admin@fbsbaker.store>';
   
-  const primaryResult = await resend.emails.send({
+  const primaryResult = await client.emails.send({
     from: primaryFrom,
     to: recipients,
     subject,
@@ -39,11 +45,9 @@ export async function sendEmailViaResend({
     return primaryResult;
   }
 
-  // If primary domain is not verified yet in Resend dashboard (403 domain_not_verified),
-  // fallback to onboarding@resend.dev for test recipients
   if (primaryResult.error.message?.includes('not verified')) {
-    console.warn('[Resend Warning] Primary domain fbsbaker.store pending verification in Resend dashboard. Fallback to onboarding@resend.dev');
-    return await resend.emails.send({
+    console.warn('[Resend Warning] Primary domain pending verification. Fallback to onboarding@resend.dev');
+    return await client.emails.send({
       from: 'FBS Bakery <onboarding@resend.dev>',
       to: recipients,
       subject,
