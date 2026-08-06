@@ -565,7 +565,7 @@ let adminCredentialData: AdminCredentialSetting = {
 let initialOrders: Order[] = [
   {
     id: 'ord-1',
-    orderNumber: '#FBS-20260805-101',
+    orderNumber: 'FB26000001',
     customerId: 'cust-1',
     customerName: 'Muhammad Jaka',
     customerEmail: 'nopaldeso1@gmail.com',
@@ -611,7 +611,7 @@ let initialOrders: Order[] = [
   },
   {
     id: 'ord-2',
-    orderNumber: '#FBS-20260805-102',
+    orderNumber: 'FB26000002',
     customerId: 'cust-2',
     customerName: 'Siti Nurhaliza',
     customerEmail: 'siti@example.com',
@@ -623,7 +623,7 @@ let initialOrders: Order[] = [
     notes: 'Pengiriman via Pos Laju',
     courierName: 'Pos Laju',
     totalAmount: 90.00,
-    orderStatus: 'NEW',
+    orderStatus: 'PENDING_PAYMENT',
     createdAt: '2026-08-05T16:20:00Z',
     updatedAt: '2026-08-05T16:20:00Z',
     items: [
@@ -643,7 +643,7 @@ let initialOrders: Order[] = [
   },
   {
     id: 'ord-3',
-    orderNumber: '#FBS-20260805-103',
+    orderNumber: 'FB26000003',
     customerId: 'cust-3',
     customerName: 'Naufal Hakim Muzaki',
     customerEmail: 'nopalberak1@gmail.com',
@@ -655,7 +655,7 @@ let initialOrders: Order[] = [
     notes: 'Kirim saat jam kerja',
     courierName: 'J&T Express',
     totalAmount: 285.00,
-    orderStatus: 'NEW',
+    orderStatus: 'PACKING',
     createdAt: '2026-08-05T17:45:00Z',
     updatedAt: '2026-08-05T17:45:00Z',
     items: [
