@@ -641,3 +641,24 @@ model AuditLog {
   @@index([action])
   @@index([timestamp])
 }
+
+model BackupHistory {
+  id          String   @id @default(uuid())
+  backupType  String   @default("MANUAL")
+  fileSize    String
+  status      String   @default("SUCCESS")
+  downloadUrl String?
+  createdBy   String   @default("Owner Admin")
+  createdAt   DateTime @default(now())
+}
+
+model SystemHealth {
+  id              String   @id @default(uuid())
+  dbStatus        String   @default("HEALTHY")
+  apiStatus       String   @default("ONLINE")
+  storageUsage    String   @default("15%")
+  serverStatus    String   @default("OPTIMAL")
+  lastBackupDate  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

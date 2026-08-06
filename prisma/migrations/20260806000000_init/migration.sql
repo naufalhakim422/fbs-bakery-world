@@ -831,3 +831,30 @@ CREATE TABLE "AuditLog" (
 CREATE INDEX "AuditLog_module_idx" ON "AuditLog"("module");
 CREATE INDEX "AuditLog_action_idx" ON "AuditLog"("action");
 CREATE INDEX "AuditLog_timestamp_idx" ON "AuditLog"("timestamp");
+
+-- CreateTable
+CREATE TABLE "BackupHistory" (
+    "id" TEXT NOT NULL,
+    "backupType" TEXT NOT NULL DEFAULT 'MANUAL',
+    "fileSize" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'SUCCESS',
+    "downloadUrl" TEXT,
+    "createdBy" TEXT NOT NULL DEFAULT 'Owner Admin',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BackupHistory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SystemHealth" (
+    "id" TEXT NOT NULL,
+    "dbStatus" TEXT NOT NULL DEFAULT 'HEALTHY',
+    "apiStatus" TEXT NOT NULL DEFAULT 'ONLINE',
+    "storageUsage" TEXT NOT NULL DEFAULT '15%',
+    "serverStatus" TEXT NOT NULL DEFAULT 'OPTIMAL',
+    "lastBackupDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SystemHealth_pkey" PRIMARY KEY ("id")
+);
