@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { OrderStatus } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
