@@ -9,18 +9,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/admin2026',
-        destination: '/admin',
-      },
-      {
-        source: '/admin2026/:path*',
-        destination: '/admin/:path*',
-      },
-    ];
-  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
