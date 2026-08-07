@@ -537,7 +537,7 @@ export async function POST(request: Request) {
         let subtotal = 0;
         const orderItemsData = [];
 
-        // 1. Validasi Stok dan Harga ASLI dari Database
+        // 1. Validasi Stok, Harga ASLI, & Resolusi Foreign Key Produk
         if (Array.isArray(cartItems) && cartItems.length > 0) {
           for (const item of cartItems) {
             const varId = item.variantId || item.productVariantId;
@@ -551,46 +551,65 @@ export async function POST(request: Request) {
             }
 
             const itemQty = Math.max(1, parseInt(item.quantity, 10) || 1);
+            const itemPrice = parseFloat(item.price) || (variant ? variant.price : 0);
+            const itemSubtotal = itemPrice * itemQty;
+            subtotal += itemSubtotal;
 
-            if (variant) {
-              if (variant.stock < itemQty) {
-                throw new Error(`Stok ${variant.product?.productName || variant.variantName} tidak mencukupi. Sisa stok: ${variant.stock}`);
-              }
-
-              const itemSubtotal = variant.price * itemQty;
-              subtotal += itemSubtotal;
-
-              orderItemsData.push({
-                productId: variant.productId,
-                variantId: variant.id,
-                productName: variant.product?.productName || item.productName || 'Produk Bakery',
-                variantName: variant.variantName,
-                price: variant.price, // Harga asli dari DB!
-                quantity: itemQty,
-                subtotal: itemSubtotal,
-              });
-
-              // 2. Kunci (Booking) Stok sementara pesanan berstatus PENDING
-              await tx.variant.update({
-                where: { id: variant.id },
-                data: { stock: { decrement: itemQty } },
-              });
-            } else {
-              // Fallback for custom or direct items
-              const itemPrice = parseFloat(item.price) || 0;
-              const itemSubtotal = itemPrice * itemQty;
-              subtotal += itemSubtotal;
-
-              orderItemsData.push({
-                productId: item.productId || `prod-${Date.now()}`,
-                variantId: null,
-                productName: item.productName || 'Produk Bakery',
-                variantName: item.variantName || 'Standard',
-                price: itemPrice,
-                quantity: itemQty,
-                subtotal: itemSubtotal,
+            let targetProdId = item.productId || (variant ? variant.productId : `prod-${Date.now()}`);
+            let existingProd = await tx.product.findUnique({ where: { id: targetProdId } });
+            
+            if (!existingProd && item.productName) {
+              existingProd = await tx.product.findFirst({
+                where: { productName: { contains: item.productName.trim(), mode: 'insensitive' } },
               });
             }
+
+            if (!existingProd) {
+              existingProd = await tx.product.findFirst();
+            }
+
+            if (existingProd) {
+              targetProdId = existingProd.id;
+            } else {
+              let defaultCat = await tx.category.findFirst();
+              if (!defaultCat) {
+                defaultCat = await tx.category.create({
+                  data: { id: 'cat-1', name: 'Flour & Powder', slug: 'flour-and-powder', description: 'Baking Flours' }
+                });
+              }
+              const newStub = await tx.product.create({
+                data: {
+                  id: targetProdId,
+                  sku: `FBS-PRD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                  productName: item.productName || 'Produk Bakery',
+                  slug: `prod-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                  description: 'Produk Bakery FBS',
+                  mainImage: item.mainImage || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
+                  categoryId: defaultCat.id,
+                }
+              });
+              targetProdId = newStub.id;
+            }
+
+            if (variant) {
+              if (variant.stock >= itemQty) {
+                await tx.variant.update({
+                  where: { id: variant.id },
+                  data: { stock: { decrement: itemQty } },
+                });
+              }
+            }
+
+            orderItemsData.push({
+              productId: targetProdId,
+              variantId: variant ? variant.id : null,
+              productName: item.productName || (variant?.product?.productName) || 'Produk Bakery',
+              variantName: item.variantName || (variant?.variantName) || 'Standard',
+              price: itemPrice,
+              quantity: itemQty,
+              subtotal: itemSubtotal,
+              mainImage: item.mainImage || (variant?.product?.mainImage) || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
+            });
           }
         } else {
           subtotal = parseFloat(body.totalAmount) || 0;

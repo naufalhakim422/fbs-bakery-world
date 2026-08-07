@@ -225,8 +225,23 @@ export default function CustomerAccountPage() {
 
             const resOrders = await fetch(`/api/orders?${queryParams.toString()}`, { cache: 'no-store' });
             const dataOrders = await resOrders.json();
-            if (dataOrders.success && Array.isArray(dataOrders.orders)) {
-              allOrders = dataOrders.orders;
+            if (dataOrders.success && Array.isArray(dataOrders.orders) && dataOrders.orders.length > 0) {
+              const serverList = dataOrders.orders;
+              const mergedMap = new Map<string, any>();
+
+              // Add local orders first
+              allOrders.forEach((o: any) => {
+                const key = (o.orderNumber || o.id || '').toUpperCase();
+                if (key) mergedMap.set(key, o);
+              });
+
+              // Server orders overwrite/enrich local orders
+              serverList.forEach((o: any) => {
+                const key = (o.orderNumber || o.id || '').toUpperCase();
+                if (key) mergedMap.set(key, o);
+              });
+
+              allOrders = Array.from(mergedMap.values());
               localStorage.setItem('fbs_orders', JSON.stringify(allOrders));
             }
           } catch (serverOrderErr) {
