@@ -1,7 +1,7 @@
-'use client';
-
 import AdminOrdersPage from '@/app/admin/orders/page';
 
-export default function Admin2026OrdersPage() {
-  return <AdminOrdersPage />;
+export const revalidate = 0;
+
+export default async function Admin2026OrdersPage() {
+  return await AdminOrdersPage();
 }
