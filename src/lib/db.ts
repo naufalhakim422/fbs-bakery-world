@@ -1254,9 +1254,16 @@ export const db = {
 
       if (typeof window !== 'undefined') {
         fetch('/api/orders', {
-          method: 'POST',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orders[idx]),
+          body: JSON.stringify({
+            id: orders[idx].id,
+            orderNumber: orders[idx].orderNumber,
+            orderStatus: status,
+            courierName: courierName || orders[idx].courierName,
+            trackingNumber: trackingNumber !== undefined ? trackingNumber : orders[idx].trackingNumber,
+            updatedBy: 'Admin Store',
+          }),
         }).catch(err => console.warn('Order status sync warning:', err));
       }
 

@@ -75,10 +75,11 @@ export async function GET(request: Request) {
       }
       return NextResponse.json({ success: true, customers: dbCustomers, source: 'PRISMA_POSTGRES' });
     }
-  } catch (err) {
-    console.warn('[Prisma Customer Warning] Fallback to JSON store:', err);
+  } catch (err: any) {
+    console.warn('[Prisma Customer Warning] Database query failed, using JSON fallback:', err.message);
   }
 
+  // SAFE JSON FALLBACK (Retained for Phase 1 Foundation Preparation)
   const customers = readServerCustomers();
   if (email) {
     const cleanEmail = email.trim().toLowerCase();
@@ -117,38 +118,10 @@ export async function POST(request: Request) {
 
       console.log('✅ [Prisma Customer Upsert Success]:', upserted.email);
       return NextResponse.json({ success: true, customer: upserted, source: 'PRISMA_POSTGRES' });
-    } catch (dbErr) {
-      console.warn('[Prisma Customer POST Warning] Falling back to JSON write:', dbErr);
+    } catch (dbErr: any) {
+      console.error('[Prisma Customer POST Error]:', dbErr);
+      return NextResponse.json({ success: false, error: `Database Error: ${dbErr.message}` }, { status: 500 });
     }
-
-    const customers = readServerCustomers();
-    const cleanEmail = (body.email || '').trim().toLowerCase();
-    const cleanPhone = (body.phone || '').replace(/[^0-9]/g, '');
-
-    const idx = customers.findIndex((c: any) => 
-      (c.id && body.id && c.id === body.id) || 
-      (cleanEmail && c.email && c.email.trim().toLowerCase() === cleanEmail) ||
-      (cleanPhone && cleanPhone.length > 6 && c.phone && c.phone.replace(/[^0-9]/g, '') === cleanPhone)
-    );
-
-    if (idx !== -1) {
-      customers[idx] = { ...customers[idx], ...body, updatedAt: new Date().toISOString() };
-    } else {
-      const newCust = {
-        id: body.id || `cust-${Date.now()}`,
-        name: body.name || 'Pelanggan',
-        email: body.email || 'customer@fbsbakeryworld.com',
-        phone: body.phone || '',
-        customerType: body.customerType || 'RETAIL',
-        createdAt: new Date().toISOString(),
-        ...body,
-      };
-      customers.unshift(newCust);
-    }
-
-    writeServerCustomers(customers);
-    const targetIdx = idx !== -1 ? idx : 0;
-    return NextResponse.json({ success: true, customer: customers[targetIdx], customers });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

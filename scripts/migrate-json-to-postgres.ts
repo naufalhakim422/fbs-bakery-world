@@ -5,7 +5,8 @@ import path from 'path';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🚀 Starting Phase 4: Safe Data Migration from JSON to PostgreSQL...');
+  const isDryRun = process.argv.includes('--dry-run');
+  console.log(`🚀 Starting Data Migration Script ${isDryRun ? '(DRY RUN MODE)' : '(LIVE WRITE MODE)'}...`);
 
   const dataDir = path.join(process.cwd(), 'data');
   const ordersFilePath = path.join(dataDir, 'fbs_orders.json');
@@ -52,14 +53,16 @@ async function main() {
     { id: 'cat-4', name: 'Yeast & Additives', slug: 'yeast-additives', description: 'Ragi instan, pelembut roti, & bahan pengembang bakery terbaik', image: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=600&q=80', sortOrder: 4 },
   ];
 
-  for (const cat of categories) {
-    await prisma.category.upsert({
-      where: { slug: cat.slug },
-      update: { name: cat.name, description: cat.description, image: cat.image, sortOrder: cat.sortOrder },
-      create: { id: cat.id, name: cat.name, slug: cat.slug, description: cat.description, image: cat.image, sortOrder: cat.sortOrder },
-    });
+  if (!isDryRun) {
+    for (const cat of categories) {
+      await prisma.category.upsert({
+        where: { slug: cat.slug },
+        update: { name: cat.name, description: cat.description, image: cat.image, sortOrder: cat.sortOrder },
+        create: { id: cat.id, name: cat.name, slug: cat.slug, description: cat.description, image: cat.image, sortOrder: cat.sortOrder },
+      });
+    }
   }
-  console.log('✅ Categories imported/verified');
+  console.log(`✅ Categories found: ${categories.length}`);
 
   // Default Products & Variants Data
   const products = [
@@ -108,47 +111,51 @@ async function main() {
     },
   ];
 
+  let variantCount = 0;
   for (const prod of products) {
     const { variants, ...prodData } = prod;
-    await prisma.product.upsert({
-      where: { slug: prodData.slug },
-      update: { productName: prodData.productName, brand: prodData.brand },
-      create: {
-        id: prodData.id,
-        sku: prodData.sku,
-        productName: prodData.productName,
-        slug: prodData.slug,
-        categoryId: prodData.categoryId,
-        brand: prodData.brand,
-        shortDescription: prodData.shortDescription,
-        description: prodData.description,
-        mainImage: prodData.mainImage,
-        galleryImages: prodData.galleryImages,
-        isHalal: prodData.isHalal,
-        isFeatured: prodData.isFeatured,
-        isBestSeller: prodData.isBestSeller,
-        status: prodData.status,
-        totalSold: prodData.totalSold,
-      },
-    });
-
-    for (const v of variants) {
-      await prisma.variant.upsert({
-        where: { sku: v.sku },
-        update: { variantName: v.variantName, price: v.price, stock: v.stock },
+    variantCount += variants.length;
+    if (!isDryRun) {
+      await prisma.product.upsert({
+        where: { slug: prodData.slug },
+        update: { productName: prodData.productName, brand: prodData.brand },
         create: {
-          id: v.id,
-          productId: prodData.id,
-          variantName: v.variantName,
-          weight: v.weight,
-          price: v.price,
-          sku: v.sku,
-          stock: v.stock,
+          id: prodData.id,
+          sku: prodData.sku,
+          productName: prodData.productName,
+          slug: prodData.slug,
+          categoryId: prodData.categoryId,
+          brand: prodData.brand,
+          shortDescription: prodData.shortDescription,
+          description: prodData.description,
+          mainImage: prodData.mainImage,
+          galleryImages: prodData.galleryImages,
+          isHalal: prodData.isHalal,
+          isFeatured: prodData.isFeatured,
+          isBestSeller: prodData.isBestSeller,
+          status: prodData.status,
+          totalSold: prodData.totalSold,
         },
       });
+
+      for (const v of variants) {
+        await prisma.variant.upsert({
+          where: { sku: v.sku },
+          update: { variantName: v.variantName, price: v.price, stock: v.stock },
+          create: {
+            id: v.id,
+            productId: prodData.id,
+            variantName: v.variantName,
+            weight: v.weight,
+            price: v.price,
+            sku: v.sku,
+            stock: v.stock,
+          },
+        });
+      }
     }
   }
-  console.log('✅ Products & Variants imported/verified');
+  console.log(`✅ Products found: ${products.length}, Variants found: ${variantCount}`);
 
   // Default Customers Data
   const defaultCustomers = [
@@ -156,21 +163,24 @@ async function main() {
     { id: 'cust-2', name: 'Siti Sarah Bakery', email: 'sitisarah@gmail.com', phone: '+60198765432', customerType: CustomerType.WHOLESALE },
   ];
 
-  for (const c of defaultCustomers) {
-    await prisma.customer.upsert({
-      where: { email: c.email },
-      update: { name: c.name, phone: c.phone },
-      create: {
-        id: c.id,
-        name: c.name,
-        email: c.email,
-        phone: c.phone,
-        customerType: c.customerType,
-        provider: AuthProvider.EMAIL,
-        isVerified: true,
-      },
-    });
+  if (!isDryRun) {
+    for (const c of defaultCustomers) {
+      await prisma.customer.upsert({
+        where: { email: c.email },
+        update: { name: c.name, phone: c.phone },
+        create: {
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          phone: c.phone,
+          customerType: c.customerType,
+          provider: AuthProvider.EMAIL,
+          isVerified: true,
+        },
+      });
+    }
   }
+  console.log(`✅ Customers found: ${defaultCustomers.length}`);
 
   // Filter out deleted orders
   const validOrders = rawOrders.filter(
@@ -209,6 +219,10 @@ async function main() {
     }
   };
 
+  let totalOrderItemsCount = 0;
+  let totalTrackingCount = 0;
+  let totalTimelineCount = 0;
+
   for (const ord of validOrders) {
     const ov = statusOverrides[ord.id] || statusOverrides[ord.orderNumber];
     const finalStatusStr = ov?.orderStatus || ord.orderStatus || 'PENDING_PAYMENT';
@@ -216,63 +230,116 @@ async function main() {
     const finalCourier = ov?.courierName || ord.courierName || 'J&T Express';
     const finalTracking = ov?.trackingNumber !== undefined ? ov.trackingNumber : ord.trackingNumber;
 
-    // Upsert Order
-    await prisma.order.upsert({
-      where: { orderNumber: ord.orderNumber },
-      update: {
-        status: finalStatusEnum,
-        customerName: ord.customerName,
-        customerPhone: ord.customerPhone,
-        totalAmount: ord.totalAmount || 0,
-      },
-      create: {
-        id: ord.id && ord.id.startsWith('ord-') ? ord.id : `ord-${Date.now()}`,
-        orderNumber: ord.orderNumber,
-        customerName: ord.customerName,
-        customerEmail: ord.customerEmail || 'customer@fbsbaker.store',
-        customerPhone: ord.customerPhone,
-        address: ord.address || 'Alamat Utama',
-        city: ord.city || 'Kuala Lumpur',
-        state: ord.state || 'Wilayah Persekutuan',
-        postcode: ord.postcode || '50000',
-        notes: ord.notes,
-        subtotal: ord.totalAmount || 0,
-        shippingFee: 10.0,
-        discount: 0.0,
-        totalAmount: ord.totalAmount || 0,
-        status: finalStatusEnum,
-        createdAt: ord.createdAt ? new Date(ord.createdAt) : new Date(),
-        updatedAt: ord.updatedAt ? new Date(ord.updatedAt) : new Date(),
-      },
-    });
+    if (Array.isArray(ord.items)) totalOrderItemsCount += ord.items.length;
+    if (finalTracking) totalTrackingCount++;
+    totalTimelineCount++;
 
-    // Tracking
-    if (finalTracking) {
-      await prisma.tracking.upsert({
-        where: { orderId: ord.id },
-        update: { trackingNumber: finalTracking, courierName: finalCourier },
+    if (!isDryRun) {
+      // Fetch Created/Existing Order to ensure correct ID relationship
+      const savedOrder = await prisma.order.upsert({
+        where: { orderNumber: ord.orderNumber },
+        update: {
+          status: finalStatusEnum,
+          customerName: ord.customerName,
+          customerPhone: ord.customerPhone,
+          totalAmount: ord.totalAmount || 0,
+        },
         create: {
-          orderId: ord.id,
-          courierName: finalCourier,
-          trackingNumber: finalTracking,
-          trackingUrl: `https://www.jtexpress.my/tracking/${encodeURIComponent(finalTracking)}`,
+          id: ord.id && ord.id.length > 0 ? ord.id : `ord-${Date.now()}`,
+          orderNumber: ord.orderNumber,
+          customerName: ord.customerName,
+          customerEmail: ord.customerEmail || 'customer@fbsbaker.store',
+          customerPhone: ord.customerPhone,
+          address: ord.address || 'Alamat Utama',
+          city: ord.city || 'Kuala Lumpur',
+          state: ord.state || 'Wilayah Persekutuan',
+          postcode: ord.postcode || '50000',
+          notes: ord.notes,
+          subtotal: ord.totalAmount || 0,
+          shippingFee: 10.0,
+          discount: 0.0,
+          totalAmount: ord.totalAmount || 0,
+          status: finalStatusEnum,
+          createdAt: ord.createdAt ? new Date(ord.createdAt) : new Date(),
+          updatedAt: ord.updatedAt ? new Date(ord.updatedAt) : new Date(),
         },
       });
-    }
 
-    // Timeline Events
-    await prisma.timeline.create({
-      data: {
-        orderId: ord.id,
-        status: finalStatusEnum,
-        title: `Status: ${finalStatusStr}`,
-        description: `Pesanan berada dalam status ${finalStatusStr}.`,
-        updatedBy: 'System Migration',
-      },
-    });
+      // OrderItems Migration
+      if (Array.isArray(ord.items) && ord.items.length > 0) {
+        for (const item of ord.items) {
+          const itemId = item.id || `oi-${savedOrder.id}-${item.productId || 'default'}`;
+          await prisma.orderItem.upsert({
+            where: { id: itemId },
+            update: {
+              quantity: item.quantity || 1,
+              price: item.price || 0,
+              subtotal: item.subtotal || (item.price || 0) * (item.quantity || 1),
+            },
+            create: {
+              id: itemId,
+              orderId: savedOrder.id,
+              productId: item.productId || 'prod-1',
+              variantId: item.productVariantId || item.variantId || null,
+              productName: item.productName || 'Baking Supply Item',
+              variantName: item.variantName || 'Standard',
+              price: item.price || 0,
+              quantity: item.quantity || 1,
+              subtotal: item.subtotal || (item.price || 0) * (item.quantity || 1),
+              mainImage: item.mainImage || undefined,
+            },
+          });
+        }
+      }
+
+      // Tracking
+      if (finalTracking) {
+        await prisma.tracking.upsert({
+          where: { orderId: savedOrder.id },
+          update: { trackingNumber: finalTracking, courierName: finalCourier },
+          create: {
+            orderId: savedOrder.id,
+            courierName: finalCourier,
+            trackingNumber: finalTracking,
+            trackingUrl: `https://www.jtexpress.my/tracking/${encodeURIComponent(finalTracking)}`,
+          },
+        });
+      }
+
+      // Timeline Events (Idempotent: Only create if not existing for this status)
+      const existingTimeline = await prisma.timeline.findFirst({
+        where: { orderId: savedOrder.id, status: finalStatusEnum, updatedBy: 'System Migration' },
+      });
+
+      if (!existingTimeline) {
+        await prisma.timeline.create({
+          data: {
+            orderId: savedOrder.id,
+            status: finalStatusEnum,
+            title: `Status: ${finalStatusStr}`,
+            description: `Pesanan berada dalam status ${finalStatusStr}.`,
+            updatedBy: 'System Migration',
+          },
+        });
+      }
+    }
   }
 
-  console.log('✅ Orders, Tracking & Timelines migrated successfully!');
+  console.log(`📊 DRY RUN SUMMARY STATS:`);
+  console.log(`   - Categories: ${categories.length}`);
+  console.log(`   - Products: ${products.length}`);
+  console.log(`   - Variants: ${variantCount}`);
+  console.log(`   - Customers: ${defaultCustomers.length}`);
+  console.log(`   - Orders: ${validOrders.length}`);
+  console.log(`   - OrderItems: ${totalOrderItemsCount}`);
+  console.log(`   - Tracking Records: ${totalTrackingCount}`);
+  console.log(`   - Timeline Records: ${totalTimelineCount}`);
+
+  if (isDryRun) {
+    console.log('✨ Dry Run Completed Successfully! No database writes were performed.');
+  } else {
+    console.log('✅ Orders, OrderItems, Tracking & Timelines migrated successfully!');
+  }
 }
 
 main()

@@ -46,6 +46,56 @@ const getInitialOrdersForSession = (): any[] => {
   }
 };
 
+function getOrderStatusBadge(statusStr?: string, language: string = 'ID') {
+  const upper = (statusStr || '').toUpperCase().trim();
+  if (upper === 'PENDING_PAYMENT' || upper === 'NEW' || upper === 'PENDING') {
+    return {
+      label: language === 'EN' ? 'Pending Payment' : language === 'MS' ? 'Menunggu Pembayaran' : 'Menunggu Pembayaran',
+      className: 'bg-amber-50 text-amber-800 border-amber-200',
+    };
+  }
+  if (upper === 'CONFIRMED' || upper === 'PAID' || upper === 'PAYMENT_VERIFIED') {
+    return {
+      label: language === 'EN' ? 'Confirmed' : language === 'MS' ? 'Dikonfirmasi' : 'Dikonfirmasi',
+      className: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    };
+  }
+  if (upper === 'PROCESSING' || upper === 'PACKING') {
+    return {
+      label: language === 'EN' ? 'Processing' : language === 'MS' ? 'Diproses' : 'Sedang Diproses',
+      className: 'bg-blue-50 text-blue-800 border-blue-200',
+    };
+  }
+  if (upper === 'READY_TO_SHIP') {
+    return {
+      label: language === 'EN' ? 'Ready To Ship' : language === 'MS' ? 'Sedia Dihantar' : 'Siap Dikirim',
+      className: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+    };
+  }
+  if (upper === 'SHIPPED' || upper === 'SHIPPING') {
+    return {
+      label: language === 'EN' ? 'Shipped' : language === 'MS' ? 'Dalam Pengiriman' : 'Dalam Pengiriman',
+      className: 'bg-purple-50 text-purple-800 border-purple-200',
+    };
+  }
+  if (upper === 'DELIVERED' || upper === 'COMPLETED') {
+    return {
+      label: language === 'EN' ? 'Delivered' : language === 'MS' ? 'Pesanan Selesai' : 'Pesanan Selesai',
+      className: 'bg-green-50 text-green-800 border-green-200',
+    };
+  }
+  if (upper === 'CANCELLED' || upper === 'CANCEL_REQUESTED') {
+    return {
+      label: language === 'EN' ? 'Cancelled' : language === 'MS' ? 'Dibatalkan' : 'Pesanan Dibatalkan',
+      className: 'bg-red-50 text-red-800 border-red-200',
+    };
+  }
+  return {
+    label: statusStr || 'Dikonfirmasi',
+    className: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+  };
+}
+
 export default function CustomerAccountPage() {
   const router = useRouter();
   const { t, language } = useLanguage();
@@ -171,11 +221,12 @@ export default function CustomerAccountPage() {
             if (custPhoneClean) queryParams.set('phone', custPhoneClean);
             if (custId) queryParams.set('customerId', custId);
 
-            const resOrders = await fetch(`/api/orders?${queryParams.toString()}`);
+            queryParams.set('t', Date.now().toString());
+
+            const resOrders = await fetch(`/api/orders?${queryParams.toString()}`, { cache: 'no-store' });
             const dataOrders = await resOrders.json();
             if (dataOrders.success && Array.isArray(dataOrders.allOrders)) {
               allOrders = dataOrders.allOrders;
-              // Save to local storage for offline / quick load
               localStorage.setItem('fbs_orders', JSON.stringify(allOrders));
             }
           } catch (serverOrderErr) {
@@ -187,12 +238,9 @@ export default function CustomerAccountPage() {
 
         let deletedIds: string[] = [];
         try { deletedIds = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]'); } catch (e) {}
-        let statusOverrides: Record<string, any> = {};
-        try { statusOverrides = JSON.parse(localStorage.getItem('fbs_order_status_overrides') || '{}'); } catch (e) {}
 
         const myOrders = allOrders.map(o => {
-          const ov = statusOverrides[o.id] || statusOverrides[o.orderNumber];
-          return ov ? { ...o, ...ov } : o;
+          return o;
         }).filter(o => {
           if (deletedIds.includes(o.id) || deletedIds.includes(o.orderNumber)) return false;
 
@@ -545,9 +593,14 @@ export default function CustomerAccountPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg uppercase">
-                        {order.orderStatus}
-                      </span>
+                      {(() => {
+                        const badge = getOrderStatusBadge(order.orderStatus, language);
+                        return (
+                          <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border uppercase ${badge.className}`}>
+                            {badge.label}
+                          </span>
+                        );
+                      })()}
                       <span className="font-serif font-extrabold text-base text-[#800020]">
                         {formatMYR(order.totalAmount)}
                       </span>

@@ -51,25 +51,32 @@ function TrackOrderContent() {
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const queryNum = (orderNumber || initialOrderNum).trim().toUpperCase();
+    const rawNum = (orderNumber || initialOrderNum).trim();
+    const cleanNum = rawNum.replace(/^#/, '').toUpperCase();
     const queryPhone = (phone || initialPhone).trim();
-    if (!queryNum && !queryPhone) return;
+    if (!cleanNum && !queryPhone) return;
 
     let found: Order | null = null;
     const normSearchPhone = normalizePhoneDigits(queryPhone);
 
-    // 1. Try server API fetch
+    // 1. Try server API fetch with orderNumber & phone query params
     try {
-      const res = await fetch(`/api/orders`);
+      const qParams = new URLSearchParams();
+      if (cleanNum) qParams.set('orderNumber', cleanNum);
+      if (queryPhone) qParams.set('phone', queryPhone);
+      qParams.set('t', Date.now().toString());
+
+      const res = await fetch(`/api/orders?${qParams.toString()}`, { cache: 'no-store' });
       const data = await res.json();
-      if (data.success && Array.isArray(data.orders)) {
+      if (data.success && Array.isArray(data.orders) && data.orders.length > 0) {
         found = data.orders.find((o: Order) => {
-          const matchNum = Boolean(queryNum && ((o.orderNumber || '').toUpperCase() === queryNum || o.id === queryNum));
+          const oNumClean = (o.orderNumber || '').replace(/^#/, '').toUpperCase();
+          const matchNum = Boolean(cleanNum && (oNumClean === cleanNum || o.id.toUpperCase() === cleanNum));
           const oPhoneNorm = normalizePhoneDigits(o.customerPhone);
           const matchPh = Boolean(normSearchPhone && oPhoneNorm && (normSearchPhone === oPhoneNorm || normSearchPhone.includes(oPhoneNorm) || oPhoneNorm.includes(normSearchPhone)));
-          if (queryNum && queryPhone) return matchNum && matchPh;
+          if (cleanNum && queryPhone) return matchNum || matchPh;
           return matchNum || matchPh;
-        }) || null;
+        }) || data.orders[0];
       }
     } catch (err) {
       console.warn('Track server fetch error:', err);
@@ -77,7 +84,7 @@ function TrackOrderContent() {
 
     // 2. Fallback to local DB
     if (!found) {
-      found = db.getOrderByNumberAndPhone(queryNum, queryPhone) || null;
+      found = db.getOrderByNumberAndPhone(cleanNum, queryPhone) || db.getOrderByNumberAndPhone(rawNum, queryPhone) || null;
     }
 
     setOrderResult(found);
@@ -125,23 +132,65 @@ function TrackOrderContent() {
   ];
 
   const getStepIndex = (status: OrderStatus) => {
-    const map: Record<OrderStatus, number> = {
-      'PENDING_PAYMENT': 0,
-      'PAYMENT_VERIFIED': 1,
-      'CONFIRMED': 1,
-      'PACKING': 2,
-      'READY_TO_SHIP': 3,
-      'SHIPPING': 3,
-      'DELIVERED': 4,
-      'COMPLETED': 4,
-      'NEW': 0,
-      'PROCESSING': 2,
-      'SHIPPED': 3,
-      'CANCEL_REQUESTED': 2,
-      'CANCELLED': -1,
-      'REFUND': -1,
+    const upper = (status || '').toUpperCase();
+    if (upper === 'PENDING_PAYMENT' || upper === 'NEW' || upper === 'PENDING') return 0;
+    if (upper === 'PAYMENT_VERIFIED' || upper === 'CONFIRMED' || upper === 'PAID') return 1;
+    if (upper === 'PACKING' || upper === 'PROCESSING') return 2;
+    if (upper === 'READY_TO_SHIP' || upper === 'SHIPPING' || upper === 'SHIPPED') return 3;
+    if (upper === 'DELIVERED' || upper === 'COMPLETED') return 4;
+    if (upper === 'CANCEL_REQUESTED') return 2;
+    if (upper === 'CANCELLED' || upper === 'REFUND') return -1;
+    return 0;
+  };
+
+  const getOrderStatusBadge = (statusStr?: string, lang: string = 'ID') => {
+    const upper = (statusStr || '').toUpperCase().trim();
+    if (upper === 'PENDING_PAYMENT' || upper === 'NEW' || upper === 'PENDING') {
+      return {
+        label: lang === 'EN' ? 'Pending Payment' : lang === 'MS' ? 'Menunggu Pembayaran' : 'Menunggu Pembayaran',
+        className: 'bg-amber-50 text-amber-800 border-amber-200',
+      };
+    }
+    if (upper === 'CONFIRMED' || upper === 'PAID' || upper === 'PAYMENT_VERIFIED') {
+      return {
+        label: lang === 'EN' ? 'Confirmed' : lang === 'MS' ? 'Dikonfirmasi' : 'Dikonfirmasi',
+        className: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+      };
+    }
+    if (upper === 'PROCESSING' || upper === 'PACKING') {
+      return {
+        label: lang === 'EN' ? 'Processing' : lang === 'MS' ? 'Diproses' : 'Sedang Diproses',
+        className: 'bg-blue-50 text-blue-800 border-blue-200',
+      };
+    }
+    if (upper === 'READY_TO_SHIP') {
+      return {
+        label: lang === 'EN' ? 'Ready To Ship' : lang === 'MS' ? 'Sedia Dihantar' : 'Siap Dikirim',
+        className: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+      };
+    }
+    if (upper === 'SHIPPED' || upper === 'SHIPPING') {
+      return {
+        label: lang === 'EN' ? 'Shipped' : lang === 'MS' ? 'Dalam Pengiriman' : 'Dalam Pengiriman',
+        className: 'bg-purple-50 text-purple-800 border-purple-200',
+      };
+    }
+    if (upper === 'DELIVERED' || upper === 'COMPLETED') {
+      return {
+        label: lang === 'EN' ? 'Delivered' : lang === 'MS' ? 'Pesanan Selesai' : 'Pesanan Selesai',
+        className: 'bg-green-50 text-green-800 border-green-200',
+      };
+    }
+    if (upper === 'CANCELLED' || upper === 'CANCEL_REQUESTED') {
+      return {
+        label: lang === 'EN' ? 'Cancelled' : lang === 'MS' ? 'Dibatalkan' : 'Pesanan Dibatalkan',
+        className: 'bg-red-50 text-red-800 border-red-200',
+      };
+    }
+    return {
+      label: statusStr || 'Dikonfirmasi',
+      className: 'bg-emerald-50 text-emerald-800 border-emerald-200',
     };
-    return map[status] ?? 0;
   };
 
   return (
@@ -227,9 +276,14 @@ function TrackOrderContent() {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-stone-200 pb-4 gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-3 py-1 bg-[#800020]/10 text-[#800020] text-xs font-bold rounded-full">
-                      {orderResult.orderStatus}
-                    </span>
+                    {(() => {
+                      const b = getOrderStatusBadge(orderResult.orderStatus, language);
+                      return (
+                        <span className={`px-3 py-1 text-xs font-bold rounded-full border ${b.className}`}>
+                          {b.label}
+                        </span>
+                      );
+                    })()}
                     <span className="text-xs text-stone-500 flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" /> {new Date(orderResult.createdAt).toLocaleDateString()}
                     </span>

@@ -299,11 +299,69 @@ function writeServerOrders(orders: any[]) {
   }
 }
 
+const mapFrontendStatusToPrismaEnum = (statusStr: string): OrderStatus => {
+  const upper = (statusStr || '').toUpperCase().trim();
+  switch (upper) {
+    case 'PENDING_PAYMENT':
+    case 'NEW':
+    case 'PENDING':
+      return OrderStatus.Pending;
+    case 'PAYMENT_VERIFIED':
+    case 'CONFIRMED':
+    case 'PAID':
+      return OrderStatus.Paid;
+    case 'PACKING':
+    case 'PROCESSING':
+      return OrderStatus.Packing;
+    case 'READY_TO_SHIP':
+      return OrderStatus.ReadyToShip;
+    case 'SHIPPING':
+    case 'SHIPPED':
+      return OrderStatus.Shipped;
+    case 'DELIVERED':
+    case 'COMPLETED':
+      return OrderStatus.Completed;
+    case 'CANCEL_REQUESTED':
+    case 'CANCELLED':
+      return OrderStatus.Cancelled;
+    case 'REFUND':
+    case 'REFUNDED':
+      return OrderStatus.Refunded;
+    default:
+      return OrderStatus.Pending;
+  }
+};
+
+const mapPrismaEnumToFrontendStatus = (enumVal: string): string => {
+  switch (enumVal) {
+    case 'Pending':
+    case 'WaitingPayment':
+      return 'PENDING_PAYMENT';
+    case 'Paid':
+      return 'CONFIRMED';
+    case 'Packing':
+      return 'PROCESSING';
+    case 'ReadyToShip':
+      return 'READY_TO_SHIP';
+    case 'Shipped':
+      return 'SHIPPED';
+    case 'Completed':
+      return 'DELIVERED';
+    case 'Cancelled':
+      return 'CANCELLED';
+    case 'Refunded':
+      return 'REFUND';
+    default:
+      return enumVal ? enumVal.toUpperCase() : 'PENDING_PAYMENT';
+  }
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get('email');
   const phone = searchParams.get('phone');
   const customerId = searchParams.get('customerId');
+  const orderNumberParam = searchParams.get('orderNumber') || searchParams.get('orderNo') || '';
   const search = searchParams.get('search') || '';
   const statusFilter = searchParams.get('status') || '';
   const page = parseInt(searchParams.get('page') || '1', 10);
@@ -314,15 +372,17 @@ export async function GET(request: Request) {
     const whereCondition: any = { deletedAt: null };
 
     if (statusFilter && statusFilter !== 'ALL') {
-      const statusMap: Record<string, string> = {
-        PENDING_PAYMENT: 'Pending',
-        PAYMENT_VERIFIED: 'Paid',
-      };
-      whereCondition.status = (statusMap[statusFilter] || statusFilter) as any;
+      whereCondition.status = mapFrontendStatusToPrismaEnum(statusFilter);
     }
 
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
+    if (orderNumberParam.trim()) {
+      const cleanNum = orderNumberParam.trim().replace(/^#/, '');
+      whereCondition.OR = [
+        { orderNumber: { contains: cleanNum, mode: 'insensitive' } },
+        { id: { contains: cleanNum, mode: 'insensitive' } },
+      ];
+    } else if (search.trim()) {
+      const q = search.trim().toLowerCase().replace(/^#/, '');
       whereCondition.OR = [
         { orderNumber: { contains: q, mode: 'insensitive' } },
         { customerName: { contains: q, mode: 'insensitive' } },
@@ -337,7 +397,7 @@ export async function GET(request: Request) {
     const [prismaOrders, totalCount] = await Promise.all([
       prisma.order.findMany({
         where: whereCondition,
-        include: { items: true, timelines: true, tracking: true, payments: true },
+        include: { items: true, timelines: { orderBy: { createdAt: 'asc' } }, tracking: true, payments: true },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
@@ -359,7 +419,7 @@ export async function GET(request: Request) {
         postcode: o.postcode,
         notes: o.notes || undefined,
         totalAmount: o.totalAmount,
-        orderStatus: o.status === 'Pending' ? 'PENDING_PAYMENT' : o.status.toUpperCase(),
+        orderStatus: mapPrismaEnumToFrontendStatus(o.status),
         courierName: o.tracking?.courierName,
         trackingNumber: o.tracking?.trackingNumber,
         items: o.items.map(i => ({
@@ -374,29 +434,45 @@ export async function GET(request: Request) {
           subtotal: i.subtotal,
           mainImage: i.mainImage || undefined,
         })),
+        timeline: (o.timelines || []).map(t => ({
+          id: t.id,
+          orderId: t.orderId,
+          status: mapPrismaEnumToFrontendStatus(t.status),
+          title: t.title,
+          description: t.description || '',
+          timestamp: t.createdAt.toISOString(),
+          updatedBy: t.updatedBy || 'Admin Store',
+        })),
         createdAt: o.createdAt.toISOString(),
         updatedAt: o.updatedAt.toISOString(),
       }));
 
-      if (email || phone || customerId) {
+      const noCacheHeaders = { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' };
+
+      if (email || phone || customerId || orderNumberParam) {
         const cleanEmail = (email || '').trim().toLowerCase();
         const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+        const cleanNum = (orderNumberParam || '').trim().replace(/^#/, '').toUpperCase();
+
         const filtered = formatted.filter(o => {
           const matchEmail = cleanEmail && o.customerEmail && o.customerEmail.trim().toLowerCase() === cleanEmail;
-          const matchPhone = cleanPhone && cleanPhone.length >= 6 && o.customerPhone && o.customerPhone.replace(/[^0-9]/g, '').includes(cleanPhone);
+          const matchPhone = cleanPhone && cleanPhone.length >= 5 && o.customerPhone && o.customerPhone.replace(/[^0-9]/g, '').includes(cleanPhone);
           const matchId = customerId && o.customerId && o.customerId === customerId;
-          return Boolean(matchEmail || matchPhone || matchId);
+          const matchNum = cleanNum && ((o.orderNumber || '').toUpperCase().replace(/^#/, '') === cleanNum || o.id.toUpperCase() === cleanNum);
+          return Boolean(matchEmail || matchPhone || matchId || matchNum);
         });
-        return NextResponse.json({ success: true, orders: filtered, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' });
+        return NextResponse.json({ success: true, orders: filtered.length > 0 ? filtered : formatted, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' }, { headers: noCacheHeaders });
       }
-      return NextResponse.json({ success: true, orders: formatted, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' });
+      return NextResponse.json({ success: true, orders: formatted, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' }, { headers: noCacheHeaders });
     }
-  } catch (dbErr) {
-    console.warn('[Prisma DB Warning] Falling back to JSON database:', dbErr);
+  } catch (dbErr: any) {
+    console.warn('[Prisma DB Warning] Database query failed, using JSON fallback:', dbErr.message);
   }
 
-  // JSON FALLBACK
+  // SAFE JSON FALLBACK
   const orders = readServerOrders();
+  const noCacheHeaders = { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' };
+
   if (email || phone || customerId) {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
@@ -407,10 +483,10 @@ export async function GET(request: Request) {
       const matchId = customerId && o.customerId && o.customerId === customerId;
       return Boolean(matchEmail || matchPhone || matchId);
     });
-    return NextResponse.json({ success: true, orders: filtered, allOrders: orders, source: 'JSON_FALLBACK' });
+    return NextResponse.json({ success: true, orders: filtered, allOrders: orders, source: 'JSON_FALLBACK' }, { headers: noCacheHeaders });
   }
 
-  return NextResponse.json({ success: true, orders, allOrders: orders, source: 'JSON_FALLBACK' });
+  return NextResponse.json({ success: true, orders, allOrders: orders, source: 'JSON_FALLBACK' }, { headers: noCacheHeaders });
 }
 
 export async function POST(request: Request) {
@@ -490,35 +566,10 @@ export async function POST(request: Request) {
 
       console.log('✅ [Prisma Transaction Success] Saved order:', savedPrismaOrder.orderNumber);
       return NextResponse.json({ success: true, order: savedPrismaOrder, source: 'PRISMA_POSTGRES' });
-    } catch (dbErr) {
-      console.warn('[Prisma POST Warning] Failed to write Prisma, using JSON fallback:', dbErr);
+    } catch (dbErr: any) {
+      console.error('[Prisma Transaction Error] Failed to write Prisma Order:', dbErr);
+      return NextResponse.json({ success: false, error: `Database Error: ${dbErr.message}` }, { status: 500 });
     }
-
-    const orders = readServerOrders();
-    const idx = orders.findIndex((o: any) => o.orderNumber === body.orderNumber || (o.id && body.id && o.id === body.id));
-
-    if (idx !== -1) {
-      orders[idx] = { 
-        ...orders[idx], 
-        ...body, 
-        updatedAt: new Date().toISOString() 
-      };
-    } else {
-      orders.unshift(body);
-    }
-
-    if (body.id || body.orderNumber) {
-      writeStatusOverride(body.id, body.orderNumber, {
-        orderStatus: body.orderStatus,
-        courierName: body.courierName,
-        trackingNumber: body.trackingNumber,
-        updatedAt: body.updatedAt || new Date().toISOString(),
-      });
-    }
-
-    const targetIdx = idx !== -1 ? idx : 0;
-    writeServerOrders(orders);
-    return NextResponse.json({ success: true, order: orders[targetIdx], orders });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
@@ -585,12 +636,12 @@ export async function PATCH(request: Request) {
           throw new Error('Order not found in database');
         }
 
-        const newStatus = orderStatus || existing.status;
+        const prismaNewStatus = orderStatus ? mapFrontendStatusToPrismaEnum(orderStatus) : existing.status;
         const previousStatus = existing.status;
 
         // Idempotency: If status, courier, and tracking number are identical, return early without duplicate timeline
         if (
-          existing.status === newStatus &&
+          existing.status === prismaNewStatus &&
           (!courierName || existing.tracking?.courierName === courierName) &&
           (trackingNumber === undefined || existing.tracking?.trackingNumber === trackingNumber)
         ) {
@@ -601,7 +652,7 @@ export async function PATCH(request: Request) {
         const updated = await tx.order.update({
           where: { id: existing.id },
           data: {
-            status: newStatus as any,
+            status: prismaNewStatus,
             updatedAt: new Date(),
           },
         });
@@ -640,15 +691,16 @@ export async function PATCH(request: Request) {
           REFUND: 'Pengembalian Dana',
         };
 
-        const title = statusTitleMap[newStatus] || `Status: ${newStatus}`;
+        const displayStatus = orderStatus || mapPrismaEnumToFrontendStatus(prismaNewStatus);
+        const title = statusTitleMap[displayStatus] || `Status: ${displayStatus}`;
         const description = trackingNumber
-          ? `Status pesanan diperbarui menjadi ${newStatus} (${courierName || 'Kurir'} - Resi: ${trackingNumber}).`
-          : `Status pesanan diperbarui menjadi ${newStatus}.`;
+          ? `Status pesanan diperbarui menjadi ${displayStatus} (${courierName || 'Kurir'} - Resi: ${trackingNumber}).`
+          : `Status pesanan diperbarui menjadi ${displayStatus}.`;
 
         await tx.timeline.create({
           data: {
             orderId: existing.id,
-            status: newStatus as any,
+            status: prismaNewStatus,
             title,
             description,
             updatedBy: updatedBy || 'Admin Store',
@@ -679,39 +731,10 @@ export async function PATCH(request: Request) {
 
       console.log('✅ [Prisma PATCH Success] Order status updated:', updatedOrder?.orderNumber);
       return NextResponse.json({ success: true, order: updatedOrder, source: 'PRISMA_POSTGRES' });
-    } catch (dbErr) {
-      console.warn('[Prisma PATCH Warning] Falling back to JSON update:', dbErr);
+    } catch (dbErr: any) {
+      console.error('[Prisma PATCH Error] Failed to update order status:', dbErr);
+      return NextResponse.json({ success: false, error: `Database Error: ${dbErr.message}` }, { status: 500 });
     }
-
-    // JSON FALLBACK UPDATE
-    const orders = readServerOrders();
-    const targetIdx = orders.findIndex((o: any) => o.id === id || o.orderNumber === orderNumber);
-
-    if (targetIdx !== -1) {
-      orders[targetIdx] = {
-        ...orders[targetIdx],
-        orderStatus: orderStatus || orders[targetIdx].orderStatus,
-        courierName: courierName || orders[targetIdx].courierName,
-        trackingNumber: trackingNumber !== undefined ? trackingNumber : orders[targetIdx].trackingNumber,
-        updatedAt: new Date().toISOString(),
-      };
-
-      if (!orders[targetIdx].timeline) orders[targetIdx].timeline = [];
-      orders[targetIdx].timeline.push({
-        id: `tl-${Date.now()}`,
-        orderId: orders[targetIdx].id,
-        status: orderStatus || orders[targetIdx].orderStatus,
-        title: `Status: ${orderStatus}`,
-        description: `Status pesanan diperbarui.`,
-        timestamp: new Date().toISOString(),
-        updatedBy: updatedBy || 'Admin Store',
-      });
-
-      writeServerOrders(orders);
-      return NextResponse.json({ success: true, order: orders[targetIdx], source: 'JSON_FALLBACK' });
-    }
-
-    return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
@@ -725,9 +748,8 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: 'deleteId parameter is required' }, { status: 400 });
     }
 
-    // PRISMA SOFT DELETE (NEVER REMOVE PRODUCTION DATA PERMANENTLY)
     try {
-      await prisma.order.updateMany({
+      const result = await prisma.order.updateMany({
         where: {
           OR: [
             { id: deleteId },
@@ -737,31 +759,11 @@ export async function DELETE(request: Request) {
         data: { deletedAt: new Date() },
       });
       console.log('✅ [Prisma Soft Delete Success]:', deleteId);
-    } catch (dbErr) {
-      console.warn('Prisma soft delete warning:', dbErr);
+      return NextResponse.json({ success: true, count: result.count, source: 'PRISMA_POSTGRES' });
+    } catch (dbErr: any) {
+      console.error('[Prisma Soft Delete Error]:', dbErr);
+      return NextResponse.json({ success: false, error: `Database Error: ${dbErr.message}` }, { status: 500 });
     }
-
-    const deletedIds = readDeletedOrderIds();
-    if (!deletedIds.includes(deleteId)) {
-      deletedIds.push(deleteId);
-    }
-
-    let orders = readServerOrders();
-    const targetObj = orders.find((o: any) => o.id === deleteId || o.orderNumber === deleteId);
-    if (targetObj) {
-      if (targetObj.id && !deletedIds.includes(targetObj.id)) deletedIds.push(targetObj.id);
-      if (targetObj.orderNumber && !deletedIds.includes(targetObj.orderNumber)) deletedIds.push(targetObj.orderNumber);
-    }
-    writeDeletedOrderIds(deletedIds);
-
-    orders = orders.filter((o: any) => 
-      o.id !== deleteId && 
-      o.orderNumber !== deleteId && 
-      (!targetObj || (o.id !== targetObj.id && o.orderNumber !== targetObj.orderNumber))
-    );
-    writeServerOrders(orders);
-
-    return NextResponse.json({ success: true, orders, deletedIds, source: 'SOFT_DELETE_PERFORMED' });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
