@@ -29,8 +29,8 @@ import {
 function TrackOrderContent() {
   const { t, language } = useLanguage();
   const searchParams = useSearchParams();
-  const initialOrderNum = searchParams.get('orderNumber') || '';
-  const initialPhone = searchParams.get('phone') || '';
+  const initialOrderNum = searchParams?.get('orderNumber') || searchParams?.get('orderNo') || '';
+  const initialPhone = searchParams?.get('phone') || '';
 
   const [orderNumber, setOrderNumber] = useState(initialOrderNum);
   const [phone, setPhone] = useState(initialPhone);

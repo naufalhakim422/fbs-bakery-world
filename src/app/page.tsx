@@ -66,11 +66,31 @@ export default function HomePage() {
       }
     ]);
     setCategories(db.getCategories());
-    const allProds = db.getProducts();
-    const feat = db.getProducts({ featured: true });
-    const best = db.getProducts({ bestSeller: true });
-    setFeaturedProducts(feat.length > 0 ? feat : allProds.slice(0, 4));
-    setBestSellers(best.length > 0 ? best : allProds.slice(0, 4));
+
+    const loadProducts = async () => {
+      let allProds: Product[] = [];
+      try {
+        const res = await fetch('/api/products?status=active', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.success && Array.isArray(data.products) && data.products.length > 0) {
+          allProds = data.products;
+        }
+      } catch (err) {
+        console.warn('[Homepage Products Fetch Warning]', err);
+      }
+
+      if (allProds.length === 0) {
+        allProds = db.getProducts();
+      }
+
+      const feat = allProds.filter(p => p.isFeatured);
+      const best = allProds.filter(p => p.isBestSeller);
+
+      setFeaturedProducts(feat.length > 0 ? feat : allProds.slice(0, 4));
+      setBestSellers(best.length > 0 ? best : allProds.slice(0, 4));
+    };
+
+    loadProducts();
     
     // Load Latest Articles (type ARTICLE, max 6) and Latest Videos (status PUBLISHED, max 6)
     const allBlogs = db.getBlogs();

@@ -15,8 +15,8 @@ import { Search, RefreshCw, Layers, LayoutGrid, List, SlidersHorizontal, Check }
 function CatalogContent() {
   const { t, language } = useLanguage();
   const searchParams = useSearchParams();
-  const selectedCatParam = searchParams.get('category') || '';
-  const initialSearchParam = searchParams.get('search') || '';
+  const selectedCatParam = searchParams?.get('category') || '';
+  const initialSearchParam = searchParams?.get('search') || '';
 
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchParam);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(initialSearchParam);
@@ -37,8 +37,8 @@ function CatalogContent() {
 
   // Sync state when URL query params change
   useEffect(() => {
-    const qParam = searchParams.get('search') || '';
-    const catParam = searchParams.get('category') || '';
+    const qParam = searchParams?.get('search') || '';
+    const catParam = searchParams?.get('category') || '';
     setSearchQuery(qParam);
     setSelectedCategory(catParam);
   }, [searchParams]);
@@ -50,28 +50,38 @@ function CatalogContent() {
   const categories = useMemo(() => db.getCategories(), []);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    const loadLiveData = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        const fetched = db.getProducts();
-        if (fetched && fetched.length > 0) {
-          setAllProducts(fetched);
+    let isMounted = true;
+
+    const loadLiveData = async () => {
+      // 1. Fetch live products from PostgreSQL API first
+      try {
+        const res = await fetch('/api/products?status=active', { cache: 'no-store' });
+        const data = await res.json();
+        if (isMounted && data.success && Array.isArray(data.products) && data.products.length > 0) {
+          setAllProducts(data.products);
+          return;
         }
-      }, 50);
+      } catch (apiErr) {
+        console.warn('[Products API Fetch Warning]', apiErr);
+      }
+
+      // 2. Fallback to local DB if API fetch returned empty/error
+      const fetched = db.getProducts();
+      if (isMounted && fetched && fetched.length > 0) {
+        setAllProducts(fetched);
+      }
     };
 
-    const initialFetch = db.getProducts();
-    if (initialFetch && initialFetch.length > 0) {
-      setAllProducts(initialFetch);
-    }
+    loadLiveData();
 
-    window.addEventListener('storage', loadLiveData);
-    window.addEventListener('fbs_db_updated', loadLiveData);
+    const handleStorageUpdate = () => loadLiveData();
+    window.addEventListener('storage', handleStorageUpdate);
+    window.addEventListener('fbs_db_updated', handleStorageUpdate);
+
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener('storage', loadLiveData);
-      window.removeEventListener('fbs_db_updated', loadLiveData);
+      isMounted = false;
+      window.removeEventListener('storage', handleStorageUpdate);
+      window.removeEventListener('fbs_db_updated', handleStorageUpdate);
     };
   }, []);
 
