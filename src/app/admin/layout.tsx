@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
 
 import { useLanguage } from '@/lib/language-context';
-import { User, Bell, ShieldCheck, Sparkles, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -31,21 +31,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       try {
         let savedSession = localStorage.getItem('fbs_admin_session');
         if (!savedSession) {
-          const defaultSession = {
-            name: 'Admin Owner',
-            email: 'admin@fbsbaker.store',
-            role: 'OWNER',
-            loginAt: new Date().toISOString()
-          };
-          localStorage.setItem('fbs_admin_session', JSON.stringify(defaultSession));
-          savedSession = JSON.stringify(defaultSession);
+          setIsAdminLoggedIn(false);
+          setIsCheckingAuth(false);
+          return;
         }
 
         const parsed = JSON.parse(savedSession);
         setIsAdminLoggedIn(true);
         setAdminUser(parsed);
       } catch (e) {
-        setIsAdminLoggedIn(true);
+        setIsAdminLoggedIn(false);
       } finally {
         setIsCheckingAuth(false);
       }

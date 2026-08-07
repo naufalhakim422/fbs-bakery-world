@@ -15,7 +15,6 @@ import {
   MessageCircle,
   X,
   Send,
-  AlertTriangle,
   Search,
 } from 'lucide-react';
 
@@ -298,7 +297,7 @@ export function OrderTableInteractive({
                             <span className="text-[11px] text-stone-500 block truncate">
                               {firstItem
                                 ? `Varian: ${firstItem.variantName || '-'}`
-                                : `${o.items?.length || 1} Barang`}
+                                : `${(o.items?.length ?? 0)} Barang`}
                             </span>
                           </div>
                         </div>

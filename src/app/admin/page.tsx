@@ -16,7 +16,6 @@ import {
   Clock, 
   ArrowRight,
   TrendingUp,
-  Truck,
   Plus,
   Layers,
   ChefHat,
@@ -24,19 +23,11 @@ import {
   Tag,
   Settings,
   Sparkles,
-  ExternalLink,
   Calendar,
-  Filter,
   X,
   BarChart3,
-  PieChart,
   MessageCircle,
-  TrendingDown,
   Wallet,
-  Receipt,
-  ArrowUpRight,
-  ArrowDownRight,
-  PlusCircle,
   Trash2
 } from 'lucide-react';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
@@ -75,8 +66,6 @@ export default function AdminDashboardPage() {
   const [newExpAmount, setNewExpAmount] = useState('');
   const [newExpCategory, setNewExpCategory] = useState('Pembelian Stok (HPP)');
   const [newExpDate, setNewExpDate] = useState(new Date().toISOString().split('T')[0]);
-
-  const defaultExpenses: any[] = [];
 
   useEffect(() => {
     const loadLiveData = async () => {
@@ -171,13 +160,13 @@ export default function AdminDashboardPage() {
 
   const revenueToday = useMemo(() => {
     return orders
-      .filter(o => o.createdAt && o.createdAt.startsWith(todayStr))
+      .filter(o => o.createdAt && (typeof o.createdAt === 'string' ? o.createdAt : String(o.createdAt || '')).startsWith(todayStr))
       .reduce((sum, o) => sum + o.totalAmount, 0);
   }, [orders, todayStr]);
 
   const revenueThisMonth = useMemo(() => {
     return orders
-      .filter(o => o.createdAt && o.createdAt.startsWith(currentMonthStr))
+      .filter(o => o.createdAt && (typeof o.createdAt === 'string' ? o.createdAt : String(o.createdAt || '')).startsWith(currentMonthStr))
       .reduce((sum, o) => sum + o.totalAmount, 0);
   }, [orders, currentMonthStr]);
 
@@ -191,7 +180,7 @@ export default function AdminDashboardPage() {
   }, [products]);
 
   const totalSalesEstimate = totalInflow;
-  const pendingOrders = useMemo(() => orders.filter(o => o.orderStatus === 'NEW' || o.orderStatus === 'CONFIRMED'), [orders]);
+  const pendingOrders = useMemo(() => orders.filter(o => o.orderStatus === 'NEW' || o.orderStatus === 'CONFIRMED' || o.orderStatus === 'PENDING_PAYMENT' || o.orderStatus === 'PAYMENT_VERIFIED' || (o.orderStatus || '').toUpperCase() === 'PENDING' || (o.orderStatus || '').toUpperCase() === 'WAITINGPAYMENT'), [orders]);
 
   // Dynamic Time-Range Chart Calculation Engine
   const getChartData = () => {
@@ -205,7 +194,7 @@ export default function AdminDashboardPage() {
         const dateStr = d.toISOString().split('T')[0];
         const dayLabel = d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
         
-        const matchingOrders = orders.filter(o => o.createdAt && o.createdAt.startsWith(dateStr));
+        const matchingOrders = orders.filter(o => o.createdAt && (typeof o.createdAt === 'string' ? o.createdAt : String(o.createdAt || '')).startsWith(dateStr));
         const realOmset = matchingOrders.reduce((sum, o) => sum + o.totalAmount, 0);
 
         days.push({
@@ -258,7 +247,7 @@ export default function AdminDashboardPage() {
         const mLabel = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
         const yearMonthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 
-        const matchingOrders = orders.filter(o => o.createdAt && o.createdAt.startsWith(yearMonthStr));
+        const matchingOrders = orders.filter(o => o.createdAt && (typeof o.createdAt === 'string' ? o.createdAt : String(o.createdAt || '')).startsWith(yearMonthStr));
         const realOmset = matchingOrders.reduce((sum, o) => sum + o.totalAmount, 0);
 
         months.push({

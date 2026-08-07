@@ -82,7 +82,7 @@ export default async function AdminOrdersPage() {
       </div>
 
       {/* Interactive Server-Rendered Order Table */}
-      <OrderTableInteractive initialOrders={serializedOrders} />
+      <OrderTableInteractive initialOrders={serializedOrders} adminBase="/admin" />
     </div>
   );
 }

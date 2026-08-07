@@ -119,16 +119,9 @@ export default function AdminOrderDetailPage() {
 
   const executeSaveStatus = async () => {
     const finalCourier = courierName === 'OTHER_CUSTOM' ? (customCourier || 'Other Expedition') : courierName;
-    const updated = db.updateOrderStatusAndTracking(order.id, orderStatus, finalCourier, trackingNumber);
-    if (updated) {
-      setOrder({ ...updated });
-      recordAuditLog('Update Status Order', 'ORDER', `Order ${order.orderNumber} status updated to ${orderStatus} (${finalCourier} - Resi: ${trackingNumber || 'N/A'}).`);
-      setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 2000);
-    }
-
+    
     try {
-      await fetch('/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -140,8 +133,21 @@ export default function AdminOrderDetailPage() {
           updatedBy: 'Admin Store',
         }),
       });
+      
+      if (res.ok) {
+        const updated = db.updateOrderStatusAndTracking(order.id, orderStatus, finalCourier, trackingNumber);
+        if (updated) {
+          setOrder({ ...updated });
+          recordAuditLog('Update Status Order', 'ORDER', `Order ${order.orderNumber} status updated to ${orderStatus} (${finalCourier} - Resi: ${trackingNumber || 'N/A'}).`);
+          setIsSaved(true);
+          setTimeout(() => setIsSaved(false), 2000);
+        }
+      } else {
+        alert('Gagal memperbarui pesanan di server');
+      }
     } catch (err) {
       console.warn('API PATCH Sync Warning:', err);
+      alert('Gagal memperbarui pesanan di server');
     }
   };
 
@@ -224,11 +230,12 @@ export default function AdminOrderDetailPage() {
                   message: `Setujui permohonan pembatalan pesanan ${order.orderNumber}? Stok produk akan otomatis dikembalikan ke inventaris toko.`,
                   confirmBtnText: '✅ Setujui Pembatalan',
                   confirmBtnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white',
-                  action: () => {
+                  action: async () => {
                     const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED');
                     if (updated) {
                       setOrder({ ...updated });
                       setOrderStatus('CANCELLED');
+                      await fetch('/api/orders', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: order.id, orderNumber: order.orderNumber, orderStatus: 'CANCELLED', updatedBy: 'Admin Store' }) });
                     }
                   }
                 });
@@ -246,11 +253,12 @@ export default function AdminOrderDetailPage() {
                   message: `Tolak permohonan pembatalan pesanan ${order.orderNumber}? Pesanan akan tetap diproses secara normal.`,
                   confirmBtnText: '❌ Tolak Pembatalan',
                   confirmBtnClass: 'bg-[#800020] hover:bg-red-900 text-white',
-                  action: () => {
+                  action: async () => {
                     const updated = db.updateOrderStatusAndTracking(order.id, 'CONFIRMED');
                     if (updated) {
                       setOrder({ ...updated });
                       setOrderStatus('CONFIRMED');
+                      await fetch('/api/orders', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: order.id, orderNumber: order.orderNumber, orderStatus: 'CONFIRMED', updatedBy: 'Admin Store' }) });
                     }
                   }
                 });
@@ -361,12 +369,13 @@ export default function AdminOrderDetailPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       setOrderStatus('PAYMENT_VERIFIED');
                       const updated = db.updateOrderStatusAndTracking(order.id, 'PAYMENT_VERIFIED', courierName, trackingNumber);
                       if (updated) {
                         setOrder({ ...updated });
                         recordAuditLog('Verifikasi Pembayaran', 'ORDER', `Payment verified manually for order ${order.orderNumber}.`);
+                        await fetch('/api/orders', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: order.id, orderNumber: order.orderNumber, orderStatus: 'PAYMENT_VERIFIED', updatedBy: 'Admin Store' }) });
                         setIsSaved(true);
                         setTimeout(() => setIsSaved(false), 2000);
                       }
@@ -378,12 +387,13 @@ export default function AdminOrderDetailPage() {
 
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       setOrderStatus('CANCELLED');
                       const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED', courierName, trackingNumber);
                       if (updated) {
                         setOrder({ ...updated });
                         recordAuditLog('Tolak Pembayaran', 'ORDER', `Payment rejected for order ${order.orderNumber}.`);
+                        await fetch('/api/orders', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: order.id, orderNumber: order.orderNumber, orderStatus: 'CANCELLED', updatedBy: 'Admin Store' }) });
                         setIsSaved(true);
                         setTimeout(() => setIsSaved(false), 2000);
                       }
@@ -490,11 +500,12 @@ export default function AdminOrderDetailPage() {
                     message: `Apakah Anda yakin ingin membatalkan pesanan ${order.orderNumber}? Status akan diubah menjadi CANCELLED dan stok produk akan otomatis dikembalikan ke inventaris toko.`,
                     confirmBtnText: 'Ya, Batalkan Pesanan',
                     confirmBtnClass: 'bg-red-600 hover:bg-red-700 text-white',
-                    action: () => {
+                    action: async () => {
                       const updated = db.updateOrderStatusAndTracking(order.id, 'CANCELLED');
                       if (updated) {
                         setOrder({ ...updated });
                         setOrderStatus('CANCELLED');
+                        await fetch('/api/orders', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: order.id, orderNumber: order.orderNumber, orderStatus: 'CANCELLED', updatedBy: 'Admin Store' }) });
                       }
                     }
                   });
@@ -514,7 +525,8 @@ export default function AdminOrderDetailPage() {
                   message: `Apakah Anda yakin ingin menghapus pesanan ${order.orderNumber}? Data yang dihapus dari database terpusat tidak dapat dikembalikan lagi.`,
                   confirmBtnText: 'Ya, Hapus Permanen',
                   confirmBtnClass: 'bg-red-700 hover:bg-red-800 text-white',
-                  action: () => {
+                  action: async () => {
+                    await fetch('/api/orders?deleteId=' + encodeURIComponent(order.id), { method: 'DELETE' });
                     db.deleteOrder(order.id);
                     window.location.href = `${adminBase}/orders`;
                   }
