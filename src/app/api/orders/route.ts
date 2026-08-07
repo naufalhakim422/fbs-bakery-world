@@ -509,6 +509,46 @@ export async function POST(request: Request) {
           return existingOrder;
         }
 
+        // Server-side price recalculation & validation from Database variants
+        let computedSubtotal = 0;
+        const verifiedItems = [];
+
+        if (Array.isArray(body.items) && body.items.length > 0) {
+          for (const item of body.items) {
+            let actualPrice = parseFloat(item.price) || 0;
+            let variantName = item.variantName || 'Standard';
+
+            if (item.productVariantId || item.variantId) {
+              const varId = item.productVariantId || item.variantId;
+              const dbVariant = await tx.variant.findUnique({ where: { id: varId } });
+              if (dbVariant) {
+                actualPrice = dbVariant.price;
+                variantName = dbVariant.variantName;
+              }
+            }
+
+            const itemQty = Math.max(1, parseInt(item.quantity, 10) || 1);
+            const itemSubtotal = actualPrice * itemQty;
+            computedSubtotal += itemSubtotal;
+
+            verifiedItems.push({
+              productId: item.productId || 'prod-custom',
+              variantId: item.productVariantId || item.variantId || null,
+              productName: item.productName || 'Produk Bakery',
+              variantName,
+              price: actualPrice,
+              quantity: itemQty,
+              subtotal: itemSubtotal,
+            });
+          }
+        } else {
+          computedSubtotal = parseFloat(body.totalAmount) || 0;
+        }
+
+        const shippingFee = parseFloat(body.shippingFee) || 10.0;
+        const discount = parseFloat(body.discount) || 0.0;
+        const calculatedGrandTotal = Math.max(0, computedSubtotal + shippingFee - discount);
+
         const orderId = body.id || `ord-${Date.now()}`;
         const statusEnum = body.orderStatus === 'PENDING_PAYMENT' ? 'Pending' : 'Paid';
 
@@ -524,11 +564,22 @@ export async function POST(request: Request) {
             state: body.state || 'Wilayah Persekutuan',
             postcode: body.postcode || '50000',
             notes: body.notes,
-            subtotal: body.totalAmount || 0,
-            shippingFee: 10.0,
-            discount: 0.0,
-            totalAmount: body.totalAmount || 0,
+            subtotal: computedSubtotal,
+            shippingFee,
+            discount,
+            totalAmount: calculatedGrandTotal,
             status: statusEnum as any,
+            items: {
+              create: verifiedItems.map(vi => ({
+                productId: vi.productId,
+                variantId: vi.variantId,
+                productName: vi.productName,
+                variantName: vi.variantName,
+                price: vi.price,
+                quantity: vi.quantity,
+                subtotal: vi.subtotal,
+              })),
+            },
           },
         });
 
