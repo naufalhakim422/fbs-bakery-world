@@ -807,7 +807,7 @@ export async function PATCH(request: Request) {
 
         // Stock Restoration if order transitioned to CANCELLED
         if (
-          ((newStatus as string) === 'CANCELLED' || (newStatus as string) === 'Cancelled') &&
+          ((prismaNewStatus as string) === 'CANCELLED' || (prismaNewStatus as string) === 'Cancelled') &&
           (previousStatus as string) !== 'CANCELLED' &&
           (previousStatus as string) !== 'Cancelled'
         ) {
