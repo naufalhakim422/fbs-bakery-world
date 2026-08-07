@@ -306,24 +306,38 @@ const mapFrontendStatusToPrismaEnum = (statusStr: string): OrderStatus => {
     case 'PENDING_PAYMENT':
     case 'NEW':
     case 'PENDING':
+    case 'MENUNGGU PEMBAYARAN':
+    case 'TERTUNDA':
       return OrderStatus.Pending;
     case 'PAYMENT_VERIFIED':
     case 'CONFIRMED':
     case 'PAID':
+    case 'DIKONFIRMASI':
+    case 'DIBAYAR':
       return OrderStatus.Paid;
     case 'PACKING':
     case 'PROCESSING':
+    case 'SEDANG DIPROSES':
+    case 'PENGEMASAN':
+    case 'BERKEMAS':
       return OrderStatus.Packing;
     case 'READY_TO_SHIP':
+    case 'SIAP DIKIRIM':
       return OrderStatus.ReadyToShip;
     case 'SHIPPING':
     case 'SHIPPED':
+    case 'DALAM PENGIRIMAN':
+    case 'DIKIRIM':
       return OrderStatus.Shipped;
     case 'DELIVERED':
     case 'COMPLETED':
+    case 'PESANAN SELESAI':
+    case 'SELESAI':
+    case 'DITERIMA':
       return OrderStatus.Completed;
     case 'CANCEL_REQUESTED':
     case 'CANCELLED':
+    case 'DIBATALKAN':
       return OrderStatus.Cancelled;
     case 'REFUND':
     case 'REFUNDED':
@@ -696,6 +710,8 @@ export async function PATCH(request: Request) {
     }
 
     try {
+      const cleanId = (id || orderNumber || '').trim().replace(/^#/, '');
+
       // PRISMA ATOMIC TRANSACTION FOR ORDER STATUS, TIMELINE, TRACKING & STOCK RESTORATION
       const updatedOrder = await prisma.$transaction(async (tx) => {
         const existing = await tx.order.findFirst({
@@ -703,13 +719,19 @@ export async function PATCH(request: Request) {
             OR: [
               { id: id || '' },
               { orderNumber: orderNumber || '' },
+              { orderNumber: id || '' },
+              { id: orderNumber || '' },
+              { orderNumber: cleanId },
+              { orderNumber: `#${cleanId}` },
+              { orderNumber: { contains: cleanId, mode: 'insensitive' } },
+              { id: { contains: cleanId, mode: 'insensitive' } },
             ],
           },
           include: { items: true, tracking: true, timelines: true },
         });
 
         if (!existing) {
-          throw new Error('Order not found in database');
+          throw new Error(`Order #${cleanId} tidak ditemukan di database PostgreSQL`);
         }
 
         const prismaNewStatus = orderStatus ? mapFrontendStatusToPrismaEnum(orderStatus) : existing.status;
