@@ -54,16 +54,18 @@ function TrackOrderContent() {
     const rawNum = (orderNumber || initialOrderNum).trim();
     const cleanNum = rawNum.replace(/^#/, '').toUpperCase();
     const queryPhone = (phone || initialPhone).trim();
+    const normSearchPhone = normalizePhoneDigits(queryPhone);
+
     if (!cleanNum && !queryPhone) return;
 
     let found: Order | null = null;
-    const normSearchPhone = normalizePhoneDigits(queryPhone);
 
     // 1. Try server API fetch with orderNumber & phone query params
     try {
       const qParams = new URLSearchParams();
       if (cleanNum) qParams.set('orderNumber', cleanNum);
       if (queryPhone) qParams.set('phone', queryPhone);
+      qParams.set('search', cleanNum || queryPhone);
       qParams.set('t', Date.now().toString());
 
       const res = await fetch(`/api/orders?${qParams.toString()}`, { cache: 'no-store' });
@@ -71,10 +73,20 @@ function TrackOrderContent() {
       if (data.success && Array.isArray(data.orders) && data.orders.length > 0) {
         found = data.orders.find((o: Order) => {
           const oNumClean = (o.orderNumber || '').replace(/^#/, '').toUpperCase();
-          const matchNum = Boolean(cleanNum && (oNumClean === cleanNum || o.id.toUpperCase() === cleanNum));
+          const oIdClean = (o.id || '').toUpperCase();
+          const matchNum = Boolean(cleanNum && (
+            oNumClean === cleanNum || 
+            oNumClean.includes(cleanNum) || 
+            cleanNum.includes(oNumClean) ||
+            oIdClean === cleanNum ||
+            oIdClean.includes(cleanNum)
+          ));
           const oPhoneNorm = normalizePhoneDigits(o.customerPhone);
-          const matchPh = Boolean(normSearchPhone && oPhoneNorm && (normSearchPhone === oPhoneNorm || normSearchPhone.includes(oPhoneNorm) || oPhoneNorm.includes(normSearchPhone)));
-          if (cleanNum && queryPhone) return matchNum || matchPh;
+          const matchPh = Boolean(normSearchPhone && oPhoneNorm && (
+            normSearchPhone === oPhoneNorm || 
+            normSearchPhone.includes(oPhoneNorm) || 
+            oPhoneNorm.includes(normSearchPhone)
+          ));
           return matchNum || matchPh;
         }) || data.orders[0];
       }
@@ -82,9 +94,43 @@ function TrackOrderContent() {
       console.warn('Track server fetch error:', err);
     }
 
-    // 2. Fallback to local DB
+    // 2. Fallback: Try fetching all server orders
     if (!found) {
-      found = db.getOrderByNumberAndPhone(cleanNum, queryPhone) || db.getOrderByNumberAndPhone(rawNum, queryPhone) || null;
+      try {
+        const resAll = await fetch(`/api/orders?t=${Date.now()}`, { cache: 'no-store' });
+        const dataAll = await resAll.json();
+        if (dataAll.success && Array.isArray(dataAll.orders)) {
+          found = dataAll.orders.find((o: Order) => {
+            const oNumClean = (o.orderNumber || '').replace(/^#/, '').toUpperCase();
+            const oIdClean = (o.id || '').toUpperCase();
+            const matchNum = Boolean(cleanNum && (
+              oNumClean === cleanNum || 
+              oNumClean.includes(cleanNum) || 
+              cleanNum.includes(oNumClean) ||
+              oIdClean === cleanNum
+            ));
+            const oPhoneNorm = normalizePhoneDigits(o.customerPhone);
+            const matchPh = Boolean(normSearchPhone && oPhoneNorm && (
+              normSearchPhone === oPhoneNorm || 
+              normSearchPhone.includes(oPhoneNorm) || 
+              oPhoneNorm.includes(normSearchPhone)
+            ));
+            return matchNum || matchPh;
+          }) || null;
+        }
+      } catch (err) {
+        console.warn('Track fallback fetch error:', err);
+      }
+    }
+
+    // 3. Fallback to local DB
+    if (!found) {
+      found = db.getOrderByNumberAndPhone(cleanNum, queryPhone) || 
+              db.getOrderByNumberAndPhone(rawNum, queryPhone) || 
+              db.getOrders().find(o => {
+                const oNumClean = (o.orderNumber || '').replace(/^#/, '').toUpperCase();
+                return cleanNum && oNumClean.includes(cleanNum);
+              }) || null;
     }
 
     setOrderResult(found);
@@ -228,11 +274,10 @@ function TrackOrderContent() {
 
             <div>
               <label className="block text-xs font-bold text-stone-700 uppercase mb-1">
-                {t.checkout.phoneNumber} <span className="text-red-600">*</span>
+                {t.checkout.phoneNumber} <span className="text-stone-400 font-normal text-[10px] lowercase">(opsional)</span>
               </label>
               <input 
                 type="text"
-                required
                 placeholder="+60129876543"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
