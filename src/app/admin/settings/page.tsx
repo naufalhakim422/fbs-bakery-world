@@ -164,58 +164,70 @@ export default function AdminSettingsPage() {
 
   const handleStoreSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSaveModalTitle('Simpan Pengaturan Toko?');
-    setSaveModalMessage('Apakah Anda yakin ingin menyimpan perubahan informasi toko, alamat gudang, & nomor WhatsApp ini?');
-    setPendingSaveAction(() => () => {
+    try {
       db.updateStoreSettings(storeForm);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_store_settings' } }));
+      }
       setIsSavedStore(true);
-      setTimeout(() => setIsSavedStore(false), 2500);
-      setConfirmSaveOpen(false);
-    });
-    setConfirmSaveOpen(true);
+      setTimeout(() => setIsSavedStore(false), 3000);
+    } catch (err) {
+      console.error('Failed to save store settings:', err);
+      alert('Gagal menyimpan pengaturan toko. Silakan coba lagi.');
+    }
   };
 
   const handleAboutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSaveModalTitle('Simpan Halaman Tentang Kami?');
-    setSaveModalMessage('Apakah Anda yakin ingin menyimpan perubahan tata letak & teks Halaman Tentang Kami?');
-    setPendingSaveAction(() => () => {
+    try {
       db.updateAboutSettings(aboutForm);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_about_settings' } }));
+      }
       setIsSavedAbout(true);
-      setTimeout(() => setIsSavedAbout(false), 2500);
-      setConfirmSaveOpen(false);
-    });
-    setConfirmSaveOpen(true);
+      setTimeout(() => setIsSavedAbout(false), 3000);
+    } catch (err) {
+      console.error('Failed to save about settings:', err);
+      alert('Gagal menyimpan halaman tentang kami. Silakan coba lagi.');
+    }
   };
 
   const handleHomeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSaveModalTitle('Simpan Tata Letak Beranda Utama?');
-    setSaveModalMessage('Apakah Anda yakin ingin menyimpan perubahan tata letak Beranda & Banner promo?');
-    setPendingSaveAction(() => () => {
+    try {
       db.updateHomePageSettings({
         ...homeForm,
         wholesaleBanners: wholesaleBanners,
       });
       db.saveAllBanners(banners);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_homepage_settings' } }));
+      }
       setIsSavedHome(true);
-      setTimeout(() => setIsSavedHome(false), 2500);
-      setConfirmSaveOpen(false);
-    });
-    setConfirmSaveOpen(true);
+      setTimeout(() => setIsSavedHome(false), 3000);
+    } catch (err) {
+      console.error('Failed to save home layout settings:', err);
+      alert('Gagal menyimpan tata letak beranda. Silakan coba lagi.');
+    }
   };
 
   const handleCredsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSaveModalTitle('Simpan Kredensial Login Admin?');
-    setSaveModalMessage('Apakah Anda yakin ingin memperbarui Username & Password Login Portal Admin ini?');
-    setPendingSaveAction(() => () => {
+    try {
       db.updateAdminCredentials(credsForm);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_admin_credentials' } }));
+      }
       setIsSavedCreds(true);
-      setTimeout(() => setIsSavedCreds(false), 2500);
-      setConfirmSaveOpen(false);
-    });
-    setConfirmSaveOpen(true);
+      setTimeout(() => setIsSavedCreds(false), 3000);
+    } catch (err) {
+      console.error('Failed to save admin credentials:', err);
+      alert('Gagal menyimpan kredensial admin. Silakan coba lagi.');
+    }
   };
 
   const handleAboutImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
