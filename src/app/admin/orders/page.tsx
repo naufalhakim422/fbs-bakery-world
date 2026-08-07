@@ -406,25 +406,37 @@ export default function AdminOrdersPage() {
 
                       {/* STATUS & RESI */}
                       <td className="p-4 space-y-1">
-                        <span
-                          className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md uppercase inline-block ${
-                            o.orderStatus === 'SHIPPED' || o.orderStatus === 'SHIPPING' || o.orderStatus === 'Shipped'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : o.orderStatus === 'DELIVERED' || o.orderStatus === 'COMPLETED' || o.orderStatus === 'Completed'
-                              ? 'bg-blue-100 text-blue-800'
-                              : o.orderStatus === 'CONFIRMED' ||
-                                o.orderStatus === 'PAID' ||
-                                o.orderStatus === 'Paid' ||
-                                o.orderStatus === 'PACKING' ||
-                                o.orderStatus === 'Packing'
-                              ? 'bg-indigo-100 text-indigo-800'
-                              : o.orderStatus === 'CANCELLED' || o.orderStatus === 'Cancelled'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {o.orderStatus}
-                        </span>
+                        {(() => {
+                          const s = (o.orderStatus || '').toUpperCase().trim();
+                          let badgeText = s;
+                          let badgeClass = 'bg-amber-100 text-amber-900 border-amber-200';
+
+                          if (s === 'PENDING_PAYMENT' || s === 'NEW' || s === 'PENDING') {
+                            badgeText = 'MENUNGGU PEMBAYARAN';
+                            badgeClass = 'bg-amber-100 text-amber-900 border-amber-300';
+                          } else if (s === 'CONFIRMED' || s === 'PAID' || s === 'PAYMENT_VERIFIED') {
+                            badgeText = 'DIKONFIRMASI';
+                            badgeClass = 'bg-emerald-100 text-emerald-900 border-emerald-300';
+                          } else if (s === 'PROCESSING' || s === 'PACKING' || s === 'READY_TO_SHIP') {
+                            badgeText = 'SEDANG DIPROSES';
+                            badgeClass = 'bg-indigo-100 text-indigo-900 border-indigo-300';
+                          } else if (s === 'SHIPPED' || s === 'SHIPPING') {
+                            badgeText = 'DALAM PENGIRIMAN';
+                            badgeClass = 'bg-purple-100 text-purple-900 border-purple-300';
+                          } else if (s === 'DELIVERED' || s === 'COMPLETED') {
+                            badgeText = 'PESANAN SELESAI';
+                            badgeClass = 'bg-green-100 text-green-900 border-green-300';
+                          } else if (s === 'CANCELLED' || s === 'CANCEL_REQUESTED') {
+                            badgeText = 'DIBATALKAN';
+                            badgeClass = 'bg-red-100 text-red-900 border-red-300';
+                          }
+
+                          return (
+                            <span className={`px-2.5 py-1 text-[10px] font-black rounded-md uppercase inline-block border ${badgeClass}`}>
+                              {badgeText}
+                            </span>
+                          );
+                        })()}
 
                         {o.trackingNumber ? (
                           <span className="block text-[11px] font-mono text-emerald-700 font-bold">
