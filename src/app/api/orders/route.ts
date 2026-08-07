@@ -461,7 +461,7 @@ export async function GET(request: Request) {
           const matchNum = cleanNum && ((o.orderNumber || '').toUpperCase().replace(/^#/, '') === cleanNum || o.id.toUpperCase() === cleanNum);
           return Boolean(matchEmail || matchPhone || matchId || matchNum);
         });
-        return NextResponse.json({ success: true, orders: filtered.length > 0 ? filtered : formatted, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' }, { headers: noCacheHeaders });
+        return NextResponse.json({ success: true, orders: filtered, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' }, { headers: noCacheHeaders });
       }
       return NextResponse.json({ success: true, orders: formatted, allOrders: formatted, pagination: { totalCount, page, limit }, source: 'PRISMA_POSTGRES' }, { headers: noCacheHeaders });
     }

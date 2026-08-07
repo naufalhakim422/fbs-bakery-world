@@ -225,8 +225,8 @@ export default function CustomerAccountPage() {
 
             const resOrders = await fetch(`/api/orders?${queryParams.toString()}`, { cache: 'no-store' });
             const dataOrders = await resOrders.json();
-            if (dataOrders.success && Array.isArray(dataOrders.allOrders)) {
-              allOrders = dataOrders.allOrders;
+            if (dataOrders.success && Array.isArray(dataOrders.orders)) {
+              allOrders = dataOrders.orders;
               localStorage.setItem('fbs_orders', JSON.stringify(allOrders));
             }
           } catch (serverOrderErr) {
