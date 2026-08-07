@@ -32,6 +32,12 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
       stock: 50,
     }
   );
+
+  React.useEffect(() => {
+    if (product.variants && product.variants.length > 0) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product.variants]);
   const [isAdded, setIsAdded] = useState(false);
   const ratingStats = React.useMemo(() => db.calculateProductRating(product.id), [product.id]);
   const isFavorite = isInWishlist(product.id);

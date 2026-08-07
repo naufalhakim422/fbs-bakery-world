@@ -77,6 +77,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } catch (e) {}
   };
 
+  useEffect(() => {
+    if (!isCheckingAuth && !isAdminLoggedIn && !isLoginPage) {
+      const loginUrl = pathname?.startsWith('/admin2026') ? '/admin2026/login' : '/admin/login';
+      router.push(loginUrl);
+    }
+  }, [isCheckingAuth, isAdminLoggedIn, isLoginPage, pathname, router]);
+
   if (isLoginPage) {
     return <>{children}</>;
   }
@@ -91,7 +98,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   if (!isAdminLoggedIn) {
-    return null;
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#FAF7F2] text-stone-700 space-y-3">
+        <div className="w-10 h-10 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Mengarahkan ke Halaman Login Admin...</p>
+      </div>
+    );
   }
 
   return (

@@ -98,10 +98,25 @@ function AdminNewProductContent() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+    const maxSizeBytes = 5 * 1024 * 1024; // 5MB limit before compression
+
     const list: string[] = [];
     for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      if (!allowedTypes.includes(file.type.toLowerCase())) {
+        alert(`Format file "${file.name}" tidak didukung. Harap upload gambar berformat JPG, PNG, WEBP, GIF, atau SVG.`);
+        continue;
+      }
+
+      if (file.size > maxSizeBytes) {
+        alert(`Ukuran file "${file.name}" melebihi batas 5MB. Harap pilih gambar dengan ukuran lebih kecil.`);
+        continue;
+      }
+
       try {
-        const compressed = await compressImageFile(files[i]);
+        const compressed = await compressImageFile(file);
         list.push(compressed);
       } catch (err) {
         console.warn('Failed to compress product gallery image file:', err);
@@ -153,36 +168,13 @@ function AdminNewProductContent() {
       return;
     }
 
-    // 2. Mandatory Slug & Duplicate Check
-    if (!cleanSlug) {
-      setValidationError('Product Slug is required.');
-      return;
-    }
-
-    const currentProd = editId ? db.getProductBySlug(editId) : undefined;
-    const allProds = db.getProducts();
-    const duplicate = allProds.find(
-      p => p.slug.toLowerCase() === cleanSlug.toLowerCase() && p.id !== currentProd?.id
-    );
-
-    if (duplicate) {
-      setValidationError(`The URL slug "${cleanSlug}" is already in use by "${duplicate.productName}". Product slugs must be unique.`);
-      return;
-    }
-
-    // 3. Category Validation
-    if (!form.categoryId || !categories.some(c => c.id === form.categoryId)) {
-      setValidationError('Please select a valid product category.');
-      return;
-    }
-
-    // 4. Main Image Validation
+    // 2. Mandatory Main Image
     if (!form.mainImage || !form.mainImage.trim()) {
       setValidationError('Product Main Image is required. Please upload or select a main cover photo.');
       return;
     }
 
-    // 5. Variants Validation (Price > 0, Stock >= 0)
+    // 3. Variants Validation (Price > 0, Stock >= 0)
     if (!variants || variants.length === 0) {
       setValidationError('Product must have at least 1 packaging size variant.');
       return;
@@ -209,15 +201,15 @@ function AdminNewProductContent() {
     setConfirmSaveOpen(true);
   };
 
-  const executeSaveProduct = () => {
+  const executeSaveProduct = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
     const currentProd = editId ? db.getProductBySlug(editId) : undefined;
     const finalSlug = (form.slug || generateSlug(form.productName)).trim();
 
-    db.saveProduct({
-      id: currentProd?.id,
+    const productPayload = {
+      id: currentProd?.id || `prod-${Date.now()}`,
       ...form,
       slug: finalSlug,
       galleryImages: galleryImages.length > 0 ? galleryImages : [form.mainImage],
@@ -230,7 +222,21 @@ function AdminNewProductContent() {
         stock: Number(v.stock),
         sku: v.sku || `FBS-VAR-${idx}`,
       })),
-    });
+    };
+
+    // 1. Save to Local Cache (db.ts)
+    db.saveProduct(productPayload);
+
+    // 2. Save to Railway PostgreSQL Database via API Endpoint
+    try {
+      await fetch('/api/products', {
+        method: editId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productPayload),
+      });
+    } catch (apiErr) {
+      console.warn('[Admin Save Product API Warning]', apiErr);
+    }
 
     recordAuditLog(
       editId ? 'Edit Produk' : 'Tambah Produk Baru',
