@@ -492,16 +492,26 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    if (!body || !body.orderNumber) {
-      return NextResponse.json({ success: false, error: 'Order Number is required' }, { status: 400 });
-    }
+    const customerInfo = body.customerInfo || {
+      name: body.customerName,
+      email: body.customerEmail,
+      phone: body.customerPhone,
+      address: body.address,
+      city: body.city,
+      state: body.state,
+      postcode: body.postcode,
+      notes: body.notes,
+    };
+    const cartItems = body.cartItems || body.items || [];
+
+    const orderNumber = body.orderNumber || `FBS-${Date.now()}`;
 
     try {
-      // PRISMA ATOMIC TRANSACTION FOR ORDER CREATION & DEDUCTION
+      // PRISMA ATOMIC TRANSACTION FOR ORDER CREATION, PRICE VALIDATION & STOCK BOOKING
       const savedPrismaOrder = await prisma.$transaction(async (tx) => {
-        // Idempotency: If order number already exists, return existing order without duplicate items/deductions
+        // Idempotency check: If order number already exists, return existing order
         const existingOrder = await tx.order.findUnique({
-          where: { orderNumber: body.orderNumber },
+          where: { orderNumber },
           include: { items: true, tracking: true, timelines: true },
         });
 
@@ -509,84 +519,108 @@ export async function POST(request: Request) {
           return existingOrder;
         }
 
-        // Server-side price recalculation & validation from Database variants
-        let computedSubtotal = 0;
-        const verifiedItems = [];
+        let subtotal = 0;
+        const orderItemsData = [];
 
-        if (Array.isArray(body.items) && body.items.length > 0) {
-          for (const item of body.items) {
-            let actualPrice = parseFloat(item.price) || 0;
-            let variantName = item.variantName || 'Standard';
+        // 1. Validasi Stok dan Harga ASLI dari Database
+        if (Array.isArray(cartItems) && cartItems.length > 0) {
+          for (const item of cartItems) {
+            const varId = item.variantId || item.productVariantId;
+            let variant = null;
 
-            if (item.productVariantId || item.variantId) {
-              const varId = item.productVariantId || item.variantId;
-              const dbVariant = await tx.variant.findUnique({ where: { id: varId } });
-              if (dbVariant) {
-                actualPrice = dbVariant.price;
-                variantName = dbVariant.variantName;
-              }
+            if (varId) {
+              variant = await tx.variant.findUnique({
+                where: { id: varId },
+                include: { product: true },
+              });
             }
 
             const itemQty = Math.max(1, parseInt(item.quantity, 10) || 1);
-            const itemSubtotal = actualPrice * itemQty;
-            computedSubtotal += itemSubtotal;
 
-            verifiedItems.push({
-              productId: item.productId || 'prod-custom',
-              variantId: item.productVariantId || item.variantId || null,
-              productName: item.productName || 'Produk Bakery',
-              variantName,
-              price: actualPrice,
-              quantity: itemQty,
-              subtotal: itemSubtotal,
-            });
+            if (variant) {
+              if (variant.stock < itemQty) {
+                throw new Error(`Stok ${variant.product?.productName || variant.variantName} tidak mencukupi. Sisa stok: ${variant.stock}`);
+              }
+
+              const itemSubtotal = variant.price * itemQty;
+              subtotal += itemSubtotal;
+
+              orderItemsData.push({
+                productId: variant.productId,
+                variantId: variant.id,
+                productName: variant.product?.productName || item.productName || 'Produk Bakery',
+                variantName: variant.variantName,
+                price: variant.price, // Harga asli dari DB!
+                quantity: itemQty,
+                subtotal: itemSubtotal,
+              });
+
+              // 2. Kunci (Booking) Stok sementara pesanan berstatus PENDING
+              await tx.variant.update({
+                where: { id: variant.id },
+                data: { stock: { decrement: itemQty } },
+              });
+            } else {
+              // Fallback for custom or direct items
+              const itemPrice = parseFloat(item.price) || 0;
+              const itemSubtotal = itemPrice * itemQty;
+              subtotal += itemSubtotal;
+
+              orderItemsData.push({
+                productId: item.productId || `prod-${Date.now()}`,
+                variantId: null,
+                productName: item.productName || 'Produk Bakery',
+                variantName: item.variantName || 'Standard',
+                price: itemPrice,
+                quantity: itemQty,
+                subtotal: itemSubtotal,
+              });
+            }
           }
         } else {
-          computedSubtotal = parseFloat(body.totalAmount) || 0;
+          subtotal = parseFloat(body.totalAmount) || 0;
         }
 
         const shippingFee = parseFloat(body.shippingFee) || 10.0;
         const discount = parseFloat(body.discount) || 0.0;
-        const calculatedGrandTotal = Math.max(0, computedSubtotal + shippingFee - discount);
+        const totalAmount = Math.max(0, subtotal + shippingFee - discount);
+        const statusEnum = body.orderStatus === 'CONFIRMED' || body.orderStatus === 'PAID' ? OrderStatus.Paid : OrderStatus.Pending;
 
-        const orderId = body.id || `ord-${Date.now()}`;
-        const statusEnum = body.orderStatus === 'PENDING_PAYMENT' ? 'Pending' : 'Paid';
-
-        const createdOrder = await tx.order.create({
+        // 3. Buat Pesanan di Database
+        const order = await tx.order.create({
           data: {
-            id: orderId,
-            orderNumber: body.orderNumber,
-            customerName: body.customerName,
-            customerEmail: body.customerEmail || 'customer@fbsbaker.store',
-            customerPhone: body.customerPhone,
-            address: body.address || 'Alamat Utama',
-            city: body.city || 'Kuala Lumpur',
-            state: body.state || 'Wilayah Persekutuan',
-            postcode: body.postcode || '50000',
-            notes: body.notes,
-            subtotal: computedSubtotal,
+            id: body.id || `ord-${Date.now()}`,
+            orderNumber,
+            customerName: customerInfo.name || customerInfo.customerName || 'Pelanggan',
+            customerEmail: customerInfo.email || customerInfo.customerEmail || 'customer@fbsbaker.store',
+            customerPhone: customerInfo.phone || customerInfo.customerPhone || '',
+            address: customerInfo.address || 'Alamat Utama',
+            city: customerInfo.city || 'Chukai',
+            state: customerInfo.state || 'Terengganu',
+            postcode: customerInfo.postcode || '24000',
+            notes: customerInfo.notes || body.notes,
+            subtotal,
             shippingFee,
             discount,
-            totalAmount: calculatedGrandTotal,
-            status: statusEnum as any,
-            items: {
-              create: verifiedItems.map(vi => ({
-                productId: vi.productId,
-                variantId: vi.variantId,
-                productName: vi.productName,
-                variantName: vi.variantName,
-                price: vi.price,
-                quantity: vi.quantity,
-                subtotal: vi.subtotal,
-              })),
+            totalAmount,
+            status: statusEnum,
+            items: { create: orderItemsData },
+            timelines: {
+              create: {
+                status: statusEnum,
+                title: "Pesanan Dibuat",
+                description: "Pelanggan telah membuat pesanan dan stok inventaris telah dikunci.",
+                updatedBy: "System",
+              },
             },
           },
+          include: { items: true, timelines: true },
         });
 
         if (body.trackingNumber) {
           await tx.tracking.create({
             data: {
-              orderId: createdOrder.id,
+              orderId: order.id,
               courierName: body.courierName || 'J&T Express',
               trackingNumber: body.trackingNumber,
               trackingUrl: `https://www.jtexpress.my/tracking/${encodeURIComponent(body.trackingNumber)}`,
@@ -594,32 +628,22 @@ export async function POST(request: Request) {
           });
         }
 
-        await tx.timeline.create({
-          data: {
-            orderId: createdOrder.id,
-            status: statusEnum as any,
-            title: `Pesanan Diterima`,
-            description: `Pesanan baru ${body.orderNumber} telah berhasil dibuat.`,
-            updatedBy: 'Pelanggan',
-          },
-        });
-
         await tx.notification.create({
           data: {
-            title: `Pesanan Baru ${body.orderNumber}`,
-            message: `Pesanan baru senilai RM ${body.totalAmount || 0} telah diterima.`,
+            title: `Pesanan Baru ${order.orderNumber}`,
+            message: `Pesanan baru senilai RM ${order.totalAmount} telah diterima.`,
             type: 'ORDER_UPDATE',
           },
-        });
+        }).catch(() => {});
 
-        return createdOrder;
+        return order;
       });
 
-      console.log('✅ [Prisma Transaction Success] Saved order:', savedPrismaOrder.orderNumber);
+      console.log('✅ [Prisma Transaction Success] Order created & stock booked:', savedPrismaOrder.orderNumber);
       return NextResponse.json({ success: true, order: savedPrismaOrder, source: 'PRISMA_POSTGRES' });
     } catch (dbErr: any) {
-      console.error('[Prisma Transaction Error] Failed to write Prisma Order:', dbErr);
-      return NextResponse.json({ success: false, error: `Database Error: ${dbErr.message}` }, { status: 500 });
+      console.error('[Prisma Transaction Error] Failed to process Order:', dbErr);
+      return NextResponse.json({ success: false, error: dbErr.message || 'Gagal memproses pesanan' }, { status: 400 });
     }
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
