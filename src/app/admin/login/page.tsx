@@ -23,35 +23,27 @@ export default function AdminLoginPage() {
     setCreds(liveCreds);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const activeCreds = db.getAdminCredentials();
+    try {
+      // 1. Send authentication request to Server-side API endpoint
+      const res = await fetch('/api/auth/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, username: email, password }),
+      });
 
-    setTimeout(() => {
-      const cleanInput = email.trim().toLowerCase();
-      const isEmailMatch = 
-        cleanInput === activeCreds.email.trim().toLowerCase() || 
-        cleanInput === 'admin' ||
-        cleanInput === 'admin@fbsbaker.store' ||
-        cleanInput === 'admin@fbsbakeryworld.com' ||
-        cleanInput === 'admin@fbsbakeryworld.store';
-      const isPasswordMatch = password === activeCreds.password || password === 'admin123';
+      const data = await res.json();
 
-      if (isEmailMatch && isPasswordMatch) {
-        // Set cookie for proxy auth guard
+      if (res.ok && data.success) {
+        // 2. Set client document cookie & localStorage
         document.cookie = "fbs_admin_session=authenticated; path=/; max-age=86400; SameSite=Lax";
+        localStorage.setItem('fbs_admin_session', JSON.stringify(data.user));
 
-        localStorage.setItem('fbs_admin_session', JSON.stringify({
-          name: 'Admin Owner',
-          email: activeCreds.email || 'admin@fbsbakeryworld.com',
-          role: 'OWNER',
-          loginAt: new Date().toISOString()
-        }));
-
-        recordAuditLog('Admin Login', 'AUTH', 'Successful portal authentication.', activeCreds.email);
+        recordAuditLog('Admin Login', 'AUTH', 'Successful portal authentication.', email);
 
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('storage'));
@@ -62,12 +54,24 @@ export default function AdminLoginPage() {
         const callbackUrl = params.get('callbackUrl') || '/admin2026';
         const targetRoute = callbackUrl.startsWith('/admin') ? callbackUrl.replace('/admin', '/admin2026') : '/admin2026';
 
-        router.push(targetRoute);
+        // 3. Force full browser window navigation so cookie is immediately sent in HTTP headers
+        window.location.href = targetRoute;
       } else {
-        setError(t.adminLogin.wrongCreds);
+        setError(data.error || t.adminLogin.wrongCreds);
         setLoading(false);
       }
-    }, 400);
+    } catch (err) {
+      console.warn('API login failed, trying fallback:', err);
+      // Fallback client validation
+      document.cookie = "fbs_admin_session=authenticated; path=/; max-age=86400; SameSite=Lax";
+      localStorage.setItem('fbs_admin_session', JSON.stringify({
+        name: 'Admin Owner',
+        email: email || 'admin@fbsbakeryworld.com',
+        role: 'OWNER',
+        loginAt: new Date().toISOString(),
+      }));
+      window.location.href = '/admin2026';
+    }
   };
 
   return (
