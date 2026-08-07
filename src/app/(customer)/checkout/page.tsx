@@ -139,7 +139,7 @@ export default function CheckoutPage() {
   const shippingFee = shippingCalc?.fee || 0;
   const grandTotal = subtotal + shippingFee;
 
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || cart.length === 0) return;
 
@@ -184,6 +184,41 @@ export default function CheckoutPage() {
           mainImage: item.mainImage,
         }))
       });
+
+      // 1.5 Sync to Railway PostgreSQL Database via API Endpoint
+      try {
+        await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderNumber: newOrder.orderNumber,
+            customerId: custId,
+            customerEmail: custEmail,
+            customerName: formData.name.trim(),
+            customerPhone: formData.phone.trim(),
+            address: formData.address.trim(),
+            city: formData.city,
+            state: formData.state,
+            postcode: formData.postcode,
+            notes: formData.notes,
+            courierName: selectedCourier.name,
+            totalAmount: grandTotal,
+            orderStatus: 'PENDING_PAYMENT',
+            items: cart.map(item => ({
+              productId: item.productId,
+              variantId: item.variantId,
+              productName: item.productName,
+              variantName: item.variantName,
+              price: item.price,
+              quantity: item.quantity,
+              subtotal: item.price * item.quantity,
+              mainImage: item.mainImage,
+            }))
+          }),
+        });
+      } catch (apiErr) {
+        console.warn('[Checkout API Sync Warning]', apiErr);
+      }
 
       // 2. Generate WhatsApp Message Link
       const waLink = generateWhatsAppOrderLink({
