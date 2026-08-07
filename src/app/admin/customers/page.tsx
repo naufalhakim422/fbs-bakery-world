@@ -33,9 +33,9 @@ export default function AdminCustomersPage() {
   const filtered = customers.filter(c => {
     const matchType = selectedType === 'ALL' || c.customerType === selectedType;
     const matchSearch = 
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search) ||
-      (c.email && c.email.toLowerCase().includes(search.toLowerCase()));
+      (c.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (c.phone || '').includes(search) ||
+      ((c.email || '').toLowerCase().includes(search.toLowerCase()));
     return matchType && matchSearch;
   });
 

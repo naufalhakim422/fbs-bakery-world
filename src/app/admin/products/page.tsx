@@ -60,7 +60,7 @@ export default function AdminProductsPage() {
   const [stockFilter, setStockFilter] = useState<'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'>('ALL');
 
   const filtered = products.filter(p => {
-    const matchesSearch = p.productName.toLowerCase().includes(search.toLowerCase()) ||
+    const matchesSearch = (p.productName || '').toLowerCase().includes(search.toLowerCase()) ||
       (p.sku || '').toLowerCase().includes(search.toLowerCase()) ||
       (p.brand || '').toLowerCase().includes(search.toLowerCase());
 
