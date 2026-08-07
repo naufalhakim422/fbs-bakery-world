@@ -69,17 +69,41 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     const loadLiveData = async () => {
-      setProducts(db.getProducts());
-      setCustomers(db.getCustomers());
+      // Fetch products from PostgreSQL API first, fallback to localStorage
+      try {
+        const prodRes = await fetch('/api/products');
+        const prodData = await prodRes.json();
+        if (prodData.success && Array.isArray(prodData.products)) {
+          setProducts(prodData.products);
+        } else {
+          setProducts(db.getProducts());
+        }
+      } catch (e) {
+        setProducts(db.getProducts());
+      }
+
+      // Fetch customers from PostgreSQL API first, fallback to localStorage
+      try {
+        const custRes = await fetch('/api/customers');
+        const custData = await custRes.json();
+        if (custData.success && Array.isArray(custData.customers)) {
+          setCustomers(custData.customers);
+        } else {
+          setCustomers(db.getCustomers());
+        }
+      } catch (e) {
+        setCustomers(db.getCustomers());
+      }
+
       setCategories(db.getCategories());
       setRecipes(db.getRecipes());
 
+      // Fetch orders from PostgreSQL API
       try {
         const res = await fetch('/api/orders');
         const data = await res.json();
         if (data.success && Array.isArray(data.orders)) {
           setOrders(data.orders);
-          localStorage.setItem('fbs_orders', JSON.stringify(data.orders));
         } else {
           setOrders(db.getOrders());
         }
@@ -87,13 +111,13 @@ export default function AdminDashboardPage() {
         setOrders(db.getOrders());
       }
 
+      // Load cashflow expenses from localStorage (dedicated cashflow storage)
       try {
         const saved = localStorage.getItem('fbs_cashflow_expenses');
         if (saved && saved !== '[]') {
           setExpenses(JSON.parse(saved));
         } else {
           setExpenses([]);
-          localStorage.setItem('fbs_cashflow_expenses', JSON.stringify([]));
         }
       } catch (e) {
         setExpenses([]);
@@ -628,19 +652,28 @@ export default function AdminDashboardPage() {
                     <stop offset="100%" stopColor="#800020" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
-                {/* Area Fill */}
-                <path 
-                  d="M 20 160 Q 100 130 180 110 T 340 50 T 480 20 L 480 200 L 20 200 Z" 
-                  fill="url(#chartGradient)" 
-                />
-                {/* Stroke Line */}
-                <path 
-                  d="M 20 160 Q 100 130 180 110 T 340 50 T 480 20" 
-                  fill="none" 
-                  stroke="#800020" 
-                  strokeWidth="3.5" 
-                  strokeLinecap="round"
-                />
+                {/* Dynamic Area Fill & Stroke from real chartPoints data */}
+                {(() => {
+                  if (chartPoints.length === 0) return null;
+                  const padding = 20;
+                  const width = 500;
+                  const height = 200;
+                  const usableW = width - padding * 2;
+                  const usableH = height - padding * 2;
+                  const points = chartPoints.map((pt, i) => {
+                    const x = padding + (i / Math.max(1, chartPoints.length - 1)) * usableW;
+                    const y = padding + usableH - (pt.omset / Math.max(maxOmsetVal, 1)) * usableH;
+                    return { x, y };
+                  });
+                  const lineD = points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(' ');
+                  const areaD = `${lineD} L ${points[points.length - 1].x} ${height} L ${points[0].x} ${height} Z`;
+                  return (
+                    <>
+                      <path d={areaD} fill="url(#chartGradient)" />
+                      <path d={lineD} fill="none" stroke="#800020" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </>
+                  );
+                })()}
               </svg>
 
               {/* Data Point Bars & Glowing Bullets (CLICKABLE TO OPEN MODAL) */}
@@ -727,54 +760,67 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          {/* Minimalist Modern Donut Chart Widget */}
-          <div className="relative flex items-center justify-center py-2">
-            <svg className="w-44 h-44 -rotate-90" viewBox="0 0 36 36">
-              {/* Background Track */}
-              <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f3f4f6" strokeWidth="3.8" />
-              
-              {/* Segment 1: Tepung & Semolina (35%) */}
-              <circle cx="18" cy="18" r="15.915" fill="none" stroke="#800020" strokeWidth="3.8" strokeDasharray="35 65" strokeDashoffset="0" />
-              
-              {/* Segment 2: Matcha & Powder (25%) */}
-              <circle cx="18" cy="18" r="15.915" fill="none" stroke="#10B981" strokeWidth="3.8" strokeDasharray="25 75" strokeDashoffset="-35" />
-              
-              {/* Segment 3: Cokelat Belgian (20%) */}
-              <circle cx="18" cy="18" r="15.915" fill="none" stroke="#D4AF37" strokeWidth="3.8" strokeDasharray="20 80" strokeDashoffset="-60" />
-
-              {/* Segment 4: Mentega & Dairy (20%) */}
-              <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="3.8" strokeDasharray="20 80" strokeDashoffset="-80" />
-            </svg>
-
-            {/* Inner Center Label */}
-            <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-[10px] font-bold text-stone-400 uppercase">{language === 'EN' ? 'ALL PRODUCTS' : 'PRODUK LALU'}</span>
-              <span className="font-serif text-2xl font-black text-[#800020]">100%</span>
-              <span className="text-[9px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">HALAL</span>
-            </div>
-          </div>
-
-          {/* Minimalist Legend & Progress Bars */}
-          <div className="space-y-3 pt-2">
-            {[
-              { label: 'Tepung & Semolina Import', pct: '35%', color: 'bg-[#800020]' },
-              { label: 'Matcha Powder & Tea', pct: '25%', color: 'bg-emerald-500' },
-              { label: 'Cokelat Belgian Beryls', pct: '20%', color: 'bg-[#D4AF37]' },
-              { label: 'Mentega Anchor & Dairy', pct: '20%', color: 'bg-blue-500' },
-            ].map((cat, cIdx) => (
-              <div key={cIdx} className="space-y-1">
-                <div className="flex justify-between text-xs font-bold text-stone-700">
-                  <span className="flex items-center gap-1.5">
-                    <span className={`w-2.5 h-2.5 rounded-full ${cat.color}`} /> {cat.label}
-                  </span>
-                  <span className="font-mono text-stone-900">{cat.pct}</span>
+          {/* Dynamic Donut Chart from Real Category Data */}
+          {(() => {
+            const donutColors = ['#800020', '#10B981', '#D4AF37', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#06B6D4'];
+            const catMap: Record<string, number> = {};
+            products.forEach(p => {
+              const catName = (p as any).categoryName || (p as any).category || 'Lainnya';
+              catMap[catName] = (catMap[catName] || 0) + 1;
+            });
+            const totalProducts = Math.max(1, products.length);
+            const catEntries = Object.entries(catMap)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 8)
+              .map(([label, count], i) => ({
+                label,
+                count,
+                pct: Math.round((count / totalProducts) * 100),
+                color: donutColors[i % donutColors.length],
+              }));
+            // Ensure percentages sum to 100
+            const pctSum = catEntries.reduce((s, c) => s + c.pct, 0);
+            if (catEntries.length > 0 && pctSum !== 100) {
+              catEntries[0].pct += (100 - pctSum);
+            }
+            let offset = 0;
+            return (
+              <>
+                <div className="relative flex items-center justify-center py-2">
+                  <svg className="w-44 h-44 -rotate-90" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f3f4f6" strokeWidth="3.8" />
+                    {catEntries.map((cat, i) => {
+                      const seg = (
+                        <circle key={i} cx="18" cy="18" r="15.915" fill="none" stroke={cat.color} strokeWidth="3.8" strokeDasharray={`${cat.pct} ${100 - cat.pct}`} strokeDashoffset={`${-offset}`} />
+                      );
+                      offset += cat.pct;
+                      return seg;
+                    })}
+                  </svg>
+                  <div className="absolute flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase">{language === 'EN' ? 'CATEGORIES' : 'KATEGORI'}</span>
+                    <span className="font-serif text-2xl font-black text-[#800020]">{catEntries.length}</span>
+                    <span className="text-[9px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">HALAL</span>
+                  </div>
                 </div>
-                <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
-                  <div className={`${cat.color} h-1.5 rounded-full`} style={{ width: cat.pct }} />
+                <div className="space-y-3 pt-2">
+                  {catEntries.map((cat, cIdx) => (
+                    <div key={cIdx} className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold text-stone-700">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color }} /> {cat.label}
+                        </span>
+                        <span className="font-mono text-stone-900">{cat.pct}%</span>
+                      </div>
+                      <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="h-1.5 rounded-full" style={{ width: `${cat.pct}%`, backgroundColor: cat.color }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            ))}
-          </div>
+              </>
+            );
+          })()}
         </div>
 
       </div>
