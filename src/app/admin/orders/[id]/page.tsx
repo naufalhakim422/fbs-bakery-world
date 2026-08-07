@@ -65,20 +65,38 @@ export default function AdminOrderDetailPage() {
 
   useEffect(() => {
     if (id) {
-      const found = db.getOrders().find(o => o.id === id || o.orderNumber === id);
-      if (found) {
-        setOrder(found);
-        setOrderStatus(found.orderStatus);
-        
-        if (presetCouriers.includes(found.courierName || '')) {
-          setCourierName(found.courierName || 'J&T Express');
-        } else if (found.courierName) {
-          setCourierName('OTHER_CUSTOM');
-          setCustomCourier(found.courierName);
+      const loadOrderData = async () => {
+        let found: Order | null = null;
+        try {
+          const res = await fetch('/api/orders');
+          const data = await res.json();
+          if (data.success && Array.isArray(data.orders)) {
+            found = data.orders.find((o: Order) => o.id === id || o.orderNumber === id) || null;
+          }
+        } catch (err) {
+          console.warn('API fetch warning:', err);
         }
-        
-        setTrackingNumber(found.trackingNumber || '');
-      }
+
+        if (!found) {
+          found = db.getOrders().find(o => o.id === id || o.orderNumber === id) || null;
+        }
+
+        if (found) {
+          setOrder(found);
+          setOrderStatus(found.orderStatus);
+          
+          if (presetCouriers.includes(found.courierName || '')) {
+            setCourierName(found.courierName || 'J&T Express');
+          } else if (found.courierName) {
+            setCourierName('OTHER_CUSTOM');
+            setCustomCourier(found.courierName);
+          }
+          
+          setTrackingNumber(found.trackingNumber || '');
+        }
+      };
+
+      loadOrderData();
     }
   }, [id]);
 
