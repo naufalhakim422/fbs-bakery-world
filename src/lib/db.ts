@@ -1049,10 +1049,14 @@ export const db = {
     const orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
     const customers = loadFromStorage<Customer[]>('fbs_customers', initialCustomers);
 
-    const yearSuffix = new Date().getFullYear().toString().slice(-2);
-    const seqNum = String(orders.length + 1).padStart(6, '0');
-    const orderNumber = `FB${yearSuffix}${seqNum}`;
-    const orderId = `ord-${Date.now()}`;
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const timeMs = String(now.getTime()).slice(-4);
+    const rand = Math.floor(10 + Math.random() * 90);
+    const orderNumber = `FB${yyyy}${mm}${dd}-${timeMs}${rand}`;
+    const orderId = `ord-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
     const initialStatus = orderInput.orderStatus || 'PENDING_PAYMENT';
     
     const initialTimeline: OrderTimelineEvent[] = [

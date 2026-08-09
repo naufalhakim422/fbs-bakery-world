@@ -526,19 +526,34 @@ export async function POST(request: Request) {
     };
     const cartItems = body.cartItems || body.items || [];
 
-    const orderNumber = body.orderNumber || `FBS-${Date.now()}`;
+    let orderNumber = body.orderNumber;
+    if (!orderNumber) {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const timeMs = String(now.getTime()).slice(-4);
+      const rand = Math.floor(10 + Math.random() * 90);
+      orderNumber = `FB${yyyy}${mm}${dd}-${timeMs}${rand}`;
+    }
 
     try {
       // PRISMA ATOMIC TRANSACTION FOR ORDER CREATION, PRICE VALIDATION & STOCK BOOKING
       const savedPrismaOrder = await prisma.$transaction(async (tx) => {
-        // Idempotency check: If order number already exists, return existing order
-        const existingOrder = await tx.order.findUnique({
+        // Idempotency check: If order number already exists within 2 minutes, return it. If older, suffix with random digits to make unique.
+        let existingOrder = await tx.order.findUnique({
           where: { orderNumber },
           include: { items: true, tracking: true, timelines: true },
         });
 
         if (existingOrder) {
-          return existingOrder;
+          const ageMs = Date.now() - new Date(existingOrder.createdAt).getTime();
+          // If created less than 2 minutes ago, treat as retry/idempotent
+          if (ageMs < 120000) {
+            return existingOrder;
+          }
+          // Otherwise, duplicate orderNumber collision from legacy code -> append suffix
+          orderNumber = `${orderNumber}-${Math.floor(100 + Math.random() * 900)}`;
         }
 
         let subtotal = 0;
