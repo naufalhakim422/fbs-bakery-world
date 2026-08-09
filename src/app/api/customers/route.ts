@@ -106,18 +106,41 @@ export async function POST(request: Request) {
         update: {
           name: body.name || 'Pelanggan FBS',
           phone: cleanPhone,
+          photo: body.photo !== undefined ? body.photo : undefined,
+          coverPhoto: body.coverPhoto !== undefined ? body.coverPhoto : undefined,
         },
         create: {
           id: body.id || `cust-${Date.now()}`,
           name: body.name || 'Pelanggan FBS',
           email: cleanEmail,
           phone: cleanPhone,
+          photo: body.photo || '',
+          coverPhoto: body.coverPhoto || '',
           customerType: 'RETAIL',
         },
       });
 
+      // Merge client profile address fields into return object
+      const fullCustomer = {
+        ...upserted,
+        address: body.address || '',
+        city: body.city || '',
+        postcode: body.postcode || '',
+        state: body.state || '',
+      };
+
+      // Also persist to server JSON cache
+      const serverCustomers = readServerCustomers();
+      const existingIdx = serverCustomers.findIndex((c: any) => c.email && c.email.toLowerCase() === cleanEmail);
+      if (existingIdx !== -1) {
+        serverCustomers[existingIdx] = { ...serverCustomers[existingIdx], ...fullCustomer };
+      } else {
+        serverCustomers.unshift(fullCustomer);
+      }
+      writeServerCustomers(serverCustomers);
+
       console.log('✅ [Prisma Customer Upsert Success]:', upserted.email);
-      return NextResponse.json({ success: true, customer: upserted, source: 'PRISMA_POSTGRES' });
+      return NextResponse.json({ success: true, customer: fullCustomer, source: 'PRISMA_POSTGRES' });
     } catch (dbErr: any) {
       console.error('[Prisma Customer POST Error]:', dbErr);
       return NextResponse.json({ success: false, error: `Database Error: ${dbErr.message}` }, { status: 500 });

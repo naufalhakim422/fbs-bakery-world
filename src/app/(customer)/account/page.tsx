@@ -108,6 +108,11 @@ export default function CustomerAccountPage() {
   const [trackingModalOrder, setTrackingModalOrder] = useState<any | null>(null);
   const [copiedResi, setCopiedResi] = useState<boolean>(false);
 
+  // Profile Save Confirmation Modal State
+  const [confirmSaveProfileModal, setConfirmSaveProfileModal] = useState<boolean>(false);
+  const [pendingSaveData, setPendingSaveData] = useState<any | null>(null);
+  const [isSavingProfile, setIsSavingProfile] = useState<boolean>(false);
+
   // Avatar & Cover State & Refs
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const coverInputRef = React.useRef<HTMLInputElement>(null);
@@ -971,7 +976,7 @@ export default function CustomerAccountPage() {
 
               {/* Address Edit Form */}
               <form 
-                onSubmit={async (e) => {
+                onSubmit={(e) => {
                   e.preventDefault();
                   const formEl = e.currentTarget;
                   const updatedCust = {
@@ -985,22 +990,8 @@ export default function CustomerAccountPage() {
                     state: (formEl.elements.namedItem('state') as HTMLSelectElement).value,
                   };
 
-                  setCustomer(updatedCust);
-                  localStorage.setItem('fbs_customer_session', JSON.stringify(updatedCust));
-                  db.saveCustomer(updatedCust);
-
-                  try {
-                    await fetch('/api/customers', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(updatedCust),
-                    });
-                  } catch (err) {
-                    console.error('Error syncing profile address:', err);
-                  }
-
-                  setAvatarNotice('✅ Data profil & alamat pengiriman utama Anda berhasil disimpan!');
-                  setTimeout(() => setAvatarNotice(''), 4000);
+                  setPendingSaveData(updatedCust);
+                  setConfirmSaveProfileModal(true);
                 }} 
                 className="space-y-4"
               >
@@ -1566,6 +1557,97 @@ export default function CustomerAccountPage() {
                 </Link>
               </div>
 
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* PROFILE & ADDRESS SAVE CONFIRMATION MODAL */}
+      {confirmSaveProfileModal && pendingSaveData && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-stone-200 space-y-6 text-center relative overflow-hidden">
+            
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto border-4 border-emerald-50">
+              <ShieldCheck className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="font-serif text-2xl font-extrabold text-[#800020]">
+                Konfirmasi Simpan Profil & Alamat Utama
+              </h3>
+              <p className="text-stone-600 text-xs leading-relaxed">
+                Apakah Anda yakin ingin menyimpan perubahan nama & alamat utama ini secara permanen ke akun Anda?
+              </p>
+            </div>
+
+            {/* Summary Preview Card */}
+            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 text-left text-xs space-y-2 text-stone-700">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-[#800020] flex-shrink-0" />
+                <span className="font-bold text-stone-900">{pendingSaveData.name}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-[#800020] flex-shrink-0" />
+                <span>{pendingSaveData.phone}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
+                <span className="text-stone-800 font-medium">
+                  {pendingSaveData.address}, {pendingSaveData.city}, {pendingSaveData.postcode}, {pendingSaveData.state}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                disabled={isSavingProfile}
+                onClick={() => setConfirmSaveProfileModal(false)}
+                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl font-bold text-xs transition-colors"
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                disabled={isSavingProfile}
+                onClick={async () => {
+                  setIsSavingProfile(true);
+                  try {
+                    const finalData = { ...pendingSaveData };
+                    setCustomer(finalData);
+                    localStorage.setItem('fbs_customer_session', JSON.stringify(finalData));
+                    db.saveCustomer(finalData);
+
+                    window.dispatchEvent(new Event('storage'));
+                    window.dispatchEvent(new CustomEvent('fbs_db_updated'));
+
+                    await fetch('/api/customers', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(finalData),
+                    }).catch(() => {});
+
+                    setAvatarNotice('✅ PERMANEN DITERAPKAN: Profil & Alamat Utama Anda berhasil disimpan!');
+                    setTimeout(() => setAvatarNotice(''), 5000);
+                  } catch (err) {
+                    console.error('Error saving profile:', err);
+                  } finally {
+                    setIsSavingProfile(false);
+                    setConfirmSaveProfileModal(false);
+                  }
+                }}
+                className="py-3 px-4 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] rounded-2xl font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+              >
+                {isSavingProfile ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" /> Ya, Simpan Permanen
+                  </>
+                )}
+              </button>
             </div>
 
           </div>
