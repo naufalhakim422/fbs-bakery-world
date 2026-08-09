@@ -1149,6 +1149,10 @@ export const db = {
     return newOrder;
   },
 
+  updateOrderStatus: (id: string, status: Order['orderStatus'], courierName?: string, trackingNumber?: string) => {
+    return db.updateOrderStatusAndTracking(id, status, courierName, trackingNumber);
+  },
+
   updateOrderStatusAndTracking: (id: string, status: Order['orderStatus'], courierName?: string, trackingNumber?: string) => {
     const orders = loadFromStorage<Order[]>('fbs_orders', initialOrders);
     const idx = orders.findIndex(o => o.id === id || o.orderNumber === id);

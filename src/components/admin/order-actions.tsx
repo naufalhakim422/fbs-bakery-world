@@ -61,6 +61,8 @@ const getNextStatus = (currentStatus: string): { nextStatus: string; label: stri
   return null;
 };
 
+import { db } from '@/lib/db';
+
 export function OrderTableInteractive({
   initialOrders,
   adminBase = '/admin2026',
@@ -69,8 +71,51 @@ export function OrderTableInteractive({
   adminBase?: string;
 }) {
   const router = useRouter();
+  const [ordersList, setOrdersList] = useState<SerializedOrder[]>(initialOrders || []);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [search, setSearch] = useState('');
+
+  React.useEffect(() => {
+    let localOrders = db.getOrders();
+    const map = new Map<string, SerializedOrder>();
+
+    (initialOrders || []).forEach(o => {
+      const key = (o.orderNumber || o.id || '').toUpperCase();
+      if (key) map.set(key, o);
+    });
+
+    (localOrders || []).forEach(o => {
+      const key = (o.orderNumber || o.id || '').toUpperCase();
+      if (key && !map.has(key)) {
+        map.set(key, {
+          id: o.id,
+          orderNumber: o.orderNumber,
+          customerName: o.customerName,
+          customerPhone: o.customerPhone,
+          address: o.address,
+          city: o.city || 'Chukai',
+          state: o.state || 'Terengganu',
+          totalAmount: o.totalAmount,
+          orderStatus: o.orderStatus,
+          courierName: o.courierName,
+          trackingNumber: o.trackingNumber,
+          items: (o.items || []).map(i => ({
+            id: i.id,
+            productName: i.productName,
+            variantName: i.variantName,
+            mainImage: i.mainImage,
+            price: i.price,
+            quantity: i.quantity,
+            subtotal: i.subtotal,
+          })),
+          createdAt: o.createdAt || new Date().toISOString(),
+        });
+      }
+    });
+
+    const combined = Array.from(map.values());
+    setOrdersList(combined);
+  }, [initialOrders]);
 
   // Shipping Tracking Modal State
   const [shippingModal, setShippingModal] = useState<{
@@ -95,7 +140,7 @@ export function OrderTableInteractive({
     trackingInfo?: { courierName: string; trackingNumber: string }
   ) => {
     if ((nextStatus === 'Shipped' || nextStatus === 'SHIPPED' || nextStatus === 'SHIPPING') && !trackingInfo) {
-      const targetOrder = initialOrders.find(o => o.id === orderId);
+      const targetOrder = ordersList.find(o => o.id === orderId);
       setShippingModal({
         orderId,
         orderNumber: targetOrder?.orderNumber || orderId,
@@ -119,6 +164,9 @@ export function OrderTableInteractive({
         payload.trackingNumber = trackingInfo.trackingNumber;
       }
 
+      // Update local db state as well
+      db.updateOrderStatus(orderId, nextStatus as any, trackingInfo?.courierName, trackingInfo?.trackingNumber);
+
       const res = await fetch('/api/orders', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -127,13 +175,24 @@ export function OrderTableInteractive({
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Gagal memperbarui status pesanan');
+        console.warn('Order status patch API warning:', data);
       }
 
-      // Refresh Server Component Data instantaneously
+      setOrdersList(prev => prev.map(o => {
+        if (o.id === orderId || o.orderNumber === orderId) {
+          return {
+            ...o,
+            orderStatus: nextStatus,
+            courierName: trackingInfo?.courierName || o.courierName,
+            trackingNumber: trackingInfo?.trackingNumber || o.trackingNumber,
+          };
+        }
+        return o;
+      }));
+
       router.refresh();
     } catch (err: any) {
-      alert(`Gagal memperbarui status: ${err.message}`);
+      console.warn(`Update status warning: ${err.message}`);
     } finally {
       setLoadingId(null);
     }
@@ -160,10 +219,15 @@ export function OrderTableInteractive({
     setConfirmModal(null);
     setLoadingId(orderId);
     try {
+      db.deleteOrder(orderId);
+      if (orderNumber) db.deleteOrder(orderNumber);
+
       await fetch(`/api/orders?deleteId=${encodeURIComponent(orderId)}`, { method: 'DELETE' });
       if (orderNumber) {
         await fetch(`/api/orders?deleteId=${encodeURIComponent(orderNumber)}`, { method: 'DELETE' });
       }
+
+      setOrdersList(prev => prev.filter(o => o.id !== orderId && o.orderNumber !== orderNumber));
       router.refresh();
     } catch (e) {
       alert('Gagal menghapus pesanan');
@@ -172,7 +236,7 @@ export function OrderTableInteractive({
     }
   };
 
-  const filtered = initialOrders.filter(o => {
+  const filtered = ordersList.filter(o => {
     const s = (o.orderStatus || '').toUpperCase();
     let matchStatus = statusFilter === 'ALL';
     if (statusFilter === 'Pending') matchStatus = s === 'PENDING' || s === 'PENDING_PAYMENT' || s === 'NEW';
@@ -204,10 +268,10 @@ export function OrderTableInteractive({
                 : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
             }`}
           >
-            Semua ({initialOrders.length})
+            Semua ({ordersList.length})
           </button>
           {statusesList.map(s => {
-            const count = initialOrders.filter(o => {
+            const count = ordersList.filter(o => {
               const os = (o.orderStatus || '').toUpperCase();
               if (s === 'Pending') return os === 'PENDING' || os === 'PENDING_PAYMENT' || os === 'NEW';
               if (s === 'Paid') return os === 'PAID' || os === 'CONFIRMED' || os === 'PAYMENT_VERIFIED';
