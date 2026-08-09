@@ -14,7 +14,7 @@ import { useLanguage } from '@/lib/language-context';
 import { useCart } from '@/lib/cart-context';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Award, HelpCircle, Gift, Truck, Tag, Info, Copy, LogOut, X, Video, Image as ImageIcon, Star, Camera, Upload, Edit2, Check, UserCheck, AlertTriangle } from 'lucide-react';
+import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Award, HelpCircle, Gift, Truck, Tag, Info, Copy, LogOut, X, Video, Image as ImageIcon, Star, Camera, Upload, Edit2, Check, UserCheck, AlertTriangle, Building, Hash, Globe, ShoppingBag, ShoppingCart, ChevronRight, ExternalLink, Clock, FileText } from 'lucide-react';
 
 import { normalizePhoneDigits } from '@/lib/whatsapp';
 
@@ -102,6 +102,11 @@ export default function CustomerAccountPage() {
   const [activeTab, setActiveTab] = useState<'orders' | 'wishlist' | 'profile'>('orders');
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [orders, setOrders] = useState<any[]>(() => getInitialOrdersForSession());
+
+  // Shopee/Tokopedia Order Filter & Tracking Modal State
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | 'UNPAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'>('ALL');
+  const [trackingModalOrder, setTrackingModalOrder] = useState<any | null>(null);
+  const [copiedResi, setCopiedResi] = useState<boolean>(false);
 
   // Avatar & Cover State & Refs
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -582,120 +587,253 @@ export default function CustomerAccountPage() {
           </button>
         </div>
 
-        {/* TAB 1: ORDER HISTORY */}
+        {/* TAB 1: ORDER HISTORY (SHOPEE / TOKOPEDIA STYLE) */}
         {activeTab === 'orders' && (
-          <div className="space-y-4">
-            {orders.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-[#EADBC8] space-y-3">
-                <Package className="w-14 h-14 text-stone-300 mx-auto" />
-                <h3 className="font-serif text-xl font-bold text-[#800020]">Belum Ada Riwayat Pesanan</h3>
-                <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                  Akun Anda belum memiliki riwayat transaksi. Setelah Anda melakukan pemesanan bahan kue, riwayat dan status pengiriman resi kurir akan otomatis tampil di sini.
-                </p>
-                <Link
-                  href="/products"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#800020] text-[#D4AF37] font-bold text-xs rounded-xl shadow hover:bg-[#6F1D1B] transition-transform active:scale-95 mt-2"
-                >
-                  Mulai Belanja Bahan Kue <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            ) : (
-              orders.map(order => (
-                <div key={order.id} className="bg-white p-6 rounded-3xl border border-[#EADBC8] shadow-sm space-y-4">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-stone-100 pb-3 gap-2">
-                    <div>
-                      <span className="text-xs font-bold text-[#800020] block">{order.orderNumber}</span>
-                      <span className="text-[11px] text-stone-400">Date: {new Date(order.createdAt).toLocaleDateString()}</span>
-                    </div>
+          <div className="space-y-6">
+            
+            {/* Shopee-style Status Navigation Filter Tabs */}
+            {(() => {
+              const unpaidCount = orders.filter(o => ['PENDING_PAYMENT', 'NEW', 'PENDING'].includes(normalizeToFrontendStatus(o.orderStatus))).length;
+              const procCount = orders.filter(o => ['CONFIRMED', 'PROCESSING', 'PACKING', 'READY_TO_SHIP'].includes(normalizeToFrontendStatus(o.orderStatus))).length;
+              const shipCount = orders.filter(o => ['SHIPPED', 'SHIPPING'].includes(normalizeToFrontendStatus(o.orderStatus))).length;
+              const delivCount = orders.filter(o => ['DELIVERED', 'COMPLETED'].includes(normalizeToFrontendStatus(o.orderStatus))).length;
+              const cancelCount = orders.filter(o => ['CANCELLED', 'CANCEL_REQUESTED', 'REFUND'].includes(normalizeToFrontendStatus(o.orderStatus))).length;
 
-                    <div className="flex items-center gap-3">
-                      {(() => {
-                        const badge = getOrderStatusBadge(order.orderStatus, language);
-                        return (
-                          <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border uppercase ${badge.className}`}>
-                            {badge.label}
-                          </span>
-                        );
-                      })()}
-                      <span className="font-serif font-extrabold text-base text-[#800020]">
-                        {formatMYR(order.totalAmount)}
-                      </span>
-                    </div>
-                  </div>
+              const filterTabs = [
+                { key: 'ALL', label: 'Semua', count: orders.length },
+                { key: 'UNPAID', label: 'Belum Bayar', count: unpaidCount },
+                { key: 'PROCESSING', label: 'Diproses', count: procCount },
+                { key: 'SHIPPED', label: 'Dikirim', count: shipCount },
+                { key: 'DELIVERED', label: 'Selesai', count: delivCount },
+                { key: 'CANCELLED', label: 'Dibatalkan', count: cancelCount },
+              ];
 
-                  {/* Item Preview */}
-                  <div className="space-y-2">
-                    {(order.items || []).map((item: OrderItem) => (
-                      <div key={item.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl gap-2 border border-stone-200">
-                        <div>
-                          <span className="font-bold text-stone-900 block">{item.productName}</span>
-                          <span className="text-[11px] text-stone-500">Variant: {item.variantName} x {item.quantity}</span>
-                        </div>
-
-                        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-200">
-                          <span className="font-bold text-[#800020]">{formatMYR(item.subtotal)}</span>
-
-                          {/* DELIVERED ORDER VERIFIED REVIEW TRIGGER */}
-                          {order.orderStatus === 'DELIVERED' && (
-                            <button
-                              onClick={() => setReviewModalItem({
-                                productId: item.productId,
-                                productName: item.productName,
-                                customerName: order.customerName,
-                              })}
-                              className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold rounded-xl shadow flex items-center gap-1 transition-transform active:scale-95 flex-shrink-0"
-                            >
-                              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> Beri Ulasan & Video
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Actions: Repeat Order, Cancel Request & Tracking */}
-                  <div className="flex flex-wrap gap-2 pt-2 justify-end items-center">
-                    {order.orderStatus === 'DELIVERED' && (
-                      <span className="px-3 py-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200 flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Pesanan Telah Sampai (Verified Delivered)
-                      </span>
-                    )}
-
-                    {order.orderStatus === 'CANCEL_REQUESTED' && (
-                      <span className="px-3.5 py-1.5 bg-amber-50 text-amber-800 text-xs font-bold rounded-xl border border-amber-300 flex items-center gap-1">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> ⏳ Menunggu Konfirmasi Pembatalan Admin
-                      </span>
-                    )}
-
-                    {order.orderStatus === 'CANCELLED' && (
-                      <span className="px-3.5 py-1.5 bg-red-50 text-red-800 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-1">
-                        <X className="w-3.5 h-3.5 text-red-600" /> ❌ Pesanan Telah Dibatalkan
-                      </span>
-                    )}
-
-                    {(order.orderStatus === 'NEW' || order.orderStatus === 'CONFIRMED') && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCancelModalOrder({ id: order.id, orderNumber: order.orderNumber });
-                          setCancelReason('Ingin merubah rincian pesanan');
-                        }}
-                        className="px-3.5 py-2 bg-stone-50 hover:bg-red-50 text-red-600 hover:text-red-700 font-bold text-xs rounded-xl border border-red-200 transition-colors flex items-center gap-1.5"
-                      >
-                        <X className="w-3.5 h-3.5 text-red-500" /> Permintaan Pembatalan Pesanan
-                      </button>
-                    )}
-
-                    <Link
-                      href={`/track-order?orderNumber=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customerPhone)}`}
-                      className="px-4 py-2 bg-[#800020] text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
+              return (
+                <div className="flex bg-white rounded-2xl p-1.5 border border-[#EADBC8] shadow-sm gap-1 overflow-x-auto scrollbar-none">
+                  {filterTabs.map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setOrderStatusFilter(tab.key as any)}
+                      className={`px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                        orderStatusFilter === tab.key
+                          ? 'bg-[#800020] text-[#D4AF37] shadow-md'
+                          : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                      }`}
                     >
-                      <Package className="w-3.5 h-3.5" /> Track Status & Resi
+                      <span>{tab.label}</span>
+                      {tab.count > 0 && (
+                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                          orderStatusFilter === tab.key ? 'bg-[#D4AF37] text-[#800020]' : 'bg-stone-200 text-stone-700'
+                        }`}>
+                          {tab.count}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
+
+            {/* Filtered Orders List */}
+            {(() => {
+              const displayOrders = orders.filter(o => {
+                const norm = normalizeToFrontendStatus(o.orderStatus);
+                if (orderStatusFilter === 'UNPAID') return ['PENDING_PAYMENT', 'NEW', 'PENDING'].includes(norm);
+                if (orderStatusFilter === 'PROCESSING') return ['CONFIRMED', 'PROCESSING', 'PACKING', 'READY_TO_SHIP'].includes(norm);
+                if (orderStatusFilter === 'SHIPPED') return ['SHIPPED', 'SHIPPING'].includes(norm);
+                if (orderStatusFilter === 'DELIVERED') return ['DELIVERED', 'COMPLETED'].includes(norm);
+                if (orderStatusFilter === 'CANCELLED') return ['CANCELLED', 'CANCEL_REQUESTED', 'REFUND'].includes(norm);
+                return true;
+              });
+
+              if (displayOrders.length === 0) {
+                return (
+                  <div className="bg-white rounded-3xl p-12 text-center border border-[#EADBC8] space-y-3 shadow-sm">
+                    <Package className="w-14 h-14 text-stone-300 mx-auto" />
+                    <h3 className="font-serif text-xl font-bold text-[#800020]">Tidak Ada Pesanan di Kategori Ini</h3>
+                    <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                      Belum ada transaksi dengan status ini. Silakan belanja bahan kue pilihan Anda di FBS Bakery World.
+                    </p>
+                    <Link
+                      href="/products"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#800020] text-[#D4AF37] font-bold text-xs rounded-xl shadow hover:bg-[#6F1D1B] transition-transform active:scale-95 mt-2"
+                    >
+                      Mulai Belanja Bahan Kue <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
+                );
+              }
+
+              return (
+                <div className="space-y-5">
+                  {displayOrders.map(order => {
+                    const normStatus = normalizeToFrontendStatus(order.orderStatus);
+                    const badge = getOrderStatusBadge(order.orderStatus, language);
+
+                    return (
+                      <div key={order.id} className="bg-white rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                        
+                        {/* Shopee Style Store Header */}
+                        <div className="p-4 sm:p-5 bg-stone-50/70 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-[#800020] text-[#D4AF37] font-serif font-black text-xs flex items-center justify-center border border-[#D4AF37] flex-shrink-0">
+                              FBS
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-xs text-stone-900">FBS Bakery World Official Store</span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 bg-[#800020] text-[#D4AF37] rounded-md uppercase">Official</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-[11px] text-stone-500 mt-0.5">
+                                <span className="font-mono font-bold text-[#800020]">{order.orderNumber}</span>
+                                <span>•</span>
+                                <span>{new Date(order.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 self-end sm:self-center">
+                            <span className={`px-3 py-1 text-xs font-extrabold rounded-full border uppercase shadow-2xs ${badge.className}`}>
+                              {badge.label}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Order Item Rows */}
+                        <div className="p-4 sm:p-5 divide-y divide-stone-100">
+                          {(order.items || []).map((item: OrderItem) => (
+                            <div key={item.id} className="py-3 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                              <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-stone-200 overflow-hidden bg-stone-100 flex-shrink-0">
+                                  <img 
+                                    src={item.mainImage || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=300&auto=format&fit=crop'} 
+                                    alt={item.productName} 
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="space-y-1 min-w-0">
+                                  <h4 className="font-bold text-xs sm:text-sm text-stone-900 line-clamp-1">{item.productName}</h4>
+                                  <div className="flex items-center gap-2 text-[11px] text-stone-500 flex-wrap">
+                                    <span className="px-2 py-0.5 bg-stone-100 rounded-md font-semibold text-stone-700">Varian: {item.variantName}</span>
+                                    <span>x{item.quantity}</span>
+                                  </div>
+                                  <div className="text-xs font-extrabold text-[#800020]">
+                                    {formatMYR(item.price)} <span className="text-[10px] text-stone-400 font-normal">/ unit</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100 gap-2">
+                                <span className="text-xs text-stone-500 sm:hidden">Subtotal Produk:</span>
+                                <span className="font-extrabold text-sm text-[#800020]">{formatMYR(item.subtotal)}</span>
+
+                                {/* Review Trigger Button */}
+                                {(normStatus === 'DELIVERED' || normStatus === 'COMPLETED') && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setReviewModalItem({
+                                      productId: item.productId,
+                                      productName: item.productName,
+                                      customerName: order.customerName,
+                                    })}
+                                    className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold rounded-xl shadow flex items-center gap-1 transition-transform active:scale-95"
+                                  >
+                                    <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> Ulas Produk
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Order Summary & Shopee Action Footer */}
+                        <div className="p-4 sm:p-5 bg-stone-50/90 border-t border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          
+                          {/* Shipping / Resi Info */}
+                          <div className="text-xs space-y-1 text-stone-600">
+                            {order.courierName && (
+                              <div className="flex items-center gap-1.5 font-bold text-stone-800">
+                                <Truck className="w-4 h-4 text-[#800020]" />
+                                <span>Kurir: {order.courierName}</span>
+                                {order.trackingNumber && (
+                                  <span className="font-mono bg-stone-200 text-stone-800 px-2 py-0.5 rounded text-[11px] font-bold">
+                                    {order.trackingNumber}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-stone-500">Total Pesanan ({order.items?.length || 1} Produk):</span>
+                              <span className="font-serif font-extrabold text-base text-[#800020]">{formatMYR(order.totalAmount)}</span>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto">
+                            
+                            {/* 1. Shopee Tracking Modal Button */}
+                            <button
+                              type="button"
+                              onClick={() => setTrackingModalOrder(order)}
+                              className="px-4 py-2 bg-stone-800 hover:bg-black text-[#D4AF37] text-xs font-bold rounded-xl shadow transition-transform active:scale-95 flex items-center gap-1.5"
+                            >
+                              <Truck className="w-3.5 h-3.5" /> Lacak Pengiriman
+                            </button>
+
+                            {/* 2. WhatsApp Pay Button for Unpaid Orders */}
+                            {(normStatus === 'PENDING_PAYMENT' || normStatus === 'NEW') && (
+                              <a
+                                href={order.whatsappUrl || `https://wa.me/60183972147?text=Halo%20FBS%20Bakery,%20saya%20ingin%20bayar%20order%20${encodeURIComponent(order.orderNumber)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition-transform active:scale-95 flex items-center gap-1.5"
+                              >
+                                <Phone className="w-3.5 h-3.5" /> Bayar via WhatsApp
+                              </a>
+                            )}
+
+                            {/* 3. Reorder Button for Delivered/Completed Orders */}
+                            {(normStatus === 'DELIVERED' || normStatus === 'COMPLETED') && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!order.items || order.items.length === 0) return;
+                                  order.items.forEach((item: any) => {
+                                    const p = db.getProductBySlug(item.productId) || { id: item.productId, productName: item.productName, mainImage: item.mainImage };
+                                    const variant = { id: item.productVariantId || 'var-default', variantName: item.variantName, price: item.price, weight: 1, sku: '', productId: item.productId, stock: 100 };
+                                    addToCart(p as any, variant as any, item.quantity || 1);
+                                  });
+                                  router.push('/checkout');
+                                }}
+                                className="px-4 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl shadow transition-transform active:scale-95 flex items-center gap-1.5"
+                              >
+                                <ShoppingCart className="w-3.5 h-3.5" /> Beli Lagi
+                              </button>
+                            )}
+
+                            {/* 4. Cancel Request Button */}
+                            {(normStatus === 'PENDING_PAYMENT' || normStatus === 'NEW' || normStatus === 'CONFIRMED') && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCancelModalOrder({ id: order.id, orderNumber: order.orderNumber });
+                                  setCancelReason('Ingin merubah rincian pesanan');
+                                }}
+                                className="px-3.5 py-2 bg-stone-100 hover:bg-red-50 text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center gap-1"
+                              >
+                                <X className="w-3.5 h-3.5 text-red-500" /> Batalkan
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                      </div>
+                    );
+                  })}
                 </div>
-              ))
-            )}
+              );
+            })()}
+
           </div>
         )}
 
@@ -1298,6 +1436,138 @@ export default function CustomerAccountPage() {
                 <X className="w-4 h-4" /> Kirim Permohonan
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* SHOPEE-STYLE LIVE TRACKING MODAL */}
+      {trackingModalOrder && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-stone-200 flex flex-col">
+            
+            {/* Modal Header */}
+            <div className="p-6 bg-gradient-to-r from-[#800020] to-[#6F1D1B] text-white rounded-t-3xl flex items-center justify-between relative overflow-hidden">
+              <div className="space-y-1 relative z-10">
+                <div className="flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-[#D4AF37]" />
+                  <h3 className="font-serif text-lg font-bold text-white">Status Lacak Pengiriman</h3>
+                </div>
+                <p className="text-xs text-stone-200 font-mono">
+                  Nomor Pesanan: <span className="text-[#D4AF37] font-bold">{trackingModalOrder.orderNumber}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setTrackingModalOrder(null)}
+                className="p-2 hover:bg-white/20 rounded-full text-white transition-colors relative z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Courier & Resi Info Card */}
+            <div className="p-6 space-y-6 flex-1">
+              
+              <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 flex items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase text-stone-500 block">Ekspedisi / Kurir:</span>
+                  <span className="font-extrabold text-sm text-stone-900 flex items-center gap-1.5">
+                    <Truck className="w-4 h-4 text-[#800020]" /> {trackingModalOrder.courierName || 'J&T Express'}
+                  </span>
+                  {trackingModalOrder.trackingNumber ? (
+                    <span className="text-xs font-mono font-bold text-[#800020] block">
+                      No. Resi: {trackingModalOrder.trackingNumber}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-stone-500 italic block">Nomor resi sedang disiapkan kurir</span>
+                  )}
+                </div>
+
+                {trackingModalOrder.trackingNumber && (
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(trackingModalOrder.trackingNumber);
+                      setCopiedResi(true);
+                      setTimeout(() => setCopiedResi(false), 2500);
+                    }}
+                    className="px-3.5 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl shadow flex items-center gap-1.5 transition-transform active:scale-95 flex-shrink-0"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>{copiedResi ? 'Tercopy!' : 'Salin Resi'}</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Vertical Timeline Progress Bar */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-extrabold uppercase text-stone-800 flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-[#800020]" /> Timeline Tracking Pengiriman
+                </h4>
+
+                {(() => {
+                  const norm = normalizeToFrontendStatus(trackingModalOrder.orderStatus);
+                  const steps = [
+                    { status: 'PENDING_PAYMENT', title: 'Pesanan Berhasil Dibuat', desc: 'Pesanan diterima sistem dan menunggu konfirmasi' },
+                    { status: 'CONFIRMED', title: 'Pembayaran Diverifikasi', desc: 'Pembayaran telah dikonfirmasi oleh admin store' },
+                    { status: 'PROCESSING', title: 'Pesanan Sedang Diproses', desc: 'Tim FBS Bakery World sedang mengemas produk kue Anda' },
+                    { status: 'SHIPPED', title: 'Paket Diserahkan ke Kurir', desc: 'Paket dalam perjalanan ekspedisi ke alamat tujuan' },
+                    { status: 'DELIVERED', title: 'Pesanan Selesai / Diterima', desc: 'Paket telah berhasil diterima oleh pelanggan' },
+                  ];
+
+                  function getStepIndex(st: string): number {
+                    if (st === 'PENDING_PAYMENT' || st === 'NEW') return 0;
+                    if (st === 'CONFIRMED' || st === 'PAYMENT_VERIFIED') return 1;
+                    if (st === 'PROCESSING' || st === 'PACKING' || st === 'READY_TO_SHIP') return 2;
+                    if (st === 'SHIPPED' || st === 'SHIPPING') return 3;
+                    if (st === 'DELIVERED' || st === 'COMPLETED') return 4;
+                    return 0;
+                  }
+
+                  const currentIdx = getStepIndex(norm);
+
+                  return (
+                    <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-stone-200">
+                      {steps.map((step, idx) => {
+                        const isDone = idx <= currentIdx;
+                        const isCurrent = idx === currentIdx;
+
+                        return (
+                          <div key={idx} className="relative flex items-start gap-3">
+                            {/* Step Dot */}
+                            <div className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 transition-all ${
+                              isCurrent
+                                ? 'bg-[#800020] border-[#D4AF37] text-white ring-4 ring-[#800020]/20'
+                                : isDone
+                                ? 'bg-emerald-600 border-emerald-600 text-white'
+                                : 'bg-stone-100 border-stone-300 text-stone-400'
+                            }`}>
+                              {isDone ? <Check className="w-3 h-3 stroke-[3]" /> : <span className="text-[9px] font-bold">{idx + 1}</span>}
+                            </div>
+
+                            <div className="space-y-0.5">
+                              <span className={`text-xs font-extrabold block ${isDone ? 'text-stone-900' : 'text-stone-400'}`}>
+                                {step.title}
+                              </span>
+                              <p className="text-[11px] text-stone-500">{step.desc}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <div className="pt-4 border-t border-stone-100 flex justify-end">
+                <Link
+                  href={`/track-order?orderNumber=${encodeURIComponent(trackingModalOrder.orderNumber)}&phone=${encodeURIComponent(trackingModalOrder.customerPhone)}`}
+                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-[#800020]" /> Halaman Tracking Detail Selengkapnya
+                </Link>
+              </div>
+
+            </div>
+
           </div>
         </div>
       )}
