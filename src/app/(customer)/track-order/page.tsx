@@ -129,8 +129,26 @@ function TrackOrderContent() {
               db.getOrderByNumberAndPhone(rawNum, queryPhone) || 
               db.getOrders().find(o => {
                 const oNumClean = (o.orderNumber || '').replace(/^#/, '').toUpperCase();
-                return cleanNum && oNumClean.includes(cleanNum);
+                return Boolean(cleanNum && (oNumClean.includes(cleanNum) || cleanNum.includes(oNumClean)));
               }) || null;
+    }
+
+    if (found) {
+      const rawStatus = (found as any).orderStatus || (found as any).status || 'NEW';
+      (found as any).orderStatus = rawStatus;
+
+      // Normalize items array if returned from Prisma format
+      if ((found as any).items && Array.isArray((found as any).items)) {
+        (found as any).items = (found as any).items.map((i: any) => ({
+          ...i,
+          productName: i.productName || 'Produk Bakery',
+          variantName: i.variantName || 'Standard',
+          mainImage: i.mainImage || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
+          price: Number(i.price) || 0,
+          quantity: Number(i.quantity) || 1,
+          subtotal: Number(i.subtotal) || Number(i.price * i.quantity) || 0,
+        }));
+      }
     }
 
     setOrderResult(found);
