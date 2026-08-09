@@ -98,26 +98,7 @@ export function generateCartWALink(
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
 }
 
-export function generateWhatsAppOrderLink({
-  whatsappNumber,
-  template,
-  orderNumber,
-  customerName,
-  customerPhone,
-  address,
-  city,
-  state,
-  postcode,
-  notes,
-  courierName,
-  courier,
-  items,
-  itemsSummary = '',
-  total = 0,
-  subtotal = 0,
-  discount = 0,
-  shippingFee = 0,
-}: {
+export function generateWhatsAppOrderLink(params: {
   whatsappNumber: string;
   template?: string;
   orderNumber: string;
@@ -133,14 +114,51 @@ export function generateWhatsAppOrderLink({
   items?: any[];
   itemsSummary?: string;
   total?: number;
+  grandTotal?: number;
   subtotal?: number;
   discount?: number;
   shippingFee?: number;
   [key: string]: any;
 }): string {
-  const cleanPhone = cleanPhoneNumber(whatsappNumber || '+601139560924');
+  const {
+    whatsappNumber,
+    template,
+    orderNumber,
+    customerName,
+    customerPhone,
+    address,
+    city,
+    state,
+    postcode,
+    notes,
+    courierName,
+    courier,
+    items,
+    itemsSummary = '',
+    total = 0,
+    grandTotal = 0,
+    subtotal = 0,
+    discount = 0,
+    shippingFee = 0,
+  } = params;
 
+  const cleanPhone = cleanPhoneNumber(whatsappNumber || '+601139560924');
   const fullAddr = [address, city, state, postcode].filter(Boolean).join(', ');
+
+  // Auto-format itemsSummary from items array if not provided
+  let formattedItems = itemsSummary;
+  if (!formattedItems && Array.isArray(items) && items.length > 0) {
+    formattedItems = items.map((item, idx) => {
+      const name = item.productName || item.name || 'Produk Bakery';
+      const variant = item.variantName ? ` (${item.variantName})` : '';
+      const qty = item.quantity || 1;
+      const price = item.price || 0;
+      return `${idx + 1}. ${name}${variant} - ${qty}x @ RM ${price.toFixed(2)}`;
+    }).join('\n');
+  }
+
+  const finalTotal = (total && total > 0) ? total : (grandTotal && grandTotal > 0) ? grandTotal : Math.max(0, (subtotal || 0) + (shippingFee || 0) - (discount || 0));
+  const finalItemsText = formattedItems || 'Bahan Kue Bakery';
 
   const defaultMsg = `Helo FBS Bakery! Saya ingin mengesahkan pesanan #${orderNumber}.
 
@@ -150,13 +168,13 @@ export function generateWhatsAppOrderLink({
 ${fullAddr || address}
 
 📦 Barangan Pesanan:
-${itemsSummary}
+${finalItemsText}
 
 ---------------------------
-Jumlah Kecil: RM ${subtotal.toFixed(2)}
-Diskaun: RM ${discount.toFixed(2)}
-Kos Penghantaran: RM ${shippingFee.toFixed(2)}
-💰 Jumlah Keseluruhan: RM ${total.toFixed(2)}
+Jumlah Kecil: RM ${(subtotal || 0).toFixed(2)}
+Diskaun: RM ${(discount || 0).toFixed(2)}
+Kos Penghantaran: RM ${(shippingFee || 0).toFixed(2)}
+💰 Jumlah Keseluruhan: RM ${finalTotal.toFixed(2)}
 
 Terima kasih!`;
 
@@ -167,8 +185,8 @@ Terima kasih!`;
     .replace(/{customerName}/g, customerName)
     .replace(/{customerPhone}/g, customerPhone)
     .replace(/{address}/g, fullAddr || address)
-    .replace(/{itemsSummary}/g, itemsSummary)
-    .replace(/{total}/g, total.toFixed(2));
+    .replace(/{itemsSummary}/g, finalItemsText)
+    .replace(/{total}/g, finalTotal.toFixed(2));
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(formattedMessage)}`;
 }

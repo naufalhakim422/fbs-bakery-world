@@ -142,7 +142,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
           {/* Variant Selector */}
           <div className="pt-1 flex flex-wrap items-center gap-1.5">
             <span className="text-[10px] font-semibold text-stone-400 mr-1">{language === 'EN' ? 'Size:' : 'Berat:'}</span>
-            {product.variants.map((variant) => (
+            {(product.variants || []).map((variant) => (
               <button
                 key={variant.id}
                 onClick={() => setSelectedVariant(variant)}
@@ -292,7 +292,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
           </div>
 
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {product.variants.map((variant) => (
+            {(product.variants || []).map((variant) => (
               <button
                 key={variant.id}
                 onClick={() => setSelectedVariant(variant)}

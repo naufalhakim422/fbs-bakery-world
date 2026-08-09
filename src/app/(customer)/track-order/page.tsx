@@ -88,7 +88,7 @@ function TrackOrderContent() {
             oPhoneNorm.includes(normSearchPhone)
           ));
           return matchNum || matchPh;
-        }) || data.orders[0];
+        }) || null;
       }
     } catch (err) {
       console.warn('Track server fetch error:', err);

@@ -176,12 +176,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const totalCompare = useMemo(() => compareList.length, [compareList]);
   const totalItems = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
   const subtotal = useMemo(() => cart.reduce((acc, item) => acc + item.price * item.quantity, 0), [cart]);
-  const totalWeight = useMemo(() => cart.reduce((acc, item) => acc + item.weight * item.quantity, 0), [cart]);
   const totalWeightGrams = useMemo(() => cart.reduce((acc, item) => {
-    const itemGrams = item.weight <= 50 ? item.weight * 1000 : item.weight;
+    // If item.weight is less than 30, it represents Kilograms (e.g. 0.1kg, 0.5kg, 1kg, 25kg) -> multiply by 1000 to convert to grams.
+    // If item.weight is 30 or greater (e.g. 100, 250, 500), it is ALREADY in Grams -> do not multiply by 1000.
+    const rawWeight = item.weight || 0.5;
+    const itemGrams = rawWeight < 30 ? Math.round(rawWeight * 1000) : Math.round(rawWeight);
     return acc + (itemGrams * item.quantity);
   }, 0), [cart]);
   const totalWeightKg = useMemo(() => parseFloat((totalWeightGrams / 1000).toFixed(2)), [totalWeightGrams]);
+  const totalWeight = totalWeightKg;
 
   return (
     <CartContext.Provider

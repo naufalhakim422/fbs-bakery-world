@@ -29,7 +29,8 @@ import {
   Sparkles,
   Printer,
   Truck,
-  Scale
+  Scale,
+  Tag
 } from 'lucide-react';
 
 export default function CheckoutPage() {
@@ -135,9 +136,14 @@ export default function CheckoutPage() {
     sortOrder: 1
   };
 
+  const [voucherCode, setVoucherCode] = useState<string>('');
+  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [voucherMsg, setVoucherMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const discount = appliedVoucher ? appliedVoucher.discountAmount : 0;
   const shippingCalc = db.calculateShippingFee(selectedCourier.id, formData.state, totalWeightGrams);
   const shippingFee = shippingCalc?.fee || 0;
-  const grandTotal = subtotal + shippingFee;
+  const grandTotal = Math.max(0, subtotal + shippingFee - discount);
 
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -256,10 +262,12 @@ export default function CheckoutPage() {
         notes: `${formData.notes} [Berat Total: ${totalWeightKg} kg]`,
         items: cart,
         subtotal: subtotal,
+        discount: discount,
         courier: selectedCourier.name,
         shippingFee: shippingFee,
+        total: grandTotal,
         grandTotal: grandTotal,
-        whatsappNumber: settings?.whatsappNumber || '60123456789',
+        whatsappNumber: settings?.whatsappNumber || '60183972147',
       });
 
       newOrder.whatsappUrl = waLink;
@@ -605,12 +613,64 @@ export default function CheckoutPage() {
                     ))}
                   </div>
 
+                  {/* PROMO VOUCHER CODE FORM */}
+                  <div className="pt-3 border-t border-stone-200 space-y-2">
+                    <label className="block text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-[#800020]" /> Kode Voucher Diskon / Promo
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Contoh: FBSDISCOUNT10, BAKERY20"
+                        value={voucherCode}
+                        onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                        className="flex-1 px-3 py-2 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const clean = voucherCode.trim();
+                          if (!clean) return;
+                          if (clean === 'FBSDISCOUNT10' || clean === 'BAKERY10' || clean === 'FBS10') {
+                            const disc = Math.round(subtotal * 0.10 * 100) / 100;
+                            setAppliedVoucher({ code: clean, discountAmount: disc });
+                            setVoucherMsg({ type: 'success', text: `Voucher ${clean} Berhasil! (Diskon 10%)` });
+                          } else if (clean === 'BAKERY20' || clean === 'FBS20') {
+                            const disc = Math.round(subtotal * 0.20 * 100) / 100;
+                            setAppliedVoucher({ code: clean, discountAmount: disc });
+                            setVoucherMsg({ type: 'success', text: `Voucher ${clean} Berhasil! (Diskon 20%)` });
+                          } else if (clean === 'FREEPOST' || clean === 'ONGKIRFREE') {
+                            setAppliedVoucher({ code: clean, discountAmount: shippingFee });
+                            setVoucherMsg({ type: 'success', text: `Voucher ${clean} Berhasil! Gratis Ongkos Kirim!` });
+                          } else {
+                            setVoucherMsg({ type: 'error', text: 'Kode voucher tidak valid atau sudah kadaluarsa.' });
+                          }
+                        }}
+                        className="px-3.5 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl shadow transition-transform active:scale-95"
+                      >
+                        Gunakan
+                      </button>
+                    </div>
+                    {voucherMsg && (
+                      <p className={`text-[11px] font-bold ${voucherMsg.type === 'success' ? 'text-emerald-700' : 'text-red-600'}`}>
+                        {voucherMsg.text}
+                      </p>
+                    )}
+                  </div>
+
                   {/* SUBTOTAL & SHIPPING BREAKDOWN */}
                   <div className="pt-2 space-y-2.5 text-xs border-t border-stone-200">
                     <div className="flex justify-between text-stone-600">
                       <span>{t.checkout.subtotalProduk}</span>
                       <span>{formatMYR(subtotal)}</span>
                     </div>
+
+                    {discount > 0 && (
+                      <div className="flex justify-between text-emerald-700 font-bold">
+                        <span>Diskon Voucher Promo ({appliedVoucher?.code}):</span>
+                        <span>-{formatMYR(discount)}</span>
+                      </div>
+                    )}
 
                     <div className="flex justify-between text-stone-600">
                       <span className="flex items-center gap-1">
