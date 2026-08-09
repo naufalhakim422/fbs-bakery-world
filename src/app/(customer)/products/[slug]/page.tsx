@@ -276,10 +276,41 @@ export default function ProductDetailPage() {
         }
         setActiveImage(foundProd.mainImage);
 
-        // Load reviews
+        // Load reviews from local DB and server API
         const loaded = db.getProductReviews(foundProd.id);
         setReviews(loaded);
         setRatingStats(db.calculateProductRating(foundProd.id));
+
+        fetch(`/api/reviews?productId=${encodeURIComponent(foundProd.id)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && Array.isArray(data.reviews) && data.reviews.length > 0) {
+              const mergedMap = new Map<string, any>();
+              loaded.forEach((r: any) => mergedMap.set(r.id, r));
+              data.reviews.forEach((r: any) => {
+                mergedMap.set(r.id, {
+                  id: r.id,
+                  productId: r.productId,
+                  customerName: r.customerName || (r.customer?.name) || 'Pembeli Terverifikasi',
+                  rating: r.rating || 5,
+                  comment: r.comment || '',
+                  images: r.imageUrl ? [r.imageUrl] : (r.images || []),
+                  videoUrl: r.videoUrl || undefined,
+                  verifiedPurchase: true,
+                  createdAt: r.createdAt,
+                });
+              });
+              const combined = Array.from(mergedMap.values());
+              setReviews(combined);
+
+              if (combined.length > 0) {
+                const totalRating = combined.reduce((acc, curr) => acc + curr.rating, 0);
+                const avg = (totalRating / combined.length).toFixed(1);
+                setRatingStats({ averageRating: parseFloat(avg), reviewCount: combined.length });
+              }
+            }
+          })
+          .catch(() => {});
 
         // Update Recently Viewed Products in localStorage (Sprint 2: max 10, no duplicates, latest first)
         try {

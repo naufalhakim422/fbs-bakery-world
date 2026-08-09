@@ -14,7 +14,8 @@ import { useLanguage } from '@/lib/language-context';
 import { useCart } from '@/lib/cart-context';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Award, HelpCircle, Gift, Truck, Tag, Info, Copy, LogOut, X, Video, Image as ImageIcon, Star, Camera, Upload, Edit2, Check, UserCheck, AlertTriangle, Building, Hash, Globe, ShoppingBag, ShoppingCart, ChevronRight, ExternalLink, Clock, FileText } from 'lucide-react';
+import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Award, HelpCircle, Gift, Truck, Tag, Info, Copy, LogOut, X, Video, Image as ImageIcon, Star, Camera, Upload, Edit2, Check, UserCheck, AlertTriangle, Building, Hash, Globe, ShoppingBag, ShoppingCart, ChevronRight, ExternalLink, Clock, FileText, Printer } from 'lucide-react';
+import { InvoiceModal } from '@/components/customer/invoice-modal';
 
 import { normalizePhoneDigits } from '@/lib/whatsapp';
 
@@ -106,6 +107,7 @@ export default function CustomerAccountPage() {
   // Shopee/Tokopedia Order Filter & Tracking Modal State
   const [orderStatusFilter, setOrderStatusFilter] = useState<'ALL' | 'UNPAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'>('ALL');
   const [trackingModalOrder, setTrackingModalOrder] = useState<any | null>(null);
+  const [invoiceModalOrder, setInvoiceModalOrder] = useState<any | null>(null);
   const [copiedResi, setCopiedResi] = useState<boolean>(false);
 
   // Profile Save Confirmation Modal State
@@ -792,6 +794,15 @@ export default function CustomerAccountPage() {
                               <Truck className="w-3.5 h-3.5" /> Lacak Pengiriman
                             </button>
 
+                            {/* 1.5 Official Invoice PDF Button */}
+                            <button
+                              type="button"
+                              onClick={() => setInvoiceModalOrder(order)}
+                              className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 border border-stone-300 shadow-2xs"
+                            >
+                              <Printer className="w-3.5 h-3.5 text-[#800020]" /> Cetak Nota PDF
+                            </button>
+
                             {/* 2. WhatsApp Pay Button for Unpaid Orders */}
                             {(normStatus === 'PENDING_PAYMENT' || normStatus === 'NEW') && (
                               <a
@@ -1193,12 +1204,12 @@ export default function CustomerAccountPage() {
               </div>
             ) : (
               <form 
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   if (!modalComment) return;
                   setModalSubmitting(true);
 
-                  setTimeout(() => {
+                  try {
                     db.addReview({
                       productId: reviewModalItem.productId,
                       customerName: reviewModalItem.customerName || customer.name,
@@ -1209,9 +1220,27 @@ export default function CustomerAccountPage() {
                       verifiedPurchase: true,
                     });
 
-                    setModalSubmitting(false);
+                    await fetch('/api/reviews', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        productId: reviewModalItem.productId,
+                        productName: reviewModalItem.productName,
+                        customerName: reviewModalItem.customerName || customer.name,
+                        customerEmail: customer.email,
+                        rating: modalRating,
+                        comment: modalComment,
+                        imageUrl: modalImagePreview || '',
+                        videoUrl: modalVideoPreview || '',
+                      }),
+                    }).catch(err => console.warn('Review API sync warning:', err));
+
                     setModalSubmitted(true);
-                  }, 600);
+                  } catch (err) {
+                    console.error('Error submitting review:', err);
+                  } finally {
+                    setModalSubmitting(false);
+                  }
                 }}
                 className="space-y-4"
               >
@@ -1659,6 +1688,14 @@ export default function CustomerAccountPage() {
 
           </div>
         </div>
+      )}
+
+      {/* OFFICIAL PDF INVOICE MODAL */}
+      {invoiceModalOrder && (
+        <InvoiceModal
+          order={invoiceModalOrder}
+          onClose={() => setInvoiceModalOrder(null)}
+        />
       )}
 
     </div>

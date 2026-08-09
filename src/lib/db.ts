@@ -1167,7 +1167,27 @@ export const db = {
       if (courierName) orders[idx].courierName = courierName;
       if (trackingNumber) orders[idx].trackingNumber = trackingNumber;
       if (status === 'SHIPPED') orders[idx].shippedAt = new Date().toISOString();
-      orders[idx].updatedAt = new Date().toISOString();
+      // AUTO-RESTOCK VARIANT STOCK ON ORDER CANCELLATION
+      if (status === 'CANCELLED' && previousStatus !== 'CANCELLED') {
+        try {
+          const products = loadFromStorage<Product[]>('fbs_products', initialProducts);
+          orders[idx].items?.forEach((item: any) => {
+            const pIdx = products.findIndex(p => p.id === item.productId || p.productName.toLowerCase() === item.productName.toLowerCase());
+            if (pIdx !== -1) {
+              products[pIdx].totalSold = Math.max(0, (products[pIdx].totalSold || 0) - (item.quantity || 1));
+              if (products[pIdx].variants) {
+                const vIdx = products[pIdx].variants!.findIndex(v => v.id === item.productVariantId || v.variantName.toLowerCase() === item.variantName.toLowerCase());
+                if (vIdx !== -1) {
+                  products[pIdx].variants![vIdx].stock += (item.quantity || 1);
+                }
+              }
+            }
+          });
+          saveToStorage('fbs_products', products);
+        } catch (restockErr) {
+          console.error('Error auto-restocking in db.ts:', restockErr);
+        }
+      }
 
       if (!orders[idx].timeline) orders[idx].timeline = [];
       const getTitle = (st: string) => {
