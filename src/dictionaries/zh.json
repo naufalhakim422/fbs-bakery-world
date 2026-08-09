@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "首页",
+    "shop": "FBS Bakery 商品目录",
+    "categories": "烘焙分类",
+    "recipes": "烘焙食谱",
+    "calculator": "烘焙计算器",
+    "bundle_builder": "烘焙组合包",
+    "track_order": "订单追踪",
+    "cart": "购物车"
+  },
+  "hero": {
+    "badge": "FBS Bakery 马来西亚高端烘焙品牌",
+    "title": "臻选优质烘焙原料 赋能每一份完美创作",
+    "subtitle": "为您直邮专业烘焙原料至您的烘焙厨房。",
+    "cta_shop": "浏览商品",
+    "cta_recipes": "食谱中心"
+  }
+}

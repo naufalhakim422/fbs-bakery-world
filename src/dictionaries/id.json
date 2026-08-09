@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "shop": "Katalog FBS Bakery",
+    "categories": "Kategori Bahan",
+    "recipes": "Resep & Panduan",
+    "calculator": "Kalkulator Bakeri",
+    "bundle_builder": "Paket Bundel",
+    "track_order": "Lacak Pesanan",
+    "cart": "Keranjang"
+  },
+  "hero": {
+    "badge": "Mitra Bahan Bakeri Premium FBS Bakery",
+    "title": "Bahan Bakeri Terbaik Untuk Setiap Kreasi Sempurna",
+    "subtitle": "Bahan bakeri kelas profesional dikirim langsung ke dapur Anda.",
+    "cta_shop": "Jelajahi Katalog",
+    "cta_recipes": "Pusat Resep"
+  }
+}

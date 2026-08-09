@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "shop": "Katalog FBS Bakery",
+    "categories": "Kategori Bahan",
+    "recipes": "Resep & Panduan",
+    "calculator": "Kalkulator Bakeri",
+    "bundle_builder": "Paket Bundel",
+    "track_order": "Jejak Pesanan",
+    "cart": "Keranjang"
+  },
+  "hero": {
+    "badge": "Pembekal Utama FBS Bakery Malaysia",
+    "title": "Bahan Bakeri Premium Untuk Setiap Ciptaan Kek Sempurna",
+    "subtitle": "Daripada cokelat couverture Belia hingga tepung kek super halus, kami membekalkan bahan gred profesional terus ke pintu anda.",
+    "cta_shop": "Terokai Katalog",
+    "cta_recipes": "Lihat Inspirasi Resep"
+  }
+}

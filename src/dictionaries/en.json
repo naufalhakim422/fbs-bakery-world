@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "FBS Bakery Catalog",
+    "categories": "Categories",
+    "recipes": "Recipes",
+    "calculator": "Baking Calculator",
+    "bundle_builder": "Bundle Kits",
+    "track_order": "Track Order",
+    "cart": "Cart"
+  },
+  "hero": {
+    "badge": "FBS Bakery Malaysia Premium Partner",
+    "title": "Finest Baking Ingredients For Every Creation",
+    "subtitle": "Professional-grade ingredients delivered straight to your bakery kitchen.",
+    "cta_shop": "Explore Catalog",
+    "cta_recipes": "Recipe Hub"
+  }
+}
