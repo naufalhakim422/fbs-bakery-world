@@ -352,19 +352,26 @@ const mapPrismaEnumToFrontendStatus = (enumVal: string): string => {
     case 'Pending':
     case 'WaitingPayment':
       return 'PENDING_PAYMENT';
+    case 'PaymentVerified':
     case 'Paid':
       return 'CONFIRMED';
+    case 'Preparing':
     case 'Packing':
       return 'PROCESSING';
     case 'ReadyToShip':
       return 'READY_TO_SHIP';
     case 'Shipped':
+    case 'OutForDelivery':
       return 'SHIPPED';
+    case 'Delivered':
     case 'Completed':
       return 'DELIVERED';
     case 'Cancelled':
+    case 'RefundRejected':
       return 'CANCELLED';
     case 'Refunded':
+    case 'RefundRequested':
+    case 'RefundApproved':
       return 'REFUND';
     default:
       return enumVal ? enumVal.toUpperCase() : 'PENDING_PAYMENT';

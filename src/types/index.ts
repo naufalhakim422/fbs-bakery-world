@@ -16,6 +16,86 @@ export type OrderStatus =
   | 'PROCESSING'
   | 'SHIPPED';
 
+// Prisma DB enum → Frontend status mapping (bidirectional)
+export const PRISMA_TO_FRONTEND_STATUS: Record<string, OrderStatus> = {
+  'Pending': 'PENDING_PAYMENT',
+  'WaitingPayment': 'PENDING_PAYMENT',
+  'PaymentVerified': 'PAYMENT_VERIFIED',
+  'Paid': 'CONFIRMED',
+  'Preparing': 'PROCESSING',
+  'Packing': 'PROCESSING',
+  'ReadyToShip': 'READY_TO_SHIP',
+  'Shipped': 'SHIPPED',
+  'OutForDelivery': 'SHIPPING',
+  'Delivered': 'DELIVERED',
+  'Completed': 'DELIVERED',
+  'Cancelled': 'CANCELLED',
+  'RefundRequested': 'REFUND',
+  'RefundApproved': 'REFUND',
+  'RefundRejected': 'CANCELLED',
+  'Refunded': 'REFUND',
+};
+
+export const FRONTEND_TO_PRISMA_STATUS: Record<string, string> = {
+  'PENDING_PAYMENT': 'Pending',
+  'NEW': 'Pending',
+  'PAYMENT_VERIFIED': 'Paid',
+  'CONFIRMED': 'Paid',
+  'PROCESSING': 'Packing',
+  'PACKING': 'Packing',
+  'READY_TO_SHIP': 'ReadyToShip',
+  'SHIPPING': 'Shipped',
+  'SHIPPED': 'Shipped',
+  'DELIVERED': 'Completed',
+  'COMPLETED': 'Completed',
+  'CANCEL_REQUESTED': 'Pending',
+  'CANCELLED': 'Cancelled',
+  'REFUND': 'Refunded',
+};
+
+/** Normalize any status string (Prisma or Frontend) to Frontend OrderStatus */
+export function normalizeToFrontendStatus(raw: string | null | undefined): OrderStatus {
+  if (!raw) return 'PENDING_PAYMENT';
+  const trimmed = raw.trim();
+  const upper = trimmed.toUpperCase();
+  
+  // Already a valid frontend status?
+  const validFrontend: OrderStatus[] = [
+    'PENDING_PAYMENT', 'PAYMENT_VERIFIED', 'CONFIRMED', 'PACKING',
+    'READY_TO_SHIP', 'SHIPPING', 'DELIVERED', 'COMPLETED',
+    'CANCEL_REQUESTED', 'CANCELLED', 'REFUND', 'NEW', 'PROCESSING', 'SHIPPED'
+  ];
+  if (validFrontend.includes(upper as OrderStatus)) return upper as OrderStatus;
+  
+  // Try Prisma mapping
+  if (PRISMA_TO_FRONTEND_STATUS[trimmed]) return PRISMA_TO_FRONTEND_STATUS[trimmed];
+  
+  // Try case-insensitive Prisma mapping
+  for (const [key, val] of Object.entries(PRISMA_TO_FRONTEND_STATUS)) {
+    if (key.toUpperCase() === upper) return val;
+  }
+  
+  return 'PENDING_PAYMENT';
+}
+
+/** Normalize any status string to Prisma enum value */
+export function normalizeToPrismaStatus(raw: string | null | undefined): string {
+  if (!raw) return 'Pending';
+  const trimmed = raw.trim();
+  const upper = trimmed.toUpperCase();
+  
+  if (FRONTEND_TO_PRISMA_STATUS[upper]) return FRONTEND_TO_PRISMA_STATUS[upper];
+  if (FRONTEND_TO_PRISMA_STATUS[trimmed]) return FRONTEND_TO_PRISMA_STATUS[trimmed];
+  
+  // Already a Prisma value?
+  const validPrisma = Object.keys(PRISMA_TO_FRONTEND_STATUS);
+  for (const p of validPrisma) {
+    if (p.toUpperCase() === upper) return p;
+  }
+  
+  return 'Pending';
+}
+
 export interface ProductVariant {
   id: string;
   productId: string;

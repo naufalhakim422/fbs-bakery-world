@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { formatMYR } from '@/lib/currency';
 import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { normalizeToFrontendStatus } from '@/types';
 import {
   CreditCard,
   Package,
@@ -45,7 +46,7 @@ export interface SerializedOrder {
 }
 
 const getNextStatus = (currentStatus: string): { nextStatus: string; label: string; icon: any } | null => {
-  const s = (currentStatus || '').toUpperCase();
+  const s = normalizeToFrontendStatus(currentStatus).toUpperCase();
   if (s === 'PENDING' || s === 'PENDING_PAYMENT' || s === 'NEW') {
     return { nextStatus: 'Paid', label: 'Konfirmasi Pembayaran', icon: CreditCard };
   }

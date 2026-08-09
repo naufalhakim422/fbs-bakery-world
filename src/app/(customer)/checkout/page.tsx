@@ -186,38 +186,62 @@ export default function CheckoutPage() {
       });
 
       // 1.5 Sync to Railway PostgreSQL Database via API Endpoint
-      try {
-        await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderNumber: newOrder.orderNumber,
-            customerId: custId,
-            customerEmail: custEmail,
-            customerName: formData.name.trim(),
-            customerPhone: formData.phone.trim(),
-            address: formData.address.trim(),
-            city: formData.city,
-            state: formData.state,
-            postcode: formData.postcode,
-            notes: formData.notes,
-            courierName: selectedCourier.name,
-            totalAmount: grandTotal,
-            orderStatus: 'PENDING_PAYMENT',
-            items: cart.map(item => ({
-              productId: item.productId,
-              variantId: item.variantId,
-              productName: item.productName,
-              variantName: item.variantName,
-              price: item.price,
-              quantity: item.quantity,
-              subtotal: item.price * item.quantity,
-              mainImage: item.mainImage,
-            }))
-          }),
-        });
-      } catch (apiErr) {
-        console.warn('[Checkout API Sync Warning]', apiErr);
+      const syncPayload = {
+        orderNumber: newOrder.orderNumber,
+        customerId: custId,
+        customerEmail: custEmail,
+        customerName: formData.name.trim(),
+        customerPhone: formData.phone.trim(),
+        address: formData.address.trim(),
+        city: formData.city,
+        state: formData.state,
+        postcode: formData.postcode,
+        notes: formData.notes,
+        courierName: selectedCourier.name,
+        totalAmount: grandTotal,
+        orderStatus: 'PENDING_PAYMENT',
+        items: cart.map(item => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          productName: item.productName,
+          variantName: item.variantName,
+          price: item.price,
+          quantity: item.quantity,
+          subtotal: item.price * item.quantity,
+          mainImage: item.mainImage,
+        }))
+      };
+
+      let syncSuccess = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(syncPayload),
+          });
+          if (res.ok) {
+            syncSuccess = true;
+            break;
+          }
+        } catch (apiErr) {
+          console.warn(`[Checkout API Sync Attempt ${attempt}] Failed:`, apiErr);
+        }
+        if (attempt < 3) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      if (!syncSuccess) {
+        console.warn('[Checkout API Sync Warning] All 3 attempts failed, saving to pending sync queue');
+        try {
+          const pendingOrdersStr = localStorage.getItem('fbs_pending_orders_sync');
+          const pendingOrders = pendingOrdersStr ? JSON.parse(pendingOrdersStr) : [];
+          pendingOrders.push(syncPayload);
+          localStorage.setItem('fbs_pending_orders_sync', JSON.stringify(pendingOrders));
+        } catch (e) {
+          console.error('Failed to save to pending queue', e);
+        }
       }
 
       // 2. Generate WhatsApp Message Link

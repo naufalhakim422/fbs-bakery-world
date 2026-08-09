@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
-import { Order, OrderStatus } from '@/types';
+import { Order, OrderStatus, normalizeToFrontendStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
 import { formatWhatsAppNumber, normalizePhoneDigits, getCourierTrackingUrl } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
@@ -134,8 +134,7 @@ function TrackOrderContent() {
     }
 
     if (found) {
-      const rawStatus = (found as any).orderStatus || (found as any).status || 'NEW';
-      (found as any).orderStatus = rawStatus;
+      (found as any).orderStatus = normalizeToFrontendStatus((found as any).orderStatus || (found as any).status);
 
       // Normalize items array if returned from Prisma format
       if ((found as any).items && Array.isArray((found as any).items)) {

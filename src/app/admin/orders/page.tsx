@@ -1,32 +1,9 @@
 import React from 'react';
 import { prisma } from '@/lib/prisma';
 import { OrderTableInteractive, SerializedOrder } from '@/components/admin/order-actions';
+import { normalizeToFrontendStatus } from '@/types';
 
 export const revalidate = 0; // Disable caching so data is rendered fresh on every server request
-
-const mapPrismaEnumToFrontendStatus = (enumVal: string): string => {
-  switch (enumVal) {
-    case 'Pending':
-    case 'WaitingPayment':
-      return 'PENDING_PAYMENT';
-    case 'Paid':
-      return 'CONFIRMED';
-    case 'Packing':
-      return 'PROCESSING';
-    case 'ReadyToShip':
-      return 'READY_TO_SHIP';
-    case 'Shipped':
-      return 'SHIPPED';
-    case 'Completed':
-      return 'DELIVERED';
-    case 'Cancelled':
-      return 'CANCELLED';
-    case 'Refunded':
-      return 'REFUND';
-    default:
-      return enumVal ? enumVal.toUpperCase() : 'PENDING_PAYMENT';
-  }
-};
 
 export default async function AdminOrdersPage() {
   let serializedOrders: SerializedOrder[] = [];
@@ -51,7 +28,7 @@ export default async function AdminOrdersPage() {
       city: o.city,
       state: o.state,
       totalAmount: o.totalAmount,
-      orderStatus: mapPrismaEnumToFrontendStatus(o.status),
+      orderStatus: normalizeToFrontendStatus(o.status),
       courierName: o.tracking?.courierName || null,
       trackingNumber: o.tracking?.trackingNumber || null,
       items: o.items.map(i => ({
