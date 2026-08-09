@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/db';
-import { Customer, Order, OrderItem } from '@/types';
+import { Customer, Order, OrderItem, normalizeToFrontendStatus } from '@/types';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -47,7 +47,7 @@ const getInitialOrdersForSession = (): any[] => {
 };
 
 function getOrderStatusBadge(statusStr?: string, language: string = 'ID') {
-  const upper = (statusStr || '').toUpperCase().trim();
+  const upper = (normalizeToFrontendStatus(statusStr) as string).toUpperCase();
   if (upper === 'PENDING_PAYMENT' || upper === 'NEW' || upper === 'PENDING') {
     return {
       label: language === 'EN' ? 'Pending Payment' : language === 'MS' ? 'Menunggu Pembayaran' : 'Menunggu Pembayaran',
@@ -255,6 +255,7 @@ export default function CustomerAccountPage() {
         try { deletedIds = JSON.parse(localStorage.getItem('fbs_deleted_order_ids') || '[]'); } catch (e) {}
 
         const myOrders = allOrders.map(o => {
+          o.orderStatus = normalizeToFrontendStatus((o as any).orderStatus || (o as any).status);
           return o;
         }).filter(o => {
           if (deletedIds.includes(o.id) || deletedIds.includes(o.orderNumber)) return false;
