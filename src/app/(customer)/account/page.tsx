@@ -194,14 +194,21 @@ export default function CustomerAccountPage() {
           }
 
           const merged = { 
+            ...sessObj,
             ...found, 
             name: found.name || sessObj.name, 
             email: found.email || sessObj.email, 
+            phone: found.phone || sessObj.phone,
             photo: found.photo || sessObj.photo || '', 
-            coverPhoto: found.coverPhoto || sessObj.coverPhoto || '' 
+            coverPhoto: found.coverPhoto || sessObj.coverPhoto || '',
+            address: found.address || sessObj.address || '',
+            city: found.city || sessObj.city || '',
+            postcode: found.postcode || sessObj.postcode || '',
+            state: found.state || sessObj.state || '',
           };
 
           setCustomer(merged);
+          localStorage.setItem('fbs_customer_session', JSON.stringify(merged));
           // Auto-sync back to server database if server had incomplete data
           if (sessObj.email) {
             fetch('/api/customers', {
