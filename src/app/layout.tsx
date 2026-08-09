@@ -3,7 +3,6 @@ import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import { LanguageProvider } from "@/lib/language-context";
 import { NotificationProvider } from "@/lib/notification-context";
-import { GoogleTranslateScript } from "@/components/customer/google-translate";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -113,7 +112,6 @@ export default function RootLayout({
           <CartProvider>
             <NotificationProvider>
               {children}
-              <GoogleTranslateScript />
             </NotificationProvider>
           </CartProvider>
         </LanguageProvider>
