@@ -228,33 +228,43 @@ function AdminNewProductContent() {
         variantName: v.variantName || 'Standard',
         weight: isNaN(Number(v.weight)) ? 1.0 : Number(v.weight),
         price: Number(v.price),
+        originalPrice: v.originalPrice ? Number(v.originalPrice) : 0,
         stock: Number(v.stock),
         sku: v.sku || `FBS-VAR-${idx}`,
       })),
     };
 
-    // 1. Save to Local Cache (db.ts)
-    db.saveProduct(productPayload);
-
-    // 2. Save to Railway PostgreSQL Database via API Endpoint
+    // 1. Save to Railway PostgreSQL Database via API Endpoint First
     try {
-      await fetch('/api/products', {
+      const res = await fetch('/api/products', {
         method: editId ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productPayload),
       });
-    } catch (apiErr) {
-      console.warn('[Admin Save Product API Warning]', apiErr);
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Server PostgreSQL Railway gagal menyimpan produk.');
+      }
+
+      // 2. Save to Local Cache (db.ts) on Success
+      db.saveProduct(productPayload);
+
+      recordAuditLog(
+        editId ? 'Edit Produk' : 'Tambah Produk Baru',
+        'PRODUCT',
+        `Product ${form.productName} (slug: ${finalSlug}) with ${variants.length} variants was ${editId ? 'updated' : 'created'}.`
+      );
+
+      setConfirmSaveOpen(false);
+      router.push('/admin/products');
+    } catch (apiErr: any) {
+      console.error('[Admin Save Product API Error]', apiErr);
+      setValidationError(`Gagal menyimpan ke server Railway: ${apiErr.message || 'Koneksi terganggu.'}`);
+      setConfirmSaveOpen(false);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    recordAuditLog(
-      editId ? 'Edit Produk' : 'Tambah Produk Baru',
-      'PRODUCT',
-      `Product ${form.productName} (slug: ${finalSlug}) with ${variants.length} variants was ${editId ? 'updated' : 'created'}.`
-    );
-
-    setConfirmSaveOpen(false);
-    router.push('/admin/products');
   };
 
   return (

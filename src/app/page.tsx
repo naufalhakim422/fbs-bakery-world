@@ -83,7 +83,7 @@ export default function HomePage() {
     const loadProducts = async () => {
       let allProds: Product[] = [];
       try {
-        const res = await fetch('/api/products?status=active', { cache: 'no-store' });
+        const res = await fetch(`/api/products?status=active&t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         if (data.success && Array.isArray(data.products) && data.products.length > 0) {
           allProds = data.products;

@@ -55,7 +55,7 @@ function CatalogContent() {
     const loadLiveData = async () => {
       // 1. Fetch live products from PostgreSQL API first
       try {
-        const res = await fetch('/api/products?status=active', { cache: 'no-store' });
+        const res = await fetch(`/api/products?status=active&t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         if (isMounted && data.success && Array.isArray(data.products) && data.products.length > 0) {
           setAllProducts(data.products);

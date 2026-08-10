@@ -14,6 +14,12 @@ async function ensureProductSchemaText() {
   }
 }
 
+const antiCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
+
 // GET /api/products
 // Query parameters: id, slug, category, search, featured, bestSeller, status, page, limit
 export async function GET(request: Request) {
@@ -48,10 +54,10 @@ export async function GET(request: Request) {
       });
 
       if (!product) {
-        return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
+        return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404, headers: antiCacheHeaders });
       }
 
-      return NextResponse.json({ success: true, product, source: 'PRISMA_POSTGRES' });
+      return NextResponse.json({ success: true, product, source: 'PRISMA_POSTGRES' }, { headers: antiCacheHeaders });
     }
 
     // Build filter condition
@@ -117,10 +123,10 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(totalCount / limit),
       },
       source: 'PRISMA_POSTGRES',
-    });
+    }, { headers: antiCacheHeaders });
   } catch (err: any) {
     console.error('[Prisma Products GET Error]:', err);
-    return NextResponse.json({ success: false, error: `Database Error: ${err.message}` }, { status: 500 });
+    return NextResponse.json({ success: false, error: `Database Error: ${err.message}` }, { status: 500, headers: antiCacheHeaders });
   }
 }
 
