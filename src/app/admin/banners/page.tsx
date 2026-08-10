@@ -98,7 +98,7 @@ export default function AdminBannersPage() {
     const file = e.target.files?.[0];
     if (file) {
       try {
-        const compressed = await compressImageFile(file);
+        const compressed = await compressImageFile(file, 1200, 520, 0.70);
         setBanners(prev => {
           const updated = prev.map(b => b.id === id ? { ...b, imageUrl: compressed } : b);
           db.saveAllBanners(updated);

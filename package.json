@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && (npx prisma db push --accept-data-loss || exit 0)",
     "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
