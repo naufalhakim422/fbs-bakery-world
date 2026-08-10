@@ -296,30 +296,62 @@ export async function PATCH(request: Request) {
         },
       });
 
-      if (!existingProduct) {
-        throw new Error(`Product with ID or Slug "${id}" not found`);
+      let targetId = id;
+      let validCatId = updateData.categoryId || null;
+      if (validCatId) {
+        const catExists = await tx.category.findFirst({
+          where: {
+            OR: [
+              { id: validCatId },
+              { slug: validCatId },
+            ],
+          },
+        });
+        validCatId = catExists ? catExists.id : null;
       }
 
-      const targetId = existingProduct.id;
-
-      // Update Product fields
-      await tx.product.update({
-        where: { id: targetId },
-        data: {
-          ...(updateData.productName ? { productName: updateData.productName } : {}),
-          ...(updateData.categoryId ? { categoryId: updateData.categoryId } : {}),
-          ...(updateData.brand ? { brand: updateData.brand } : {}),
-          ...(updateData.shortDescription !== undefined ? { shortDescription: updateData.shortDescription } : {}),
-          ...(updateData.description ? { description: updateData.description } : {}),
-          ...(updateData.mainImage ? { mainImage: updateData.mainImage } : {}),
-          ...(updateData.galleryImages ? { galleryImages: updateData.galleryImages } : {}),
-          ...(updateData.isHalal !== undefined ? { isHalal: updateData.isHalal } : {}),
-          ...(updateData.isFeatured !== undefined ? { isFeatured: updateData.isFeatured } : {}),
-          ...(updateData.isBestSeller !== undefined ? { isBestSeller: updateData.isBestSeller } : {}),
-          ...(updateData.status !== undefined ? { status: updateData.status } : {}),
-          updatedAt: new Date(),
-        },
-      });
+      if (!existingProduct) {
+        // Auto-create product in Railway PostgreSQL DB if it was only in local seed
+        const createdProd = await tx.product.create({
+          data: {
+            id,
+            sku: updateData.sku || `SKU-${Date.now()}`,
+            productName: updateData.productName || 'Unnamed Product',
+            slug: updateData.slug || `product-${Date.now()}`,
+            categoryId: validCatId,
+            brand: updateData.brand || 'FBS Bakery World',
+            shortDescription: updateData.shortDescription || '',
+            description: updateData.description || '',
+            mainImage: updateData.mainImage || '',
+            galleryImages: updateData.galleryImages || [],
+            isHalal: updateData.isHalal !== undefined ? updateData.isHalal : true,
+            isFeatured: updateData.isFeatured !== undefined ? updateData.isFeatured : false,
+            isBestSeller: updateData.isBestSeller !== undefined ? updateData.isBestSeller : false,
+            status: updateData.status !== undefined ? updateData.status : true,
+          },
+        });
+        targetId = createdProd.id;
+      } else {
+        targetId = existingProduct.id;
+        // Update Product fields
+        await tx.product.update({
+          where: { id: targetId },
+          data: {
+            ...(updateData.productName ? { productName: updateData.productName } : {}),
+            ...(validCatId ? { categoryId: validCatId } : {}),
+            ...(updateData.brand ? { brand: updateData.brand } : {}),
+            ...(updateData.shortDescription !== undefined ? { shortDescription: updateData.shortDescription } : {}),
+            ...(updateData.description ? { description: updateData.description } : {}),
+            ...(updateData.mainImage ? { mainImage: updateData.mainImage } : {}),
+            ...(updateData.galleryImages ? { galleryImages: updateData.galleryImages } : {}),
+            ...(updateData.isHalal !== undefined ? { isHalal: updateData.isHalal } : {}),
+            ...(updateData.isFeatured !== undefined ? { isFeatured: updateData.isFeatured } : {}),
+            ...(updateData.isBestSeller !== undefined ? { isBestSeller: updateData.isBestSeller } : {}),
+            ...(updateData.status !== undefined ? { status: updateData.status } : {}),
+            updatedAt: new Date(),
+          },
+        });
+      }
 
       // Upsert Variants if provided
       if (Array.isArray(variants)) {
