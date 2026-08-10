@@ -8,7 +8,7 @@ import { recordAuditLog } from '@/lib/audit';
 import { ProductVariant } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
-import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, Sparkles, Upload, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, Sparkles, Upload, X, AlertCircle, Tag } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 function AdminNewProductContent() {
@@ -447,82 +447,170 @@ function AdminNewProductContent() {
           </div>
         </div>
 
-        {/* PACKAGING SIZE VARIANTS */}
+        {/* PACKAGING SIZE & PRICE VARIANTS */}
         <div className="space-y-4 text-xs pt-4 border-t border-stone-200">
-          <div className="flex items-center justify-between border-b border-stone-200 pb-2">
-            <h3 className="font-serif font-bold text-sm text-[#800020]">
-              3. Packaging Size & Price Variants
-            </h3>
-            <button
-              type="button"
-              onClick={handleAddVariant}
-              className="px-3 py-1 bg-stone-900 hover:bg-stone-800 text-[#D4AF37] font-bold text-xs rounded-lg flex items-center gap-1"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Size Variant
-            </button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-200 pb-3">
+            <div>
+              <h3 className="font-serif font-bold text-sm text-[#800020] flex items-center gap-2">
+                3. Packaging Size & Price Variants
+              </h3>
+              <p className="text-[11px] text-stone-500">
+                Atur varian berat kemasan, stok ready, serta harga jual runcit & promo diskon.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleAddVariant}
+                className="px-3.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-[#D4AF37] font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-sm transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Size Variant
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            {variants.map((v, index) => (
-              <div key={index} className="p-4 bg-stone-50 rounded-2xl border border-stone-200 grid grid-cols-1 sm:grid-cols-5 gap-3 items-center">
-                <div>
-                  <label className="block text-[10px] font-bold text-stone-500 uppercase">Variant Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 1kg Pack or 25kg Sack"
-                    value={v.variantName}
-                    onChange={(e) => handleVariantChange(index, 'variantName', e.target.value)}
-                    className="w-full px-3 py-1.5 border border-stone-300 rounded-xl text-stone-900 font-bold"
-                  />
-                </div>
+          <div className="space-y-4">
+            {variants.map((v, index) => {
+              const curPrice = v.price || 0;
+              const isDiscountOn = Boolean(v.isDiscountActive || (v.originalPrice && v.originalPrice > curPrice));
+              const original = v.originalPrice || curPrice;
+              const discountPct = isDiscountOn && original > curPrice && original > 0
+                ? Math.round(((original - curPrice) / original) * 100)
+                : 0;
+              const saveAmount = isDiscountOn && original > curPrice ? original - curPrice : 0;
 
-                <div>
-                  <label className="block text-[10px] font-bold text-stone-500 uppercase">Weight (kg)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={v.weight}
-                    onChange={(e) => handleVariantChange(index, 'weight', Number(e.target.value))}
-                    className="w-full px-3 py-1.5 border border-stone-300 rounded-xl text-stone-900 font-mono"
-                  />
-                </div>
+              return (
+                <div key={index} className="p-4 bg-stone-50/80 rounded-2xl border border-stone-200 space-y-3 transition-all hover:border-[#800020]/30 shadow-xs">
+                  {/* Top Bar for Variant Slot */}
+                  <div className="flex items-center justify-between border-b border-stone-200/60 pb-2">
+                    <span className="font-mono text-[11px] font-bold text-[#800020]">
+                      VARIANT SLOT #{index + 1}
+                    </span>
 
-                <div>
-                  <label className="block text-[10px] font-bold text-stone-500 uppercase">Price (MYR)</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    required
-                    value={v.price}
-                    onChange={(e) => handleVariantChange(index, 'price', Number(e.target.value))}
-                    className="w-full px-3 py-1.5 border border-stone-300 rounded-xl text-[#800020] font-serif font-bold"
-                  />
-                </div>
+                    {/* DISCOUNT MODE TOGGLE SWITCH */}
+                    <label className="flex items-center gap-2 cursor-pointer select-none bg-amber-50 px-3 py-1 rounded-full border border-amber-200 hover:bg-amber-100 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={isDiscountOn}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          handleVariantChange(index, 'isDiscountActive', checked);
+                          if (checked && (!v.originalPrice || v.originalPrice <= curPrice)) {
+                            handleVariantChange(index, 'originalPrice', Math.round((curPrice * 1.25) * 100) / 100);
+                          }
+                        }}
+                        className="rounded text-[#800020] w-3.5 h-3.5 focus:ring-[#800020]"
+                      />
+                      <span className="text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                        <Tag className="w-3 h-3 text-[#800020]" />
+                        Aktifkan Mode Harga Diskon / Promo
+                      </span>
+                    </label>
+                  </div>
 
-                <div>
-                  <label className="block text-[10px] font-bold text-stone-500 uppercase">Ready Stock</label>
-                  <input
-                    type="number"
-                    required
-                    value={v.stock}
-                    onChange={(e) => handleVariantChange(index, 'stock', Number(e.target.value))}
-                    className="w-full px-3 py-1.5 border border-stone-300 rounded-xl text-stone-900 font-mono"
-                  />
-                </div>
+                  {/* Input Grid */}
+                  <div className={`grid grid-cols-1 ${isDiscountOn ? 'sm:grid-cols-6' : 'sm:grid-cols-5'} gap-3 items-center`}>
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                        Variant Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. 1kg Pack"
+                        value={v.variantName}
+                        onChange={(e) => handleVariantChange(index, 'variantName', e.target.value)}
+                        className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
+                      />
+                    </div>
 
-                <div className="flex items-center justify-end">
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveVariant(index)}
-                    className="p-2 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                        Weight (KG) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="0.05"
+                        required
+                        value={v.weight}
+                        onChange={(e) => handleVariantChange(index, 'weight', Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 font-mono focus:outline-none focus:border-[#800020]"
+                      />
+                    </div>
+
+                    {/* Mode Harga Runcit Coret (When Discount Mode Active) */}
+                    {isDiscountOn && (
+                      <div>
+                        <label className="block text-[10px] font-bold text-amber-800 uppercase mb-1 flex items-center gap-1">
+                          Harga Runcit (MYR)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.5"
+                          required={isDiscountOn}
+                          placeholder="e.g. 32.00"
+                          value={v.originalPrice || ''}
+                          onChange={(e) => handleVariantChange(index, 'originalPrice', Number(e.target.value))}
+                          className="w-full px-3 py-2 border border-amber-300 bg-amber-50/50 rounded-xl text-stone-500 line-through font-serif font-bold focus:outline-none focus:border-amber-600"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-[#800020] uppercase mb-1">
+                        {isDiscountOn ? 'Harga Promo / Diskon (MYR)' : 'Harga Jual (MYR)'} <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        required
+                        placeholder="e.g. 26.00"
+                        value={v.price}
+                        onChange={(e) => handleVariantChange(index, 'price', Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-stone-300 rounded-xl text-[#800020] font-serif font-bold text-sm focus:outline-none focus:border-[#800020]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                        Ready Stock <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        value={v.stock}
+                        onChange={(e) => handleVariantChange(index, 'stock', Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 font-mono focus:outline-none focus:border-[#800020]"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVariant(index)}
+                        className="p-2 text-stone-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition-colors"
+                        title="Delete Variant Slot"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Auto-Discount Badge Calculation Preview */}
+                  {isDiscountOn && saveAmount > 0 && (
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="px-2.5 py-0.5 bg-red-600 text-white text-[10px] font-extrabold rounded-md shadow-xs">
+                        DISKON {discountPct}% OFF
+                      </span>
+                      <span className="text-[11px] font-bold text-amber-800">
+                        Pelanggan Hemat: <span className="text-red-700 font-extrabold">RM {saveAmount.toFixed(2)}</span> per barang!
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

@@ -134,9 +134,9 @@ model Product {
   productName      String
   slug             String    @unique
   brand            String    @default("FBS Bakery")
-  shortDescription String?
-  description      String
-  mainImage        String
+  shortDescription String?   @db.Text
+  description      String    @db.Text
+  mainImage        String    @db.Text
   galleryImages    String[]  @default([])
   isHalal          Boolean   @default(true)
   isFeatured       Boolean   @default(false)
@@ -167,13 +167,14 @@ model Product {
 }
 
 model Variant {
-  id          String    @id @default(uuid())
-  productId   String
-  variantName String
-  weight      Float
-  price       Float
-  sku         String    @unique
-  stock       Int       @default(0)
+  id            String    @id @default(uuid())
+  productId     String
+  variantName   String
+  weight        Float
+  price         Float
+  originalPrice Float?    @default(0)
+  sku           String    @unique
+  stock         Int       @default(0)
   barcode     String?   @unique
   qrCode      String?   @unique
   barcodeType String?   @default("CODE128")

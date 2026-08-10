@@ -3,10 +3,22 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
+async function ensureProductSchemaText() {
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Product" ALTER COLUMN "mainImage" TYPE TEXT;`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Product" ALTER COLUMN "description" TYPE TEXT;`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Product" ALTER COLUMN "shortDescription" TYPE TEXT;`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Variant" ADD COLUMN IF NOT EXISTS "originalPrice" DOUBLE PRECISION DEFAULT 0;`);
+  } catch (e) {
+    // Ignored if already created
+  }
+}
+
 // GET /api/products
 // Query parameters: id, slug, category, search, featured, bestSeller, status, page, limit
 export async function GET(request: Request) {
   try {
+    await ensureProductSchemaText();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const slug = searchParams.get('slug');
@@ -210,6 +222,7 @@ export async function POST(request: Request) {
             variantName: v.variantName,
             weight: parseFloat(v.weight) || 1.0,
             price: parseFloat(v.price),
+            originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : 0,
             sku: v.sku,
             stock: parseInt(v.stock, 10) || 0,
           },
@@ -234,6 +247,7 @@ export async function POST(request: Request) {
 // Body: { id, productName, categoryId, brand, shortDescription, description, mainImage, galleryImages, isHalal, isFeatured, isBestSeller, status, variants }
 export async function PATCH(request: Request) {
   try {
+    await ensureProductSchemaText();
     const body = await request.json();
     const { id, variants, ...updateData } = body || {};
 
@@ -283,6 +297,7 @@ export async function PATCH(request: Request) {
                 variantName: v.variantName,
                 weight: parseFloat(v.weight) || undefined,
                 price: v.price !== undefined ? parseFloat(v.price) : undefined,
+                originalPrice: v.originalPrice !== undefined ? parseFloat(v.originalPrice) : undefined,
                 sku: v.sku,
                 stock: v.stock !== undefined ? parseInt(v.stock, 10) : undefined,
                 updatedAt: new Date(),
@@ -293,6 +308,7 @@ export async function PATCH(request: Request) {
                 variantName: v.variantName,
                 weight: parseFloat(v.weight) || 1.0,
                 price: parseFloat(v.price) || 0.0,
+                originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : 0,
                 sku: v.sku || `SKU-${Date.now()}`,
                 stock: parseInt(v.stock, 10) || 0,
               },

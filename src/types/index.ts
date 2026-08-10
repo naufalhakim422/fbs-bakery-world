@@ -101,7 +101,9 @@ export interface ProductVariant {
   productId: string;
   variantName: string; // e.g. "500g", "1kg", "5kg", "25kg"
   weight: number;      // in kg
-  price: number;       // MYR price
+  price: number;       // MYR active/promo price
+  originalPrice?: number; // MYR retail/original strike-through price
+  isDiscountActive?: boolean; // toggle for discount mode
   sku: string;
   stock: number;
 }

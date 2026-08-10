@@ -311,11 +311,25 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, vi
           <div className="flex items-baseline justify-between mb-3">
             <div>
               <span className="text-xs text-stone-500 block text-[10px] uppercase font-bold tracking-wider">{t.productDetail.pricePerPack}</span>
-              <span className="text-xl font-extrabold text-[#800020] font-serif">
-                {formatMYR(selectedVariant.price)}
-              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl font-extrabold text-[#800020] font-serif">
+                  {formatMYR(selectedVariant.price)}
+                </span>
+                {selectedVariant.originalPrice && selectedVariant.originalPrice > selectedVariant.price ? (
+                  <span className="text-xs text-stone-400 line-through font-serif font-bold">
+                    {formatMYR(selectedVariant.originalPrice)}
+                  </span>
+                ) : null}
+              </div>
             </div>
-            <span className="text-[11px] text-stone-400 font-mono">SKU: {selectedVariant.sku}</span>
+            <div className="text-right">
+              {selectedVariant.originalPrice && selectedVariant.originalPrice > selectedVariant.price ? (
+                <span className="inline-block px-2 py-0.5 bg-red-600 text-white text-[9px] font-extrabold rounded shadow-xs mb-1">
+                  SAVE {Math.round(((selectedVariant.originalPrice - selectedVariant.price) / selectedVariant.originalPrice) * 100)}%
+                </span>
+              ) : null}
+              <span className="text-[10px] text-stone-400 font-mono block">SKU: {selectedVariant.sku}</span>
+            </div>
           </div>
 
           {/* Buttons: Add to Cart & WhatsApp */}
