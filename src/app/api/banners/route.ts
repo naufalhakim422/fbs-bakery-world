@@ -113,8 +113,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Array of banners required' }, { status: 400 });
     }
 
+    const activeIds = bannerList.map((b: any) => b.id).filter(Boolean);
+
     try {
       await prisma.$transaction(async (tx) => {
+        // Soft delete removed banners in PostgreSQL Railway
+        if (activeIds.length > 0) {
+          await tx.banner.updateMany({
+            where: {
+              id: { notIn: activeIds },
+              deletedAt: null,
+            },
+            data: {
+              isActive: false,
+              deletedAt: new Date(),
+            },
+          });
+        }
+
         for (let i = 0; i < bannerList.length; i++) {
           const b = bannerList[i];
           const bId = b.id || `ban-${Date.now()}-${i}`;

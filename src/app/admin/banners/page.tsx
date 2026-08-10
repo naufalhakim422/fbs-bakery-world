@@ -176,12 +176,24 @@ export default function AdminBannersPage() {
     setConfirmOpen(true);
   };
 
-  const executeDeleteSlot = () => {
+  const executeDeleteSlot = async () => {
     if (pendingDeleteId) {
       const updated = banners.filter(b => b.id !== pendingDeleteId);
       setBanners(updated);
       db.deleteBanner(pendingDeleteId);
+      db.saveAllBanners(updated);
       setPendingDeleteId(null);
+
+      // Instant POST to PostgreSQL Railway Server
+      try {
+        await fetch('/api/banners', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ banners: updated }),
+        });
+      } catch (err) {
+        console.warn('Instant delete sync error:', err);
+      }
     }
   };
 
