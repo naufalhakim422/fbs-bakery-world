@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { db } from '@/lib/db';
+import { db, saveToStorage } from '@/lib/db';
 import { formatMYR } from '@/lib/currency';
 import { useLanguage } from '@/lib/language-context';
 import { Product } from '@/types';
@@ -44,14 +44,29 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
-    const loadLiveData = () => {
+    let isMounted = true;
+
+    const loadLiveData = async () => {
       setProducts(db.getProducts());
+
+      try {
+        const res = await fetch(`/api/products?t=${Date.now()}`, { cache: 'no-store' });
+        const data = await res.json();
+        if (isMounted && data.success && Array.isArray(data.products)) {
+          setProducts(data.products);
+          saveToStorage('fbs_products', data.products);
+        }
+      } catch (err) {
+        console.warn('[Admin Products Fetch Warning]', err);
+      }
     };
+
     loadLiveData();
 
     window.addEventListener('storage', loadLiveData);
     window.addEventListener('fbs_db_updated', loadLiveData);
     return () => {
+      isMounted = false;
       window.removeEventListener('storage', loadLiveData);
       window.removeEventListener('fbs_db_updated', loadLiveData);
     };

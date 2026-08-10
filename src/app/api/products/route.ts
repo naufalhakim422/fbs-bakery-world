@@ -9,6 +9,9 @@ async function ensureProductSchemaText() {
     await prisma.$executeRawUnsafe(`ALTER TABLE "Product" ALTER COLUMN "description" TYPE TEXT;`);
     await prisma.$executeRawUnsafe(`ALTER TABLE "Product" ALTER COLUMN "shortDescription" TYPE TEXT;`);
     await prisma.$executeRawUnsafe(`ALTER TABLE "Variant" ADD COLUMN IF NOT EXISTS "originalPrice" DOUBLE PRECISION DEFAULT 0;`);
+    
+    // Purge unwanted sample dummy products from Railway PostgreSQL DB
+    await prisma.$executeRawUnsafe(`UPDATE "Product" SET "deletedAt" = NOW(), "status" = false WHERE "productName" ILIKE '%Pure Unsalted Butter%' OR "productName" ILIKE '%Semolina Flour%' OR "sku" ILIKE '%FBS-BTR%';`);
   } catch (e) {
     // Ignored if already created
   }

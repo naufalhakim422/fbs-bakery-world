@@ -641,7 +641,7 @@ const sanitizeDataForStorage = (data: any): any => {
   return data;
 };
 
-const saveToStorage = <T>(key: string, value: T) => {
+export const saveToStorage = <T>(key: string, value: T) => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(key, JSON.stringify(value));
