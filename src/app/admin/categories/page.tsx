@@ -7,6 +7,8 @@ import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { Category } from '@/types';
 import { Layers, Plus, Trash2, Edit3, Image as ImageIcon, X, CheckCircle2, Upload, Sparkles } from 'lucide-react';
 
+import { compressImageFile } from '@/lib/image-compressor';
+
 export default function AdminCategoriesPage() {
   const { t } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -55,16 +57,22 @@ export default function AdminCategoriesPage() {
     setIsModalOpen(true);
   };
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUrl = reader.result as string;
-        setImagePreview(dataUrl);
-        setForm(prev => ({ ...prev, image: dataUrl }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressed = await compressImageFile(file, 800, 800, 0.75);
+        setImagePreview(compressed);
+        setForm(prev => ({ ...prev, image: compressed }));
+      } catch (err) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          setImagePreview(dataUrl);
+          setForm(prev => ({ ...prev, image: dataUrl }));
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -76,9 +84,9 @@ export default function AdminCategoriesPage() {
     setConfirmSaveOpen(true);
   };
 
-  const executeSaveCategory = () => {
+  const executeSaveCategory = async () => {
     const payload: Partial<Category> = {
-      id: editingCategory ? editingCategory.id : undefined,
+      id: editingCategory ? editingCategory.id : `cat-${Date.now()}`,
       name: form.name.trim(),
       slug: form.slug.trim() || form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       description: form.description.trim(),
@@ -86,8 +94,23 @@ export default function AdminCategoriesPage() {
       sortOrder: Number(form.sortOrder) || 1,
     };
 
-    db.saveCategory(payload);
-    setCategories(db.getCategories());
+    try {
+      db.saveCategory(payload);
+      setCategories(db.getCategories());
+    } catch (dbErr) {
+      console.warn('LocalStorage saveCategory warning:', dbErr);
+    }
+
+    try {
+      await fetch('/api/categories', {
+        method: editingCategory ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch (apiErr) {
+      console.warn('Category API sync warning:', apiErr);
+    }
+
     setConfirmSaveOpen(false);
     setIsModalOpen(false);
   };

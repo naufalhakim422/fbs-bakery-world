@@ -230,7 +230,7 @@ function AdminNewProductContent() {
     // 2. Save to Railway PostgreSQL Database via API Endpoint
     try {
       await fetch('/api/products', {
-        method: editId ? 'PUT' : 'POST',
+        method: editId ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productPayload),
       });

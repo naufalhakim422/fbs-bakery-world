@@ -164,12 +164,18 @@ export default function AdminBannersPage() {
   };
 
   const executeSaveAllBanners = () => {
-    banners.forEach(b => {
-      db.saveBanner(b);
-    });
-    setIsSavedAll(true);
-    setConfirmSaveOpen(false);
-    setTimeout(() => setIsSavedAll(false), 2500);
+    try {
+      banners.forEach(b => {
+        db.saveBanner(b);
+      });
+      setIsSavedAll(true);
+    } catch (err) {
+      console.warn('LocalStorage saveBanner warning:', err);
+      alert('Ukuran banner terlalu besar untuk penyimpanan browser. Silakan gunakan URL gambar eksternal atau kurangi ukuran file.');
+    } finally {
+      setConfirmSaveOpen(false);
+      setTimeout(() => setIsSavedAll(false), 2500);
+    }
   };
 
   const activeBanners = banners.filter(b => b.status);
