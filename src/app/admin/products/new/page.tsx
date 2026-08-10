@@ -151,10 +151,10 @@ function AdminNewProductContent() {
     let sanitized = value;
     if (typeof value === 'string' && (field === 'price' || field === 'weight' || field === 'stock' || field === 'originalPrice')) {
       if (value === '') {
-        sanitized = 0;
+        sanitized = '';
       } else {
         const cleanString = value.replace(/^0+(?=\d)/, '');
-        sanitized = isNaN(Number(cleanString)) ? value : Number(cleanString);
+        sanitized = cleanString;
       }
     }
     updated[index] = { ...updated[index], [field]: sanitized };
@@ -552,7 +552,7 @@ function AdminNewProductContent() {
                         type="number"
                         step="0.05"
                         required
-                        value={v.weight === 0 ? '' : v.weight}
+                        value={v.weight ?? ''}
                         onChange={(e) => handleVariantChange(index, 'weight', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 font-mono focus:outline-none focus:border-[#800020]"
                       />
@@ -569,7 +569,7 @@ function AdminNewProductContent() {
                           step="0.5"
                           required={isDiscountOn}
                           placeholder="e.g. 32.00"
-                          value={!v.originalPrice ? '' : v.originalPrice}
+                          value={v.originalPrice ?? ''}
                           onChange={(e) => handleVariantChange(index, 'originalPrice', e.target.value)}
                           className="w-full px-3 py-2 border border-amber-300 bg-amber-50/50 rounded-xl text-stone-500 line-through font-serif font-bold focus:outline-none focus:border-amber-600"
                         />
@@ -585,7 +585,7 @@ function AdminNewProductContent() {
                         step="0.5"
                         required
                         placeholder="e.g. 26.00"
-                        value={v.price === 0 ? '' : v.price}
+                        value={v.price ?? ''}
                         onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-xl text-[#800020] font-serif font-bold text-sm focus:outline-none focus:border-[#800020]"
                       />
@@ -598,7 +598,7 @@ function AdminNewProductContent() {
                       <input
                         type="number"
                         required
-                        value={v.stock === 0 ? '' : v.stock}
+                        value={v.stock ?? ''}
                         onChange={(e) => handleVariantChange(index, 'stock', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 font-mono focus:outline-none focus:border-[#800020]"
                       />

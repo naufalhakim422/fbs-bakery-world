@@ -211,28 +211,53 @@ export async function POST(request: Request) {
         },
       });
 
-      // Create Variants
+      // Create / Upsert Variants
       for (const v of variants) {
-        if (!v.variantName || v.price === undefined || !v.sku) {
-          throw new Error('Variant requires variantName, price, and sku');
+        if (!v.variantName || v.price === undefined) {
+          throw new Error('Variant requires variantName and price');
         }
 
         if (v.stock !== undefined && v.stock < 0) {
           throw new Error(`Variant "${v.variantName}" cannot have negative stock`);
         }
 
-        await tx.variant.create({
-          data: {
-            id: v.id || `var-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-            productId: created.id,
-            variantName: v.variantName,
-            weight: parseFloat(v.weight) || 1.0,
-            price: parseFloat(v.price),
-            originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : 0,
-            sku: v.sku,
-            stock: parseInt(v.stock, 10) || 0,
+        const vSku = v.sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+        const existingVariant = await tx.variant.findFirst({
+          where: {
+            OR: [
+              { sku: vSku },
+              ...(v.id ? [{ id: v.id }] : []),
+            ],
           },
         });
+
+        if (existingVariant) {
+          await tx.variant.update({
+            where: { id: existingVariant.id },
+            data: {
+              variantName: v.variantName,
+              weight: parseFloat(v.weight) || undefined,
+              price: parseFloat(v.price),
+              originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : 0,
+              stock: parseInt(v.stock, 10) || 0,
+              updatedAt: new Date(),
+            },
+          });
+        } else {
+          await tx.variant.create({
+            data: {
+              id: v.id || `var-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+              productId: created.id,
+              variantName: v.variantName,
+              weight: parseFloat(v.weight) || 1.0,
+              price: parseFloat(v.price),
+              originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : 0,
+              sku: vSku,
+              stock: parseInt(v.stock, 10) || 0,
+            },
+          });
+        }
       }
 
       return tx.product.findUnique({
@@ -262,17 +287,24 @@ export async function PATCH(request: Request) {
     }
 
     const updatedProduct = await prisma.$transaction(async (tx) => {
-      const existingProduct = await tx.product.findUnique({
-        where: { id },
+      const existingProduct = await tx.product.findFirst({
+        where: {
+          OR: [
+            { id },
+            ...(updateData.slug ? [{ slug: updateData.slug }] : []),
+          ],
+        },
       });
 
       if (!existingProduct) {
-        throw new Error(`Product with ID "${id}" not found`);
+        throw new Error(`Product with ID or Slug "${id}" not found`);
       }
+
+      const targetId = existingProduct.id;
 
       // Update Product fields
       await tx.product.update({
-        where: { id },
+        where: { id: targetId },
         data: {
           ...(updateData.productName ? { productName: updateData.productName } : {}),
           ...(updateData.categoryId ? { categoryId: updateData.categoryId } : {}),
@@ -296,26 +328,39 @@ export async function PATCH(request: Request) {
             throw new Error(`Variant "${v.variantName}" stock cannot be negative`);
           }
 
-          if (v.id) {
-            await tx.variant.upsert({
-              where: { id: v.id },
-              update: {
+          const vSku = v.sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+          const existingVariant = await tx.variant.findFirst({
+            where: {
+              OR: [
+                { sku: vSku },
+                ...(v.id ? [{ id: v.id }] : []),
+              ],
+            },
+          });
+
+          if (existingVariant) {
+            await tx.variant.update({
+              where: { id: existingVariant.id },
+              data: {
                 variantName: v.variantName,
                 weight: parseFloat(v.weight) || undefined,
                 price: v.price !== undefined ? parseFloat(v.price) : undefined,
                 originalPrice: v.originalPrice !== undefined ? parseFloat(v.originalPrice) : undefined,
-                sku: v.sku,
                 stock: v.stock !== undefined ? parseInt(v.stock, 10) : undefined,
                 updatedAt: new Date(),
               },
-              create: {
-                id: v.id,
-                productId: id,
+            });
+          } else {
+            await tx.variant.create({
+              data: {
+                id: v.id || `var-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                productId: targetId,
                 variantName: v.variantName,
                 weight: parseFloat(v.weight) || 1.0,
                 price: parseFloat(v.price) || 0.0,
                 originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : 0,
-                sku: v.sku || `SKU-${Date.now()}`,
+                sku: vSku,
                 stock: parseInt(v.stock, 10) || 0,
               },
             });
