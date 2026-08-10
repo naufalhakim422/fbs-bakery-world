@@ -88,7 +88,12 @@ function AdminNewProductContent() {
           setGalleryImages(existing.galleryImages);
         }
         if (existing.variants && existing.variants.length > 0) {
-          setVariants(existing.variants);
+          setVariants(existing.variants.map(v => ({
+            ...v,
+            isDiscountActive: v.isDiscountActive !== undefined
+              ? Boolean(v.isDiscountActive)
+              : Boolean(v.originalPrice && Number(v.originalPrice) > 0),
+          })));
         }
       }
     }
@@ -134,7 +139,7 @@ function AdminNewProductContent() {
   const handleAddVariant = () => {
     setVariants([
       ...variants,
-      { variantName: 'New Size', weight: 1.0, price: 20.00, stock: 50, sku: `FBS-VAR-${Math.floor(100 + Math.random() * 900)}` }
+      { variantName: 'New Size', weight: 1.0, price: 20.00, originalPrice: 0, isDiscountActive: false, stock: 50, sku: `FBS-VAR-${Math.floor(100 + Math.random() * 900)}` }
     ]);
   };
 
@@ -492,9 +497,7 @@ function AdminNewProductContent() {
           <div className="space-y-4">
             {variants.map((v, index) => {
               const curPrice = Number(v.price) || 0;
-              const isDiscountOn = v.isDiscountActive !== undefined
-                ? Boolean(v.isDiscountActive)
-                : Boolean(v.originalPrice && Number(v.originalPrice) > 0);
+              const isDiscountOn = Boolean(v.isDiscountActive);
               const original = Number(v.originalPrice) || 0;
               const discountPct = isDiscountOn && original > curPrice && original > 0
                 ? Math.round(((original - curPrice) / original) * 100)
