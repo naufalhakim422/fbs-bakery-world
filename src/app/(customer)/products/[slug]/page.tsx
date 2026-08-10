@@ -267,14 +267,30 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     const addedMetaTags: HTMLMetaElement[] = [];
-    if (slug) {
-      const foundProd = db.getProductBySlug(slug);
-      if (foundProd) {
+    let isMounted = true;
+
+    const initProduct = async () => {
+      if (!slug) return;
+      let foundProd = db.getProductBySlug(slug);
+
+      if (!foundProd) {
+        try {
+          const res = await fetch(`/api/products?slug=${encodeURIComponent(slug)}`, { cache: 'no-store' });
+          const data = await res.json();
+          if (data.success && data.product) {
+            foundProd = data.product;
+          }
+        } catch (err) {
+          console.warn('[Product Detail Fetch Warning]', err);
+        }
+      }
+
+      if (isMounted && foundProd) {
         setProduct(foundProd);
         if (foundProd.variants && foundProd.variants.length > 0) {
-          setSelectedVariant(foundProd.variants[0]);
+          setSelectedVariant(prev => prev || foundProd!.variants[0]);
         }
-        setActiveImage(foundProd.mainImage);
+        setActiveImage(prev => prev || foundProd!.mainImage);
 
         // Load reviews from local DB and server API
         const loaded = db.getProductReviews(foundProd.id);
@@ -369,7 +385,6 @@ export default function ProductDetailPage() {
         }
 
         // Dynamic Open Graph & Page Metadata
-        let addedMetaTags: HTMLMetaElement[] = [];
         if (typeof document !== 'undefined') {
           document.title = `${foundProd.productName} | FBS Bakery World`;
           const updateMetaTag = (propName: string, propVal: string, useNameAttr = false) => {
@@ -395,12 +410,13 @@ export default function ProductDetailPage() {
           updateMetaTag('twitter:description', foundProd.shortDescription || 'Bahan & Perlengkapan Bakeri Premium', true);
           updateMetaTag('twitter:image', foundProd.mainImage, true);
         }
-      } else {
-        setProduct(null);
       }
-    }
+    };
+
+    initProduct();
 
     return () => {
+      isMounted = false;
       addedMetaTags.forEach(meta => {
         if (meta && meta.parentNode) {
           meta.parentNode.removeChild(meta);
