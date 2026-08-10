@@ -398,11 +398,34 @@ export async function PATCH(request: Request) {
             });
           }
         }
+
+        // Soft-delete variants that were removed from the admin form
+        const activeSkus = variants.map(v => v.sku).filter(Boolean);
+        const activeIds = variants.map(v => v.id).filter(Boolean);
+
+        await tx.variant.updateMany({
+          where: {
+            productId: targetId,
+            deletedAt: null,
+            NOT: {
+              OR: [
+                ...(activeSkus.length > 0 ? [{ sku: { in: activeSkus } }] : []),
+                ...(activeIds.length > 0 ? [{ id: { in: activeIds } }] : []),
+              ],
+            },
+          },
+          data: {
+            deletedAt: new Date(),
+          },
+        });
       }
 
       return tx.product.findUnique({
-        where: { id },
-        include: { category: true, variants: true },
+        where: { id: targetId },
+        include: {
+          category: true,
+          variants: { where: { deletedAt: null } },
+        },
       });
     });
 
