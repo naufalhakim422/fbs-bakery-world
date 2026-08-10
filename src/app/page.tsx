@@ -66,7 +66,7 @@ export default function HomePage() {
       }
     ]);
 
-    fetch('/api/banners', { cache: 'no-store' })
+    fetch(`/api/banners?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {

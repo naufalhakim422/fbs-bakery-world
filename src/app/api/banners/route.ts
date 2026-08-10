@@ -67,6 +67,12 @@ async function ensureBannerSchemaText() {
   }
 }
 
+const antiCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
+
 export async function GET() {
   try {
     await ensureBannerSchemaText();
@@ -86,7 +92,7 @@ export async function GET() {
         status: b.isActive,
         sortOrder: b.sortOrder,
       }));
-      return NextResponse.json({ success: true, banners: formatted, source: 'PRISMA_POSTGRES' });
+      return NextResponse.json({ success: true, banners: formatted, source: 'PRISMA_POSTGRES' }, { headers: antiCacheHeaders });
     }
   } catch (err: any) {
     console.warn('[Prisma Banner Warning] Falling back to JSON cache:', err.message);
@@ -94,7 +100,7 @@ export async function GET() {
 
   // Fallback to Server JSON Cache
   const cached = readServerBanners();
-  return NextResponse.json({ success: true, banners: cached, source: 'JSON_FALLBACK' });
+  return NextResponse.json({ success: true, banners: cached, source: 'JSON_FALLBACK' }, { headers: antiCacheHeaders });
 }
 
 export async function POST(request: Request) {

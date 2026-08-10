@@ -71,7 +71,7 @@ export default function AdminBannersPage() {
     setProducts(db.getProducts());
 
     // Sync with Server API only if server has data
-    fetch('/api/banners')
+    fetch(`/api/banners?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
