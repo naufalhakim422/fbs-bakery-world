@@ -70,20 +70,28 @@ export default function AdminBannersPage() {
     setBanners(currentBanners);
     setProducts(db.getProducts());
 
-    // Sync with Server API
+    // Sync with Server API only if server has data
     fetch('/api/banners')
       .then(res => res.json())
       .then(data => {
         if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
-          setBanners(data.banners);
-          data.banners.forEach((b: Banner) => db.saveBanner(b));
+          // Check if server banners exist
+          const hasServerBanners = data.banners.some((b: any) => b.imageUrl);
+          if (hasServerBanners) {
+            setBanners(data.banners);
+            db.saveAllBanners(data.banners);
+          }
         }
       })
       .catch(err => console.warn('Banner fetch server warning:', err));
   }, []);
 
   const handleUpdateSlotField = (id: string, field: keyof Banner, value: any) => {
-    setBanners(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
+    setBanners(prev => {
+      const updated = prev.map(b => b.id === id ? { ...b, [field]: value } : b);
+      db.saveAllBanners(updated);
+      return updated;
+    });
   };
 
   const handleSlotFileUpload = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +99,17 @@ export default function AdminBannersPage() {
     if (file) {
       try {
         const compressed = await compressImageFile(file);
-        handleUpdateSlotField(id, 'imageUrl', compressed);
+        setBanners(prev => {
+          const updated = prev.map(b => b.id === id ? { ...b, imageUrl: compressed } : b);
+          db.saveAllBanners(updated);
+          // Instant sync to Railway PostgreSQL Server
+          fetch('/api/banners', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ banners: updated }),
+          }).catch(err => console.warn('Instant banner sync error:', err));
+          return updated;
+        });
       } catch (err) {
         console.error('Error compressing banner image:', err);
       }
