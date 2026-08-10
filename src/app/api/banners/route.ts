@@ -57,8 +57,19 @@ function writeServerBanners(banners: any[]) {
   }
 }
 
+async function ensureBannerSchemaText() {
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Banner" ALTER COLUMN "imageUrl" TYPE TEXT;`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Banner" ALTER COLUMN "subtitle" TYPE TEXT;`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Banner" ALTER COLUMN "linkUrl" TYPE TEXT;`);
+  } catch (e) {
+    // Ignored if already TEXT or table created
+  }
+}
+
 export async function GET() {
   try {
+    await ensureBannerSchemaText();
     const dbBanners = await prisma.banner.findMany({
       where: { deletedAt: null, isActive: true },
       orderBy: { sortOrder: 'asc' },
@@ -88,6 +99,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await ensureBannerSchemaText();
     const body = await request.json();
     const bannerList = Array.isArray(body) ? body : body.banners;
 
