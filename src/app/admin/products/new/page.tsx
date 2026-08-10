@@ -491,9 +491,11 @@ function AdminNewProductContent() {
 
           <div className="space-y-4">
             {variants.map((v, index) => {
-              const curPrice = v.price || 0;
-              const isDiscountOn = Boolean(v.isDiscountActive || (v.originalPrice && v.originalPrice > curPrice));
-              const original = v.originalPrice || curPrice;
+              const curPrice = Number(v.price) || 0;
+              const isDiscountOn = v.isDiscountActive !== undefined
+                ? Boolean(v.isDiscountActive)
+                : Boolean(v.originalPrice && Number(v.originalPrice) > 0);
+              const original = Number(v.originalPrice) || 0;
               const discountPct = isDiscountOn && original > curPrice && original > 0
                 ? Math.round(((original - curPrice) / original) * 100)
                 : 0;
@@ -515,8 +517,10 @@ function AdminNewProductContent() {
                         onChange={(e) => {
                           const checked = e.target.checked;
                           handleVariantChange(index, 'isDiscountActive', checked);
-                          if (checked && (!v.originalPrice || v.originalPrice <= curPrice)) {
+                          if (checked && (!v.originalPrice || Number(v.originalPrice) === 0)) {
                             handleVariantChange(index, 'originalPrice', Math.round((curPrice * 1.25) * 100) / 100);
+                          } else if (!checked) {
+                            handleVariantChange(index, 'originalPrice', 0);
                           }
                         }}
                         className="rounded text-[#800020] w-3.5 h-3.5 focus:ring-[#800020]"
