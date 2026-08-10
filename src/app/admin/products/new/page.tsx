@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { recordAuditLog } from '@/lib/audit';
-import { ProductVariant } from '@/types';
+import { Product, ProductVariant } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
 import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, Sparkles, Upload, X, AlertCircle, Tag } from 'lucide-react';
@@ -67,35 +67,73 @@ function AdminNewProductContent() {
 
   useEffect(() => {
     if (editId) {
-      const existing = db.getProductBySlug(editId);
-      if (existing) {
+      const populateForm = (existing: Product) => {
         setForm({
-          sku: existing.sku,
-          productName: existing.productName,
-          slug: existing.slug,
-          categoryId: existing.categoryId,
-          brand: existing.brand,
-          shortDescription: existing.shortDescription,
-          description: existing.description,
-          mainImage: existing.mainImage,
-          isHalal: existing.isHalal,
-          isFeatured: existing.isFeatured,
-          isBestSeller: existing.isBestSeller,
+          sku: existing.sku || `FBS-PROD-${Math.floor(1000 + Math.random() * 9000)}`,
+          productName: existing.productName || '',
+          slug: existing.slug || '',
+          categoryId: existing.categoryId || categories[0]?.id || 'cat-1',
+          brand: existing.brand || 'FBS Choice',
+          shortDescription: existing.shortDescription || '',
+          description: existing.description || '',
+          mainImage: existing.mainImage || '',
+          isHalal: existing.isHalal ?? true,
+          isFeatured: existing.isFeatured ?? false,
+          isBestSeller: existing.isBestSeller ?? false,
           totalSold: existing.totalSold || 0,
         });
         setIsSlugManual(true);
         if (existing.galleryImages && existing.galleryImages.length > 0) {
           setGalleryImages(existing.galleryImages);
+        } else if (existing.mainImage) {
+          setGalleryImages([existing.mainImage]);
         }
         if (existing.variants && existing.variants.length > 0) {
-          setVariants(existing.variants.map(v => ({
+          setVariants(existing.variants.map((v: any) => ({
             ...v,
             isDiscountActive: v.isDiscountActive !== undefined
               ? Boolean(v.isDiscountActive)
               : Boolean(v.originalPrice && Number(v.originalPrice) > 0),
           })));
         }
+      };
+
+      const existingLocal = db.getProductBySlug(editId);
+      if (existingLocal) {
+        populateForm(existingLocal);
       }
+
+      // Live fetch fresh data from Railway PostgreSQL DB to prevent stale memory
+      fetch(`/api/products?slug=${encodeURIComponent(editId)}&t=${Date.now()}`, { cache: 'no-store' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.product) {
+            populateForm(data.product);
+          }
+        })
+        .catch(() => {});
+    } else {
+      // COMPLETE RESET FOR CREATE NEW PRODUCT MODE
+      setForm({
+        sku: `FBS-PROD-${Math.floor(1000 + Math.random() * 9000)}`,
+        productName: '',
+        slug: '',
+        categoryId: categories[0]?.id || 'cat-1',
+        brand: 'FBS Choice',
+        shortDescription: '',
+        description: '',
+        mainImage: '',
+        isHalal: true,
+        isFeatured: false,
+        isBestSeller: false,
+        totalSold: 0,
+      });
+      setGalleryImages([]);
+      setVariants([
+        { variantName: '1kg', weight: 1.0, price: 18.00, originalPrice: 0, isDiscountActive: false, stock: 100, sku: `FBS-VAR-1KG-${Math.floor(100 + Math.random() * 900)}` },
+      ]);
+      setIsSlugManual(false);
+      setValidationError(null);
     }
   }, [editId]);
 

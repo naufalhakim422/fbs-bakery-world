@@ -455,36 +455,46 @@ export async function PATCH(request: Request) {
   }
 }
 
-// DELETE /api/products?id=...
+// DELETE /api/products?id=... or ?slug=...
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const deleteId = searchParams.get('id');
+    const slug = searchParams.get('slug');
 
-    if (!deleteId) {
-      return NextResponse.json({ success: false, error: 'Product ID parameter is required' }, { status: 400 });
+    if (!deleteId && !slug) {
+      return NextResponse.json({ success: false, error: 'Product ID or Slug parameter is required' }, { status: 400 });
+    }
+
+    const targetProduct = await prisma.product.findFirst({
+      where: {
+        OR: [
+          ...(deleteId ? [{ id: deleteId }] : []),
+          ...(slug ? [{ slug }] : []),
+        ],
+        deletedAt: null,
+      },
+    });
+
+    if (!targetProduct) {
+      return NextResponse.json({ success: true, message: 'Product already deleted or not found' });
     }
 
     await prisma.$transaction(async (tx) => {
-      const existing = await tx.product.findUnique({ where: { id: deleteId } });
-      if (!existing) {
-        throw new Error(`Product with ID "${deleteId}" not found`);
-      }
-
       // Soft delete Product & Variants
       await tx.product.update({
-        where: { id: deleteId },
-        data: { deletedAt: new Date() },
+        where: { id: targetProduct.id },
+        data: { deletedAt: new Date(), status: false },
       });
 
       await tx.variant.updateMany({
-        where: { productId: deleteId },
+        where: { productId: targetProduct.id },
         data: { deletedAt: new Date() },
       });
     });
 
-    console.log('✅ [Prisma Product Soft Deleted]:', deleteId);
-    return NextResponse.json({ success: true, message: `Product ${deleteId} deleted`, source: 'PRISMA_POSTGRES' });
+    console.log('✅ [Prisma Product Soft Deleted]:', targetProduct.id, targetProduct.productName);
+    return NextResponse.json({ success: true, message: `Product ${targetProduct.productName} deleted`, source: 'PRISMA_POSTGRES' });
   } catch (err: any) {
     console.error('[Prisma Products DELETE Error]:', err);
     return NextResponse.json({ success: false, error: err.message }, { status: 400 });

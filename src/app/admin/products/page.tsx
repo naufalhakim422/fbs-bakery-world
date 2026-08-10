@@ -75,10 +75,22 @@ export default function AdminProductsPage() {
     setDeleteId(id);
   };
 
-  const executeDelete = () => {
+  const executeDelete = async () => {
     if (deleteId) {
-      const target = products.find(p => p.id === deleteId);
-      db.deleteProduct(deleteId);
+      const target = products.find(p => p.id === deleteId || p.slug === deleteId);
+      const targetId = target?.id || deleteId;
+      const targetSlug = target?.slug || deleteId;
+
+      db.deleteProduct(targetId);
+
+      try {
+        await fetch(`/api/products?id=${encodeURIComponent(targetId)}&slug=${encodeURIComponent(targetSlug)}`, {
+          method: 'DELETE',
+        });
+      } catch (apiErr) {
+        console.warn('[Admin Delete Product API Warning]', apiErr);
+      }
+
       recordAuditLog('Hapus Produk', 'PRODUCT', `Product ${target?.productName || deleteId} (${target?.sku || ''}) was deleted.`);
       setProducts(db.getProducts());
       setDeleteId(null);
