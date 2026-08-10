@@ -152,61 +152,79 @@ export async function POST(request: Request) {
       variants,
     } = body || {};
 
-    // Validation
-    if (!productName || !categoryId || !sku || !slug || !description || !mainImage) {
+    // Resilient Validation & Fallbacks
+    if (!productName || !productName.trim()) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields: productName, categoryId, sku, slug, description, mainImage' },
+        { success: false, error: 'Product Title / Name is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!mainImage || !mainImage.trim()) {
+      return NextResponse.json(
+        { success: false, error: 'Product Main Cover Image is required' },
         { status: 400 }
       );
     }
 
     if (!Array.isArray(variants) || variants.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'At least one variant with name, weight, price, and SKU is required' },
+        { success: false, error: 'At least 1 packaging size variant is required' },
         { status: 400 }
       );
     }
 
+    const finalDescription = (description && description.trim()) || (shortDescription && shortDescription.trim()) || productName;
+    const finalShortDescription = (shortDescription && shortDescription.trim()) || finalDescription;
+    let finalSku = (sku && sku.trim()) || `FBS-PRD-${Math.floor(1000 + Math.random() * 9000)}`;
+    let finalSlug = (slug && slug.trim()) || productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
     // Atomic Prisma Transaction
     const newProduct = await prisma.$transaction(async (tx) => {
-      // Check existing SKU or Slug
-      const existing = await tx.product.findFirst({
-        where: {
-          OR: [{ sku }, { slug }],
-          deletedAt: null,
-        },
-      });
-
-      if (existing) {
-        throw new Error(`Product with SKU "${sku}" or Slug "${slug}" already exists`);
+      // Category fallback validation
+      let validCatId = categoryId || null;
+      if (validCatId) {
+        const catExists = await tx.category.findFirst({
+          where: { OR: [{ id: validCatId }, { slug: validCatId }] }
+        });
+        if (catExists) {
+          validCatId = catExists.id;
+        } else {
+          const firstCat = await tx.category.findFirst({ where: { deletedAt: null } });
+          validCatId = firstCat ? firstCat.id : null;
+        }
+      } else {
+        const firstCat = await tx.category.findFirst({ where: { deletedAt: null } });
+        validCatId = firstCat ? firstCat.id : null;
       }
 
-      // Verify category exists
-      const categoryExists = await tx.category.findUnique({
-        where: { id: categoryId },
-      });
-
-      if (!categoryExists) {
-        throw new Error(`Category with ID "${categoryId}" does not exist`);
+      // Check existing SKU or Slug collision and resolve dynamically
+      const existingSku = await tx.product.findFirst({ where: { sku: finalSku, deletedAt: null } });
+      if (existingSku) {
+        finalSku = `${finalSku}-${Math.floor(100 + Math.random() * 900)}`;
       }
 
-      // Create Product
+      const existingSlug = await tx.product.findFirst({ where: { slug: finalSlug, deletedAt: null } });
+      if (existingSlug) {
+        finalSlug = `${finalSlug}-${Date.now().toString().slice(-4)}`;
+      }
+
       const created = await tx.product.create({
         data: {
           id: body.id || `prod-${Date.now()}`,
-          categoryId,
-          sku,
+          sku: finalSku,
           productName,
-          slug,
-          brand: brand || 'FBS Bakery',
-          shortDescription: shortDescription || '',
-          description,
+          slug: finalSlug,
+          categoryId: validCatId,
+          brand: brand || 'FBS Choice',
+          shortDescription: finalShortDescription,
+          description: finalDescription,
           mainImage,
-          galleryImages: Array.isArray(galleryImages) ? galleryImages : [mainImage],
-          isHalal: isHalal ?? true,
-          isFeatured: isFeatured ?? false,
-          isBestSeller: isBestSeller ?? false,
-          status: status ?? true,
+          galleryImages: Array.isArray(galleryImages) && galleryImages.length > 0 ? galleryImages : [mainImage],
+          isHalal: isHalal !== undefined ? Boolean(isHalal) : true,
+          isFeatured: isFeatured !== undefined ? Boolean(isFeatured) : false,
+          isBestSeller: isBestSeller !== undefined ? Boolean(isBestSeller) : false,
+          status: status !== undefined ? Boolean(status) : true,
           totalSold: body.totalSold || 0,
         },
       });
