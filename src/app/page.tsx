@@ -206,6 +206,9 @@ export default function HomePage() {
                       loading="eager"
                       decoding="async"
                       sizes="100vw"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1920&auto=format&fit=crop';
+                      }}
                       className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
                     />
                   )}
