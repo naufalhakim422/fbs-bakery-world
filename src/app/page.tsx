@@ -65,6 +65,19 @@ export default function HomePage() {
         status: true,
       }
     ]);
+
+    fetch('/api/banners', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
+          const active = data.banners.filter((b: any) => b.status);
+          if (active.length > 0) {
+            setBanners(active);
+            active.forEach((b: any) => db.saveBanner(b));
+          }
+        }
+      })
+      .catch(bErr => console.warn('[Homepage Banners Fetch Warning]', bErr));
     setCategories(db.getCategories());
 
     const loadProducts = async () => {

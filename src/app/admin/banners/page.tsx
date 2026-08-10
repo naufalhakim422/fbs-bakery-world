@@ -69,6 +69,17 @@ export default function AdminBannersPage() {
 
     setBanners(currentBanners);
     setProducts(db.getProducts());
+
+    // Sync with Server API
+    fetch('/api/banners')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
+          setBanners(data.banners);
+          data.banners.forEach((b: Banner) => db.saveBanner(b));
+        }
+      })
+      .catch(err => console.warn('Banner fetch server warning:', err));
   }, []);
 
   const handleUpdateSlotField = (id: string, field: keyof Banner, value: any) => {
@@ -163,7 +174,7 @@ export default function AdminBannersPage() {
     setConfirmSaveOpen(true);
   };
 
-  const executeSaveAllBanners = () => {
+  const executeSaveAllBanners = async () => {
     try {
       banners.forEach(b => {
         db.saveBanner(b);
@@ -172,6 +183,16 @@ export default function AdminBannersPage() {
     } catch (err) {
       console.warn('LocalStorage saveBanner warning:', err);
       alert('Ukuran banner terlalu besar untuk penyimpanan browser. Silakan gunakan URL gambar eksternal atau kurangi ukuran file.');
+    }
+
+    try {
+      await fetch('/api/banners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ banners }),
+      });
+    } catch (apiErr) {
+      console.warn('Banner server POST warning:', apiErr);
     } finally {
       setConfirmSaveOpen(false);
       setTimeout(() => setIsSavedAll(false), 2500);
