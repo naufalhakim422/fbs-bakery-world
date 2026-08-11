@@ -328,18 +328,24 @@ export default function CustomerAccountPage() {
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (err) {
-      console.error('Firebase signOut error:', err);
-    }
+  const confirmLogout = () => {
+    // 1. Instantly purge local session state
     localStorage.removeItem('fbs_customer_session');
-    window.dispatchEvent(new Event('storage'));
-    window.dispatchEvent(new CustomEvent('fbs_db_updated'));
+    sessionStorage.removeItem('fbs_customer_session');
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('fbs_db_updated'));
+    }
     setCustomer(null);
     setShowLogoutModal(false);
-    router.push('/account/login');
+
+    // 2. Fire-and-forget Firebase signOut in background without blocking UI
+    try {
+      signOut(auth).catch((err) => console.warn('Background Firebase signOut info:', err));
+    } catch (e) {}
+
+    // 3. Instant hard redirect to login page with 0ms delay
+    window.location.href = '/account/login';
   };
 
   const updateCustomerPhoto = async (photoUrl: string) => {

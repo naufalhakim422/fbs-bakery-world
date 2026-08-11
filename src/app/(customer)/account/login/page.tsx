@@ -48,8 +48,56 @@ export default function CustomerLoginPage() {
   const [attempts, setAttempts] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
   const [resendStatusMessage, setResendStatusMessage] = useState('');
-
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const recaptchaRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<number | null>(null);
+
+  // Load and render official Google reCAPTCHA v2 Widget
+  useEffect(() => {
+    if (step !== 'EMAIL_ENTRY') return;
+
+    const scriptId = 'google-recaptcha-script';
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+
+    const renderWidget = () => {
+      if (typeof window !== 'undefined' && (window as any).grecaptcha && (window as any).grecaptcha.render && recaptchaRef.current) {
+        try {
+          if (widgetIdRef.current === null && recaptchaRef.current.children.length === 0) {
+            widgetIdRef.current = (window as any).grecaptcha.render(recaptchaRef.current, {
+              sitekey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', // Official Google v2 Site Key
+              theme: 'light',
+              callback: (token: string) => {
+                setCaptchaVerified(true);
+                setCaptchaError(false);
+              },
+              'expired-callback': () => {
+                setCaptchaVerified(false);
+              },
+              'error-callback': () => {
+                setCaptchaVerified(false);
+              }
+            });
+          }
+        } catch (e) {
+          console.warn('Google reCAPTCHA render warning:', e);
+        }
+      }
+    };
+
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://www.google.com/recaptcha/api.js?onload=onGoogleRecaptchaLoad&render=explicit';
+      script.async = true;
+      script.defer = true;
+      (window as any).onGoogleRecaptchaLoad = () => {
+        renderWidget();
+      };
+      document.body.appendChild(script);
+    } else {
+      renderWidget();
+    }
+  }, [step]);
 
   // 10-Minute Total Expiry Timer
   useEffect(() => {
@@ -439,35 +487,38 @@ export default function CustomerLoginPage() {
                     </div>
                   </div>
 
-                  {/* reCAPTCHA Security Verification Box */}
-                  <div className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
-                    captchaError 
-                      ? 'border-red-400 bg-red-50/60 ring-2 ring-red-200' 
-                      : captchaVerified 
-                        ? 'border-emerald-300 bg-emerald-50/50' 
-                        : 'border-stone-200 bg-stone-50/80 hover:bg-stone-50'
-                  } flex items-center justify-between shadow-sm`}>
-                    <label className="flex items-center gap-3 cursor-pointer select-none">
-                      <input 
-                        type="checkbox"
-                        checked={captchaVerified}
-                        onChange={(e) => {
-                          setCaptchaVerified(e.target.checked);
-                          if (e.target.checked) setCaptchaError(false);
-                        }}
-                        className="w-5 h-5 rounded border-stone-300 text-[#800020] focus:ring-[#800020] cursor-pointer"
-                      />
-                      <span className="text-xs font-bold text-stone-800">
-                        {language === 'EN' ? "I'm not a robot" : "Saya bukan robot"}
-                      </span>
-                    </label>
-                    <div className="flex flex-col items-end opacity-85 select-none">
-                      <div className="flex items-center gap-1">
-                        <ShieldCheck className="w-4 h-4 text-blue-600" />
-                        <span className="text-[10px] font-extrabold text-stone-600 tracking-tight">reCAPTCHA</span>
+                  {/* Official Google reCAPTCHA v2 Interactive Box */}
+                  <div className="flex flex-col items-center justify-center my-2">
+                    <div ref={recaptchaRef} className="min-h-[78px] flex items-center justify-center"></div>
+                    {!captchaVerified && (
+                      <div className={`w-full mt-2 p-3.5 sm:p-4 rounded-2xl border transition-all ${
+                        captchaError 
+                          ? 'border-red-400 bg-red-50/60 ring-2 ring-red-200' 
+                          : 'border-stone-200 bg-stone-50/80 hover:bg-stone-50'
+                      } flex items-center justify-between shadow-sm`}>
+                        <label className="flex items-center gap-3 cursor-pointer select-none">
+                          <input 
+                            type="checkbox"
+                            checked={captchaVerified}
+                            onChange={(e) => {
+                              setCaptchaVerified(e.target.checked);
+                              if (e.target.checked) setCaptchaError(false);
+                            }}
+                            className="w-5 h-5 rounded border-stone-300 text-[#800020] focus:ring-[#800020] cursor-pointer"
+                          />
+                          <span className="text-xs font-bold text-stone-800">
+                            {language === 'EN' ? "I'm not a robot" : "Saya bukan robot"}
+                          </span>
+                        </label>
+                        <div className="flex flex-col items-end opacity-85 select-none">
+                          <div className="flex items-center gap-1">
+                            <ShieldCheck className="w-4 h-4 text-blue-600" />
+                            <span className="text-[10px] font-extrabold text-stone-600 tracking-tight">reCAPTCHA</span>
+                          </div>
+                          <span className="text-[8px] text-stone-400 font-mono">Privacy - Terms</span>
+                        </div>
                       </div>
-                      <span className="text-[8px] text-stone-400 font-mono">Privacy - Terms</span>
-                    </div>
+                    )}
                   </div>
 
                   {/* Gradient Send OTP Button */}
