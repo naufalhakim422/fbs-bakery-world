@@ -1,7 +1,59 @@
 import { NextResponse } from 'next/server';
 import { getResendClient, RESEND_FROM } from '@/lib/resend';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 export const dynamic = 'force-dynamic';
+
+function getStoreSupportEmail(): string {
+  try {
+    if (globalThis.__fbs_store_settings_cache && globalThis.__fbs_store_settings_cache.supportEmail) {
+      return globalThis.__fbs_store_settings_cache.supportEmail.trim();
+    }
+    const localFile = path.join(process.cwd(), 'data', 'fbs_store_settings.json');
+    if (fs.existsSync(localFile)) {
+      const raw = fs.readFileSync(localFile, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.supportEmail && typeof parsed.supportEmail === 'string' && parsed.supportEmail.trim() !== '') {
+        return parsed.supportEmail.trim();
+      }
+    }
+    const tmpFile = path.join(os.tmpdir(), 'fbs_store_settings.json');
+    if (fs.existsSync(tmpFile)) {
+      const raw = fs.readFileSync(tmpFile, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.supportEmail && typeof parsed.supportEmail === 'string' && parsed.supportEmail.trim() !== '') {
+        return parsed.supportEmail.trim();
+      }
+    }
+  } catch (e) {}
+  return 'order@fbsbakeryworld.com';
+}
+
+function saveContactMessageToInbox(msgData: any) {
+  try {
+    const localDir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(localDir)) {
+      fs.mkdirSync(localDir, { recursive: true });
+    }
+    const file = path.join(localDir, 'fbs_contact_messages.json');
+    let messages: any[] = [];
+    if (fs.existsSync(file)) {
+      try {
+        messages = JSON.parse(fs.readFileSync(file, 'utf-8'));
+      } catch (e) {}
+    }
+    messages.unshift({
+      id: `msg-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      ...msgData,
+    });
+    fs.writeFileSync(file, JSON.stringify(messages.slice(0, 100), null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Error saving contact message to inbox file:', err);
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +75,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const toEmail = 'opallbusiness@gmail.com';
+    const toEmail = getStoreSupportEmail();
+    saveContactMessageToInbox({ name: name.trim(), email: email.trim(), phone: phone.trim(), subject: subject.trim(), message: message.trim(), recipientEmail: toEmail });
 
     const htmlContent = `
       <!DOCTYPE html>
