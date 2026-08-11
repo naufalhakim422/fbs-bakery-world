@@ -57,19 +57,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     ? 'Pengurusan Penghantaran'
     : 'Shipping Management';
 
+  const adminBase = pathname?.startsWith('/admin2026') ? '/admin2026' : '/admin';
+
   const menuItems = [
-    { name: t.adminNav.dashboard, href: '/admin', icon: LayoutDashboard },
-    { name: t.adminNav.cashflow, href: '/admin/cashflow', icon: Wallet },
-    { name: t.adminNav.orders, href: '/admin/orders', icon: ShoppingBag },
-    { name: t.adminNav.products, href: '/admin/products', icon: Package },
-    { name: t.adminNav.categories, href: '/admin/categories', icon: Layers },
-    { name: t.adminNav.recipes, href: '/admin/recipes', icon: ChefHat },
-    { name: t.adminNav.blogs, href: '/admin/blogs', icon: BookOpen },
-    { name: videoMenuName, href: '/admin/videos', icon: Film },
-    { name: t.adminNav.banners, href: '/admin/banners', icon: ImageIcon },
-    { name: t.adminNav.customers, href: '/admin/customers', icon: Users },
-    { name: 'WhatsApp Web Console', href: '/admin/whatsapp-chat', icon: MessageCircle },
-    { name: t.adminNav.settings, href: '/admin/settings', icon: Settings },
+    { name: t.adminNav.dashboard, href: adminBase, icon: LayoutDashboard },
+    { name: t.adminNav.cashflow, href: `${adminBase}/cashflow`, icon: Wallet },
+    { name: t.adminNav.orders, href: `${adminBase}/orders`, icon: ShoppingBag },
+    { name: t.adminNav.products, href: `${adminBase}/products`, icon: Package },
+    { name: t.adminNav.categories, href: `${adminBase}/categories`, icon: Layers },
+    { name: t.adminNav.recipes, href: `${adminBase}/recipes`, icon: ChefHat },
+    { name: t.adminNav.blogs, href: `${adminBase}/blogs`, icon: BookOpen },
+    { name: videoMenuName, href: `${adminBase}/videos`, icon: Film },
+    { name: t.adminNav.banners, href: `${adminBase}/banners`, icon: ImageIcon },
+    { name: t.adminNav.customers, href: `${adminBase}/customers`, icon: Users },
+    { name: 'WhatsApp Web Console', href: `${adminBase}/whatsapp-chat`, icon: MessageCircle },
+    { name: t.adminNav.settings, href: `${adminBase}/settings`, icon: Settings },
   ];
 
   const languagesList: { code: LanguageCode; label: string }[] = [
@@ -91,7 +93,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_admin_session' } }));
     }
-    window.location.href = '/admin2026/login';
+    window.location.href = `${adminBase}/login`;
   };
 
   const handleNavClick = () => {
@@ -193,11 +195,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         <nav className={`p-3 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-230px)] ${collapsed ? 'flex flex-col items-center' : ''}`}>
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || pathname === item.href.replace('/admin2026', '/admin');
+            const isActive = pathname === item.href || (pathname?.replace('/admin2026', '/admin') === item.href.replace('/admin2026', '/admin'));
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={true}
                 onClick={handleNavClick}
                 title={item.name}
                 className={`flex items-center gap-3 py-3 rounded-2xl transition-all ${
