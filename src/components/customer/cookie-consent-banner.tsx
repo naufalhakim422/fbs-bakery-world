@@ -73,23 +73,23 @@ export function CookieConsentBanner() {
   return (
     <>
       {/* Floating Bottom Sticky Cookie Consent Banner */}
-      <aside aria-label="Cookie Consent Notice" className="fixed bottom-0 left-0 right-0 z-50 p-3 sm:p-4 animate-fade-in select-none">
-        <div className="max-w-7xl mx-auto bg-gradient-to-r from-stone-950 via-[#40040F] to-[#70001B] border border-[#D4AF37]/40 shadow-2xl rounded-3xl p-4 sm:p-6 text-white backdrop-blur-xl flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6 relative overflow-hidden">
+      <aside aria-label="Cookie Consent Notice" className="fixed bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-4 z-50 animate-fade-in select-none">
+        <div className="max-w-7xl mx-auto bg-gradient-to-r from-stone-950 via-[#40040F] to-[#70001B] border border-[#D4AF37]/40 shadow-2xl rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 text-white backdrop-blur-xl flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-6 relative overflow-hidden">
           
           {/* Decorative Corner Glow */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#D4AF37]/10 rounded-full blur-2xl pointer-events-none" />
 
           {/* Left Text Info Section */}
-          <div className="flex items-start gap-3.5 flex-1">
-            <div className="p-2.5 bg-[#D4AF37]/20 border border-[#D4AF37]/40 rounded-2xl text-[#D4AF37] flex-shrink-0 mt-0.5 shadow">
-              <Cookie className="w-5 h-5" />
+          <div className="flex items-start gap-2.5 sm:gap-3.5 flex-1 w-full">
+            <div className="p-2 sm:p-2.5 bg-[#D4AF37]/20 border border-[#D4AF37]/40 rounded-xl sm:rounded-2xl text-[#D4AF37] flex-shrink-0 mt-0.5 shadow">
+              <Cookie className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div className="space-y-1">
-              <h4 className="font-serif font-extrabold text-sm sm:text-base text-[#F7E7CE] flex items-center gap-2">
+            <div className="space-y-0.5 sm:space-y-1">
+              <h4 className="font-serif font-extrabold text-xs sm:text-base text-[#F7E7CE] flex items-center gap-2">
                 <span>{language === 'EN' ? 'Cookie & Privacy Preferences' : language === 'MS' ? 'Privasi & Tetapan Cookie' : 'Privasi & Pengaturan Cookie'}</span>
-                <span className="text-[10px] px-2 py-0.5 bg-[#D4AF37] text-[#800020] font-black rounded-full uppercase tracking-wider">FBS Bakery</span>
+                <span className="text-[9px] px-1.5 py-0.5 bg-[#D4AF37] text-[#800020] font-black rounded-full uppercase tracking-wider hidden sm:inline-block">FBS Bakery</span>
               </h4>
-              <p className="text-xs text-stone-300 leading-relaxed max-w-4xl">
+              <p className="text-[11px] sm:text-xs text-stone-300 leading-relaxed sm:leading-relaxed max-w-4xl line-clamp-3 sm:line-clamp-none">
                 {language === 'EN' ? (
                   <>
                     By clicking <strong className="text-white">“Accept All Cookies”</strong>, you agree to the storing of cookies on your device to enhance <strong className="text-[#F7E7CE]">FBS Bakery World</strong> site navigation, analyze site usage, and assist in providing your best shopping experience.
@@ -107,21 +107,21 @@ export function CookieConsentBanner() {
             </div>
           </div>
 
-          {/* Right Action Buttons */}
-          <div className="flex flex-wrap items-center justify-end gap-2.5 w-full lg:w-auto flex-shrink-0">
+          {/* Right Action Buttons: Ergonomic Grid Layout on Mobile */}
+          <div className="grid grid-cols-2 lg:flex items-center gap-2 w-full lg:w-auto flex-shrink-0 pt-1 lg:pt-0 border-t lg:border-t-0 border-white/10">
             <button
               type="button"
               onClick={() => setShowSettingsModal(true)}
-              className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-xs font-bold text-stone-200 transition-all flex items-center gap-1.5"
+              className="px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold text-stone-200 transition-all flex items-center justify-center gap-1"
             >
-              <Settings className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>{language === 'EN' ? 'Cookie Settings' : language === 'MS' ? 'Tetapan Cookie' : 'Pengaturan Cookie'}</span>
+              <Settings className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D4AF37]" />
+              <span>{language === 'EN' ? 'Settings' : language === 'MS' ? 'Tetapan' : 'Pengaturan'}</span>
             </button>
 
             <button
               type="button"
               onClick={handleRejectAll}
-              className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-xs font-bold text-stone-200 transition-all"
+              className="px-3 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold text-stone-200 transition-all text-center"
             >
               {language === 'EN' ? 'Reject All' : language === 'MS' ? 'Tolak Semua' : 'Tolak Semua'}
             </button>
@@ -129,7 +129,7 @@ export function CookieConsentBanner() {
             <button
               type="button"
               onClick={handleAcceptAll}
-              className="px-5 py-2.5 bg-gradient-to-r from-[#D4AF37] via-[#F7E7CE] to-[#D4AF37] hover:brightness-110 text-[#4A0010] font-bold text-xs rounded-2xl shadow-xl transition-all flex items-center gap-1.5 uppercase tracking-wider"
+              className="col-span-2 lg:col-span-1 px-5 py-2.5 bg-gradient-to-r from-[#D4AF37] via-[#F7E7CE] to-[#D4AF37] hover:brightness-110 text-[#4A0010] font-bold text-xs rounded-xl sm:rounded-2xl shadow-xl transition-all flex items-center justify-center gap-1.5 uppercase tracking-wider w-full active:scale-98"
             >
               <Check className="w-4 h-4 text-[#4A0010]" />
               <span>{language === 'EN' ? 'Accept All Cookies' : language === 'MS' ? 'Terima Semua Cookie' : 'Terima Semua Cookie'}</span>
