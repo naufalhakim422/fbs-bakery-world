@@ -147,11 +147,11 @@ export function InvoiceModal({ order, isOpen = true, onClose }: InvoiceModalProp
             <div className="w-full sm:w-64 text-xs space-y-2 bg-stone-50 p-4 rounded-2xl border border-stone-200">
               <div className="flex justify-between text-stone-600">
                 <span>Subtotal Produk:</span>
-                <span className="font-bold">{formatMYR(order.subtotal || (order.totalAmount - (order.shippingFee || 10) + (order.discount || 0)))}</span>
+                <span className="font-bold">{formatMYR(order.subtotal || order.totalAmount)}</span>
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Biaya Pengiriman:</span>
-                <span className="font-bold">{formatMYR(order.shippingFee || 10.0)}</span>
+                <span className="font-bold text-emerald-800">{order.shippingFee && order.shippingFee > 0 ? formatMYR(order.shippingFee) : 'Dikonfirmasi Admin WA'}</span>
               </div>
               {Boolean(order.discount) && (
                 <div className="flex justify-between text-emerald-700">

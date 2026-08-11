@@ -173,8 +173,10 @@ ${finalItemsText}
 ---------------------------
 Jumlah Kecil: RM ${(subtotal || 0).toFixed(2)}
 Diskaun: RM ${(discount || 0).toFixed(2)}
-Kos Penghantaran: RM ${(shippingFee || 0).toFixed(2)}
-💰 Jumlah Keseluruhan: RM ${finalTotal.toFixed(2)}
+Kos Penghantaran: Dikonfirmasi Admin via WhatsApp
+💰 Jumlah Keseluruhan Produk: RM ${finalTotal.toFixed(2)}
+
+📌 Catatan: Ongkos kirim akan dihitung & diinfokan langsung oleh Admin via WhatsApp.
 
 Terima kasih!`;
 

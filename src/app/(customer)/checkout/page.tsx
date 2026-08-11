@@ -141,9 +141,8 @@ export default function CheckoutPage() {
   const [voucherMsg, setVoucherMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const discount = appliedVoucher ? appliedVoucher.discountAmount : 0;
-  const shippingCalc = db.calculateShippingFee(selectedCourier.id, formData.state, totalWeightGrams);
-  const shippingFee = shippingCalc?.fee || 0;
-  const grandTotal = Math.max(0, subtotal + shippingFee - discount);
+  const shippingFee = 0;
+  const grandTotal = Math.max(0, subtotal - discount);
 
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,7 +173,7 @@ export default function CheckoutPage() {
         state: formData.state,
         postcode: formData.postcode,
         notes: formData.notes,
-        courierName: selectedCourier.name,
+        courierName: 'WhatsApp Admin',
         totalAmount: grandTotal,
         orderStatus: 'NEW',
         items: cart.map(item => ({
@@ -203,7 +202,7 @@ export default function CheckoutPage() {
         state: formData.state,
         postcode: formData.postcode,
         notes: formData.notes,
-        courierName: selectedCourier.name,
+        courierName: 'WhatsApp Admin',
         totalAmount: grandTotal,
         orderStatus: 'PENDING_PAYMENT',
         items: cart.map(item => ({
@@ -263,8 +262,8 @@ export default function CheckoutPage() {
         items: cart,
         subtotal: subtotal,
         discount: discount,
-        courier: selectedCourier.name,
-        shippingFee: shippingFee,
+        courier: 'WhatsApp Admin',
+        shippingFee: 0,
         total: grandTotal,
         grandTotal: grandTotal,
         whatsappNumber: settings?.whatsappNumber || '60183972147',
@@ -506,76 +505,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    {/* SECTION: DYNAMIC SHIPPING CALCULATOR & COURIER SELECTION */}
-                    <div className="space-y-4 pt-4 border-t border-stone-200">
-                      <div className="flex items-center justify-between text-[#800020]">
-                        <div className="flex items-center gap-2">
-                          <Truck className="w-5 h-5" />
-                          <h2 className="font-serif text-lg font-bold">Kalkulator &amp; Pilihan Kurir Pengiriman</h2>
-                        </div>
-                        <span className="text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                          {shippingCalc?.region} ({shippingCalc?.bracketName})
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-3 bg-amber-50/60 rounded-xl border border-amber-200 text-xs text-stone-700">
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <Scale className="w-4 h-4 text-[#800020]" />
-                          Total Berat Pesanan:
-                        </span>
-                        <span className="font-serif font-extrabold text-[#800020] text-sm">
-                          {totalWeightKg} kg ({totalWeightGrams} gram)
-                        </span>
-                      </div>
-
-                      <p className="text-xs text-stone-600">
-                        Pilih layanan ekspedisi pengiriman yang Anda inginkan. Biaya ongkir dihitung otomatis berdasarkan berat paket &amp; lokasi pengiriman Anda.
-                      </p>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                        {activeCouriers.map(courier => {
-                          const calc = db.calculateShippingFee(courier.id, formData.state, totalWeightGrams);
-                          const isSelected = courier.id === selectedCourier.id;
-
-                          return (
-                            <button
-                              key={courier.id}
-                              type="button"
-                              onClick={() => setSelectedCourierId(courier.id)}
-                              className={`p-3.5 rounded-2xl border-2 transition-all text-left flex items-center justify-between ${
-                                isSelected
-                                  ? 'border-[#800020] bg-[#800020]/5 shadow-sm'
-                                  : 'border-stone-200 bg-white hover:border-stone-300'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
-                                  isSelected ? 'bg-[#800020] text-white' : 'bg-stone-100 text-stone-700'
-                                }`}>
-                                  {courier.logo}
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="font-bold text-xs text-stone-900">{courier.name}</span>
-                                    {isSelected && (
-                                      <CheckCircle2 className="w-3.5 h-3.5 text-[#800020]" />
-                                    )}
-                                  </div>
-                                  <span className="text-[11px] text-stone-500 block">Status: Aktif</span>
-                                </div>
-                              </div>
-
-                              <div className="text-right">
-                                <span className={`font-serif font-extrabold text-sm ${isSelected ? 'text-[#800020]' : 'text-stone-800'}`}>
-                                  {formatMYR(calc?.fee || 0)}
-                                </span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
                     </div>
-                  </div>
 
                   <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-4 text-[#800020]">
                     <FileText className="w-5 h-5" />
@@ -680,12 +610,12 @@ export default function CheckoutPage() {
                       <span className="font-mono font-bold text-stone-800">{totalWeightKg} kg</span>
                     </div>
 
-                    <div className="flex justify-between text-stone-700 font-medium">
+                    <div className="flex justify-between items-center text-stone-700 font-medium">
                       <span className="flex items-center gap-1">
                         <Truck className="w-3.5 h-3.5 text-[#800020]" />
-                        <span>Ongkos Kirim ({selectedCourier.name})</span>
+                        <span>Ongkos Kirim</span>
                       </span>
-                      <span className="font-bold text-stone-900">{formatMYR(shippingFee)}</span>
+                      <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px] border border-emerald-200">Dikonfirmasi Admin via WA</span>
                     </div>
 
                     <div className="flex justify-between text-base font-extrabold text-[#800020] pt-2.5 border-t border-stone-200">
