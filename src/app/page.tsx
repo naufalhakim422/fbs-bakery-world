@@ -379,83 +379,41 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* WHOLESALE PROMO BANNERS GRID (4 PROMO BANNERS) */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-extrabold text-[#800020] uppercase tracking-widest block mb-1">
-              {language === 'EN' ? 'COMMERCIAL BULK DEALS' : language === 'MS' ? 'PAKEJ PUKAL KOMERSIAL' : 'PAKET GROSIR KOMERSIAL'}
-            </span>
-            <h2 className="font-serif text-3xl font-bold text-[#2B1B1B]">
-              {homeCms.promoTitle || (language === 'EN' ? 'Baker Wholesale Supply & Bulk Discounts' : language === 'MS' ? 'Bekalan Pukal & Diskaun Komersial Baker' : 'Pasokan Grosir & Diskon Komersial Baker')}
-            </h2>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1">
-              {homeCms.promoSubtitle || (language === 'EN' ? 'Get special discounted pricing for 5kg & 25kg sacks.' : language === 'MS' ? 'Dapatkan tawaran harga khas untuk pembelian guni 5kg & 25kg.' : 'Dapatkan penawaran harga spesial untuk pembelian karung 5kg & 25kg.')}
-            </p>
-            <div className="w-16 h-1 bg-[#D4AF37] mx-auto mt-3 rounded-full" />
+        {/* MODERN MINIMALIST BAKING INSPIRATION SHOWCASE BANNER */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 sm:mb-20">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#2B1B1B] via-[#5A0015] to-[#800020] border border-[#D4AF37]/30 shadow-2xl p-8 sm:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-4 max-w-xl text-center md:text-left">
+              <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#D4AF37]/20 border border-[#D4AF37]/40 text-[#D4AF37] text-xs font-bold rounded-full uppercase tracking-widest">
+                <Sparkles className="w-3.5 h-3.5" />
+                {language === 'EN' ? 'EXCLUSIVE BAKERY SHOWCASE' : language === 'MS' ? 'SERVIS EKSKLUSIF BAKERI' : 'LAYANAN EKSKLUSIF BAKERY'}
+              </span>
+              <h2 className="font-serif text-2xl sm:text-4xl font-extrabold text-[#F7E7CE] tracking-tight leading-tight">
+                {language === 'EN' ? 'Mastering Bakery Artistry with Premium Supplies' : language === 'MS' ? 'Seni Bakeri Profesional Dengan Ramuan Gred Tinggi' : 'Seni Bakery Profesional Dengan Bahan Grade Tinggi'}
+              </h2>
+              <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
+                {language === 'EN' ? 'Explore curated baking recipes, premium imported cocoa, specialty flour, and expert guidance tailored for passion and perfection.' : language === 'MS' ? 'Terokai koleksi panduan resipi bakeri, coklat import gred tinggi, tepung khusus, dan khidmat perundingan ramuan berkualiti.' : 'Jelajahi koleksi panduan resep bakery, cokelat impor grade tinggi, tepung khusus, dan layanan konsultasi bahan berkualitas.'}
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full md:w-auto flex-shrink-0">
+              <Link 
+                href="/recipes"
+                className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-[#D4AF37] via-[#F7E7CE] to-[#D4AF37] hover:brightness-110 text-[#4A0010] font-bold text-xs sm:text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 uppercase tracking-wider"
+              >
+                <span>{language === 'EN' ? 'EXPLORE RECIPES' : language === 'MS' ? 'TEROKAI RESIPI' : 'JELAJAHI RESEP'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <a
+                href={`https://wa.me/${cleanWaNumber}?text=Halo%20FBS%20Bakery,%20saya%20ingin%20konsultasi%20bahan%20kue`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm rounded-2xl border border-white/20 backdrop-blur-md transition-all flex items-center justify-center gap-2 uppercase tracking-wider"
+              >
+                <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                <span>{language === 'EN' ? 'CONSULT WHATSAPP' : language === 'MS' ? 'KONSULTASI WA' : 'KONSULTASI WA'}</span>
+              </a>
+            </div>
           </div>
-
-          {(() => {
-            const list = homeCms?.wholesaleBanners && homeCms.wholesaleBanners.length > 0 ? homeCms.wholesaleBanners : [
-              {
-                id: 'wpromo-1',
-                title: homeCms.promoTitle || (language === 'EN' ? 'Baker Wholesale Supply & Bulk Discounts' : language === 'MS' ? 'Bekalan Pukal & Diskaun Komersial Baker' : 'Pasokan Grosir & Diskon Komersial Baker'),
-                subtitle: homeCms.promoSubtitle || (language === 'EN' ? 'Get special discounted pricing for 5kg & 25kg sacks.' : language === 'MS' ? 'Dapatkan tawaran harga khas untuk pembelian guni 5kg & 25kg.' : 'Dapatkan penawaran harga spesial untuk pembelian karung 5kg & 25kg.'),
-                imageUrl: homeCms.promoImage || 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=800&auto=format&fit=crop',
-                buttonText: language === 'EN' ? 'REQUEST WHOLESALE CATALOG' : language === 'MS' ? 'MINTA KATALOG PUKAL WA' : 'MINTA KATALOG GROSIR WA',
-                buttonLink: `https://wa.me/${cleanWaNumber}?text=Halo%20FBS%20Bakery,%20saya%20ingin%20minta%20katalog%20grosir`,
-              }
-            ];
-            const colClass = list.length === 1 
-              ? 'grid-cols-1 max-w-xl mx-auto' 
-              : list.length === 2 
-              ? 'grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto' 
-              : list.length === 3 
-              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-              : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
-
-            return (
-              <div className={`grid ${colClass} gap-6`}>
-                {list.map((promo: any) => (
-                  <div 
-                    key={promo.id} 
-                    className="group bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#2B1B1B] rounded-3xl overflow-hidden shadow-xl border border-[#D4AF37]/30 flex flex-col text-white hover:scale-102 transition-all duration-300"
-                  >
-                    <div className="relative aspect-16/10 overflow-hidden border-b border-[#D4AF37]/30">
-                      <img 
-                        src={promo.imageUrl || 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=800&auto=format&fit=crop'} 
-                        alt={promo.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                      />
-                      <span className="absolute top-3 left-3 px-2.5 py-1 bg-[#D4AF37] text-[#800020] text-[9px] font-black rounded-lg uppercase tracking-wider shadow">
-                        {language === 'EN' ? 'BULK PROMO' : language === 'MS' ? 'PROMO PUKAL' : 'PROMO GROSIR'}
-                      </span>
-                    </div>
-
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                      <div>
-                        <h3 className="font-serif font-bold text-base text-[#F7E7CE] line-clamp-2 leading-tight">
-                          {promo.title}
-                        </h3>
-                        <p className="text-stone-300 text-xs mt-1.5 line-clamp-2 leading-relaxed">
-                          {promo.subtitle}
-                        </p>
-                      </div>
-
-                      <a
-                        href={promo.buttonLink || `https://wa.me/${cleanWaNumber}`}
-                        target={promo.buttonLink?.startsWith('http') ? '_blank' : '_self'}
-                        rel="noopener noreferrer"
-                        className="w-full py-2.5 px-4 bg-gradient-to-r from-[#D4AF37] via-[#F7E7CE] to-[#D4AF37] hover:brightness-110 text-[#4A0010] font-serif font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 uppercase tracking-wide group/btn text-center"
-                      >
-                        <span>{promo.buttonText || (language === 'EN' ? 'VIEW PROMO' : 'LIHAT PROMO')}</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
         </section>
 
         {/* LATEST ARTICLES SECTION */}
