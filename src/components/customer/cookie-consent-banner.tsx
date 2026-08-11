@@ -134,15 +134,6 @@ export function CookieConsentBanner() {
               <Check className="w-4 h-4 text-[#4A0010]" />
               <span>{language === 'EN' ? 'Accept All Cookies' : language === 'MS' ? 'Terima Semua Cookie' : 'Terima Semua Cookie'}</span>
             </button>
-
-            <button
-              type="button"
-              onClick={handleDismiss}
-              className="p-2 hover:bg-white/10 text-stone-400 hover:text-white rounded-full transition-colors ml-1"
-              title="Tutup"
-            >
-              <X className="w-4 h-4" />
-            </button>
           </div>
 
         </div>
