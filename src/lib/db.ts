@@ -1321,6 +1321,14 @@ export const db = {
     const current = loadFromStorage<StoreSetting>('fbs_store_settings', storeSettingData);
     const updated = { ...current, ...newSettings };
     saveToStorage('fbs_store_settings', updated);
+
+    if (typeof window !== 'undefined') {
+      fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      }).catch(err => console.warn('Store settings server sync warning:', err));
+    }
     return updated;
   },
 

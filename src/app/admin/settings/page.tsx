@@ -129,6 +129,19 @@ export default function AdminSettingsPage() {
     setBanners(db.getBanners());
     setProducts(db.getProducts());
 
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings) {
+          db.updateStoreSettings(data.settings);
+          setStoreForm(prev => ({
+            ...prev,
+            ...data.settings,
+          }));
+        }
+      })
+      .catch(err => console.warn('Admin store settings sync error:', err));
+
     const cHome = db.getHomePageSettings();
     let wBans = cHome.wholesaleBanners || [];
     if (wBans.length < 4) {
@@ -162,10 +175,15 @@ export default function AdminSettingsPage() {
     setWholesaleBanners(wBans);
   }, []);
 
-  const handleStoreSubmit = (e: React.FormEvent) => {
+  const handleStoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       db.updateStoreSettings(storeForm);
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(storeForm),
+      });
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('storage'));
         window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_store_settings' } }));

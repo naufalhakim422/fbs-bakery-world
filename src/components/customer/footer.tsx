@@ -18,6 +18,16 @@ export const Footer: React.FC = () => {
     };
     handleUpdate();
 
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings) {
+          db.updateStoreSettings(data.settings);
+          setSettings(data.settings);
+        }
+      })
+      .catch(err => console.warn('Footer settings fetch warning:', err));
+
     window.addEventListener('storage', handleUpdate);
     window.addEventListener('fbs_db_updated', handleUpdate);
     window.addEventListener('focus', handleUpdate);
