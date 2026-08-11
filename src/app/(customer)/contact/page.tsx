@@ -8,7 +8,7 @@ import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber } from '@/lib/whatsapp';
 import { MapPin, Phone, Mail, MessageCircle, Clock, Loader2, Send } from 'lucide-react';
 
 export default function ContactPage() {
@@ -160,7 +160,7 @@ export default function ContactPage() {
 
             <div className="pt-4">
               <a
-                href={`https://wa.me/${formatWhatsAppNumber(settings?.whatsappNumber || '')}`}
+                href={`https://wa.me/${cleanPhoneNumber(settings?.whatsappNumber || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs rounded-2xl shadow-lg flex items-center justify-center gap-2"

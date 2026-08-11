@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { formatMYR } from '@/lib/currency';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber } from '@/lib/whatsapp';
 import { normalizeToFrontendStatus } from '@/types';
 import {
   CreditCard,
@@ -386,7 +386,7 @@ export function OrderTableInteractive({
                             </span>
                           </div>
                           <a
-                            href={`https://wa.me/${formatWhatsAppNumber(o.customerPhone)}?text=Halo%20${encodeURIComponent(
+                            href={`https://wa.me/${cleanPhoneNumber(o.customerPhone)}?text=Halo%20${encodeURIComponent(
                               o.customerName
                             )},%20mengenai%20pesanan%20${o.orderNumber}`}
                             target="_blank"

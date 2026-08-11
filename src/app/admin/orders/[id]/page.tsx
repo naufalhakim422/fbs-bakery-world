@@ -7,7 +7,7 @@ import { db } from '@/lib/db';
 import { recordAuditLog } from '@/lib/audit';
 import { Order, OrderStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber } from '@/lib/whatsapp';
 import { ArrowLeft, Save, Truck, Package, MessageCircle, CheckCircle2, MapPin, User, Calendar, Trash2, X, Clock, XCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
@@ -184,7 +184,7 @@ export default function AdminOrderDetailPage() {
 
   const finalCourier = courierName === 'OTHER_CUSTOM' ? customCourier : courierName;
 
-  const waCustomerUrl = `https://wa.me/${formatWhatsAppNumber(order.customerPhone)}?text=${encodeURIComponent(
+  const waCustomerUrl = `https://wa.me/${cleanPhoneNumber(order.customerPhone)}?text=${encodeURIComponent(
     `Hello ${order.customerName},\n\nUpdate regarding your order ${order.orderNumber} from FBS Bakery World:\n\nStatus: ${orderStatus}\n${
       trackingNumber ? `Courier Expedition: ${finalCourier}\nTracking Resi Number: ${trackingNumber}\n\nYou can track your parcel on our website: https://www.fbsbaker.store/track-order?orderNumber=${encodeURIComponent(order.orderNumber)}&phone=${encodeURIComponent(order.customerPhone)}` : ''
     }\n\nThank you!`

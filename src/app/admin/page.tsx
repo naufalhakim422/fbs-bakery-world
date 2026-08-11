@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import { formatMYR } from '@/lib/currency';
 import { useLanguage } from '@/lib/language-context';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber } from '@/lib/whatsapp';
 import { 
   ShoppingBag, 
   Package, 
@@ -1137,7 +1137,7 @@ export default function AdminDashboardPage() {
                           <span className="text-stone-500 font-mono text-[11px] block">{o.customerPhone}</span>
                         </div>
                         <a
-                          href={`https://wa.me/${formatWhatsAppNumber(o.customerPhone)}?text=Halo%20${encodeURIComponent(o.customerName)},%20mengenai%20pesanan%20${o.orderNumber}`}
+                          href={`https://wa.me/${cleanPhoneNumber(o.customerPhone)}?text=Halo%20${encodeURIComponent(o.customerName)},%20mengenai%20pesanan%20${o.orderNumber}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg transition-colors border border-emerald-200"

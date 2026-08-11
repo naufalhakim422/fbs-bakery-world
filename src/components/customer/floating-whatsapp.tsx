@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { db } from '@/lib/db';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber } from '@/lib/whatsapp';
 
 export const FloatingWhatsApp: React.FC = () => {
   const [waUrl, setWaUrl] = useState<string>('');
@@ -25,7 +25,7 @@ export const FloatingWhatsApp: React.FC = () => {
         console.warn('FloatingWhatsApp: Failed to fetch live settings', err);
       }
 
-      const cleanPhone = formatWhatsAppNumber(num);
+      const cleanPhone = cleanPhoneNumber(num);
       setWaUrl(`https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello FBS Bakery World, I have an inquiry regarding baking supplies.')}`);
     };
     updateLink();

@@ -6,7 +6,7 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { VideoPost, Product } from '@/types';
 import { getEmbedVideoUrl } from '@/lib/video-utils';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -165,7 +165,7 @@ export default function HomePage() {
   };
 
   const currentBanner = banners[currentSlideIndex] || banners[0] || {};
-  const cleanWaNumber = formatWhatsAppNumber(settings?.whatsappNumber || '60123456789');
+  const cleanWaNumber = cleanPhoneNumber(settings?.whatsappNumber || '60123456789');
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF8F0]">

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
-import { formatWhatsAppNumber, extractMapsEmbedUrl } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber, extractMapsEmbedUrl } from '@/lib/whatsapp';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { FloatingCompareBar } from '@/components/customer/floating-compare-bar';
 
@@ -87,7 +87,7 @@ export const Footer: React.FC = () => {
                 <Phone className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
                 <div className="flex items-center gap-2 font-mono font-bold text-[#F7E7CE] text-xs sm:text-sm flex-wrap">
                   <a 
-                    href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber)}`} 
+                    href={`https://wa.me/${cleanPhoneNumber(settings.whatsappNumber)}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="hover:text-[#D4AF37] transition-colors"
@@ -98,7 +98,7 @@ export const Footer: React.FC = () => {
                     <>
                       <span className="text-[#800020]">|</span>
                       <a 
-                        href={`https://wa.me/${formatWhatsAppNumber(settings.whatsappNumber2)}`} 
+                        href={`https://wa.me/${cleanPhoneNumber(settings.whatsappNumber2)}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="hover:text-[#D4AF37] transition-colors"

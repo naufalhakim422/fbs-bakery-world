@@ -7,7 +7,7 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { Order, OrderStatus, normalizeToFrontendStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
-import { formatWhatsAppNumber, normalizePhoneDigits, getCourierTrackingUrl } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber, normalizePhoneDigits, getCourierTrackingUrl } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -323,7 +323,7 @@ function TrackOrderContent() {
                 {language === 'EN' ? 'We could not find an order matching your details. Please verify your info or contact support.' : language === 'MS' ? 'Pesanan tidak ditemui untuk maklumat tersebut. Sila semak butiran anda atau hubungi admin.' : 'Kami tidak dapat menemukan pesanan yang cocok. Silakan periksa kembali detail Anda.'}
               </p>
               <a
-                href={`https://wa.me/${formatWhatsAppNumber(db.getStoreSettings().whatsappNumber)}`}
+                href={`https://wa.me/${cleanPhoneNumber(db.getStoreSettings().whatsappNumber)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white text-xs font-bold rounded-xl shadow"
