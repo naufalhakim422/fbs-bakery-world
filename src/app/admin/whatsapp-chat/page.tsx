@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
-import { formatWhatsAppNumber } from '@/lib/whatsapp';
+import { formatWhatsAppNumber, cleanPhoneNumber } from '@/lib/whatsapp';
 import { 
   MessageCircle, 
   ExternalLink, 
@@ -53,11 +53,15 @@ export default function AdminWhatsAppChatPage() {
     };
   }, []);
 
-  const storePhone = formatWhatsAppNumber(settings.whatsappNumber || '60103574196');
-  const storePhone2 = settings.whatsappNumber2 ? formatWhatsAppNumber(settings.whatsappNumber2) : '';
+  const storePhone = cleanPhoneNumber(settings.whatsappNumber || '60103574196');
+  const storePhone2 = settings.whatsappNumber2 ? cleanPhoneNumber(settings.whatsappNumber2) : '';
 
   const openWhatsAppWeb = (phone?: string, text?: string) => {
-    const cleanNum = phone ? formatWhatsAppNumber(phone) : storePhone;
+    if (!phone) {
+      window.open('https://web.whatsapp.com/', '_blank');
+      return;
+    }
+    const cleanNum = cleanPhoneNumber(phone);
     const msg = text ? encodeURIComponent(text) : '';
     const url = cleanNum ? `https://wa.me/${cleanNum}?text=${msg}` : `https://web.whatsapp.com/`;
     window.open(url, '_blank');
@@ -127,12 +131,12 @@ export default function AdminWhatsAppChatPage() {
             <span className="text-stone-400 font-medium">Nomor Toko Aktif:</span>
             <div className="flex items-center gap-2 font-mono font-bold text-[#F7E7CE] bg-black/30 px-3 py-1.5 rounded-xl border border-white/10">
               <Phone className="w-3.5 h-3.5 text-[#25D366]" />
-              <span>+{storePhone}</span>
+              <span>{formatWhatsAppNumber(storePhone)}</span>
             </div>
             {storePhone2 && (
               <div className="flex items-center gap-2 font-mono font-bold text-[#F7E7CE] bg-black/30 px-3 py-1.5 rounded-xl border border-white/10">
                 <Phone className="w-3.5 h-3.5 text-[#25D366]" />
-                <span>+{storePhone2}</span>
+                <span>{formatWhatsAppNumber(storePhone2)}</span>
               </div>
             )}
           </div>
