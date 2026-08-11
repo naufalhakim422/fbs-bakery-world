@@ -163,7 +163,7 @@ export default function HomePage() {
       <main className="flex-1">
         
         {/* ULTRA-MODERN FULL-BLEED IMAGE-FIRST BANNER CAROUSEL SLIDER */}
-        <section className="relative w-full aspect-21/9 sm:aspect-21/9 min-h-[380px] sm:min-h-[520px] lg:min-h-[620px] overflow-hidden bg-[#180A0E] group shadow-2xl">
+        <section className="relative w-full aspect-[16/9] sm:aspect-[21/9] overflow-hidden bg-[#180A0E] group shadow-2xl">
           
           {/* SLIDE BANNER IMAGES (FULL GRAPHIC PRESENTATION) */}
           {banners.map((banner, index) => {
@@ -184,7 +184,7 @@ export default function HomePage() {
                       loop 
                       muted 
                       playsInline 
-                      className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
+                      className="w-full h-full object-contain sm:object-cover bg-[#180A0E] group-hover/slide:scale-102 transition-transform duration-700"
                     />
                   ) : (
                     <img 
@@ -197,7 +197,7 @@ export default function HomePage() {
                       onError={(e) => {
                         e.currentTarget.src = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1920&auto=format&fit=crop';
                       }}
-                      className="w-full h-full object-cover group-hover/slide:scale-102 transition-transform duration-700"
+                      className="w-full h-full object-contain sm:object-cover bg-[#180A0E] group-hover/slide:scale-102 transition-transform duration-700"
                     />
                   )}
                 </Link>
@@ -210,20 +210,20 @@ export default function HomePage() {
             <>
               <button
                 onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3.5 rounded-full bg-black/50 hover:bg-[#800020] text-white/90 border border-white/20 backdrop-blur-md transition-all shadow-2xl hover:scale-110"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3.5 rounded-full bg-black/50 hover:bg-[#800020] text-white/90 border border-white/20 backdrop-blur-md transition-all shadow-2xl hover:scale-110"
                 title="Previous Slide"
                 aria-label="Previous Banner Slide"
               >
-                <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
               </button>
 
               <button
                 onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2.5 sm:p-3.5 rounded-full bg-black/50 hover:bg-[#800020] text-white/90 border border-white/20 backdrop-blur-md transition-all shadow-2xl hover:scale-110"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3.5 rounded-full bg-black/50 hover:bg-[#800020] text-white/90 border border-white/20 backdrop-blur-md transition-all shadow-2xl hover:scale-110"
                 title="Next Slide"
                 aria-label="Next Banner Slide"
               >
-                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
               </button>
             </>
           )}
