@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
 
       if (res.ok && data.success) {
         // 2. Set client document cookie & localStorage
-        document.cookie = "fbs_admin_session=authenticated; path=/; max-age=86400; SameSite=Lax";
+        document.cookie = "fbs_admin_session=authenticated; path=/; SameSite=Lax";
         localStorage.setItem('fbs_admin_session', JSON.stringify(data.user));
 
         recordAuditLog('Admin Login', 'AUTH', 'Successful portal authentication.', email);
@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
     } catch (err) {
       console.warn('API login failed, trying fallback:', err);
       // Fallback client validation
-      document.cookie = "fbs_admin_session=authenticated; path=/; max-age=86400; SameSite=Lax";
+      document.cookie = "fbs_admin_session=authenticated; path=/; SameSite=Lax";
       localStorage.setItem('fbs_admin_session', JSON.stringify({
         name: 'Admin Owner',
         email: email || 'admin@fbsbakeryworld.com',

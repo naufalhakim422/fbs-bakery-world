@@ -42,7 +42,6 @@ export async function POST(request: Request) {
       // Set HTTP Cookie via Response Header for Proxy Auth Guard
       response.cookies.set('fbs_admin_session', 'authenticated', {
         path: '/',
-        maxAge: 86400, // 24 Hours
         sameSite: 'lax',
         secure: false, // compatible with HTTP & HTTPS
         httpOnly: false,

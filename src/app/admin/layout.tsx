@@ -29,8 +29,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const checkAuth = () => {
       try {
+        const hasCookie = typeof document !== 'undefined' && document.cookie.includes('fbs_admin_session=authenticated');
         let savedSession = localStorage.getItem('fbs_admin_session');
-        if (!savedSession) {
+        if (!savedSession || !hasCookie) {
           setIsAdminLoggedIn(false);
           setIsCheckingAuth(false);
           return;

@@ -83,11 +83,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const executeLogout = () => {
     recordAuditLog('Admin Logout', 'AUTH', 'Signed out from admin session.');
     localStorage.removeItem('fbs_admin_session');
+    sessionStorage.removeItem('fbs_admin_session');
+    document.cookie = "fbs_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0";
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_admin_session' } }));
     }
-    router.push('/admin/login');
+    window.location.href = '/admin2026/login';
   };
 
   const handleNavClick = () => {
