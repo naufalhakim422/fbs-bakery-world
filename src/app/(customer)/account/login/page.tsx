@@ -52,6 +52,34 @@ export default function CustomerLoginPage() {
   const recaptchaRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<number | null>(null);
 
+  // Interactive Security Challenge State
+  const [showChallengeModal, setShowChallengeModal] = useState(false);
+  const [challengeCode, setChallengeCode] = useState('');
+  const [userChallengeInput, setUserChallengeInput] = useState('');
+  const [challengeError, setChallengeError] = useState('');
+
+  const triggerChallengeModal = () => {
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    setChallengeCode(code);
+    setUserChallengeInput('');
+    setChallengeError('');
+    setShowChallengeModal(true);
+  };
+
+  const handleVerifyChallenge = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (userChallengeInput.trim() === challengeCode) {
+      setCaptchaVerified(true);
+      setCaptchaError(false);
+      setShowChallengeModal(false);
+    } else {
+      setChallengeError(language === 'EN' ? 'Incorrect security code. Please try again.' : 'Kod pengesahan keselamatan tidak tepat. Sila cuba lagi.');
+      const newCode = Math.floor(1000 + Math.random() * 9000).toString();
+      setChallengeCode(newCode);
+      setUserChallengeInput('');
+    }
+  };
+
   // Load and render official Google reCAPTCHA v2 Widget
   useEffect(() => {
     if (step !== 'EMAIL_ENTRY') return;
@@ -67,8 +95,7 @@ export default function CustomerLoginPage() {
               sitekey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', // Official Google v2 Site Key
               theme: 'light',
               callback: (token: string) => {
-                setCaptchaVerified(true);
-                setCaptchaError(false);
+                triggerChallengeModal();
               },
               'expired-callback': () => {
                 setCaptchaVerified(false);
@@ -488,36 +515,12 @@ export default function CustomerLoginPage() {
                   </div>
 
                   {/* Official Google reCAPTCHA v2 Interactive Box */}
-                  <div className="flex flex-col items-center justify-center my-2">
+                  <div className="flex flex-col items-center justify-center my-2 min-h-[78px]">
                     <div ref={recaptchaRef} className="min-h-[78px] flex items-center justify-center"></div>
-                    {!captchaVerified && (
-                      <div className={`w-full mt-2 p-3.5 sm:p-4 rounded-2xl border transition-all ${
-                        captchaError 
-                          ? 'border-red-400 bg-red-50/60 ring-2 ring-red-200' 
-                          : 'border-stone-200 bg-stone-50/80 hover:bg-stone-50'
-                      } flex items-center justify-between shadow-sm`}>
-                        <label className="flex items-center gap-3 cursor-pointer select-none">
-                          <input 
-                            type="checkbox"
-                            checked={captchaVerified}
-                            onChange={(e) => {
-                              setCaptchaVerified(e.target.checked);
-                              if (e.target.checked) setCaptchaError(false);
-                            }}
-                            className="w-5 h-5 rounded border-stone-300 text-[#800020] focus:ring-[#800020] cursor-pointer"
-                          />
-                          <span className="text-xs font-bold text-stone-800">
-                            {language === 'EN' ? "I'm not a robot" : "Saya bukan robot"}
-                          </span>
-                        </label>
-                        <div className="flex flex-col items-end opacity-85 select-none">
-                          <div className="flex items-center gap-1">
-                            <ShieldCheck className="w-4 h-4 text-blue-600" />
-                            <span className="text-[10px] font-extrabold text-stone-600 tracking-tight">reCAPTCHA</span>
-                          </div>
-                          <span className="text-[8px] text-stone-400 font-mono">Privacy - Terms</span>
-                        </div>
-                      </div>
+                    {captchaError && (
+                      <p className="text-[11px] font-bold text-red-600 mt-1 text-center">
+                        {language === 'EN' ? 'Please complete the reCAPTCHA verification above.' : 'Sila sahkan reCAPTCHA di atas terlebih dahulu.'}
+                      </p>
                     )}
                   </div>
 
@@ -660,6 +663,67 @@ export default function CustomerLoginPage() {
           </div>
 
         </div>
+
+      {/* Interactive Security Challenge Modal */}
+      {showChallengeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full border border-[#D4AF37]/40 shadow-2xl space-y-5 relative">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-[#800020] text-[#D4AF37] flex items-center justify-center mx-auto shadow-md">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif font-extrabold text-lg text-stone-900">
+                {language === 'EN' ? 'Security Challenge Verification' : 'Verifikasi Keamanan reCAPTCHA'}
+              </h3>
+              <p className="text-xs text-stone-500">
+                {language === 'EN' ? 'Please enter the 4-digit security code displayed below:' : 'Masukkan 4 angka kode verifikasi keamanan di bawah ini:'}
+              </p>
+            </div>
+
+            {/* Visual Distorted Captcha Code Badge */}
+            <div className="bg-gradient-to-r from-stone-900 via-[#800020] to-stone-900 p-4 rounded-2xl text-center select-none shadow-inner border border-[#D4AF37]/30">
+              <span className="font-mono text-3xl font-black tracking-widest text-[#D4AF37] drop-shadow-md italic">
+                {challengeCode.split('').join(' ')}
+              </span>
+            </div>
+
+            {challengeError && (
+              <p className="text-xs font-bold text-red-600 text-center animate-shake">
+                {challengeError}
+              </p>
+            )}
+
+            <form onSubmit={handleVerifyChallenge} className="space-y-4">
+              <input
+                type="text"
+                maxLength={4}
+                required
+                autoFocus
+                placeholder="4-digit code"
+                value={userChallengeInput}
+                onChange={(e) => setUserChallengeInput(e.target.value.replace(/[^0-9]/g, ''))}
+                className="w-full text-center tracking-widest font-mono text-lg font-bold py-3 border border-stone-300 rounded-xl focus:outline-none focus:border-[#800020] focus:ring-2 focus:ring-[#800020]/20"
+              />
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowChallengeModal(false)}
+                  className="flex-1 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs rounded-xl"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 bg-[#800020] hover:bg-[#600018] text-[#D4AF37] font-bold text-xs rounded-xl shadow"
+                >
+                  Verifikasi
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       </main>
 
