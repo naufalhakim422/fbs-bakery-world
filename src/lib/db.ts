@@ -1016,6 +1016,41 @@ export const db = {
     return target;
   },
 
+  updateCustomerStatus: (id: string, accountStatus: 'ACTIVE' | 'SUSPENDED' | 'BANNED') => {
+    const list = loadFromStorage<Customer[]>('fbs_customers', initialCustomers);
+    const idx = list.findIndex(c => c.id === id || c.email === id);
+    if (idx !== -1) {
+      list[idx].accountStatus = accountStatus;
+      list[idx].isActive = accountStatus === 'ACTIVE';
+      saveToStorage('fbs_customers', list);
+
+      if (typeof window !== 'undefined') {
+        fetch('/api/customers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: list[idx].id, email: list[idx].email, accountStatus, isActive: accountStatus === 'ACTIVE' }),
+        }).catch(err => console.warn('Customer status sync warning:', err));
+      }
+      return list[idx];
+    }
+    return null;
+  },
+
+  deleteCustomer: (id: string) => {
+    let list = loadFromStorage<Customer[]>('fbs_customers', initialCustomers);
+    const target = list.find(c => c.id === id || c.email === id);
+    list = list.filter(c => c.id !== id && c.email !== id);
+    saveToStorage('fbs_customers', list);
+
+    if (typeof window !== 'undefined') {
+      const targetId = target?.id || id;
+      fetch(`/api/customers?id=${encodeURIComponent(targetId)}`, {
+        method: 'DELETE',
+      }).catch(err => console.warn('Customer delete sync warning:', err));
+    }
+    return true;
+  },
+
   // Banners & Banner Builder API
   getBanners: (): Banner[] => {
     return loadFromStorage<Banner[]>('fbs_banners', initialBanners);

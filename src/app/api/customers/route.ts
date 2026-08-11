@@ -163,8 +163,27 @@ export async function POST(request: Request) {
         });
       }
 
+      if (existingCust && !body.isAdminUpdate) {
+        const custAny = existingCust as any;
+        const status = custAny.accountStatus || (custAny.isActive === false ? 'SUSPENDED' : 'ACTIVE');
+        if (status === 'SUSPENDED') {
+          return NextResponse.json(
+            { success: false, error: 'SUSPENDED', message: '⚠️ Akun Anda sedang ditangguhkan (Suspended). Silakan hubungi Admin WhatsApp.' },
+            { status: 403 }
+          );
+        }
+        if (status === 'BANNED') {
+          return NextResponse.json(
+            { success: false, error: 'BANNED', message: '🚫 Akses Ditolak: Email/Akun ini telah diblokir permanen (Banned) oleh Admin.' },
+            { status: 403 }
+          );
+        }
+      }
+
       const targetEmail = cleanEmail || existingCust?.email || `customer-${Date.now()}@fbsbaker.store`;
       const targetPhone = cleanPhone || existingCust?.phone || `01${Date.now()}`;
+      const newAccountStatus = body.accountStatus || (existingCust as any)?.accountStatus || 'ACTIVE';
+      const newIsActive = newAccountStatus === 'ACTIVE';
 
       // 2. Safe Prisma Upsert (P2002 Constraint Protection)
       let targetCust = null;
@@ -176,6 +195,7 @@ export async function POST(request: Request) {
             phone: targetPhone,
             photo: body.photo !== undefined ? body.photo : existingCust?.photo,
             coverPhoto: body.coverPhoto !== undefined ? body.coverPhoto : existingCust?.coverPhoto,
+            isActive: newIsActive,
           },
           create: {
             id: body.id || existingCust?.id || `cust-${Date.now()}`,
@@ -185,6 +205,7 @@ export async function POST(request: Request) {
             photo: body.photo || '',
             coverPhoto: body.coverPhoto || '',
             customerType: 'RETAIL',
+            isActive: newIsActive,
           },
           include: { addresses: true },
         });
@@ -197,6 +218,7 @@ export async function POST(request: Request) {
               name: body.name || 'Pelanggan FBS',
               photo: body.photo !== undefined ? body.photo : undefined,
               coverPhoto: body.coverPhoto !== undefined ? body.coverPhoto : undefined,
+              isActive: newIsActive,
             },
             include: { addresses: true },
           });
@@ -250,17 +272,21 @@ export async function POST(request: Request) {
         include: { addresses: true },
       });
 
-      const fullCustomer = formatCustomerWithAddress(finalCust) || {
-        ...targetCust,
-        address: body.address || '',
-        city: body.city || '',
-        postcode: body.postcode || '',
-        state: body.state || '',
+      const fullCustomer = {
+        ...(formatCustomerWithAddress(finalCust) || {
+          ...targetCust,
+          address: body.address || '',
+          city: body.city || '',
+          postcode: body.postcode || '',
+          state: body.state || '',
+        }),
+        accountStatus: newAccountStatus,
+        isActive: newIsActive,
       };
 
       // Also persist to server JSON cache for fallback consistency
       const serverCustomers = readServerCustomers();
-      const existingIdx = serverCustomers.findIndex((c: any) => c.email && c.email.toLowerCase() === targetEmail);
+      const existingIdx = serverCustomers.findIndex((c: any) => (c.id && c.id === fullCustomer.id) || (c.email && c.email.toLowerCase() === targetEmail));
       if (existingIdx !== -1) {
         serverCustomers[existingIdx] = { ...serverCustomers[existingIdx], ...fullCustomer };
       } else {
@@ -275,6 +301,47 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: `Database Error: ${dbErr.message}` }, { status: 500 });
     }
   } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
+
+// DELETE /api/customers?id=...
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+  const email = searchParams.get('email');
+
+  if (!id && !email) {
+    return NextResponse.json({ success: false, error: 'Customer ID or email is required' }, { status: 400 });
+  }
+
+  try {
+    // 1. Delete from PostgreSQL DB
+    try {
+      if (id) {
+        await prisma.customer.update({
+          where: { id },
+          data: { deletedAt: new Date(), isActive: false },
+        });
+      } else if (email) {
+        await prisma.customer.update({
+          where: { email: email.trim().toLowerCase() },
+          data: { deletedAt: new Date(), isActive: false },
+        });
+      }
+    } catch (dbErr) {
+      console.warn('[Prisma Customer Delete Warning]:', dbErr);
+    }
+
+    // 2. Remove from Server JSON Cache
+    let serverCustomers = readServerCustomers();
+    serverCustomers = serverCustomers.filter((c: any) => c.id !== id && c.email?.toLowerCase() !== email?.toLowerCase());
+    writeServerCustomers(serverCustomers);
+
+    console.log('✅ [Customer Deleted Successfully]:', id || email);
+    return NextResponse.json({ success: true, message: 'Pelanggan berhasil dihapus dari database' });
+  } catch (err: any) {
+    console.error('[Customer DELETE Error]:', err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

@@ -187,9 +187,23 @@ export default function CustomerAccountPage() {
         }
 
         if (found) {
+          const status = found.accountStatus || (found.isActive === false ? 'SUSPENDED' : 'ACTIVE');
+          if (status === 'SUSPENDED') {
+            alert('⚠️ Akun Anda sedang ditangguhkan (Suspended). Silakan hubungi Admin WhatsApp.');
+            localStorage.removeItem('fbs_customer_session');
+            router.push('/account/login');
+            return;
+          }
+          if (status === 'BANNED') {
+            alert('🚫 Akses Ditolak: Email/Akun ini telah diblokir permanen (Banned) oleh Admin.');
+            localStorage.removeItem('fbs_customer_session');
+            router.push('/account/login');
+            return;
+          }
+
           // SECURITY GUARD: Reject unverified/inactive accounts
           const isSocialAuth = found.provider === 'GOOGLE' || found.provider === 'FACEBOOK' || found.provider === 'PHONE';
-          if (!isSocialAuth && (found.isEmailVerified === false || found.isActive === false)) {
+          if (!isSocialAuth && found.isEmailVerified === false) {
             localStorage.removeItem('fbs_customer_session');
             router.push('/account/login');
             return;

@@ -4,16 +4,31 @@ import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { Customer } from '@/types';
-import { Users, Phone, Search, Award, ShieldCheck, ArrowUpRight, Sparkles } from 'lucide-react';
+import { ConfirmModal } from '@/components/admin/confirm-modal';
+import { Users, Phone, Search, Award, ShieldCheck, ArrowUpRight, Sparkles, Trash2, Ban, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 export default function AdminCustomersPage() {
   const { t } = useLanguage();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
   const [selectedType, setSelectedType] = useState<string>('ALL');
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+
+  const loadCustomers = () => {
+    setCustomers(db.getCustomers());
+    fetch('/api/customers')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.customers)) {
+          setCustomers(data.customers);
+          localStorage.setItem('fbs_customers', JSON.stringify(data.customers));
+        }
+      })
+      .catch(err => console.warn('Customer live sync error:', err));
+  };
 
   useEffect(() => {
-    setCustomers(db.getCustomers());
+    loadCustomers();
   }, []);
 
   const handleUpdateTier = (id: string, newType: 'RETAIL' | 'WHOLESALE' | 'VIP') => {
@@ -23,11 +38,29 @@ export default function AdminCustomersPage() {
       list[idx].customerType = newType;
       localStorage.setItem('fbs_customers', JSON.stringify(list));
       setCustomers([...list]);
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_customers' } }));
-      }
+      fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, customerType: newType, isAdminUpdate: true }),
+      }).catch(err => console.warn('Sync tier error:', err));
     }
+  };
+
+  const handleUpdateStatus = (id: string, newStatus: 'ACTIVE' | 'SUSPENDED' | 'BANNED') => {
+    db.updateCustomerStatus(id, newStatus);
+    setCustomers(prev => prev.map(c => c.id === id ? { ...c, accountStatus: newStatus, isActive: newStatus === 'ACTIVE' } : c));
+    fetch('/api/customers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, accountStatus: newStatus, isAdminUpdate: true }),
+    }).catch(err => console.warn('Sync status error:', err));
+  };
+
+  const confirmDeleteCustomer = () => {
+    if (!deleteTarget) return;
+    db.deleteCustomer(deleteTarget.id);
+    setCustomers(prev => prev.filter(c => c.id !== deleteTarget.id));
+    setDeleteTarget(null);
   };
 
   const filtered = customers.filter(c => {
@@ -105,16 +138,17 @@ export default function AdminCustomersPage() {
 
       </div>
 
-      {/* Filter & Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+        
+        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
           <button
             onClick={() => setSelectedType('ALL')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold ${
               selectedType === 'ALL' ? 'bg-[#800020] text-white' : 'bg-stone-100 text-stone-700'
             }`}
           >
-            {t.adminCustomers.filterAll} ({customers.length})
+            Semua ({customers.length})
           </button>
           <button
             onClick={() => setSelectedType('RETAIL')}
@@ -161,7 +195,7 @@ export default function AdminCustomersPage() {
             <thead>
               <tr className="bg-stone-50 text-stone-600 border-b border-stone-200 uppercase tracking-wider font-bold text-[11px]">
                 <th className="p-4">{t.adminCustomers.thName}</th>
-                <th className="p-4">{t.adminCustomers.thType}</th>
+                <th className="p-4">STATUS AKUN</th>
                 <th className="p-4">{t.adminCustomers.thPhone} & {t.adminCustomers.thEmail}</th>
                 <th className="p-4">MEMBER TIER</th>
                 <th className="p-4">{t.checkout.deliveryAddress}</th>
@@ -177,7 +211,7 @@ export default function AdminCustomersPage() {
                 </tr>
               ) : (
                 filtered.map(c => {
-                  const provider = (c as any).provider || (c.email?.includes('gmail') ? 'GOOGLE' : c.email?.includes('fb') ? 'FACEBOOK' : 'FORM');
+                  const status = c.accountStatus || (c.isActive === false ? 'SUSPENDED' : 'ACTIVE');
 
                   return (
                     <tr key={c.id} className="hover:bg-stone-50/60 transition-colors">
@@ -188,26 +222,21 @@ export default function AdminCustomersPage() {
                         <span className="text-[10px] text-stone-400 font-normal">ID: {c.id}</span>
                       </td>
 
-                      {/* PROVIDER BADGE */}
+                      {/* STATUS BADGE */}
                       <td className="p-4">
-                        {provider === 'GOOGLE' && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-[11px] font-bold border border-blue-200">
-                            Google Account
+                        {status === 'ACTIVE' && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg text-[11px] font-bold border border-emerald-200">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> AKTIF
                           </span>
                         )}
-                        {provider === 'FACEBOOK' && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#1877F2]/10 text-[#1877F2] rounded-lg text-[11px] font-bold border border-[#1877F2]/20">
-                            Facebook Account
+                        {status === 'SUSPENDED' && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-900 rounded-lg text-[11px] font-bold border border-amber-300">
+                            <ShieldAlert className="w-3.5 h-3.5 text-amber-700" /> SUSPENDED
                           </span>
                         )}
-                        {(provider === 'EMAIL' || provider === 'FORM') && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[11px] font-bold border border-emerald-200">
-                            ✉️ Email Form
-                          </span>
-                        )}
-                        {provider === 'PHONE' && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-800 rounded-lg text-[11px] font-bold border border-amber-200">
-                            📱 WhatsApp Phone
+                        {status === 'BANNED' && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-900 rounded-lg text-[11px] font-bold border border-red-300">
+                            <Ban className="w-3.5 h-3.5 text-red-600" /> BANNED
                           </span>
                         )}
                       </td>
@@ -234,17 +263,46 @@ export default function AdminCustomersPage() {
                         {c.address ? `${c.address}, ${c.city}` : <span className="text-stone-400 italic">-</span>}
                       </td>
 
-                      {/* AKSI */}
+                      {/* AKSI CONTROLS */}
                       <td className="p-4 text-right">
-                        <select
-                          value={c.customerType}
-                          onChange={(e) => handleUpdateTier(c.id, e.target.value as any)}
-                          className="px-2.5 py-1.5 border border-stone-300 rounded-xl text-xs bg-white text-stone-800 font-bold focus:outline-none focus:border-[#800020]"
-                        >
-                          <option value="RETAIL">Tier: RETAIL</option>
-                          <option value="VIP">Tier: VIP</option>
-                          <option value="WHOLESALE">Tier: WHOLESALE B2B</option>
-                        </select>
+                        <div className="flex items-center justify-end gap-2">
+                          
+                          {/* STATUS CONTROL SELECTOR */}
+                          <select
+                            value={status}
+                            onChange={(e) => handleUpdateStatus(c.id, e.target.value as any)}
+                            className={`px-2 py-1 border rounded-xl text-xs font-bold focus:outline-none ${
+                              status === 'BANNED' ? 'bg-red-50 text-red-800 border-red-300' :
+                              status === 'SUSPENDED' ? 'bg-amber-50 text-amber-800 border-amber-300' :
+                              'bg-white text-stone-800 border-stone-300'
+                            }`}
+                          >
+                            <option value="ACTIVE">🟢 Aktif</option>
+                            <option value="SUSPENDED">🟡 Suspended</option>
+                            <option value="BANNED">🔴 Banned</option>
+                          </select>
+
+                          {/* TIER CONTROL SELECTOR */}
+                          <select
+                            value={c.customerType}
+                            onChange={(e) => handleUpdateTier(c.id, e.target.value as any)}
+                            className="px-2 py-1 border border-stone-300 rounded-xl text-xs bg-white text-stone-800 font-bold focus:outline-none focus:border-[#800020]"
+                          >
+                            <option value="RETAIL">Tier: RETAIL</option>
+                            <option value="VIP">Tier: VIP</option>
+                            <option value="WHOLESALE">Tier: WHOLESALE B2B</option>
+                          </select>
+
+                          {/* HAPUS PELANGGAN BUTTON */}
+                          <button
+                            type="button"
+                            onClick={() => setDeleteTarget(c)}
+                            title="Hapus Pelanggan dari Database"
+                            className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl border border-red-200 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
 
                     </tr>
@@ -255,6 +313,17 @@ export default function AdminCustomersPage() {
           </table>
         </div>
       </div>
+
+      {/* Delete Customer Confirmation Modal */}
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDeleteCustomer}
+        title="Hapus Pelanggan dari Database"
+        message={`Apakah Anda yakin ingin menghapus pelanggan "${deleteTarget?.name}" (${deleteTarget?.email || deleteTarget?.phone}) dari database? Data yang dihapus tidak dapat dikembalikan.`}
+        confirmText="Hapus Permanen"
+        type="danger"
+      />
 
     </div>
   );

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendEmailViaResend } from '@/lib/resend';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,38 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+
+    try {
+      const existingCust = await prisma.customer.findFirst({
+        where: {
+          OR: [
+            cleanEmail ? { email: cleanEmail } : undefined,
+            cleanPhone ? { phone: cleanPhone } : undefined,
+          ].filter(Boolean) as any,
+          deletedAt: null,
+        },
+      });
+
+      if (existingCust) {
+        const custAny = existingCust as any;
+        const status = custAny.accountStatus || (custAny.isActive === false ? 'SUSPENDED' : 'ACTIVE');
+        if (status === 'SUSPENDED') {
+          return NextResponse.json(
+            { success: false, error: 'SUSPENDED', message: '⚠️ Akun Anda sedang ditangguhkan (Suspended). Silakan hubungi Admin WhatsApp.' },
+            { status: 403 }
+          );
+        }
+        if (status === 'BANNED') {
+          return NextResponse.json(
+            { success: false, error: 'BANNED', message: '🚫 Akses Ditolak: Email/Akun ini telah diblokir permanen (Banned) oleh Admin.' },
+            { status: 403 }
+          );
+        }
+      }
+    } catch (e) {}
 
     const cleanOtp = (otpCode || Math.floor(100000 + Math.random() * 900000).toString()).toString().trim();
     const targetDestination = email?.trim() || phone?.trim() || 'Pelanggan';

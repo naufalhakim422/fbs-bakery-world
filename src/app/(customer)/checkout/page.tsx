@@ -162,6 +162,26 @@ export default function CheckoutPage() {
         }
       } catch (e) {}
 
+      // Pre-check customer status from DB
+      const allCust = db.getCustomers();
+      const matchCust = allCust.find(c => 
+        (custEmail && c.email && c.email.toLowerCase() === custEmail.toLowerCase()) ||
+        (formData.phone && c.phone && c.phone.replace(/[^0-9]/g, '') === formData.phone.replace(/[^0-9]/g, ''))
+      );
+      if (matchCust) {
+        const status = matchCust.accountStatus || (matchCust.isActive === false ? 'SUSPENDED' : 'ACTIVE');
+        if (status === 'SUSPENDED') {
+          alert('⚠️ Akun Anda sedang ditangguhkan (Suspended). Silakan hubungi Admin WhatsApp.');
+          setIsSubmitting(false);
+          return;
+        }
+        if (status === 'BANNED') {
+          alert('🚫 Akses Ditolak: Email/Akun ini telah diblokir permanen (Banned) oleh Admin.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // 1. Create order record in Database
       const newOrder = db.createOrder({
         customerId: custId,

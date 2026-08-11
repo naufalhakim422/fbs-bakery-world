@@ -202,6 +202,7 @@ export interface Customer {
   loginAt?: string;
   isEmailVerified?: boolean;
   isActive?: boolean;
+  accountStatus?: 'ACTIVE' | 'SUSPENDED' | 'BANNED';
   otpCode?: string;
   otpExpiresAt?: string;
   otpRequestsCount?: number;
