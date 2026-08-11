@@ -175,15 +175,20 @@ export default function AdminSettingsPage() {
     setWholesaleBanners(wBans);
   }, []);
 
-  const handleStoreSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const executeSaveStore = async () => {
+    setConfirmSaveOpen(false);
     try {
       db.updateStoreSettings(storeForm);
-      await fetch('/api/settings', {
+      const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(storeForm),
       });
+      const data = await res.json();
+      if (data.success && data.settings) {
+        db.updateStoreSettings(data.settings);
+        setStoreForm(prev => ({ ...prev, ...data.settings }));
+      }
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('storage'));
         window.dispatchEvent(new CustomEvent('fbs_db_updated', { detail: { key: 'fbs_store_settings' } }));
@@ -196,8 +201,16 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleAboutSubmit = (e: React.FormEvent) => {
+  const handleStoreSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSaveModalTitle('Simpan Pengaturan Toko & WhatsApp?');
+    setSaveModalMessage('Apakah Anda yakin ingin menyimpan perubahan informasi toko, alamat, dan nomor WhatsApp ini secara permanen ke server?');
+    setPendingSaveAction(() => executeSaveStore);
+    setConfirmSaveOpen(true);
+  };
+
+  const executeSaveAbout = () => {
+    setConfirmSaveOpen(false);
     try {
       db.updateAboutSettings(aboutForm);
       if (typeof window !== 'undefined') {
@@ -212,8 +225,16 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleHomeSubmit = (e: React.FormEvent) => {
+  const handleAboutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSaveModalTitle('Simpan Pengaturan Tentang Kami?');
+    setSaveModalMessage('Apakah Anda yakin ingin menyimpan konten Halaman Tentang Kami secara permanen?');
+    setPendingSaveAction(() => executeSaveAbout);
+    setConfirmSaveOpen(true);
+  };
+
+  const executeSaveHome = () => {
+    setConfirmSaveOpen(false);
     try {
       db.updateHomePageSettings({
         ...homeForm,
@@ -232,8 +253,16 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleCredsSubmit = (e: React.FormEvent) => {
+  const handleHomeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSaveModalTitle('Simpan Tata Letak Beranda?');
+    setSaveModalMessage('Apakah Anda yakin ingin menyimpan perubahan tata letak dan banner beranda secara permanen?');
+    setPendingSaveAction(() => executeSaveHome);
+    setConfirmSaveOpen(true);
+  };
+
+  const executeSaveCreds = () => {
+    setConfirmSaveOpen(false);
     try {
       db.updateAdminCredentials(credsForm);
       if (typeof window !== 'undefined') {
@@ -246,6 +275,14 @@ export default function AdminSettingsPage() {
       console.error('Failed to save admin credentials:', err);
       alert('Gagal menyimpan kredensial admin. Silakan coba lagi.');
     }
+  };
+
+  const handleCredsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveModalTitle('Simpan Kredensial Keamanan Admin?');
+    setSaveModalMessage('Apakah Anda yakin ingin memperbarui email dan kata sandi login Admin CMS?');
+    setPendingSaveAction(() => executeSaveCreds);
+    setConfirmSaveOpen(true);
   };
 
   const handleAboutImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
