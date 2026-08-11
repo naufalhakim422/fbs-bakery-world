@@ -56,6 +56,9 @@ export default function AdminWhatsAppChatPage() {
   const storePhone = cleanPhoneNumber(settings.whatsappNumber || '60103574196');
   const storePhone2 = settings.whatsappNumber2 ? cleanPhoneNumber(settings.whatsappNumber2) : '';
 
+  const [selectedNumberSlot, setSelectedNumberSlot] = useState<'PRIMARY' | 'SECONDARY'>('PRIMARY');
+  const activeSelectedPhone = selectedNumberSlot === 'SECONDARY' && storePhone2 ? storePhone2 : storePhone;
+
   const openWhatsAppWeb = (phone?: string, text?: string) => {
     if (!phone) {
       window.open('https://web.whatsapp.com/', '_blank');
@@ -103,14 +106,14 @@ export default function AdminWhatsAppChatPage() {
             <div className="flex items-center gap-2 text-[#D4AF37]">
               <MessageCircle className="w-6 h-6" />
               <span className="text-xs font-black uppercase tracking-widest bg-[#D4AF37]/20 px-3 py-1 rounded-full border border-[#D4AF37]/30">
-                LIVE WHATSAPP CONSOLE
+                DUAL WHATSAPP CONSOLE ACTIVE
               </span>
             </div>
             <h1 className="font-serif font-black text-2xl sm:text-3xl text-[#F7E7CE]">
-              Konsol Chat WhatsApp Admin
+              Konsol Chat Dual WhatsApp Admin
             </h1>
             <p className="text-stone-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
-              Kelola chat pelanggan, kirim konfirmasi pesanan, dan beri dukungan langsung dari dalam panel Admin CMS FBS Bakery World.
+              Kelola obrolan pelanggan menggunakan **Nomor Utama** atau **Nomor Kedua** toko Anda secara bergantian dengan 1-klik switch.
             </p>
           </div>
 
@@ -125,24 +128,43 @@ export default function AdminWhatsAppChatPage() {
           </div>
         </div>
 
-        {/* Store Active Numbers Bar */}
+        {/* Store Active Numbers Bar with 1-Click Toggle */}
         <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs">
-          <div className="flex items-center gap-4">
-            <span className="text-stone-400 font-medium">Nomor Toko Aktif:</span>
-            <div className="flex items-center gap-2 font-mono font-bold text-[#F7E7CE] bg-black/30 px-3 py-1.5 rounded-xl border border-white/10">
-              <Phone className="w-3.5 h-3.5 text-[#25D366]" />
-              <span>{formatWhatsAppNumber(storePhone)}</span>
-            </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-stone-300 font-bold">PILIH NOMOR TERHUBUNG:</span>
+            
+            <button
+              onClick={() => setSelectedNumberSlot('PRIMARY')}
+              className={`px-3.5 py-2 rounded-xl font-mono font-bold text-xs transition-all flex items-center gap-2 border cursor-pointer ${
+                selectedNumberSlot === 'PRIMARY'
+                  ? 'bg-[#25D366] text-white border-[#25D366] shadow-lg scale-105'
+                  : 'bg-black/40 text-stone-300 border-white/20 hover:bg-black/60'
+              }`}
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>Nomor Utama: {formatWhatsAppNumber(storePhone)}</span>
+              {selectedNumberSlot === 'PRIMARY' && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+            </button>
+
             {storePhone2 && (
-              <div className="flex items-center gap-2 font-mono font-bold text-[#F7E7CE] bg-black/30 px-3 py-1.5 rounded-xl border border-white/10">
-                <Phone className="w-3.5 h-3.5 text-[#25D366]" />
-                <span>{formatWhatsAppNumber(storePhone2)}</span>
-              </div>
+              <button
+                onClick={() => setSelectedNumberSlot('SECONDARY')}
+                className={`px-3.5 py-2 rounded-xl font-mono font-bold text-xs transition-all flex items-center gap-2 border cursor-pointer ${
+                  selectedNumberSlot === 'SECONDARY'
+                    ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-lg scale-105'
+                    : 'bg-black/40 text-stone-300 border-white/20 hover:bg-black/60'
+                }`}
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Nomor Kedua: {formatWhatsAppNumber(storePhone2)}</span>
+                {selectedNumberSlot === 'SECONDARY' && <CheckCircle2 className="w-3.5 h-3.5 text-stone-950" />}
+              </button>
             )}
           </div>
+
           <div className="flex items-center gap-1.5 text-emerald-400 text-[11px] font-bold">
             <ShieldCheck className="w-4 h-4" />
-            <span>Terhubung Langsung ke API Store Settings</span>
+            <span>Aktif: {selectedNumberSlot === 'PRIMARY' ? 'Nomor Bisnis Utama' : 'Nomor Bisnis Cadangan'}</span>
           </div>
         </div>
       </div>
