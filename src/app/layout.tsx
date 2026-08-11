@@ -3,6 +3,7 @@ import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import { LanguageProvider } from "@/lib/language-context";
 import { NotificationProvider } from "@/lib/notification-context";
+import { CookieConsentBanner } from "@/components/customer/cookie-consent-banner";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -112,6 +113,7 @@ export default function RootLayout({
           <CartProvider>
             <NotificationProvider>
               {children}
+              <CookieConsentBanner />
             </NotificationProvider>
           </CartProvider>
         </LanguageProvider>
