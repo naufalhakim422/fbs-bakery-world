@@ -52,7 +52,7 @@ export default function CustomerLoginPage() {
   const recaptchaRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<number | null>(null);
 
-  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LdH_4AtAAAAAIo2Oh4qMpCi3LYJqSKtwukEVB5-';
 
   // Load and render pure official Google reCAPTCHA v2 Widget
   useEffect(() => {

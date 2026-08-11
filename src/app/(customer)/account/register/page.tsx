@@ -53,6 +53,61 @@ export default function CustomerRegisterPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [resendStatusMessage, setResendStatusMessage] = useState('');
 
+  // reCAPTCHA verification state
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaError, setCaptchaError] = useState(false);
+  const recaptchaRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<number | null>(null);
+
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LdH_4AtAAAAAIo2Oh4qMpCi3LYJqSKtwukEVB5-';
+
+  // Load and render pure official Google reCAPTCHA v2 Widget
+  useEffect(() => {
+    if (step !== 'FORM_ENTRY') return;
+
+    const scriptId = 'google-recaptcha-script';
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+
+    const renderWidget = () => {
+      if (typeof window !== 'undefined' && (window as any).grecaptcha && (window as any).grecaptcha.render && recaptchaRef.current) {
+        try {
+          if (widgetIdRef.current === null && recaptchaRef.current.children.length === 0) {
+            widgetIdRef.current = (window as any).grecaptcha.render(recaptchaRef.current, {
+              sitekey: recaptchaSiteKey, // Pure Official Google v2 Site Key
+              theme: 'light',
+              callback: (token: string) => {
+                setCaptchaVerified(true);
+                setCaptchaError(false);
+              },
+              'expired-callback': () => {
+                setCaptchaVerified(false);
+              },
+              'error-callback': () => {
+                setCaptchaVerified(false);
+              }
+            });
+          }
+        } catch (e) {
+          console.warn('Google reCAPTCHA render warning:', e);
+        }
+      }
+    };
+
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://www.google.com/recaptcha/api.js?onload=onGoogleRecaptchaLoad&render=explicit';
+      script.async = true;
+      script.defer = true;
+      (window as any).onGoogleRecaptchaLoad = () => {
+        renderWidget();
+      };
+      document.body.appendChild(script);
+    } else {
+      renderWidget();
+    }
+  }, [step, recaptchaSiteKey]);
+
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // 10-Minute Total Expiry Timer
@@ -145,6 +200,12 @@ export default function CustomerRegisterPage() {
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!captchaVerified) {
+      setCaptchaError(true);
+      setError(language === 'EN' ? 'Please complete the reCAPTCHA verification below.' : 'Sila sahkan reCAPTCHA di bawah terlebih dahulu.');
+      return;
+    }
 
     localStorage.removeItem('fbs_customer_session');
     window.dispatchEvent(new Event('storage'));
@@ -441,6 +502,16 @@ export default function CustomerRegisterPage() {
                       />
                       <Phone className="w-4.5 h-4.5 text-stone-400 absolute left-3.5 top-3.5" />
                     </div>
+                  </div>
+
+                  {/* Official Google reCAPTCHA v2 Interactive Box */}
+                  <div className="flex flex-col items-center justify-center my-2 min-h-[78px]">
+                    <div ref={recaptchaRef} className="min-h-[78px] flex items-center justify-center"></div>
+                    {captchaError && (
+                      <p className="text-[11px] font-bold text-red-600 mt-1 text-center">
+                        {language === 'EN' ? 'Please complete the reCAPTCHA verification above.' : 'Sila sahkan reCAPTCHA di atas terlebih dahulu.'}
+                      </p>
+                    )}
                   </div>
 
                   {/* Gradient Send OTP Button */}
