@@ -307,146 +307,9 @@ let adminCredentialData: AdminCredentialSetting = {
   password: 'admin123',
 };
 
-let initialOrders: Order[] = [
-  {
-    id: 'ord-1',
-    orderNumber: 'FB26000001',
-    customerId: 'cust-1',
-    customerName: 'Muhammad Jaka',
-    customerEmail: 'nopaldeso1@gmail.com',
-    customerPhone: '+60123456789',
-    address: 'No 45, Jalan Bunga Raya 7/2, Section 7',
-    city: 'Shah Alam',
-    state: 'Selangor',
-    postcode: '40000',
-    notes: 'Mohon kemas rapi dengan bubble wrap tebal',
-    courierName: 'J&T Express',
-    totalAmount: 145.00,
-    orderStatus: 'CONFIRMED',
-    trackingNumber: 'JT6829104829MY',
-    shippedAt: '2026-08-05T14:30:00Z',
-    createdAt: '2026-08-05T10:15:00Z',
-    updatedAt: '2026-08-05T14:30:00Z',
-    items: [
-      {
-        id: 'oi-1-1',
-        orderId: 'ord-1',
-        productId: 'prod-1',
-        productVariantId: 'var-1-2',
-        productName: 'Semolina Flour Premium Grade',
-        variantName: '1kg',
-        price: 15.00,
-        quantity: 2,
-        subtotal: 30.00,
-        mainImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
-      },
-      {
-        id: 'oi-1-2',
-        orderId: 'ord-1',
-        productId: 'prod-3',
-        productVariantId: 'var-3-2',
-        productName: 'Belgian Dark Chocolate Chips 70%',
-        variantName: '1kg Pack',
-        price: 62.00,
-        quantity: 1,
-        subtotal: 62.00,
-        mainImage: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=800&auto=format&fit=crop',
-      }
-    ]
-  },
-  {
-    id: 'ord-2',
-    orderNumber: 'FB26000002',
-    customerId: 'cust-2',
-    customerName: 'Siti Nurhaliza',
-    customerEmail: 'siti@example.com',
-    customerPhone: '+60129876543',
-    address: 'No 12, Jalan Bunga Raya, Section 7',
-    city: 'Shah Alam',
-    state: 'Selangor',
-    postcode: '40000',
-    notes: 'Pengiriman via Pos Laju',
-    courierName: 'Pos Laju',
-    totalAmount: 90.00,
-    orderStatus: 'PENDING_PAYMENT',
-    createdAt: '2026-08-05T16:20:00Z',
-    updatedAt: '2026-08-05T16:20:00Z',
-    items: [
-      {
-        id: 'oi-2-1',
-        orderId: 'ord-2',
-        productId: 'prod-2',
-        productVariantId: 'var-2-2',
-        productName: 'Uji Matcha Powder Grade A (Kyoto Import)',
-        variantName: '250g Pack',
-        price: 75.00,
-        quantity: 1,
-        subtotal: 75.00,
-        mainImage: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop',
-      }
-    ]
-  },
-  {
-    id: 'ord-3',
-    orderNumber: 'FB26000003',
-    customerId: 'cust-3',
-    customerName: 'Naufal Hakim Muzaki',
-    customerEmail: 'nopalberak1@gmail.com',
-    customerPhone: '0183942147',
-    address: 'No 88, Jalan Universiti, Section 11',
-    city: 'Petaling Jaya',
-    state: 'Selangor',
-    postcode: '46200',
-    notes: 'Kirim saat jam kerja',
-    courierName: 'J&T Express',
-    totalAmount: 285.00,
-    orderStatus: 'PACKING',
-    createdAt: '2026-08-05T17:45:00Z',
-    updatedAt: '2026-08-05T17:45:00Z',
-    items: [
-      {
-        id: 'oi-3-1',
-        orderId: 'ord-3',
-        productId: 'prod-1',
-        productVariantId: 'var-1-2',
-        productName: 'Semolina Flour Premium Grade',
-        variantName: '1kg',
-        price: 15.00,
-        quantity: 1,
-        subtotal: 15.00,
-        mainImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop',
-      },
-      {
-        id: 'oi-3-2',
-        orderId: 'ord-3',
-        productId: 'prod-2',
-        productVariantId: 'var-2-3',
-        productName: 'Uji Matcha Powder Grade A (Kyoto Import)',
-        variantName: '1kg Bakery Pack',
-        price: 270.00,
-        quantity: 1,
-        subtotal: 270.00,
-        mainImage: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop',
-      }
-    ]
-  }
-];
+let initialOrders: Order[] = [];
 
-let initialCustomers: Customer[] = [
-  {
-    id: 'cust-1',
-    name: 'Siti Nurhaliza',
-    email: 'siti@example.com',
-    phone: '+60129876543',
-    customerType: 'VIP',
-    isEmailVerified: true,
-    address: 'No 12, Jalan Bunga Raya, Section 7',
-    city: 'Shah Alam',
-    state: 'Selangor',
-    postcode: '40000',
-    createdAt: '2026-05-10T08:00:00Z',
-  }
-];
+let initialCustomers: Customer[] = [];
 
 let initialReviewsData: ProductReview[] = [];
 
@@ -750,8 +613,9 @@ export const db = {
     const deletedIds = loadFromStorage<string[]>('fbs_deleted_order_ids', []);
     const overrides = loadFromStorage<Record<string, any>>('fbs_order_status_overrides', {});
     
+    const dummyIds = ['ord-1', 'ord-2', 'ord-3', 'FB26000001', 'FB26000002', 'FB26000003', '#FBS-20260805-101', '#FBS-20260805-102', '#FBS-20260805-103'];
     return ordersList
-      .filter(o => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber))
+      .filter(o => !deletedIds.includes(o.id) && !deletedIds.includes(o.orderNumber) && !dummyIds.includes(o.id) && !dummyIds.includes(o.orderNumber))
       .map(o => {
         const ov = overrides[o.id] || overrides[o.orderNumber];
         if (ov) {
