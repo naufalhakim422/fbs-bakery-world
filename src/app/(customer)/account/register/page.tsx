@@ -59,45 +59,6 @@ export default function CustomerRegisterPage() {
   const recaptchaRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<number | null>(null);
 
-  // Mandatory Visual Puzzle Challenge State
-  const [showVisualPuzzle, setShowVisualPuzzle] = useState(false);
-  const [selectedTiles, setSelectedTiles] = useState<number[]>([]);
-  const [puzzleError, setPuzzleError] = useState('');
-
-  const puzzleTiles = [
-    { id: 1, name: 'Tepung Semolina', isCorrect: true, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=300&auto=format&fit=crop' },
-    { id: 2, name: 'Kereta Merah', isCorrect: false, image: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=300&auto=format&fit=crop' },
-    { id: 3, name: 'Cokelat Belgia', isCorrect: true, image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=300&auto=format&fit=crop' },
-    { id: 4, name: 'Bangunan Bandar', isCorrect: false, image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=300&auto=format&fit=crop' },
-    { id: 5, name: 'Serbuk Matcha', isCorrect: true, image: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=300&auto=format&fit=crop' },
-    { id: 6, name: 'Mentega Butter', isCorrect: true, image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?q=80&w=300&auto=format&fit=crop' },
-    { id: 7, name: 'Motosikal', isCorrect: false, image: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=300&auto=format&fit=crop' },
-    { id: 8, name: 'Pengacau Roti', isCorrect: true, image: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=300&auto=format&fit=crop' },
-    { id: 9, name: 'Taman Hijau', isCorrect: false, image: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=300&auto=format&fit=crop' },
-  ];
-
-  const toggleTile = (id: number) => {
-    setSelectedTiles(prev => 
-      prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
-    );
-    setPuzzleError('');
-  };
-
-  const handleVerifyPuzzle = () => {
-    const correctIds = puzzleTiles.filter(t => t.isCorrect).map(t => t.id);
-    const isSuccess = 
-      correctIds.length === selectedTiles.length && 
-      correctIds.every(id => selectedTiles.includes(id));
-
-    if (isSuccess) {
-      setCaptchaVerified(true);
-      setCaptchaError(false);
-      setShowVisualPuzzle(false);
-    } else {
-      setPuzzleError(language === 'EN' ? 'Please select ALL squares containing baking ingredients.' : 'Sila pilih SEMUA petak gambar ramuan bakeri dengan betul.');
-    }
-  };
-
   const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LdH_4AtAAAAAIo2Oh4qMpCi3LYJqSKtwukEVB5-';
 
   // Load and render pure official Google reCAPTCHA v2 Widget
@@ -115,9 +76,8 @@ export default function CustomerRegisterPage() {
               sitekey: recaptchaSiteKey, // Pure Official Google v2 Site Key
               theme: 'light',
               callback: (token: string) => {
-                setSelectedTiles([]);
-                setPuzzleError('');
-                setShowVisualPuzzle(true);
+                setCaptchaVerified(true);
+                setCaptchaError(false);
               },
               'expired-callback': () => {
                 setCaptchaVerified(false);
@@ -689,97 +649,6 @@ export default function CustomerRegisterPage() {
           </div>
 
         </div>
-
-      {/* Mandatory Visual Image Grid Puzzle Challenge Modal */}
-      {showVisualPuzzle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in select-none">
-          <div className="bg-white rounded-3xl overflow-hidden max-w-sm w-full border border-stone-200 shadow-2xl space-y-0 relative">
-            
-            {/* Header Google Blue Banner */}
-            <div className="bg-[#4285F4] p-5 text-white space-y-1">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-100 block">
-                {language === 'EN' ? 'RECAPTCHA VISUAL PUZZLE' : 'VERIFIKASI GAMBAR RECAPTCHA'}
-              </span>
-              <h3 className="font-sans font-black text-lg leading-tight drop-shadow-sm">
-                {language === 'EN' ? 'Select all squares with baking ingredients' : 'Pilih semua petak yang berisi ramuan bakeri'}
-              </h3>
-              <p className="text-[11px] text-blue-100 font-medium">
-                {language === 'EN' ? 'Click verify once you have selected all matching squares.' : 'Sila klik SAHKAN setelah anda memilih semua petak yang betul.'}
-              </p>
-            </div>
-
-            {puzzleError && (
-              <div className="p-2.5 bg-red-50 text-red-700 text-xs font-bold text-center border-b border-red-200 animate-shake">
-                {puzzleError}
-              </div>
-            )}
-
-            {/* 3x3 Image Grid Tiles */}
-            <div className="p-3 bg-stone-100">
-              <div className="grid grid-cols-3 gap-2">
-                {puzzleTiles.map((tile) => {
-                  const isSelected = selectedTiles.includes(tile.id);
-                  return (
-                    <div
-                      key={tile.id}
-                      onClick={() => toggleTile(tile.id)}
-                      className={`relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all group ${
-                        isSelected 
-                          ? 'border-[#4285F4] ring-4 ring-[#4285F4]/30 scale-95' 
-                          : 'border-white hover:border-stone-300'
-                      }`}
-                    >
-                      <img 
-                        src={tile.image} 
-                        alt={tile.name} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                      />
-                      {isSelected && (
-                        <div className="absolute inset-0 bg-[#4285F4]/40 flex items-center justify-center backdrop-blur-[1px]">
-                          <div className="w-7 h-7 bg-[#4285F4] text-white rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                            <CheckCircle2 className="w-5 h-5 text-white" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Footer Action Controls */}
-            <div className="p-4 bg-white border-t border-stone-200 flex items-center justify-between">
-              <div className="flex items-center gap-3 text-stone-400">
-                <button type="button" onClick={() => setSelectedTiles([])} className="hover:text-stone-700 transition-colors" title="Muat Semula">
-                  <RefreshCw className="w-4 h-4" />
-                </button>
-                <div className="flex items-center gap-1 opacity-80">
-                  <ShieldCheck className="w-4 h-4 text-[#4285F4]" />
-                  <span className="text-[10px] font-black text-stone-600 tracking-tight">reCAPTCHA</span>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowVisualPuzzle(false)}
-                  className="px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs rounded-xl"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleVerifyPuzzle}
-                  className="px-5 py-2.5 bg-[#4285F4] hover:bg-blue-600 text-white font-black text-xs rounded-xl shadow-lg uppercase tracking-wider transition-all active:scale-95"
-                >
-                  SAHKAN
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
 
       </main>
 
