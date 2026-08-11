@@ -33,6 +33,10 @@ export default function CustomerLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
+  // reCAPTCHA verification state
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaError, setCaptchaError] = useState(false);
+
   // OTP Flow States (Passwordless Verification)
   const [step, setStep] = useState<'EMAIL_ENTRY' | 'OTP_ENTRY'>('EMAIL_ENTRY');
   const [activeCustomer, setActiveCustomer] = useState<any>(null);
@@ -156,6 +160,12 @@ export default function CustomerLoginPage() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(cleanEmail)) {
       setError(language === 'EN' ? 'Please enter a valid email address.' : 'Sila masukkan alamat e-mel yang sah.');
+      return;
+    }
+
+    if (!captchaVerified) {
+      setError(language === 'EN' ? 'Please complete the reCAPTCHA verification (I am not a robot).' : 'Sila sahkan reCAPTCHA (Saya bukan robot) terlebih dahulu.');
+      setCaptchaError(true);
       return;
     }
 
@@ -426,6 +436,37 @@ export default function CustomerLoginPage() {
                         className="w-full pl-11 pr-4 py-3.5 border border-stone-300 rounded-2xl text-stone-900 focus:outline-none focus:border-[#800020] focus:ring-2 focus:ring-[#800020]/20 text-xs sm:text-sm font-medium transition-all shadow-sm"
                       />
                       <Mail className="w-4.5 h-4.5 text-stone-400 absolute left-3.5 top-3.5" />
+                    </div>
+                  </div>
+
+                  {/* reCAPTCHA Security Verification Box */}
+                  <div className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
+                    captchaError 
+                      ? 'border-red-400 bg-red-50/60 ring-2 ring-red-200' 
+                      : captchaVerified 
+                        ? 'border-emerald-300 bg-emerald-50/50' 
+                        : 'border-stone-200 bg-stone-50/80 hover:bg-stone-50'
+                  } flex items-center justify-between shadow-sm`}>
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                      <input 
+                        type="checkbox"
+                        checked={captchaVerified}
+                        onChange={(e) => {
+                          setCaptchaVerified(e.target.checked);
+                          if (e.target.checked) setCaptchaError(false);
+                        }}
+                        className="w-5 h-5 rounded border-stone-300 text-[#800020] focus:ring-[#800020] cursor-pointer"
+                      />
+                      <span className="text-xs font-bold text-stone-800">
+                        {language === 'EN' ? "I'm not a robot" : "Saya bukan robot"}
+                      </span>
+                    </label>
+                    <div className="flex flex-col items-end opacity-85 select-none">
+                      <div className="flex items-center gap-1">
+                        <ShieldCheck className="w-4 h-4 text-blue-600" />
+                        <span className="text-[10px] font-extrabold text-stone-600 tracking-tight">reCAPTCHA</span>
+                      </div>
+                      <span className="text-[8px] text-stone-400 font-mono">Privacy - Terms</span>
                     </div>
                   </div>
 
