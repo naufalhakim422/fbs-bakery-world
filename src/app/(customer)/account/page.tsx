@@ -168,6 +168,18 @@ export default function CustomerAccountPage() {
             const data = await res.json();
             if (data.success && data.customer) {
               found = data.customer;
+              
+              // SECURITY GUARD: Instantly destroy session if account is suspended or banned
+              if (found.status === 'SUSPENDED' || found.status === 'BANNED' || found.isBanned === true) {
+                localStorage.removeItem('fbs_customer_session');
+                sessionStorage.removeItem('fbs_customer_session');
+                document.cookie = "fbs_customer_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0";
+                document.cookie = "fbs_customer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0";
+                alert('Akun Anda telah dinonaktifkan / ditangguhkan oleh Admin toko.');
+                router.push('/account/login');
+                return;
+              }
+
               db.saveCustomer(found);
               localStorage.setItem('fbs_customer_session', JSON.stringify(found));
             }
@@ -329,9 +341,11 @@ export default function CustomerAccountPage() {
   };
 
   const confirmLogout = () => {
-    // 1. Instantly purge local session state
+    // 1. Instantly purge local session state & cookies completely
     localStorage.removeItem('fbs_customer_session');
     sessionStorage.removeItem('fbs_customer_session');
+    document.cookie = "fbs_customer_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0";
+    document.cookie = "fbs_customer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0";
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new CustomEvent('fbs_db_updated'));
