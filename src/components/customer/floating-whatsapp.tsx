@@ -9,9 +9,23 @@ export const FloatingWhatsApp: React.FC = () => {
   const [waUrl, setWaUrl] = useState<string>('');
 
   useEffect(() => {
-    const updateLink = () => {
-      const settings = db.getStoreSettings();
-      const cleanPhone = formatWhatsAppNumber(settings.whatsappNumber);
+    const updateLink = async () => {
+      let num = db.getStoreSettings().whatsappNumber;
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          const serverSettings = data.settings || data;
+          if (serverSettings && serverSettings.whatsappNumber) {
+            num = serverSettings.whatsappNumber;
+            db.updateStoreSettings(serverSettings);
+          }
+        }
+      } catch (err) {
+        console.warn('FloatingWhatsApp: Failed to fetch live settings', err);
+      }
+
+      const cleanPhone = formatWhatsAppNumber(num);
       setWaUrl(`https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello FBS Bakery World, I have an inquiry regarding baking supplies.')}`);
     };
     updateLink();

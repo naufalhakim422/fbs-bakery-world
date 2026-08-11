@@ -51,6 +51,18 @@ export default function HomePage() {
 
   const loadData = useCallback(() => {
     setSettings(db.getStoreSettings());
+
+    fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        const s = data.settings || data;
+        if (s && s.whatsappNumber) {
+          setSettings(s);
+          db.updateStoreSettings(s);
+        }
+      })
+      .catch(sErr => console.warn('[Homepage Settings Fetch Warning]', sErr));
+
     const cHome = db.getHomePageSettings();
     setHomeCms(cHome);
     const activeBanners = db.getBanners().filter(b => b.status);
