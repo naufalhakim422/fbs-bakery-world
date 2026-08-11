@@ -19,68 +19,16 @@ export default function AdminBannersPage() {
 
   useEffect(() => {
     let currentBanners = db.getBanners();
-    
-    // Ensure at least 4 default slots exist
-    if (currentBanners.length < 4) {
-      const defaultSlots: Banner[] = [
-        {
-          id: 'ban-1',
-          title: 'Semolina & Italian Flour Special Promo',
-          subtitle: 'Best Semolina Flour & Specialty Baking Powder for Soft Fluffy Pastries and Artisan Breads.',
-          imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1200&auto=format&fit=crop',
-          buttonText: 'SHOP PRODUCT NOW',
-          buttonLink: '/products/semolina-flour-premium-grade',
-          status: true,
-        },
-        {
-          id: 'ban-2',
-          title: 'Kyoto Uji Matcha Grade A Diskon 15%',
-          subtitle: 'Authentic Emerald Green Uji Matcha Powder for Artisan Matcha Lava Tarts & Beverages.',
-          imageUrl: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=1200&auto=format&fit=crop',
-          buttonText: 'BELI MATCHA UJI',
-          buttonLink: '/products/uji-matcha-powder-grade-a',
-          status: true,
-        },
-        {
-          id: 'ban-3',
-          title: 'Pasokan Cokelat Couverture Belgian 70%',
-          subtitle: 'Cokelat couverture murni untuk glazing cake, praline, dan ganache mewah.',
-          imageUrl: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=1200&auto=format&fit=crop',
-          buttonText: 'LIHAT COKELAT',
-          buttonLink: '/products/belgian-dark-chocolate-chips-70',
-          status: true,
-        },
-        {
-          id: 'ban-4',
-          title: 'Stand Mixer Komersial Heavy Duty 10L',
-          subtitle: 'Mesin mixer adonan roti 1200W dengan mangkuk stainless steel tebal.',
-          imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=1200&auto=format&fit=crop',
-          buttonText: 'LIHAT MIXER KOMERSIAL',
-          buttonLink: '/products/professional-heavy-duty-stand-mixer-7l',
-          status: true,
-        }
-      ];
-
-      // Merge existing with defaults up to 4
-      for (let i = currentBanners.length; i < 4; i++) {
-        currentBanners.push(defaultSlots[i]);
-      }
-    }
-
     setBanners(currentBanners);
     setProducts(db.getProducts());
 
-    // Sync with Server API only if server has data
+    // Sync with Server API
     fetch(`/api/banners?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
-          // Check if server banners exist
-          const hasServerBanners = data.banners.some((b: any) => b.imageUrl);
-          if (hasServerBanners) {
-            setBanners(data.banners);
-            db.saveAllBanners(data.banners);
-          }
+        if (data.success && Array.isArray(data.banners)) {
+          setBanners(data.banners);
+          db.saveAllBanners(data.banners);
         }
       })
       .catch(err => console.warn('Banner fetch server warning:', err));
@@ -178,14 +126,18 @@ export default function AdminBannersPage() {
 
   const executeDeleteSlot = async () => {
     if (pendingDeleteId) {
-      const updated = banners.filter(b => b.id !== pendingDeleteId);
+      const targetId = pendingDeleteId;
+      const updated = banners.filter(b => b.id !== targetId);
       setBanners(updated);
-      db.deleteBanner(pendingDeleteId);
+      db.deleteBanner(targetId);
       db.saveAllBanners(updated);
       setPendingDeleteId(null);
 
-      // Instant POST to PostgreSQL Railway Server
+      // Instant DELETE & POST to PostgreSQL Railway Server
       try {
+        await fetch(`/api/banners?id=${encodeURIComponent(targetId)}`, {
+          method: 'DELETE',
+        });
         await fetch('/api/banners', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

@@ -54,27 +54,15 @@ export default function HomePage() {
     const cHome = db.getHomePageSettings();
     setHomeCms(cHome);
     const activeBanners = db.getBanners().filter(b => b.status);
-    setBanners(activeBanners.length > 0 ? activeBanners : [
-      {
-        id: 'ban-1',
-        title: 'Semolina & Italian Flour Special Promo',
-        subtitle: 'Best Semolina Flour & Specialty Baking Powder for Soft Fluffy Pastries.',
-        imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1200&auto=format&fit=crop',
-        buttonText: 'SHOP NOW',
-        buttonLink: '/products/semolina-flour-premium-grade',
-        status: true,
-      }
-    ]);
+    setBanners(activeBanners);
 
     fetch(`/api/banners?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (data.success && Array.isArray(data.banners) && data.banners.length > 0) {
+        if (data.success && Array.isArray(data.banners)) {
           const active = data.banners.filter((b: any) => b.status);
-          if (active.length > 0) {
-            setBanners(active);
-            active.forEach((b: any) => db.saveBanner(b));
-          }
+          setBanners(active);
+          db.saveAllBanners(active);
         }
       })
       .catch(bErr => console.warn('[Homepage Banners Fetch Warning]', bErr));

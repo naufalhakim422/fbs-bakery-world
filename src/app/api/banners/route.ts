@@ -62,6 +62,9 @@ async function ensureBannerSchemaText() {
     await prisma.$executeRawUnsafe(`ALTER TABLE "Banner" ALTER COLUMN "imageUrl" TYPE TEXT;`);
     await prisma.$executeRawUnsafe(`ALTER TABLE "Banner" ALTER COLUMN "subtitle" TYPE TEXT;`);
     await prisma.$executeRawUnsafe(`ALTER TABLE "Banner" ALTER COLUMN "linkUrl" TYPE TEXT;`);
+
+    // Purge unwanted initial dummy banners from Railway PostgreSQL DB
+    await prisma.$executeRawUnsafe(`UPDATE "Banner" SET "isActive" = false, "deletedAt" = NOW() WHERE "id" IN ('ban-1', 'ban-2', 'ban-3', 'ban-4') OR "title" ILIKE '%Grand Reopening%' OR "title" ILIKE '%Semolina & Italian Flour Special Promo%';`);
   } catch (e) {
     // Ignored if already TEXT or table created
   }
@@ -164,6 +167,34 @@ export async function POST(request: Request) {
 
     writeServerBanners(bannerList);
     return NextResponse.json({ success: true, banners: bannerList, source: 'SERVER_PERSISTED' });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
+
+// DELETE /api/banners?id=...
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const deleteId = searchParams.get('id');
+
+    if (!deleteId) {
+      return NextResponse.json({ success: false, error: 'Banner ID parameter is required' }, { status: 400 });
+    }
+
+    try {
+      await prisma.banner.update({
+        where: { id: deleteId },
+        data: { isActive: false, deletedAt: new Date() },
+      });
+    } catch (e) {
+      // Ignored if not in DB
+    }
+
+    const cached = readServerBanners().filter((b: any) => b.id !== deleteId);
+    writeServerBanners(cached);
+
+    return NextResponse.json({ success: true, message: `Banner ${deleteId} deleted` });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

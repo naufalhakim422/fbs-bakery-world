@@ -218,44 +218,7 @@ let initialVideos: VideoPost[] = [
 ];
 
 
-let initialBanners: Banner[] = [
-  {
-    id: 'ban-1',
-    title: 'Semolina & Italian Flour Special Promo',
-    subtitle: 'Best Semolina Flour & Specialty Baking Powder for Soft Fluffy Pastries and Artisan Breads.',
-    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1200&auto=format&fit=crop',
-    buttonText: 'SHOP PRODUCT NOW',
-    buttonLink: '/products/semolina-flour-premium-grade',
-    status: true,
-  },
-  {
-    id: 'ban-2',
-    title: 'Kyoto Uji Matcha Grade A Diskon 15%',
-    subtitle: 'Authentic Emerald Green Uji Matcha Powder for Artisan Matcha Lava Tarts & Beverages.',
-    imageUrl: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=1200&auto=format&fit=crop',
-    buttonText: 'LIHAT PRODUK PROMO',
-    buttonLink: '/products/uji-matcha-powder-grade-a',
-    status: true,
-  },
-  {
-    id: 'ban-3',
-    title: 'Belgian Dark Couverture Chocolate 70%',
-    subtitle: 'Rich Creamy Dutch Processed Chocolate Chips for Bakery & Cafe Desserts.',
-    imageUrl: 'https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=1200&auto=format&fit=crop',
-    buttonText: 'PESAN PRODUK DISKON',
-    buttonLink: '/products/belgian-dark-chocolate-chips-70',
-    status: true,
-  },
-  {
-    id: 'ban-4',
-    title: 'Commercial Stand Mixer 10L New Arrival',
-    subtitle: 'Heavy-duty stainless steel mixer with multi-speed gear drive for commercial bakeries.',
-    imageUrl: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=1200&auto=format&fit=crop',
-    buttonText: 'CEK BARANG BARU',
-    buttonLink: '/products/professional-heavy-duty-stand-mixer-7l',
-    status: true,
-  }
-];
+let initialBanners: Banner[] = [];
 
 let storeSettingData: StoreSetting = {
   whatsappNumber: '60103574196',
