@@ -39,7 +39,7 @@ export const Footer: React.FC = () => {
   }, []);
 
   const companyName = settings.companyRegistrationName || 'FBS Bakery World (M) Sdn. Bhd. (1080422-V)';
-  const operatingHours = settings.operatingHours || 'Mon - Fri | 8.30am - 5.30pm';
+  const operatingHours = settings.operatingHours || 'Senin - Sabtu: 08.30 - 18.00';
 
   return (
     <footer className="bg-[#1E0F14] text-[#FFF8F0] pt-12 pb-8 border-t border-[#F7E7CE]/20 relative font-sans">

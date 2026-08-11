@@ -32,11 +32,23 @@ export default function ContactPage() {
     };
     loadLiveData();
 
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings) {
+          db.updateStoreSettings(data.settings);
+          setSettings(data.settings);
+        }
+      })
+      .catch(err => console.warn('Contact page settings fetch warning:', err));
+
     window.addEventListener('storage', loadLiveData);
     window.addEventListener('fbs_db_updated', loadLiveData);
+    window.addEventListener('focus', loadLiveData);
     return () => {
       window.removeEventListener('storage', loadLiveData);
       window.removeEventListener('fbs_db_updated', loadLiveData);
+      window.removeEventListener('focus', loadLiveData);
     };
   }, []);
 
@@ -153,7 +165,7 @@ export default function ContactPage() {
                 <Clock className="w-5 h-5 text-[#800020] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-stone-900 font-bold mb-0.5">{language === 'EN' ? 'Operating Hours:' : language === 'MS' ? 'Waktu Operasi:' : 'Jam Operasional:'}</strong>
-                  <span>{language === 'EN' ? 'Monday - Saturday: 8:30 AM - 6:00 PM (Closed on Sunday & Public Holidays)' : language === 'MS' ? 'Isnin - Sabtu: 8:30 PG - 6:00 PTG (Tutup pada Ahad & Cuti Umum)' : 'Senin - Sabtu: 08:30 - 18:00 (Tutup Hari Minggu & Libur Nasional)'}</span>
+                  <span>{settings?.operatingHours || (language === 'EN' ? 'Monday - Saturday: 8:30 AM - 6:00 PM (Closed on Sunday & Public Holidays)' : language === 'MS' ? 'Isnin - Sabtu: 8:30 PG - 6:00 PTG (Tutup pada Ahad & Cuti Umum)' : 'Senin - Sabtu: 08:30 - 18:00 (Tutup Hari Minggu & Libur Nasional)')}</span>
                 </div>
               </div>
             </div>

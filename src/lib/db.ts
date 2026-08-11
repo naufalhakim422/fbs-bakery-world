@@ -1326,29 +1326,15 @@ export const db = {
   // Store Settings with persistent localStorage sync
   getStoreSettings: (): StoreSetting => {
     const res = loadFromStorage<StoreSetting>('fbs_store_settings', storeSettingData);
-    const fallbackUrl = storeSettingData.googleMapsEmbedUrl || '';
-    const savedUrl = res?.googleMapsEmbedUrl;
-    let embedUrl = (typeof savedUrl === 'string' && savedUrl.trim() !== '') ? savedUrl : fallbackUrl;
-    
-    // If stored embedUrl is the old default Kuala Lumpur / Shah Alam map URL, update to Chukai Terengganu
-    if (embedUrl && (embedUrl.includes('Kuala%20Lumpur') || embedUrl.includes('0x31cc362807480d39') || embedUrl.includes('101.686855') || embedUrl.includes('Shah%20Alam'))) {
-      embedUrl = fallbackUrl;
-    }
-
-    let address = res?.address || storeSettingData.address;
-    if (address && address.includes('Shah Alam')) {
-      address = storeSettingData.address;
-    }
-
     return {
       ...storeSettingData,
-      stockThreshold: typeof res?.stockThreshold === 'number' ? res.stockThreshold : 10,
       ...res,
-      address,
+      address: res?.address || storeSettingData.address,
       companyRegistrationName: res?.companyRegistrationName || storeSettingData.companyRegistrationName,
       operatingHours: res?.operatingHours || storeSettingData.operatingHours,
-      googleMapsEmbedUrl: embedUrl,
-      googleMapsAppUrl: (res?.googleMapsAppUrl && res.googleMapsAppUrl.trim()) ? res.googleMapsAppUrl : storeSettingData.googleMapsAppUrl,
+      googleMapsEmbedUrl: res?.googleMapsEmbedUrl || storeSettingData.googleMapsEmbedUrl,
+      googleMapsAppUrl: res?.googleMapsAppUrl || storeSettingData.googleMapsAppUrl,
+      stockThreshold: typeof res?.stockThreshold === 'number' ? res.stockThreshold : (storeSettingData.stockThreshold || 10),
     };
   },
 
