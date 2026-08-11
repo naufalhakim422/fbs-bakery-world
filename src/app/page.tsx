@@ -248,61 +248,54 @@ export default function HomePage() {
 
         </section>
 
-        {/* ULTRA-MODERN & LUXURY TRUST BADGES SECTION */}
-        <section className="bg-gradient-to-b from-[#FFF8F0] via-white to-[#FFF8F0] border-y border-[#EADBC8]/80 py-10 sm:py-12 relative overflow-hidden">
+        {/* MINIMALIST & MODERN 3-COLUMN TRUST BADGES SECTION */}
+        <section className="bg-gradient-to-b from-[#FFF8F0] via-white to-[#FFF8F0] border-y border-[#EADBC8]/80 py-8 sm:py-10 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               
               {/* Badge 1: 100% Halal Certified */}
-              <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#800020] transition-all duration-300 group flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-lg flex items-center justify-center mb-4 border border-[#D4AF37]/30 group-hover:scale-110 transition-transform">
-                  <ShieldCheck className="w-7 h-7" />
+              <div className="bg-white/90 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-[#EADBC8] shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-[#800020] transition-all duration-300 group flex items-center gap-4 text-left">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-md flex items-center justify-center flex-shrink-0 border border-[#D4AF37]/30 group-hover:scale-105 transition-transform">
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
-                <h4 className="font-serif font-extrabold text-base text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
-                  {t.trustBadges.b1Title}
-                </h4>
-                <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-medium">
-                  {t.trustBadges.b1Desc}
-                </p>
+                <div>
+                  <h4 className="font-serif font-extrabold text-sm text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
+                    {t.trustBadges.b1Title}
+                  </h4>
+                  <p className="text-stone-500 text-xs mt-0.5 leading-relaxed font-medium">
+                    {t.trustBadges.b1Desc}
+                  </p>
+                </div>
               </div>
 
               {/* Badge 2: Premium Import Grade */}
-              <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#800020] transition-all duration-300 group flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-lg flex items-center justify-center mb-4 border border-[#D4AF37]/30 group-hover:scale-110 transition-transform">
-                  <Award className="w-7 h-7" />
+              <div className="bg-white/90 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-[#EADBC8] shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-[#800020] transition-all duration-300 group flex items-center gap-4 text-left">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-md flex items-center justify-center flex-shrink-0 border border-[#D4AF37]/30 group-hover:scale-105 transition-transform">
+                  <Award className="w-6 h-6" />
                 </div>
-                <h4 className="font-serif font-extrabold text-base text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
-                  {t.trustBadges.b2Title}
-                </h4>
-                <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-medium">
-                  {t.trustBadges.b2Desc}
-                </p>
+                <div>
+                  <h4 className="font-serif font-extrabold text-sm text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
+                    {t.trustBadges.b2Title}
+                  </h4>
+                  <p className="text-stone-500 text-xs mt-0.5 leading-relaxed font-medium">
+                    {t.trustBadges.b2Desc}
+                  </p>
+                </div>
               </div>
 
               {/* Badge 3: Express Fast Shipping */}
-              <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#800020] transition-all duration-300 group flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-lg flex items-center justify-center mb-4 border border-[#D4AF37]/30 group-hover:scale-110 transition-transform">
-                  <Truck className="w-7 h-7" />
+              <div className="bg-white/90 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-[#EADBC8] shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-[#800020] transition-all duration-300 group flex items-center gap-4 text-left">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#800020] via-[#5A0015] to-[#3A0612] text-[#D4AF37] shadow-md flex items-center justify-center flex-shrink-0 border border-[#D4AF37]/30 group-hover:scale-105 transition-transform">
+                  <Truck className="w-6 h-6" />
                 </div>
-                <h4 className="font-serif font-extrabold text-base text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
-                  {t.trustBadges.b3Title}
-                </h4>
-                <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-medium">
-                  {t.trustBadges.b3Desc}
-                </p>
-              </div>
-
-              {/* Badge 4: Wholesale Baker Discount */}
-              <div className="bg-white/90 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#800020] transition-all duration-300 group flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#25D366] to-emerald-700 text-white shadow-lg flex items-center justify-center mb-4 border border-white/40 group-hover:scale-110 transition-transform">
-                  <MessageCircle className="w-7 h-7 fill-white" />
+                <div>
+                  <h4 className="font-serif font-extrabold text-sm text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
+                    {t.trustBadges.b3Title}
+                  </h4>
+                  <p className="text-stone-500 text-xs mt-0.5 leading-relaxed font-medium">
+                    {t.trustBadges.b3Desc}
+                  </p>
                 </div>
-                <h4 className="font-serif font-extrabold text-base text-stone-900 tracking-tight group-hover:text-[#800020] transition-colors">
-                  {t.trustBadges.b4Title}
-                </h4>
-                <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-medium">
-                  {t.trustBadges.b4Desc}
-                </p>
               </div>
 
             </div>
