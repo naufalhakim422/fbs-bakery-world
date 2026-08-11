@@ -25,7 +25,8 @@ import {
   X,
   Wallet,
   Film,
-  Truck
+  Truck,
+  MessageCircle
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -67,6 +68,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { name: videoMenuName, href: '/admin/videos', icon: Film },
     { name: t.adminNav.banners, href: '/admin/banners', icon: ImageIcon },
     { name: t.adminNav.customers, href: '/admin/customers', icon: Users },
+    { name: 'WhatsApp Web Console', href: '/admin/whatsapp-chat', icon: MessageCircle },
     { name: t.adminNav.settings, href: '/admin/settings', icon: Settings },
   ];
 
