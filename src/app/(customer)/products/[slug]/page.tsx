@@ -44,7 +44,8 @@ import {
   ChevronLeft,
   Clock,
   Share2,
-  Scale
+  Scale,
+  Search
 } from 'lucide-react';
 
 export default function ProductDetailPage() {
@@ -491,7 +492,7 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+      <div className="min-h-screen flex flex-col bg-[#FFF8F0] font-sans antialiased text-stone-900 selection:bg-[#800020] selection:text-white">
         {productJsonLd && (
           <script
             type="application/ld+json"
@@ -500,10 +501,17 @@ export default function ProductDetailPage() {
         )}
         <AnnouncementBar />
         <HeaderNav />
-        <main className="flex-1 flex flex-col items-center justify-center py-20 text-center px-4">
-          <h2 className="font-serif text-3xl font-bold text-[#800020]">{language === 'EN' ? 'Product Not Found' : language === 'MS' ? 'Produk Tidak Dijumpai' : 'Produk Tidak Ditemukan'}</h2>
-          <p className="text-stone-600 text-sm mt-2">{language === 'EN' ? 'The requested baking supply item does not exist or has been archived.' : language === 'MS' ? 'Item bekalan bakeri yang dicari tidak wujud atau telah diarkibkan.' : 'Item perlengkapan kue yang diminta tidak ada atau telah diarsipkan.'}</p>
-          <Link href="/products" className="mt-6 px-6 py-3 bg-[#800020] text-white font-bold text-xs rounded-xl shadow">
+        <main className="flex-1 flex flex-col items-center justify-center py-20 sm:py-28 text-center px-4 max-w-xl mx-auto">
+          <div className="w-16 h-16 rounded-full bg-[#800020]/10 border border-[#800020]/20 text-[#800020] flex items-center justify-center mx-auto mb-4 shadow">
+            <Search className="w-8 h-8" />
+          </div>
+          <h2 className="font-serif text-3xl font-black text-[#2B1B1B]">
+            {language === 'EN' ? 'Product Not Found' : language === 'MS' ? 'Produk Tidak Dijumpai' : 'Produk Tidak Ditemukan'}
+          </h2>
+          <p className="text-stone-600 text-xs sm:text-sm mt-2 leading-relaxed font-medium">
+            {language === 'EN' ? 'The requested baking supply item does not exist or has been archived.' : language === 'MS' ? 'Item bekalan bakeri yang dicari tidak wujud atau telah diarkibkan.' : 'Item perlengkapan kue yang diminta tidak ada atau telah diarsipkan.'}
+          </p>
+          <Link href="/products" className="mt-6 px-7 py-3.5 bg-[#800020] hover:bg-[#600018] text-[#F7E7CE] font-bold text-xs sm:text-sm rounded-2xl shadow-lg transition-all uppercase tracking-wider">
             {language === 'EN' ? 'Back to Catalog' : language === 'MS' ? 'Kembali ke Katalog' : 'Kembali ke Katalog'}
           </Link>
         </main>
@@ -665,7 +673,7 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+    <div className="min-h-screen flex flex-col bg-[#FFF8F0] font-sans antialiased text-stone-900 selection:bg-[#800020] selection:text-white overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
@@ -677,25 +685,25 @@ export default function ProductDetailPage() {
       <AnnouncementBar />
       <HeaderNav />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         
         {/* Breadcrumb Navigation */}
-        <nav className="flex items-center gap-2 text-xs text-stone-500 mb-8 font-medium">
-          <Link href="/" className="hover:text-[#800020]">{t.nav.home}</Link>
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500 mb-8 font-medium">
+          <Link href="/" className="hover:text-[#800020] transition-colors">{t.nav.home}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
-          <Link href="/products" className="hover:text-[#800020]">{t.nav.products}</Link>
+          <Link href="/products" className="hover:text-[#800020] transition-colors">{t.nav.products}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
           <span className="text-[#800020] font-bold truncate max-w-xs">{product.productName}</span>
         </nav>
 
         {/* Product Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-sm mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-sm mb-12">
           
           {/* Left Column: Image Gallery */}
           <div className="space-y-4">
             <div 
               onClick={() => openZoom(activeImage || product.mainImage)}
-              className="relative aspect-square rounded-2xl overflow-hidden bg-stone-100 border border-stone-200 cursor-zoom-in group shadow-sm transition-all hover:shadow-md"
+              className="relative aspect-square rounded-3xl overflow-hidden bg-stone-100 border border-stone-200/80 cursor-zoom-in group shadow-sm transition-all hover:shadow-md"
               title={language === 'EN' ? 'Click to zoom product image' : 'Klik untuk memperbesar gambar produk'}
             >
               <img 
@@ -705,12 +713,12 @@ export default function ProductDetailPage() {
                 loading="eager"
                 decoding="async"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
 
               {/* Hover Zoom Badge / Overlay Indicator */}
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                <div className="bg-black/75 text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-lg backdrop-blur-sm transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                <div className="bg-black/80 text-white text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-2xl backdrop-blur-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                   <ZoomIn className="w-4 h-4 text-[#D4AF37]" />
                   <span>{language === 'EN' ? 'Click to Zoom' : 'Klik untuk Perbesar'}</span>
                 </div>
@@ -723,8 +731,8 @@ export default function ProductDetailPage() {
                   e.stopPropagation();
                   toggleWishlist(product.id);
                 }}
-                className={`absolute top-4 right-4 p-3 rounded-full backdrop-blur-md shadow-lg transition-transform active:scale-95 z-10 ${
-                  isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 text-stone-700 hover:text-red-500'
+                className={`absolute top-4 right-4 p-3 rounded-full backdrop-blur-md shadow-lg transition-transform active:scale-95 z-10 cursor-pointer ${
+                  isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 text-stone-700 hover:text-red-500 hover:bg-white'
                 }`}
                 title={t.customerAccount.wishlistTitle}
                 aria-label={t.customerAccount.wishlistTitle}
@@ -742,7 +750,7 @@ export default function ProductDetailPage() {
                     <button
                       key={idx}
                       onClick={() => setActiveImage(imgUrl)}
-                      className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all relative ${
+                      className={`w-20 h-20 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all relative cursor-pointer ${
                         isActive 
                           ? 'border-[#800020] scale-95 shadow-md ring-2 ring-[#800020]/30' 
                           : 'border-stone-200 opacity-70 hover:opacity-100 hover:border-[#800020]'
@@ -757,7 +765,7 @@ export default function ProductDetailPage() {
                         className="w-full h-full object-cover" 
                       />
                       {isActive && (
-                        <div className="absolute inset-0 border-2 border-[#800020] rounded-xl pointer-events-none" />
+                        <div className="absolute inset-0 border-2 border-[#800020] rounded-2xl pointer-events-none" />
                       )}
                     </button>
                   );
@@ -769,24 +777,24 @@ export default function ProductDetailPage() {
           {/* Right Column: Product Information & Purchase Selector */}
           <div className="flex flex-col justify-between space-y-6">
             <div>
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className="px-2.5 py-0.5 bg-[#800020]/10 text-[#800020] text-xs font-bold rounded-md uppercase">
+              <div className="flex items-center gap-2 mb-2.5 flex-wrap">
+                <span className="px-3 py-1 bg-[#800020]/10 border border-[#800020]/20 text-[#800020] text-xs font-black rounded-full uppercase tracking-wider">
                   {product.categoryName || 'Baking Supply'}
                 </span>
                 <span className="text-xs font-bold text-stone-500">Brand: {product.brand}</span>
                 {product.isHalal && (
-                  <span className="px-2.5 py-0.5 bg-emerald-700 text-white text-xs font-extrabold rounded-md flex items-center gap-1">
+                  <span className="px-3 py-1 bg-emerald-800 text-white text-xs font-black rounded-full flex items-center gap-1 shadow-sm">
                     <ShieldCheck className="w-3.5 h-3.5" /> {t.productDetail.halalCertified}
                   </span>
                 )}
               </div>
 
-              <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#2B1B1B] leading-tight">
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black text-[#2B1B1B] leading-tight tracking-tight">
                 {product.productName}
               </h1>
 
               {/* RATING, REVIEWS & TOTAL SOLD COUNTER */}
-              <div className="flex items-center gap-3 mt-3 flex-wrap">
+              <div className="flex items-center gap-3 mt-4 flex-wrap">
                 <span className="px-3 py-1 bg-orange-100 border border-orange-300 text-orange-800 text-xs font-black rounded-full flex items-center gap-1.5 shadow-sm">
                   <Flame className="w-4 h-4 fill-orange-500 text-orange-500" /> {formatSoldQuantity(product.totalSold)}
                 </span>
@@ -800,30 +808,30 @@ export default function ProductDetailPage() {
                       />
                     ))}
                   </div>
-                  <span className="text-xs font-bold text-stone-900">{ratingStats.averageRating}</span>
-                  <span className="text-xs text-stone-500">({ratingStats.reviewCount} {language === 'EN' ? 'Reviews' : language === 'MS' ? 'Ulasan' : 'Ulasan'})</span>
+                  <span className="text-xs font-extrabold text-stone-900">{ratingStats.averageRating}</span>
+                  <span className="text-xs text-stone-500 font-medium">({ratingStats.reviewCount} {language === 'EN' ? 'Reviews' : language === 'MS' ? 'Ulasan' : 'Ulasan'})</span>
                 </div>
               </div>
 
-              <p className="text-stone-600 text-sm mt-3 leading-relaxed">
+              <p className="text-stone-600 text-xs sm:text-sm mt-4 leading-relaxed font-medium">
                 {product.shortDescription}
               </p>
 
               {/* Price Display */}
-              <div className="mt-6 p-4 bg-[#FFF8F0] rounded-2xl border border-[#EADBC8] flex items-baseline justify-between">
+              <div className="mt-6 p-5 bg-gradient-to-r from-[#FFF8F0] via-white to-[#FFF8F0] rounded-3xl border border-[#EADBC8] flex items-baseline justify-between shadow-sm">
                 <div>
-                  <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">{t.productDetail.pricePerPack}</span>
-                  <span className="font-serif text-3xl font-extrabold text-[#800020]">
+                  <span className="text-xs font-black text-stone-500 uppercase tracking-widest block">{t.productDetail.pricePerPack}</span>
+                  <span className="font-serif text-3xl sm:text-4xl font-black text-[#800020]">
                     {selectedVariant ? formatMYR(selectedVariant.price * quantity) : formatMYR(0)}
                   </span>
                 </div>
-                <span className="text-xs font-mono text-stone-500">SKU: {selectedVariant?.sku}</span>
+                <span className="text-xs font-mono text-stone-400 font-bold">SKU: {selectedVariant?.sku}</span>
               </div>
 
               {/* Weight Variant Selector */}
               {product.variants && product.variants.length > 0 && (
                 <div className="mt-6">
-                  <label className="block text-xs font-bold text-[#2B1B1B] uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-black text-[#2B1B1B] uppercase tracking-widest mb-2.5">
                     {t.productDetail.selectVariant}
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -831,14 +839,14 @@ export default function ProductDetailPage() {
                       <button
                         key={v.id}
                         onClick={() => setSelectedVariant(v)}
-                        className={`p-3 rounded-xl border text-left transition-all ${
+                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                           selectedVariant?.id === v.id
-                            ? 'bg-[#800020] text-white border-[#800020] shadow-md ring-2 ring-[#800020]/20'
-                            : 'bg-white text-stone-800 border-stone-300 hover:border-[#800020]'
+                            ? 'bg-[#800020] text-[#F7E7CE] border-[#800020] shadow-md ring-2 ring-[#800020]/30'
+                            : 'bg-white text-stone-800 border-stone-200 hover:border-[#800020]'
                         }`}
                       >
-                        <span className="block text-sm font-bold">{v.variantName}</span>
-                        <span className={`text-xs block mt-0.5 ${selectedVariant?.id === v.id ? 'text-[#D4AF37]' : 'text-[#800020] font-bold'}`}>
+                        <span className="block text-xs sm:text-sm font-extrabold">{v.variantName}</span>
+                        <span className={`text-xs block mt-0.5 font-bold ${selectedVariant?.id === v.id ? 'text-[#D4AF37]' : 'text-[#800020]'}`}>
                           {formatMYR(v.price)}
                         </span>
                       </button>
@@ -849,11 +857,11 @@ export default function ProductDetailPage() {
 
               {/* Quantity Controller with Direct Nominal Input */}
               <div className="mt-6 flex items-center gap-4">
-                <span className="text-xs font-bold text-[#2B1B1B] uppercase tracking-wider">{t.productDetail.quantity}:</span>
-                <div className="flex items-center border border-stone-300 rounded-xl bg-stone-50 p-1">
+                <span className="text-xs font-black text-[#2B1B1B] uppercase tracking-widest">{t.productDetail.quantity}:</span>
+                <div className="flex items-center border border-stone-300 rounded-2xl bg-stone-50 p-1">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 text-stone-600 hover:text-[#800020] transition-colors"
+                    className="p-2 text-stone-600 hover:text-[#800020] transition-colors cursor-pointer"
                     title="Kurangi jumlah"
                   >
                     <Minus className="w-4 h-4" />
@@ -871,13 +879,13 @@ export default function ProductDetailPage() {
                         setQuantity(1);
                       }
                     }}
-                    className="w-16 text-center font-bold text-sm text-[#800020] bg-white border border-stone-200 rounded-lg py-1 mx-1 focus:outline-none focus:border-[#800020] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-16 text-center font-black text-sm text-[#800020] bg-white border border-stone-200 rounded-xl py-1.5 mx-1 focus:outline-none focus:border-[#800020] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     title="Ketik nominal jumlah yang diinginkan"
                   />
 
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 text-stone-600 hover:text-[#800020] transition-colors"
+                    className="p-2 text-stone-600 hover:text-[#800020] transition-colors cursor-pointer"
                     title="Tambah jumlah"
                   >
                     <Plus className="w-4 h-4" />
@@ -891,10 +899,10 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-stone-100">
               <button
                 onClick={handleAddToCart}
-                className={`py-3.5 px-6 rounded-2xl text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${
+                className={`py-4 px-6 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer ${
                   isAdded
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-[#800020] hover:bg-[#6F1D1B] text-white active:scale-95'
+                    ? 'bg-emerald-700 text-white'
+                    : 'bg-[#800020] hover:bg-[#600018] text-[#F7E7CE] active:scale-95'
                 }`}
               >
                 {isAdded ? (
@@ -910,7 +918,7 @@ export default function ProductDetailPage() {
 
               <button
                 onClick={handleDirectWhatsApp}
-                className="py-3.5 px-6 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
+                className="py-4 px-6 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
               >
                 <MessageCircle className="w-5 h-5 fill-white" /> {t.productDetail.orderWhatsApp}
               </button>
@@ -918,7 +926,7 @@ export default function ProductDetailPage() {
               <div className="col-span-1 sm:col-span-2 grid grid-cols-2 gap-2.5">
                 <button
                   onClick={handleOpenShare}
-                  className="py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl text-xs sm:text-sm font-bold transition-all border border-stone-300 flex items-center justify-center gap-2 active:scale-95 shadow-sm"
+                  className="py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl text-xs sm:text-sm font-bold transition-all border border-stone-300 flex items-center justify-center gap-2 active:scale-95 shadow-sm cursor-pointer"
                   title="Bagikan Produk ini"
                 >
                   <Share2 className="w-4 h-4 text-[#800020]" />
@@ -927,7 +935,7 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={() => product && toggleCompare(product.id)}
-                  className={`py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all border flex items-center justify-center gap-2 active:scale-95 shadow-sm ${
+                  className={`py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all border flex items-center justify-center gap-2 active:scale-95 shadow-sm cursor-pointer ${
                     product && isInCompare(product.id)
                       ? 'bg-[#800020] text-white border-[#800020]'
                       : 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300'
@@ -941,11 +949,11 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Additional Info Cards */}
-            <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-stone-600">
-              <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-stone-600 font-medium">
+              <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200/90 flex items-center gap-2">
                 <Truck className="w-4 h-4 text-[#800020]" /> {t.productDetail.fastDelivery}
               </div>
-              <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center gap-2">
+              <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200/90 flex items-center gap-2">
                 <Award className="w-4 h-4 text-[#800020]" /> {language === 'EN' ? 'Commercial Bulk Rates Available' : language === 'MS' ? 'Kadar Pukal Komersial Disediakan' : 'Harga Grosir Komersial Tersedia'}
               </div>
             </div>
