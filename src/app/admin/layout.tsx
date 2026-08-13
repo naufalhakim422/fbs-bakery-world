@@ -29,12 +29,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const checkAuth = () => {
       try {
-        const hasCookie = typeof document !== 'undefined' && document.cookie.includes('fbs_admin_session=authenticated');
         let savedSession = localStorage.getItem('fbs_admin_session');
-        if (!savedSession || !hasCookie) {
+        const hasCookie = typeof document !== 'undefined' && document.cookie.includes('fbs_admin_session');
+
+        if (!savedSession) {
           setIsAdminLoggedIn(false);
           setIsCheckingAuth(false);
           return;
+        }
+
+        // If cookie was cleared but localStorage exists, restore client cookie
+        if (!hasCookie && typeof document !== 'undefined') {
+          document.cookie = "fbs_admin_session=authenticated; path=/; max-age=43200; SameSite=Lax";
         }
 
         const parsed = JSON.parse(savedSession);

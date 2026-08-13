@@ -40,11 +40,11 @@ export async function POST(request: Request) {
       });
 
       const isProd = process.env.NODE_ENV === 'production';
-      response.cookies.set('fbs_admin_session', 'authenticated_owner_token', {
+      response.cookies.set('fbs_admin_session', 'authenticated', {
         path: '/',
         sameSite: 'lax',
         secure: isProd,
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 60 * 60 * 12,
       });
 
