@@ -1328,13 +1328,7 @@ export const db = {
     const res = loadFromStorage<StoreSetting>('fbs_store_settings', storeSettingData);
     return {
       ...storeSettingData,
-      ...res,
-      address: res?.address || storeSettingData.address,
-      companyRegistrationName: res?.companyRegistrationName || storeSettingData.companyRegistrationName,
-      operatingHours: res?.operatingHours || storeSettingData.operatingHours,
-      googleMapsEmbedUrl: res?.googleMapsEmbedUrl || storeSettingData.googleMapsEmbedUrl,
-      googleMapsAppUrl: res?.googleMapsAppUrl || storeSettingData.googleMapsAppUrl,
-      stockThreshold: typeof res?.stockThreshold === 'number' ? res.stockThreshold : (storeSettingData.stockThreshold || 10),
+      ...(res || {}),
     };
   },
 

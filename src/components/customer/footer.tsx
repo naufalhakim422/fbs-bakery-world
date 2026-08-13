@@ -21,9 +21,11 @@ export const Footer: React.FC = () => {
     fetch('/api/settings')
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.settings) {
-          db.updateStoreSettings(data.settings);
-          setSettings(data.settings);
+        if (data.success && data.settings && Object.keys(data.settings).length > 0) {
+          const currentLocal = db.getStoreSettings();
+          const merged = { ...currentLocal, ...data.settings };
+          db.updateStoreSettings(merged);
+          setSettings(merged);
         }
       })
       .catch(err => console.warn('Footer settings fetch warning:', err));
