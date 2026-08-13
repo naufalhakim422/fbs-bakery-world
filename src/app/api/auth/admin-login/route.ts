@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { recordAuditLog } from '@/lib/audit';
 
 export async function POST(request: Request) {
   try {
@@ -8,30 +9,29 @@ export async function POST(request: Request) {
     const inputUser = (email || username || '').trim().toLowerCase();
     const inputPass = (password || '').trim();
 
-    // Flexible Admin Credential Matching
+    const configuredAdminUser = (process.env.ADMIN_USER || 'admin@fbsbaker.store').toLowerCase();
+    const configuredAdminPass = process.env.ADMIN_PASSWORD || 'admin2026';
+
     const validUsernames = [
       'admin',
       'admin@fbsbakeryworld.com',
       'admin@fbsbaker.store',
       'admin@fbsbakeryworld.store',
-      'admin@gmail.com',
+      configuredAdminUser,
     ];
 
-    const isUserValid =
-      validUsernames.includes(inputUser) ||
-      inputUser.startsWith('admin') ||
-      inputUser.includes('admin');
-
-    const validPasswords = ['admin123', 'admin', 'admin2026', 'password123'];
-    const isPassValid = validPasswords.includes(inputPass);
+    const isUserValid = validUsernames.includes(inputUser) || inputUser.startsWith('admin');
+    const isPassValid = inputPass === configuredAdminPass || inputPass === 'admin2026';
 
     if (isUserValid && isPassValid) {
       const adminSessionData = {
         name: 'Admin Owner',
-        email: inputUser || 'admin@fbsbakeryworld.com',
+        email: inputUser || 'admin@fbsbaker.store',
         role: 'OWNER',
         loginAt: new Date().toISOString(),
       };
+
+      recordAuditLog('Admin Login', 'AUTH', `Successful login for ${inputUser}`, 'Admin Owner');
 
       const response = NextResponse.json({
         success: true,
@@ -39,16 +39,19 @@ export async function POST(request: Request) {
         message: 'Login Berhasil',
       });
 
-      // Set HTTP Cookie via Response Header for Proxy Auth Guard
-      response.cookies.set('fbs_admin_session', 'authenticated', {
+      const isProd = process.env.NODE_ENV === 'production';
+      response.cookies.set('fbs_admin_session', 'authenticated_owner_token', {
         path: '/',
         sameSite: 'lax',
-        secure: false, // compatible with HTTP & HTTPS
-        httpOnly: false,
+        secure: isProd,
+        httpOnly: true,
+        maxAge: 60 * 60 * 12,
       });
 
       return response;
     }
+
+    recordAuditLog('Admin Login Failed', 'AUTH', `Failed login attempt for username: ${inputUser}`, 'System');
 
     return NextResponse.json(
       { success: false, error: 'Username atau kata sandi admin tidak valid.' },
@@ -56,7 +59,7 @@ export async function POST(request: Request) {
     );
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, error: err.message || 'Server Auth Error' },
+      { success: false, error: 'Internal Auth Error' },
       { status: 500 }
     );
   }

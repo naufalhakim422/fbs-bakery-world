@@ -51,8 +51,13 @@ export default function AdminLoginPage() {
         }
 
         const params = new URLSearchParams(window.location.search);
-        const callbackUrl = params.get('callbackUrl') || '/admin2026';
-        const targetRoute = callbackUrl.startsWith('/admin') ? callbackUrl.replace('/admin', '/admin2026') : '/admin2026';
+        const rawCallback = params.get('callbackUrl') || '/admin2026';
+        let targetRoute = '/admin2026';
+        if (rawCallback.startsWith('/admin2026')) {
+          targetRoute = rawCallback;
+        } else if (rawCallback.startsWith('/admin/')) {
+          targetRoute = rawCallback.replace('/admin/', '/admin2026/');
+        }
 
         // 3. Force full browser window navigation so cookie is immediately sent in HTTP headers
         window.location.href = targetRoute;

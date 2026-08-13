@@ -12,50 +12,64 @@ interface ProductBadgesProps {
 
 export const ProductBadges: React.FC<ProductBadgesProps> = ({ product, size = 'md', className = '' }) => {
   const isOutOfStock = Boolean(product.variants && product.variants.length > 0 && product.variants.every(v => (v.stock ?? 0) <= 0));
-  const isNew = Boolean(product.isNew || (product.createdAt && (Date.now() - new Date(product.createdAt).getTime() < 90 * 24 * 60 * 60 * 1000)));
-  const isSale = Boolean(product.isFeatured);
+  const isNew = Boolean(product.isNew || (product.createdAt && (Date.now() - new Date(product.createdAt).getTime() < 60 * 24 * 60 * 60 * 1000)));
+  const isSale = Boolean(product.isFeatured || (product.variants && product.variants.some(v => v.originalPrice && v.originalPrice > v.price)));
   const isBestSeller = Boolean(product.isBestSeller);
   const isHalal = Boolean(product.isHalal);
 
-  const textSize = size === 'sm' ? 'text-[8px] px-1.5 py-0.5' : 'text-[9px] px-2 py-0.5';
+  const padding = size === 'sm' ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-0.5 text-[10px]';
   const iconSize = size === 'sm' ? 'w-2.5 h-2.5' : 'w-3 h-3';
 
-  return (
-    <div className={`flex flex-col gap-1 items-start select-none z-10 ${className}`}>
-      {/* 1. OUT OF STOCK BADGE */}
-      {isOutOfStock && (
-        <span className={`${textSize} bg-slate-800 text-white font-extrabold rounded-md shadow-md flex items-center gap-1 uppercase tracking-wider`}>
-          <AlertCircle className={iconSize} /> OUT OF STOCK
+  // Render ONLY 1 single highest-priority badge to keep cards clean and clutter-free
+  if (isOutOfStock) {
+    return (
+      <div className={`select-none z-10 ${className}`}>
+        <span className={`${padding} bg-stone-900/90 text-stone-200 font-bold rounded-full backdrop-blur-md shadow-xs border border-stone-700 flex items-center gap-1 uppercase tracking-wider`}>
+          <AlertCircle className={iconSize} /> Habis
         </span>
-      )}
+      </div>
+    );
+  }
 
-      {/* 2. BEST SELLER BADGE */}
-      {isBestSeller && !isOutOfStock && (
-        <span className={`${textSize} bg-[#D4AF37] text-[#800020] font-black rounded-md shadow-md flex items-center gap-1 uppercase tracking-wider`}>
-          <Flame className={`${iconSize} fill-[#800020] text-[#800020]`} /> BEST SELLER
+  if (isBestSeller) {
+    return (
+      <div className={`select-none z-10 ${className}`}>
+        <span className={`${padding} bg-[#800020] text-amber-200 font-bold rounded-full backdrop-blur-md shadow-xs border border-[#800020] flex items-center gap-1 uppercase tracking-wider`}>
+          <Flame className={`${iconSize} fill-amber-300 text-amber-300`} /> Best Seller
         </span>
-      )}
+      </div>
+    );
+  }
 
-      {/* 3. NEW ARRIVAL BADGE */}
-      {isNew && !isOutOfStock && (
-        <span className={`${textSize} bg-teal-600 text-white font-extrabold rounded-md shadow-md flex items-center gap-1 uppercase tracking-wider`}>
-          <Sparkles className={iconSize} /> NEW
+  if (isSale) {
+    return (
+      <div className={`select-none z-10 ${className}`}>
+        <span className={`${padding} bg-rose-700 text-white font-bold rounded-full backdrop-blur-md shadow-xs border border-rose-600 flex items-center gap-1 uppercase tracking-wider`}>
+          <Tag className={iconSize} /> Promo
         </span>
-      )}
+      </div>
+    );
+  }
 
-      {/* 4. SALE BADGE */}
-      {isSale && !isOutOfStock && (
-        <span className={`${textSize} bg-red-600 text-white font-black rounded-md shadow-md flex items-center gap-1 uppercase tracking-wider`}>
-          <Tag className={iconSize} /> SALE
+  if (isNew) {
+    return (
+      <div className={`select-none z-10 ${className}`}>
+        <span className={`${padding} bg-emerald-800 text-white font-bold rounded-full backdrop-blur-md shadow-xs border border-emerald-700 flex items-center gap-1 uppercase tracking-wider`}>
+          <Sparkles className={iconSize} /> Baru
         </span>
-      )}
+      </div>
+    );
+  }
 
-      {/* 5. HALAL BADGE */}
-      {isHalal && (
-        <span className={`${textSize} bg-emerald-800 text-white font-extrabold rounded-md shadow-md flex items-center gap-1 uppercase tracking-wider`}>
-          <ShieldCheck className={iconSize} /> 100% HALAL
+  if (isHalal) {
+    return (
+      <div className={`select-none z-10 ${className}`}>
+        <span className={`${padding} bg-emerald-900/90 text-emerald-100 font-bold rounded-full backdrop-blur-md shadow-xs border border-emerald-700 flex items-center gap-1 uppercase tracking-wider`}>
+          <ShieldCheck className={iconSize} /> 100% Halal
         </span>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  return null;
 };

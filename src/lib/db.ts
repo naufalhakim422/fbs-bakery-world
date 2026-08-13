@@ -490,7 +490,7 @@ export const saveToStorage = <T>(key: string, value: T) => {
 
 export const db = {
   // Products
-  getProducts: (params?: { category?: string; search?: string; featured?: boolean; bestSeller?: boolean }) => {
+  getProducts: (params?: { category?: string; search?: string; featured?: boolean; bestSeller?: boolean; includeInactive?: boolean }) => {
     let list = loadFromStorage<Product[]>('fbs_products', initialProducts);
     if (!list || !Array.isArray(list) || list.length === 0) {
       list = initialProducts;
@@ -508,6 +508,11 @@ export const db = {
     });
     if (hasLegacy) {
       saveToStorage('fbs_products', list);
+    }
+
+    // Strict filter: exclude soft-deleted or inactive products for customer-facing views
+    if (!params?.includeInactive) {
+      list = list.filter(p => p && p.status !== false && !(p as any).deletedAt);
     }
 
     if (params?.category) {

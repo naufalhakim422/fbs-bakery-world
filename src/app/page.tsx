@@ -112,8 +112,17 @@ export default function HomePage() {
         const ids: string[] = JSON.parse(saved);
         if (Array.isArray(ids) && ids.length > 0) {
           const allProds = db.getProducts();
-          const list = ids.map(id => allProds.find(p => p.id === id)).filter(Boolean) as Product[];
-          setRecentlyViewed(list);
+          const validActiveProds = ids
+            .map(id => allProds.find(p => p.id === id))
+            .filter((p): p is Product => Boolean(p && p.status !== false && !(p as any).deletedAt));
+
+          setRecentlyViewed(validActiveProds);
+
+          // Purge legacy/deleted product IDs from localStorage
+          const validActiveIds = validActiveProds.map(p => p.id);
+          if (validActiveIds.length !== ids.length) {
+            localStorage.setItem('fbs_recently_viewed', JSON.stringify(validActiveIds));
+          }
         }
       }
     } catch (e) {}

@@ -456,14 +456,14 @@ export default function ProductDetailPage() {
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];
-    return db.getProducts({ category: product.categoryId }).filter(p => p.id !== product.id).slice(0, 4);
+    return db.getProducts({ category: product.categoryId }).filter(p => p.id !== product.id && p.status !== false && !(p as any).deletedAt).slice(0, 4);
   }, [product]);
 
   const frequentlyBoughtTogether = useMemo(() => {
     if (!product) return [];
     const allProds = db.getProducts();
     return allProds
-      .filter(p => p.id !== product.id && (p.categoryId === product.categoryId || p.brand === product.brand || p.isBestSeller))
+      .filter(p => p.id !== product.id && p.status !== false && !(p as any).deletedAt && (p.categoryId === product.categoryId || p.brand === product.brand || p.isBestSeller))
       .slice(0, 4);
   }, [product]);
 
