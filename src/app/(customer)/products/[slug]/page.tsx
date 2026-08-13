@@ -685,10 +685,10 @@ export default function ProductDetailPage() {
       <AnnouncementBar />
       <HeaderNav />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full">
         
         {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500 mb-8 font-medium">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500 mb-6 font-medium">
           <Link href="/" className="hover:text-[#800020] transition-colors">{t.nav.home}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
           <Link href="/products" className="hover:text-[#800020] transition-colors">{t.nav.products}</Link>
@@ -697,13 +697,13 @@ export default function ProductDetailPage() {
         </nav>
 
         {/* Product Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-sm mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm mb-10">
           
           {/* Left Column: Image Gallery */}
           <div className="space-y-4">
             <div 
               onClick={() => openZoom(activeImage || product.mainImage)}
-              className="relative aspect-square rounded-3xl overflow-hidden bg-stone-100 border border-stone-200/80 cursor-zoom-in group shadow-sm transition-all hover:shadow-md"
+              className="relative aspect-square rounded-2xl overflow-hidden bg-stone-100 border border-stone-200 cursor-zoom-in group shadow-xs transition-all hover:shadow-sm"
               title={language === 'EN' ? 'Click to zoom product image' : 'Klik untuk memperbesar gambar produk'}
             >
               <img 
@@ -713,46 +713,46 @@ export default function ProductDetailPage() {
                 loading="eager"
                 decoding="async"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
 
               {/* Hover Zoom Badge / Overlay Indicator */}
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                <div className="bg-black/80 text-white text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-2xl backdrop-blur-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                  <ZoomIn className="w-4 h-4 text-[#D4AF37]" />
+              <div className="absolute inset-0 bg-black/15 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                <div className="bg-black/75 text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-lg backdrop-blur-xs transform translate-y-1 group-hover:translate-y-0 transition-all duration-200">
+                  <ZoomIn className="w-4 h-4 text-[#FFF8F0]" />
                   <span>{language === 'EN' ? 'Click to Zoom' : 'Klik untuk Perbesar'}</span>
                 </div>
               </div>
 
               {/* Product Badges Overlay */}
-              <ProductBadges product={product} size="md" className="absolute top-4 left-4 z-10" />
+              <ProductBadges product={product} size="md" className="absolute top-3 left-3 z-10" />
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleWishlist(product.id);
                 }}
-                className={`absolute top-4 right-4 p-3 rounded-full backdrop-blur-md shadow-lg transition-transform active:scale-95 z-10 cursor-pointer ${
+                className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md shadow-md transition-transform active:scale-95 z-10 cursor-pointer ${
                   isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 text-stone-700 hover:text-red-500 hover:bg-white'
                 }`}
                 title={t.customerAccount.wishlistTitle}
                 aria-label={t.customerAccount.wishlistTitle}
               >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-white' : ''}`} />
+                <Heart className={`w-4 h-4 ${isFavorite ? 'fill-white' : ''}`} />
               </button>
             </div>
 
             {/* Thumbnail Gallery List */}
             {allImages.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+              <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none">
                 {allImages.map((imgUrl, idx) => {
                   const isActive = (activeImage || product.mainImage) === imgUrl;
                   return (
                     <button
                       key={idx}
                       onClick={() => setActiveImage(imgUrl)}
-                      className={`w-20 h-20 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all relative cursor-pointer ${
+                      className={`w-18 h-18 rounded-xl overflow-hidden border-2 shrink-0 transition-all relative cursor-pointer ${
                         isActive 
-                          ? 'border-[#800020] scale-95 shadow-md ring-2 ring-[#800020]/30' 
+                          ? 'border-[#800020] scale-95 shadow-xs' 
                           : 'border-stone-200 opacity-70 hover:opacity-100 hover:border-[#800020]'
                       }`}
                       aria-label={`View Product Image ${idx + 1}`}
@@ -764,9 +764,6 @@ export default function ProductDetailPage() {
                         decoding="async" 
                         className="w-full h-full object-cover" 
                       />
-                      {isActive && (
-                        <div className="absolute inset-0 border-2 border-[#800020] rounded-2xl pointer-events-none" />
-                      )}
                     </button>
                   );
                 })}
@@ -776,52 +773,52 @@ export default function ProductDetailPage() {
 
           {/* Right Column: Product Information & Purchase Selector */}
           <div className="flex flex-col justify-between space-y-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2.5 flex-wrap">
-                <span className="px-3 py-1 bg-[#800020]/10 border border-[#800020]/20 text-[#800020] text-xs font-black rounded-full uppercase tracking-wider">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 flex-wrap text-xs">
+                <span className="px-2.5 py-0.5 bg-[#800020]/10 border border-[#800020]/20 text-[#800020] font-bold rounded-md uppercase tracking-wider">
                   {product.categoryName || 'Baking Supply'}
                 </span>
-                <span className="text-xs font-bold text-stone-500">Brand: {product.brand}</span>
+                <span className="font-bold text-stone-500">Brand: {product.brand}</span>
                 {product.isHalal && (
-                  <span className="px-3 py-1 bg-emerald-800 text-white text-xs font-black rounded-full flex items-center gap-1 shadow-sm">
+                  <span className="px-2.5 py-0.5 bg-emerald-800 text-white font-bold rounded-md flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" /> {t.productDetail.halalCertified}
                   </span>
                 )}
               </div>
 
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black text-[#2B1B1B] leading-tight tracking-tight">
+              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2B1B1B] leading-tight tracking-tight">
                 {product.productName}
               </h1>
 
               {/* RATING, REVIEWS & TOTAL SOLD COUNTER */}
-              <div className="flex items-center gap-3 mt-4 flex-wrap">
-                <span className="px-3 py-1 bg-orange-100 border border-orange-300 text-orange-800 text-xs font-black rounded-full flex items-center gap-1.5 shadow-sm">
-                  <Flame className="w-4 h-4 fill-orange-500 text-orange-500" /> {formatSoldQuantity(product.totalSold)}
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold rounded-lg flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 fill-amber-600 text-amber-600" /> {formatSoldQuantity(product.totalSold)}
                 </span>
 
-                <div className="flex items-center gap-1.5 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                  <div className="flex text-amber-400">
+                <div className="flex items-center gap-1.5 bg-stone-50 px-2.5 py-1 rounded-lg border border-stone-200 text-xs">
+                  <div className="flex text-amber-500">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${i < Math.floor(ratingStats.averageRating) ? 'fill-current' : 'text-stone-300'}`}
+                        className={`w-3.5 h-3.5 ${i < Math.floor(ratingStats.averageRating) ? 'fill-current' : 'text-stone-300'}`}
                       />
                     ))}
                   </div>
-                  <span className="text-xs font-extrabold text-stone-900">{ratingStats.averageRating}</span>
-                  <span className="text-xs text-stone-500 font-medium">({ratingStats.reviewCount} {language === 'EN' ? 'Reviews' : language === 'MS' ? 'Ulasan' : 'Ulasan'})</span>
+                  <span className="font-bold text-stone-900">{ratingStats.averageRating}</span>
+                  <span className="text-stone-500 font-medium">({ratingStats.reviewCount} {language === 'EN' ? 'Reviews' : 'Ulasan'})</span>
                 </div>
               </div>
 
-              <p className="text-stone-600 text-xs sm:text-sm mt-4 leading-relaxed font-medium">
+              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-medium">
                 {product.shortDescription}
               </p>
 
               {/* Price Display */}
-              <div className="mt-6 p-5 bg-gradient-to-r from-[#FFF8F0] via-white to-[#FFF8F0] rounded-3xl border border-[#EADBC8] flex items-baseline justify-between shadow-sm">
+              <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 flex items-baseline justify-between">
                 <div>
-                  <span className="text-xs font-black text-stone-500 uppercase tracking-widest block">{t.productDetail.pricePerPack}</span>
-                  <span className="font-serif text-3xl sm:text-4xl font-black text-[#800020]">
+                  <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block">{t.productDetail.pricePerPack}</span>
+                  <span className="font-serif text-2xl sm:text-3xl font-bold text-[#800020]">
                     {selectedVariant ? formatMYR(selectedVariant.price * quantity) : formatMYR(0)}
                   </span>
                 </div>
@@ -830,23 +827,23 @@ export default function ProductDetailPage() {
 
               {/* Weight Variant Selector */}
               {product.variants && product.variants.length > 0 && (
-                <div className="mt-6">
-                  <label className="block text-xs font-black text-[#2B1B1B] uppercase tracking-widest mb-2.5">
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-[#2B1B1B] uppercase tracking-wider">
                     {t.productDetail.selectVariant}
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {product.variants.map((v) => (
                       <button
                         key={v.id}
                         onClick={() => setSelectedVariant(v)}
-                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                           selectedVariant?.id === v.id
-                            ? 'bg-[#800020] text-[#F7E7CE] border-[#800020] shadow-md ring-2 ring-[#800020]/30'
+                            ? 'bg-[#800020] text-[#FFF8F0] border-[#800020]'
                             : 'bg-white text-stone-800 border-stone-200 hover:border-[#800020]'
                         }`}
                       >
-                        <span className="block text-xs sm:text-sm font-extrabold">{v.variantName}</span>
-                        <span className={`text-xs block mt-0.5 font-bold ${selectedVariant?.id === v.id ? 'text-[#D4AF37]' : 'text-[#800020]'}`}>
+                        <span className="block text-xs font-bold">{v.variantName}</span>
+                        <span className={`text-xs block mt-0.5 font-bold ${selectedVariant?.id === v.id ? 'text-[#FFF8F0]' : 'text-[#800020]'}`}>
                           {formatMYR(v.price)}
                         </span>
                       </button>
@@ -856,12 +853,12 @@ export default function ProductDetailPage() {
               )}
 
               {/* Quantity Controller with Direct Nominal Input */}
-              <div className="mt-6 flex items-center gap-4">
-                <span className="text-xs font-black text-[#2B1B1B] uppercase tracking-widest">{t.productDetail.quantity}:</span>
-                <div className="flex items-center border border-stone-300 rounded-2xl bg-stone-50 p-1">
+              <div className="flex items-center gap-4 pt-1">
+                <span className="text-xs font-bold text-[#2B1B1B] uppercase tracking-wider">{t.productDetail.quantity}:</span>
+                <div className="flex items-center border border-stone-300 rounded-xl bg-stone-50 p-1">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 text-stone-600 hover:text-[#800020] transition-colors cursor-pointer"
+                    className="p-1.5 text-stone-600 hover:text-[#800020] transition-colors cursor-pointer"
                     title="Kurangi jumlah"
                   >
                     <Minus className="w-4 h-4" />
@@ -879,13 +876,13 @@ export default function ProductDetailPage() {
                         setQuantity(1);
                       }
                     }}
-                    className="w-16 text-center font-black text-sm text-[#800020] bg-white border border-stone-200 rounded-xl py-1.5 mx-1 focus:outline-none focus:border-[#800020] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-14 text-center font-bold text-xs text-[#800020] bg-white border border-stone-200 rounded-lg py-1 mx-1 focus:outline-none focus:border-[#800020] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     title="Ketik nominal jumlah yang diinginkan"
                   />
 
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 text-stone-600 hover:text-[#800020] transition-colors cursor-pointer"
+                    className="p-1.5 text-stone-600 hover:text-[#800020] transition-colors cursor-pointer"
                     title="Tambah jumlah"
                   >
                     <Plus className="w-4 h-4" />
@@ -896,65 +893,67 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Action Buttons: Add to Cart & WhatsApp */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-stone-100">
-              <button
-                onClick={handleAddToCart}
-                className={`py-4 px-6 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer ${
-                  isAdded
-                    ? 'bg-emerald-700 text-white'
-                    : 'bg-[#800020] hover:bg-[#600018] text-[#F7E7CE] active:scale-95'
-                }`}
-              >
-                {isAdded ? (
-                  <>
-                    <Check className="w-5 h-5" /> {language === 'EN' ? 'Added to Shopping Cart!' : language === 'MS' ? 'Ditambah ke Troli!' : 'Ditambahkan ke Keranjang!'}
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-5 h-5" /> {t.productDetail.addToCart}
-                  </>
-                )}
-              </button>
+            <div className="space-y-2.5 pt-4 border-t border-stone-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button
+                  onClick={handleAddToCart}
+                  className={`py-3.5 px-5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    isAdded
+                      ? 'bg-emerald-700 text-white'
+                      : 'bg-[#800020] hover:bg-[#600018] text-[#FFF8F0] active:scale-95'
+                  }`}
+                >
+                  {isAdded ? (
+                    <>
+                      <Check className="w-4 h-4" /> {language === 'EN' ? 'Added to Cart!' : 'Ditambahkan!'}
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-4 h-4" /> {t.productDetail.addToCart}
+                    </>
+                  )}
+                </button>
 
-              <button
-                onClick={handleDirectWhatsApp}
-                className="py-4 px-6 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-              >
-                <MessageCircle className="w-5 h-5 fill-white" /> {t.productDetail.orderWhatsApp}
-              </button>
+                <button
+                  onClick={handleDirectWhatsApp}
+                  className="py-3.5 px-5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4 fill-white" /> {t.productDetail.orderWhatsApp}
+                </button>
+              </div>
 
-              <div className="col-span-1 sm:col-span-2 grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
                   onClick={handleOpenShare}
-                  className="py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl text-xs sm:text-sm font-bold transition-all border border-stone-300 flex items-center justify-center gap-2 active:scale-95 shadow-sm cursor-pointer"
+                  className="py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold transition-all border border-stone-200 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
                   title="Bagikan Produk ini"
                 >
-                  <Share2 className="w-4 h-4 text-[#800020]" />
-                  <span>{language === 'EN' ? 'Share' : language === 'MS' ? 'Kongsi' : 'Bagikan'}</span>
+                  <Share2 className="w-3.5 h-3.5 text-[#800020]" />
+                  <span>{language === 'EN' ? 'Share' : 'Bagikan'}</span>
                 </button>
 
                 <button
                   onClick={() => product && toggleCompare(product.id)}
-                  className={`py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all border flex items-center justify-center gap-2 active:scale-95 shadow-sm cursor-pointer ${
+                  className={`py-2.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-2 active:scale-95 cursor-pointer ${
                     product && isInCompare(product.id)
                       ? 'bg-[#800020] text-white border-[#800020]'
-                      : 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300'
+                      : 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-200'
                   }`}
                   title="Bandingkan Produk"
                 >
-                  <Scale className={`w-4 h-4 ${product && isInCompare(product.id) ? 'text-white' : 'text-[#800020]'}`} />
+                  <Scale className={`w-3.5 h-3.5 ${product && isInCompare(product.id) ? 'text-white' : 'text-[#800020]'}`} />
                   <span>{product && isInCompare(product.id) ? 'Dibandingkan' : 'Bandingkan'}</span>
                 </button>
               </div>
-            </div>
 
-            {/* Additional Info Cards */}
-            <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-stone-600 font-medium">
-              <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200/90 flex items-center gap-2">
-                <Truck className="w-4 h-4 text-[#800020]" /> {t.productDetail.fastDelivery}
-              </div>
-              <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200/90 flex items-center gap-2">
-                <Award className="w-4 h-4 text-[#800020]" /> {language === 'EN' ? 'Commercial Bulk Rates Available' : language === 'MS' ? 'Kadar Pukal Komersial Disediakan' : 'Harga Grosir Komersial Tersedia'}
+              {/* Additional Info Cards */}
+              <div className="grid grid-cols-2 gap-2.5 pt-2 text-xs text-stone-600 font-medium">
+                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-[#800020]" /> {t.productDetail.fastDelivery}
+                </div>
+                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center gap-2">
+                  <Award className="w-4 h-4 text-[#800020]" /> {language === 'EN' ? 'Bulk Rates Available' : 'Harga Grosir Tersedia'}
+                </div>
               </div>
             </div>
 
@@ -962,42 +961,39 @@ export default function ProductDetailPage() {
 
         </div>
 
-        {/* Frequently Bought Together Bundle Builder (Sprint 1-5 Complete) */}
+        {/* Frequently Bought Together Bundle Builder */}
         {frequentlyBoughtTogether.length > 0 && (
-          <section className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-sm mb-12 animate-fade-in">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-stone-200 pb-4 gap-4 mb-6">
-              <div>
-                <h3 className="font-serif text-2xl font-bold text-[#800020] flex items-center gap-2">
-                  <Sparkles className="w-6 h-6 text-[#800020]" />
-                  <span>{language === 'EN' ? 'Frequently Bought Together' : language === 'MS' ? 'Kerap Dibeli Bersama' : 'Sering Dibeli Bersama'}</span>
-                </h3>
-                <p className="text-stone-500 text-xs mt-1">
-                  {language === 'EN' ? 'Combine complementary baking items and add all selected items to cart with 1-click.' : 'Kombinasikan bahan baking pelengkap ini dan tambahkan semua item terpilih ke keranjang.'}
-                </p>
-              </div>
+          <section className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm mb-10">
+            <div className="border-b border-stone-200 pb-4 mb-6">
+              <h3 className="font-serif text-xl font-bold text-[#800020]">
+                {language === 'EN' ? 'Frequently Bought Together' : 'Kerap Dibeli Bersama'}
+              </h3>
+              <p className="text-stone-500 text-xs mt-0.5">
+                {language === 'EN' ? 'Combine complementary baking items with 1-click.' : 'Kombinasikan bahan baking pelengkap ini.'}
+              </p>
             </div>
 
-            {/* Bundle Items List with Checkboxes & Stock Status */}
-            <div className="space-y-4 mb-8">
+            {/* Bundle Items List */}
+            <div className="space-y-3 mb-6">
               {/* Main Product Row */}
-              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 flex items-center gap-4">
+              <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 flex items-center gap-3.5">
                 <input
                   type="checkbox"
                   checked={true}
                   disabled={true}
-                  className="w-5 h-5 accent-[#800020] rounded cursor-not-allowed"
+                  className="w-4 h-4 accent-[#800020] rounded cursor-not-allowed"
                 />
                 <img
                   src={product.mainImage}
                   alt={product.productName}
-                  className="w-16 h-16 object-cover rounded-xl border border-stone-300"
+                  className="w-14 h-14 object-cover rounded-lg border border-stone-200"
                 />
                 <div className="flex-1 min-w-0">
                   <span className="text-[10px] font-bold text-[#800020] uppercase">This Item (Main)</span>
-                  <h4 className="font-serif font-bold text-stone-900 text-sm truncate">{product.productName}</h4>
+                  <h4 className="font-bold text-stone-900 text-xs truncate">{product.productName}</h4>
                   <span className="text-xs font-bold text-[#800020]">{formatMYR(selectedVariant ? selectedVariant.price * quantity : 0)} ({selectedVariant?.variantName})</span>
                 </div>
-                <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-300">
+                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded border border-emerald-200">
                   {language === 'EN' ? 'In Stock' : 'Stok Tersedia'}
                 </span>
               </div>
@@ -1013,8 +1009,8 @@ export default function ProductDetailPage() {
                   <div 
                     key={`bundle-${p.id}`}
                     onClick={() => toggleBundleItem(p.id)}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 ${
-                      isSelected ? 'bg-[#800020]/5 border-[#800020]/30 shadow-sm' : 'bg-white border-stone-200 opacity-75 hover:opacity-100'
+                    className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center gap-3.5 ${
+                      isSelected ? 'bg-[#800020]/5 border-[#800020]/30' : 'bg-white border-stone-200 opacity-75 hover:opacity-100'
                     }`}
                   >
                     <input
@@ -1022,23 +1018,23 @@ export default function ProductDetailPage() {
                       checked={isSelected}
                       onChange={() => toggleBundleItem(p.id)}
                       onClick={(e) => e.stopPropagation()}
-                      className="w-5 h-5 accent-[#800020] rounded cursor-pointer"
+                      className="w-4 h-4 accent-[#800020] rounded cursor-pointer"
                     />
                     <Link href={`/products/${p.slug}`} onClick={(e) => e.stopPropagation()}>
                       <img
                         src={p.mainImage}
                         alt={p.productName}
-                        className="w-16 h-16 object-cover rounded-xl border border-stone-300 hover:scale-105 transition-transform"
+                        className="w-14 h-14 object-cover rounded-lg border border-stone-200 hover:scale-105 transition-transform"
                       />
                     </Link>
                     <div className="flex-1 min-w-0">
                       <Link href={`/products/${p.slug}`} onClick={(e) => e.stopPropagation()} className="hover:text-[#800020]">
-                        <h4 className="font-serif font-bold text-stone-900 text-sm truncate">{p.productName}</h4>
+                        <h4 className="font-bold text-stone-900 text-xs truncate">{p.productName}</h4>
                       </Link>
                       <span className="text-xs font-bold text-[#800020]">{formatMYR(price)} {v ? `(${v.variantName})` : ''}</span>
                     </div>
-                    <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border ${
-                      inStock ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-red-100 text-red-800 border-red-300'
+                    <span className={`px-2 py-0.5 text-xs font-bold rounded border ${
+                      inStock ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'
                     }`}>
                       {inStock ? (language === 'EN' ? 'In Stock' : 'Stok Tersedia') : (language === 'EN' ? 'Out of Stock' : 'Stok Habis')}
                     </span>
@@ -1048,31 +1044,31 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Total Subtotal & CTA Bundle Action Bar */}
-            <div className="p-6 bg-stone-900 text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+            <div className="p-5 bg-stone-900 text-white rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <span className="text-xs text-stone-400 font-medium block">
                   {language === 'EN' ? 'Total Bundle Subtotal' : 'Total Subtotal Paket'} ({1 + selectedBundleItemIds.length} {language === 'EN' ? 'items selected' : 'item terpilih'}):
                 </span>
-                <span className="font-serif text-2xl font-black text-[#D4AF37]">
+                <span className="font-serif text-xl font-bold text-[#FFF8F0]">
                   {formatMYR(bundleSubtotal)}
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={handleAddBundleToCart}
-                  className={`flex-1 sm:flex-initial px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${
+                  className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                     isBundleAdded ? 'bg-emerald-600 text-white' : 'bg-[#800020] hover:bg-[#6F1D1B] text-white active:scale-95'
                   }`}
                 >
                   {isBundleAdded ? (
                     <>
-                      <Check className="w-4 h-4" /> {language === 'EN' ? 'Bundle Added to Cart!' : 'Paket Ditambahkan!'}
+                      <Check className="w-4 h-4" /> {language === 'EN' ? 'Bundle Added!' : 'Paket Ditambahkan!'}
                     </>
                   ) : (
                     <>
-                      <ShoppingBag className="w-4 h-4" /> {language === 'EN' ? 'Add Selected Items to Cart' : 'Tambahkan Item Terpilih'}
+                      <ShoppingBag className="w-4 h-4" /> {language === 'EN' ? 'Add Selected Items' : 'Tambahkan Item Terpilih'}
                     </>
                   )}
                 </button>
@@ -1080,7 +1076,7 @@ export default function ProductDetailPage() {
                 <button
                   type="button"
                   onClick={handleWhatsAppBundle}
-                  className="flex-1 sm:flex-initial px-6 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95"
+                  className="flex-1 sm:flex-initial px-5 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95"
                 >
                   <MessageCircle className="w-4 h-4 fill-white" /> WhatsApp
                 </button>
@@ -1090,32 +1086,32 @@ export default function ProductDetailPage() {
         )}
 
         {/* Full Detailed Description Section */}
-        <div className="bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-sm mb-12">
-          <h2 className="font-serif text-2xl font-bold text-[#800020] mb-4 border-b border-stone-200 pb-3 flex items-center gap-2">
+        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm mb-10">
+          <h2 className="font-serif text-xl font-bold text-[#800020] mb-4 border-b border-stone-200 pb-3 flex items-center gap-2">
             <Info className="w-5 h-5 text-[#800020]" /> {t.productDetail.descriptionTitle}
           </h2>
-          <div className="prose max-w-none text-stone-700 text-sm leading-relaxed whitespace-pre-line">
+          <div className="prose max-w-none text-stone-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
             {product.description}
           </div>
         </div>
 
-        {/* CUSTOMER RATINGS, REVIEWS & VIDEO FEEDBACK CMS SECTION */}
-        <section className="bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-sm mb-16 space-y-8">
+        {/* CUSTOMER RATINGS, REVIEWS & VIDEO FEEDBACK SECTION */}
+        <section className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm mb-12 space-y-6">
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-stone-200 pb-4 gap-4">
             <div>
-              <h2 className="font-serif text-2xl font-bold text-[#800020] flex items-center gap-2">
-                <Star className="w-6 h-6 text-amber-400 fill-amber-400" /> {language === 'EN' ? 'Customer Ratings, Reviews & Video Demos' : language === 'MS' ? 'Penilaian, Ulasan & Video Pelanggan' : 'Penilaian, Ulasan & Video Review Pelanggan'}
+              <h2 className="font-serif text-xl font-bold text-[#800020] flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> {language === 'EN' ? 'Customer Ratings & Reviews' : 'Penilaian & Ulasan Pelanggan'}
               </h2>
               <p className="text-stone-500 text-xs mt-0.5">
-                {language === 'EN' ? 'Honest customer feedback and video product demos by FBS Bakery World bakers.' : language === 'MS' ? 'Ulasan jujur dan demo video produk oleh para baker & pelanggan FBS Bakery World.' : 'Ulasan jujur dan demo video penggunaan produk oleh para baker & pelanggan setia FBS Bakery World.'}
+                {language === 'EN' ? 'Honest customer feedback and video product demos.' : 'Ulasan jujur dan demo video penggunaan produk oleh para baker.'}
               </p>
             </div>
 
-            <div className="flex items-center gap-3 bg-amber-50 p-3.5 rounded-2xl border border-amber-200">
-              <div className="font-serif text-3xl font-black text-[#800020]">{ratingStats.averageRating}</div>
+            <div className="flex items-center gap-3 bg-stone-50 p-3 rounded-xl border border-stone-200">
+              <div className="font-serif text-2xl font-bold text-[#800020]">{ratingStats.averageRating}</div>
               <div className="text-xs">
-                <div className="flex text-amber-400">
+                <div className="flex text-amber-500">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(ratingStats.averageRating) ? 'fill-current' : 'text-stone-300'}`} />
                   ))}
@@ -1126,52 +1122,52 @@ export default function ProductDetailPage() {
           </div>
 
           {/* VERIFIED BUYER REVIEW REQUIREMENT NOTICE */}
-          <div className="bg-[#FFF8F0] p-6 rounded-2xl border border-[#EADBC8] text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-[#800020]/10 text-[#800020] flex items-center justify-center mx-auto">
-              <ShieldCheck className="w-6 h-6" />
+          <div className="bg-[#FFF8F0] p-5 rounded-xl border border-[#EADBC8] text-center space-y-2">
+            <div className="w-10 h-10 rounded-full bg-[#800020]/10 text-[#800020] flex items-center justify-center mx-auto">
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-serif text-base font-bold text-[#800020]">
-                {language === 'EN' ? '🔒 Review Form Reserved for Verified Buyers' : language === 'MS' ? '🔒 Borang Ulasan Khas Pembeli Terbukti' : '🔒 Form Ulasan Khusus Pembeli Terverifikasi'}
+              <h3 className="font-serif text-sm font-bold text-[#800020]">
+                {language === 'EN' ? '🔒 Review Form Reserved for Verified Buyers' : '🔒 Form Ulasan Khusus Pembeli Terverifikasi'}
               </h3>
-              <p className="text-stone-600 text-xs mt-1 max-w-lg mx-auto">
-                {language === 'EN' ? 'To ensure review authenticity, review submissions are available after your order status is DELIVERED.' : language === 'MS' ? 'Untuk memastikan ketulenan ulasan, borang ulasan aktif selepas pesanan anda BERJAYA DIHANTAR (DELIVERED).' : 'Demi menjaga kualitas & kejujuran ulasan produk, fitur ulasan hanya aktif setelah pesanan Sampai (DELIVERED).'}
+              <p className="text-stone-600 text-xs mt-0.5 max-w-lg mx-auto">
+                {language === 'EN' ? 'Review submissions are available after your order status is DELIVERED.' : 'Demi menjaga kejujuran ulasan produk, fitur ulasan aktif setelah pesanan Sampai (DELIVERED).'}
               </p>
             </div>
-            <div className="pt-2 flex justify-center gap-3">
+            <div className="pt-1 flex justify-center">
               <Link
                 href="/account"
-                className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl shadow inline-flex items-center gap-2"
+                className="px-4 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] text-xs font-bold rounded-xl inline-flex items-center gap-2"
               >
-                <Star className="w-4 h-4 fill-[#D4AF37]" /> {language === 'EN' ? 'Open My Order History to Write a Review' : language === 'MS' ? 'Buka Sejarah Pesanan Saya Untuk Beri Ulasan' : 'Buka Riwayat Pesanan Saya Untuk Beri Ulasan'}
+                <Star className="w-3.5 h-3.5 fill-[#FFF8F0]" /> {language === 'EN' ? 'Open Order History to Review' : 'Buka Riwayat Pesanan Untuk Beri Ulasan'}
               </Link>
             </div>
           </div>
 
           {/* LIST ULASAN & VIDEO FEEDBACK PELANGGAN */}
-          <div className="space-y-4 pt-4">
-            <h3 className="font-serif text-lg font-bold text-[#2B1B1B] border-b border-stone-100 pb-2">
-              {language === 'EN' ? 'Customer Reviews & Video Demonstrations' : language === 'MS' ? 'Senarai Ulasan & Video Pelanggan' : 'Daftar Ulasan & Pembuktian Video'} ({reviews.length})
+          <div className="space-y-4 pt-2">
+            <h3 className="font-serif text-base font-bold text-[#2B1B1B] border-b border-stone-100 pb-2">
+              {language === 'EN' ? 'Customer Reviews' : 'Daftar Ulasan'} ({reviews.length})
             </h3>
 
             {reviews.length === 0 ? (
-              <div className="p-8 text-center bg-stone-50 rounded-2xl border border-stone-200">
-                <p className="text-xs text-stone-500 font-bold">{language === 'EN' ? 'No reviews yet for this product. Be the first to review!' : language === 'MS' ? 'Belum ada ulasan untuk produk ini. Jadilah yang pertama memberikan ulasan!' : 'Belum ada ulasan untuk produk ini. Jadilah yang pertama memberikan ulasan!'}</p>
+              <div className="p-6 text-center bg-stone-50 rounded-xl border border-stone-200">
+                <p className="text-xs text-stone-500 font-bold">{language === 'EN' ? 'No reviews yet for this product.' : 'Belum ada ulasan untuk produk ini.'}</p>
               </div>
             ) : (
               reviews.map((rev) => (
-                <div key={rev.id} className="p-5 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+                <div key={rev.id} className="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-2.5">
                   
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-9 h-9 rounded-full bg-[#800020] text-[#D4AF37] font-serif font-black flex items-center justify-center text-sm shadow">
+                      <div className="w-8 h-8 rounded-full bg-[#800020] text-[#FFF8F0] font-serif font-bold flex items-center justify-center text-xs">
                         {rev.customerName.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="font-bold text-stone-900 text-xs">{rev.customerName}</h4>
                           {rev.verifiedPurchase && (
-                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md flex items-center gap-1">
+                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded flex items-center gap-1">
                               <ShieldCheck className="w-3 h-3 text-emerald-600" /> Verified Buyer
                             </span>
                           )}
@@ -1180,9 +1176,9 @@ export default function ProductDetailPage() {
                       </div>
                     </div>
 
-                    <div className="flex text-amber-400">
+                    <div className="flex text-amber-500">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className={`w-4 h-4 ${i < rev.rating ? 'fill-current' : 'text-stone-300'}`} />
+                        <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-current' : 'text-stone-300'}`} />
                       ))}
                     </div>
                   </div>
@@ -1199,7 +1195,7 @@ export default function ProductDetailPage() {
                           key={idx}
                           src={img} 
                           alt="Review Attachment" 
-                          className="w-24 h-24 object-cover rounded-xl border border-stone-300 shadow-sm" 
+                          className="w-20 h-20 object-cover rounded-lg border border-stone-200" 
                         />
                       ))}
                     </div>
@@ -1207,12 +1203,12 @@ export default function ProductDetailPage() {
 
                   {/* ATTACHED INTERACTIVE VIDEO PLAYER */}
                   {rev.videoUrl && (
-                    <div className="pt-2">
-                      <span className="text-[10px] font-bold text-[#800020] uppercase tracking-wider flex items-center gap-1 mb-1.5">
-                        <Video className="w-3.5 h-3.5 text-[#800020]" /> VIDEO DEMO PELANGGAN ATTACHED
+                    <div className="pt-1">
+                      <span className="text-[10px] font-bold text-[#800020] uppercase tracking-wider flex items-center gap-1 mb-1">
+                        <Video className="w-3.5 h-3.5 text-[#800020]" /> VIDEO DEMO PELANGGAN
                       </span>
-                      <div className="rounded-2xl overflow-hidden border-2 border-[#800020]/30 shadow-lg bg-black max-w-md">
-                        <video src={rev.videoUrl} controls className="w-full h-56 object-cover" />
+                      <div className="rounded-xl overflow-hidden border border-stone-300 bg-black max-w-sm">
+                        <video src={rev.videoUrl} controls className="w-full h-48 object-cover" />
                       </div>
                     </div>
                   )}
@@ -1226,8 +1222,8 @@ export default function ProductDetailPage() {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mb-16">
-            <h2 className="font-serif text-2xl font-bold text-[#2B1B1B] mb-6">
+          <section className="mb-12">
+            <h2 className="font-serif text-xl font-bold text-[#2B1B1B] mb-4">
               {t.productDetail.relatedTitle}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1240,11 +1236,11 @@ export default function ProductDetailPage() {
 
         {/* Recently Viewed Products */}
         {recentlyViewedProducts.length > 0 && (
-          <section className="mb-16 animate-fade-in">
-            <div className="flex items-center justify-between mb-6 border-b border-stone-200 pb-4">
-              <h2 className="font-serif text-2xl font-bold text-[#800020] flex items-center gap-2">
-                <Clock className="w-6 h-6 text-[#800020]" />
-                <span>{language === 'EN' ? 'Recently Viewed' : language === 'MS' ? 'Produk Baru Dilihat' : 'Produk Terakhir Dilihat'}</span>
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-4 border-b border-stone-200 pb-3">
+              <h2 className="font-serif text-xl font-bold text-[#800020] flex items-center gap-2">
+                <Clock className="w-5 h-5 text-[#800020]" />
+                <span>{language === 'EN' ? 'Recently Viewed' : 'Produk Terakhir Dilihat'}</span>
               </h2>
               <span className="text-xs text-stone-500 font-medium">
                 {recentlyViewedProducts.length} {language === 'EN' ? 'items' : 'produk'}
@@ -1263,7 +1259,7 @@ export default function ProductDetailPage() {
       {/* Fullscreen Interactive Zoom Viewer Modal */}
       {isZoomOpen && (
         <div 
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between animate-fade-in select-none overflow-hidden"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between select-none overflow-hidden"
           onClick={closeZoom}
         >
           {/* Top Header Bar */}
@@ -1273,18 +1269,18 @@ export default function ProductDetailPage() {
           >
             {/* Product Name & Counter */}
             <div className="flex items-center gap-3 min-w-0">
-              <span className="font-bold text-sm sm:text-base text-[#F7E7CE] truncate max-w-xs sm:max-w-md">
+              <span className="font-bold text-sm sm:text-base text-[#FFF8F0] truncate max-w-xs sm:max-w-md">
                 {product.productName}
               </span>
               {allImages.length > 1 && (
-                <span className="text-xs px-2.5 py-1 bg-white/10 rounded-full font-mono text-stone-300 flex-shrink-0">
+                <span className="text-xs px-2.5 py-1 bg-white/10 rounded-full font-mono text-stone-300 shrink-0">
                   {zoomIndex + 1} / {allImages.length}
                 </span>
               )}
             </div>
 
             {/* Control Buttons & Close */}
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <div className="hidden sm:flex items-center gap-1 bg-white/10 px-2.5 py-1.5 rounded-xl backdrop-blur-md text-xs font-mono text-stone-300">
                 <span>{Math.round(zoomScale * 100)}%</span>
               </div>
@@ -1292,7 +1288,7 @@ export default function ProductDetailPage() {
               <button
                 onClick={zoomOut}
                 disabled={zoomScale <= 1}
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors"
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors cursor-pointer"
                 title="Zoom Out (-)"
                 aria-label="Zoom Out"
               >
@@ -1302,7 +1298,7 @@ export default function ProductDetailPage() {
               <button
                 onClick={zoomIn}
                 disabled={zoomScale >= 4}
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors"
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors cursor-pointer"
                 title="Zoom In (+)"
                 aria-label="Zoom In"
               >
@@ -1312,7 +1308,7 @@ export default function ProductDetailPage() {
               <button
                 onClick={resetZoom}
                 disabled={zoomScale === 1 && zoomPos.x === 0 && zoomPos.y === 0}
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors"
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none text-white transition-colors cursor-pointer"
                 title="Reset Zoom"
                 aria-label="Reset Zoom"
               >
@@ -1321,7 +1317,7 @@ export default function ProductDetailPage() {
 
               <button
                 onClick={closeZoom}
-                className="p-2 sm:p-2.5 rounded-xl bg-red-600/90 hover:bg-red-600 text-white transition-colors ml-1 sm:ml-2 shadow-lg"
+                className="p-2 sm:p-2.5 rounded-xl bg-red-600/90 hover:bg-red-600 text-white transition-colors ml-1 sm:ml-2 shadow-lg cursor-pointer"
                 title="Close (ESC)"
                 aria-label="Close Modal"
               >
@@ -1363,7 +1359,7 @@ export default function ProductDetailPage() {
               <>
                 <button
                   onClick={prevZoomImage}
-                  className="absolute left-3 sm:left-6 p-2.5 sm:p-3.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-transform active:scale-95 shadow-2xl backdrop-blur-md z-30 border border-white/10"
+                  className="absolute left-3 sm:left-6 p-2.5 sm:p-3.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-transform active:scale-95 shadow-2xl backdrop-blur-md z-30 border border-white/10 cursor-pointer"
                   title="Previous Image (Left Arrow)"
                   aria-label="Previous Image"
                 >
@@ -1372,7 +1368,7 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={nextZoomImage}
-                  className="absolute right-3 sm:right-6 p-2.5 sm:p-3.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-transform active:scale-95 shadow-2xl backdrop-blur-md z-30 border border-white/10"
+                  className="absolute right-3 sm:right-6 p-2.5 sm:p-3.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition-transform active:scale-95 shadow-2xl backdrop-blur-md z-30 border border-white/10 cursor-pointer"
                   title="Next Image (Right Arrow)"
                   aria-label="Next Image"
                 >
@@ -1403,9 +1399,9 @@ export default function ProductDetailPage() {
                       setZoomIndex(idx);
                       resetZoom();
                     }}
-                    className={`w-14 h-14 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
+                    className={`w-14 h-14 rounded-lg overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
                       zoomIndex === idx 
-                        ? 'border-[#D4AF37] scale-105 ring-2 ring-[#D4AF37]/50 shadow-lg' 
+                        ? 'border-[#FFF8F0] scale-105 shadow-lg' 
                         : 'border-white/20 opacity-50 hover:opacity-100'
                     }`}
                   >

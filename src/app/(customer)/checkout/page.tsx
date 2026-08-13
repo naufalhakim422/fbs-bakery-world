@@ -24,13 +24,12 @@ import {
   ShoppingBag,
   MapPin,
   User,
-  Phone,
   FileText,
-  Sparkles,
   Printer,
   Truck,
   Scale,
-  Tag
+  Tag,
+  ChevronRight
 } from 'lucide-react';
 
 export default function CheckoutPage() {
@@ -307,39 +306,39 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+    <div className="min-h-screen flex flex-col bg-[#FFF8F0] font-sans antialiased text-stone-900 selection:bg-[#800020] selection:text-white overflow-x-hidden">
       <AnnouncementBar />
       <HeaderNav />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         
         {createdOrder ? (
           /* SUCCESS ORDER CONFIRMATION SCREEN */
-          <div className="max-w-2xl mx-auto bg-white rounded-3xl p-8 sm:p-12 border border-[#EADBC8] shadow-xl text-center space-y-6 animate-fade-in my-8">
-            <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
-              <CheckCircle2 className="w-12 h-12" />
+          <div className="max-w-xl mx-auto bg-white rounded-2xl p-8 sm:p-10 border border-stone-200 shadow-xs text-center space-y-5 my-6">
+            <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-9 h-9" />
             </div>
 
-            <div>
-              <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full inline-block mb-2">
+            <div className="space-y-1">
+              <span className="px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-md inline-block">
                 {t.checkout.orderSuccess}
               </span>
-              <h1 className="font-serif text-3xl font-bold text-[#800020]">
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2B1B1B]">
                 {t.checkout.orderRegistered} {createdOrder.orderNumber}
               </h1>
-              <p className="text-stone-600 text-xs sm:text-sm mt-2">
+              <p className="text-stone-500 text-xs sm:text-sm font-medium">
                 {t.checkout.thankYou}
               </p>
             </div>
 
-            <div className="p-4 bg-[#FFF8F0] rounded-2xl border border-[#EADBC8] text-left text-xs space-y-2 text-stone-700">
+            <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 text-left text-xs space-y-2 text-stone-700 font-medium">
               <div className="flex justify-between font-bold text-[#800020]">
                 <span>{t.checkout.orderStatus}:</span>
                 <span className="uppercase">{createdOrder.orderStatus}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t.checkout.totalAmount}:</span>
-                <span className="font-bold">{formatMYR(createdOrder.totalAmount)}</span>
+                <span className="font-bold text-stone-900">{formatMYR(createdOrder.totalAmount)}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t.checkout.phone}:</span>
@@ -351,26 +350,26 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="pt-4 flex flex-col sm:flex-row gap-3">
+            <div className="pt-2 flex flex-col sm:flex-row gap-3">
               {createdOrder.whatsappUrl && (
                 <a
                   href={createdOrder.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4 fill-white" /> {t.checkout.openWAAgain}
                 </a>
               )}
               <button
                 onClick={() => setIsInvoiceOpen(true)}
-                className="flex-1 py-3.5 bg-[#D4AF37] hover:bg-amber-400 text-[#800020] font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-stone-800 hover:bg-stone-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Printer className="w-4 h-4" /> {language === 'EN' ? 'Print PDF Invoice' : language === 'MS' ? 'Cetak Invois PDF' : 'Cetak Invoice PDF'}
               </button>
               <Link
                 href={`/track-order?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}&phone=${encodeURIComponent(createdOrder.customerPhone)}`}
-                className="flex-1 py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 <PackageCheck className="w-4 h-4" /> {t.checkout.trackOrderStatus}
               </Link>
@@ -385,21 +384,41 @@ export default function CheckoutPage() {
         ) : (
           /* CHECKOUT FORM SCREEN */
           <div>
-            <div className="mb-8 border-b border-[#EADBC8] pb-4">
-              <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#800020] flex items-center gap-3">
-                <MessageCircle className="w-8 h-8 text-[#25D366]" /> {t.checkout.title}
-              </h1>
-              <p className="text-stone-600 text-xs sm:text-sm mt-1">
-                {t.checkout.subtitle}
-              </p>
+            {/* EDITORIAL CHECKOUT HEADER */}
+            <div className="pb-6 mb-6 border-b border-[#EADBC8] flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div className="space-y-2">
+                {/* Breadcrumb Navigation */}
+                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500 font-medium mb-1">
+                  <Link href="/" className="hover:text-[#800020] transition-colors">{t.nav.home}</Link>
+                  <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+                  <Link href="/cart" className="hover:text-[#800020] transition-colors">{t.cart.title}</Link>
+                  <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+                  <span className="text-[#800020] font-bold">{t.checkout.title}</span>
+                </nav>
+
+                <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#2B1B1B] tracking-tight">
+                  {t.checkout.title}
+                </h1>
+                <p className="text-stone-600 text-xs sm:text-sm font-medium">
+                  {t.checkout.subtitle}
+                </p>
+              </div>
             </div>
 
             {cart.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-[#EADBC8] shadow-sm my-8">
-                <ShoppingBag className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-                <h2 className="font-serif text-xl font-bold text-[#800020]">{t.checkout.emptyCart}</h2>
-                <p className="text-stone-500 text-xs mt-1">{t.checkout.emptyCartNote}</p>
-                <Link href="/products" className="mt-4 inline-block px-6 py-2.5 bg-[#800020] text-white text-xs font-bold rounded-xl">
+              /* EMPTY CART CHECKOUT STATE */
+              <div className="bg-white rounded-2xl p-10 text-center border border-stone-200 shadow-xs my-6 space-y-3 max-w-md mx-auto">
+                <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center mx-auto">
+                  <ShoppingBag className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h2 className="font-serif text-lg font-bold text-[#2B1B1B]">{t.checkout.emptyCart}</h2>
+                  <p className="text-stone-500 text-xs font-medium leading-relaxed">{t.checkout.emptyCartNote}</p>
+                </div>
+                <Link 
+                  href="/products" 
+                  className="mt-4 inline-block px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] text-xs font-bold rounded-xl uppercase tracking-wider transition-all shadow-xs cursor-pointer"
+                >
                   {t.checkout.browseCatalog}
                 </Link>
               </div>
@@ -407,23 +426,23 @@ export default function CheckoutPage() {
               <form onSubmit={handleCheckoutSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 {/* Left Column: Customer Form Input */}
-                <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-sm space-y-6">
+                <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs space-y-6">
                   
                   {isAutoFilled && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 flex items-center justify-between gap-2">
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                        <span>{t.checkout.autoFillNote}</span>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                        <span className="font-medium">{t.checkout.autoFillNote}</span>
                       </div>
-                      <Link href="/account" className="text-[11px] font-bold text-[#800020] underline flex-shrink-0">
+                      <Link href="/account" className="text-[11px] font-bold text-[#800020] underline shrink-0">
                         {t.checkout.changeAddress}
                       </Link>
                     </div>
                   )}
 
                   <div className="flex items-center gap-2 border-b border-stone-200 pb-3 text-[#800020]">
-                    <User className="w-5 h-5" />
-                    <h2 className="font-serif text-lg font-bold">{t.checkout.contactHeader}</h2>
+                    <User className="w-4 h-4" />
+                    <h2 className="font-serif text-base font-bold">{t.checkout.contactHeader}</h2>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -438,7 +457,7 @@ export default function CheckoutPage() {
                         placeholder={t.checkout.namePlaceholder}
                         value={formData.name}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                        className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                       />
                     </div>
 
@@ -453,14 +472,14 @@ export default function CheckoutPage() {
                         placeholder={t.checkout.phonePlaceholder}
                         value={formData.phone}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                        className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                       />
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-4 text-[#800020]">
-                    <MapPin className="w-5 h-5" />
-                    <h2 className="font-serif text-lg font-bold">{t.checkout.addressHeader}</h2>
+                  <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-3 text-[#800020]">
+                    <MapPin className="w-4 h-4" />
+                    <h2 className="font-serif text-base font-bold">{t.checkout.addressHeader}</h2>
                   </div>
 
                   <div className="space-y-4">
@@ -475,7 +494,7 @@ export default function CheckoutPage() {
                         placeholder={t.checkout.addressPlaceholder}
                         value={formData.address}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                        className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                       />
                     </div>
 
@@ -490,7 +509,7 @@ export default function CheckoutPage() {
                           required
                           value={formData.city}
                           onChange={handleFormChange}
-                          className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                          className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                         />
                       </div>
 
@@ -504,7 +523,7 @@ export default function CheckoutPage() {
                           required
                           value={formData.postcode}
                           onChange={handleFormChange}
-                          className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                          className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                         />
                       </div>
 
@@ -516,7 +535,7 @@ export default function CheckoutPage() {
                           name="state"
                           value={formData.state}
                           onChange={handleFormChange}
-                          className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                          className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all bg-white"
                         >
                           {statesMalaysia.map(s => (
                             <option key={s} value={s}>{s}</option>
@@ -525,11 +544,11 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    </div>
+                  </div>
 
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-4 text-[#800020]">
-                    <FileText className="w-5 h-5" />
-                    <h2 className="font-serif text-lg font-bold">{t.checkout.notesHeader}</h2>
+                  <div className="flex items-center gap-2 border-b border-stone-200 pb-3 pt-3 text-[#800020]">
+                    <FileText className="w-4 h-4" />
+                    <h2 className="font-serif text-base font-bold">{t.checkout.notesHeader}</h2>
                   </div>
 
                   <div>
@@ -539,26 +558,33 @@ export default function CheckoutPage() {
                       placeholder={t.checkout.notesPlaceholder}
                       value={formData.notes}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                     />
                   </div>
 
                 </div>
 
                 {/* Right Column: Order Review */}
-                <div className="bg-white p-6 rounded-3xl border border-[#EADBC8] shadow-md h-fit space-y-6">
-                  <h2 className="font-serif text-xl font-bold text-[#800020] border-b border-stone-200 pb-3">
+                <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs h-fit space-y-5">
+                  <h2 className="font-serif text-lg font-bold text-[#800020] border-b border-stone-200 pb-3">
                     {t.checkout.orderItems} ({totalItems})
                   </h2>
 
                   <div className="max-h-64 overflow-y-auto space-y-3 pr-1">
                     {cart.map(item => (
-                      <div key={`${item.productId}-${item.variantId}`} className="flex justify-between items-center text-xs text-stone-700 pb-2 border-b border-stone-100">
-                        <div>
-                          <span className="font-bold text-stone-900 block truncate max-w-[180px]">{item.productName}</span>
-                          <span className="text-[11px] text-stone-500">{t.cart.variant}: {item.variantName} x {item.quantity}</span>
+                      <div key={`${item.productId}-${item.variantId}`} className="flex items-center justify-between gap-3 text-xs text-stone-700 pb-2.5 border-b border-stone-100">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <img 
+                            src={item.mainImage} 
+                            alt={item.productName} 
+                            className="w-12 h-12 object-cover rounded-lg border border-stone-200 shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <span className="font-bold text-stone-900 block truncate">{item.productName}</span>
+                            <span className="text-[11px] text-stone-500">{t.cart.variant}: {item.variantName} x {item.quantity}</span>
+                          </div>
                         </div>
-                        <span className="font-bold text-[#800020]">{formatMYR(item.price * item.quantity)}</span>
+                        <span className="font-bold text-[#800020] shrink-0">{formatMYR(item.price * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
@@ -574,7 +600,7 @@ export default function CheckoutPage() {
                         placeholder="Contoh: FBSDISCOUNT10, BAKERY20"
                         value={voucherCode}
                         onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                        className="flex-1 px-3 py-2 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                        className="flex-1 px-3 py-2 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                       />
                       <button
                         type="button"
@@ -596,7 +622,7 @@ export default function CheckoutPage() {
                             setVoucherMsg({ type: 'error', text: 'Kode voucher tidak valid atau sudah kadaluarsa.' });
                           }
                         }}
-                        className="px-3.5 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl shadow transition-transform active:scale-95"
+                        className="px-3.5 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] text-xs font-bold rounded-xl transition-all cursor-pointer"
                       >
                         Gunakan
                       </button>
@@ -609,7 +635,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* SUBTOTAL & SHIPPING BREAKDOWN */}
-                  <div className="pt-2 space-y-2.5 text-xs border-t border-stone-200">
+                  <div className="pt-2 space-y-2.5 text-xs border-t border-stone-200 font-medium">
                     <div className="flex justify-between text-stone-600">
                       <span>{t.checkout.subtotalProduk}</span>
                       <span>{formatMYR(subtotal)}</span>
@@ -638,23 +664,23 @@ export default function CheckoutPage() {
                       <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px] border border-emerald-200">Dikonfirmasi Admin via WA</span>
                     </div>
 
-                    <div className="flex justify-between text-base font-extrabold text-[#800020] pt-2.5 border-t border-stone-200">
+                    <div className="flex justify-between text-base font-bold text-[#800020] pt-2.5 border-t border-stone-200">
                       <span>{t.checkout.finalTotal}</span>
                       <span>{formatMYR(grandTotal)}</span>
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#FFF8F0] rounded-xl border border-[#EADBC8] text-[11px] text-stone-600 flex items-start gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
+                  <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-[11px] text-stone-600 flex items-start gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                     <span>{t.checkout.formNote}</span>
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-4 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl font-bold text-sm transition-all shadow-xl flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                    className="w-full py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer"
                   >
-                    <MessageCircle className="w-5 h-5 fill-white" />
+                    <MessageCircle className="w-4 h-4 fill-white" />
                     {isSubmitting ? t.checkout.submitting : t.checkout.submitBtn}
                   </button>
                 </div>

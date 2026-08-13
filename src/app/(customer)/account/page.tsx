@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/db';
-import { Customer, Order, OrderItem, normalizeToFrontendStatus } from '@/types';
+import { Customer, OrderItem, normalizeToFrontendStatus } from '@/types';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
@@ -14,9 +14,36 @@ import { useLanguage } from '@/lib/language-context';
 import { useCart } from '@/lib/cart-context';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { User, Package, Heart, RefreshCw, MapPin, Phone, Mail, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Award, HelpCircle, Gift, Truck, Tag, Info, Copy, LogOut, X, Video, Image as ImageIcon, Star, Camera, Upload, Edit2, Check, UserCheck, AlertTriangle, Building, Hash, Globe, ShoppingBag, ShoppingCart, ChevronRight, ExternalLink, Clock, FileText, Printer } from 'lucide-react';
+import { 
+  User, 
+  Package, 
+  Heart, 
+  RefreshCw, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  ArrowRight, 
+  CheckCircle2, 
+  ShieldCheck, 
+  Truck, 
+  LogOut, 
+  X, 
+  Video, 
+  Image as ImageIcon, 
+  Camera, 
+  Upload, 
+  Edit2, 
+  Check, 
+  AlertTriangle, 
+  ShoppingCart, 
+  ChevronRight, 
+  ExternalLink, 
+  Clock, 
+  Printer,
+  Copy,
+  Sparkles
+} from 'lucide-react';
 import { InvoiceModal } from '@/components/customer/invoice-modal';
-
 import { normalizePhoneDigits } from '@/lib/whatsapp';
 
 const getInitialOrdersForSession = (): any[] => {
@@ -140,10 +167,8 @@ export default function CustomerAccountPage() {
   const [reviewModalItem, setReviewModalItem] = useState<{ productId: string; productName: string; customerName: string } | null>(null);
   const [modalRating, setModalRating] = useState(5);
   const [modalComment, setModalComment] = useState('');
-  const [modalVideoUrl, setModalVideoUrl] = useState('');
-  const [modalImageUrl, setModalImageUrl] = useState('');
-  const [modalVideoPreview, setModalVideoPreview] = useState('');
   const [modalImagePreview, setModalImagePreview] = useState('');
+  const [modalVideoPreview, setModalVideoPreview] = useState('');
   const [modalSubmitting, setModalSubmitting] = useState(false);
   const [modalSubmitted, setModalSubmitted] = useState(false);
 
@@ -341,7 +366,6 @@ export default function CustomerAccountPage() {
   };
 
   const confirmLogout = () => {
-    // 1. Instantly purge local session state & cookies completely
     localStorage.removeItem('fbs_customer_session');
     sessionStorage.removeItem('fbs_customer_session');
     document.cookie = "fbs_customer_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0";
@@ -353,12 +377,10 @@ export default function CustomerAccountPage() {
     setCustomer(null);
     setShowLogoutModal(false);
 
-    // 2. Fire-and-forget Firebase signOut in background without blocking UI
     try {
       signOut(auth).catch((err) => console.warn('Background Firebase signOut info:', err));
     } catch (e) {}
 
-    // 3. Instant hard redirect to login page with 0ms delay
     window.location.href = '/account/login';
   };
 
@@ -456,13 +478,13 @@ export default function CustomerAccountPage() {
     .filter(Boolean) as any[];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+    <div className="min-h-screen flex flex-col bg-[#FFF8F0] font-sans antialiased text-stone-900 selection:bg-[#800020] selection:text-white overflow-x-hidden">
       <AnnouncementBar />
       <HeaderNav />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+      <main className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         
-        {/* Hidden File Inputs for Avatar & Cover Upload */}
+        {/* Hidden File Inputs */}
         <input
           ref={fileInputRef}
           type="file"
@@ -480,65 +502,61 @@ export default function CustomerAccountPage() {
 
         {/* Toast Notice */}
         {avatarNotice && (
-          <div className="mb-4 p-3 bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-lg flex items-center justify-between animate-fade-in border border-emerald-400">
+          <div className="mb-4 p-3 bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-between border border-emerald-600">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-200" />
               <span>{avatarNotice}</span>
             </div>
-            <button onClick={() => setAvatarNotice('')} className="p-1 hover:bg-emerald-800 rounded-full">
+            <button onClick={() => setAvatarNotice('')} className="p-1 hover:bg-emerald-800 rounded-full cursor-pointer">
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* LUXURY BAKERY COVER PHOTO & MODERN MINIMALIST PROFILE HEADER */}
-        <div className="mb-8 shadow-xl rounded-3xl overflow-hidden border border-[#EADBC8] bg-white">
+        {/* EDITORIAL CUSTOMER PROFILE HEADER */}
+        <div className="mb-8 rounded-2xl border border-stone-200 bg-white shadow-xs overflow-hidden">
           
           {/* Cover Photo Header */}
-          <div className="relative h-48 sm:h-64 w-full bg-stone-900 overflow-hidden group">
+          <div className="relative h-36 sm:h-52 w-full bg-stone-900 overflow-hidden group">
             <img 
               src={customer.coverPhoto || defaultCoverPhoto} 
-              alt="Profile Cover Background" 
-              className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105"
+              alt="Profile Cover" 
+              className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-102"
             />
-            {/* Elegant Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-900/30 to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
 
-            {/* Change Cover Photo Button */}
             <button
               type="button"
               onClick={() => coverInputRef.current?.click()}
-              className="absolute top-4 right-4 px-3.5 py-2 bg-black/60 hover:bg-black/80 text-[#D4AF37] border border-white/30 rounded-2xl font-bold text-xs shadow-lg backdrop-blur-md transition-all flex items-center gap-1.5 hover:scale-105 active:scale-95"
-              title="Ganti Foto Sampul Profil"
+              className="absolute top-3 right-3 px-3 py-1.5 bg-black/60 hover:bg-black/80 text-white border border-white/20 rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
+              title="Ganti Foto Sampul"
             >
-              <Camera className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <Camera className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Ubah Sampul</span>
             </button>
           </div>
 
-          {/* Overlapping Profile Info Card */}
-          <div className="p-6 sm:p-8 bg-white relative pt-0">
+          {/* Profile Info Details */}
+          <div className="p-6 sm:p-8 relative pt-0">
             
-            <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 -mt-16 sm:-mt-20 mb-6">
+            <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 -mt-14 sm:-mt-16 mb-6">
               
-              {/* Avatar + Name Details */}
-              <div className="flex flex-col sm:flex-row items-center md:items-end gap-5 text-center sm:text-left">
+              {/* Avatar & Name */}
+              <div className="flex flex-col sm:flex-row items-center md:items-end gap-4 text-center sm:text-left">
                 
-                {/* Avatar Ring */}
-                <div className="relative group flex-shrink-0">
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-[#D4AF37] via-amber-400 to-amber-600 text-[#800020] font-serif font-black text-3xl sm:text-4xl flex items-center justify-center border-4 border-white shadow-2xl overflow-hidden relative transition-transform group-hover:scale-105">
+                <div className="relative group shrink-0">
+                  <div className="w-22 h-22 sm:w-26 sm:h-26 rounded-full bg-[#800020] text-[#FFF8F0] font-serif font-bold text-3xl flex items-center justify-center border-4 border-white shadow-xs overflow-hidden relative">
                     {customer.photo ? (
                       <img src={customer.photo} alt={customer.name} className="w-full h-full object-cover" />
                     ) : (
-                      <img src="/logo.jpg" alt={customer.name || 'FBS Bakery World'} className="w-full h-full object-cover" />
+                      <span>{customer.name ? customer.name.charAt(0).toUpperCase() : 'U'}</span>
                     )}
                   </div>
 
-                  {/* Avatar Upload Button Overlay */}
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-1 right-1 p-2 bg-[#800020] text-[#D4AF37] hover:bg-[#6F1D1B] border-2 border-white rounded-full shadow-xl transition-transform hover:scale-110 active:scale-95"
+                    className="absolute bottom-0 right-0 p-1.5 bg-[#800020] text-[#FFF8F0] hover:bg-[#6F1D1B] border-2 border-white rounded-full shadow-xs transition-all cursor-pointer"
                     title="Upload Foto Profil"
                   >
                     <Camera className="w-3.5 h-3.5" />
@@ -546,16 +564,10 @@ export default function CustomerAccountPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2.5 justify-center sm:justify-start flex-wrap">
-                    <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">{customer.name}</h1>
-                    <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase flex items-center gap-1 shadow-sm tracking-wider ${
-                      customer.customerType === 'VIP'
-                        ? 'bg-[#D4AF37] text-[#800020]'
-                        : customer.customerType === 'WHOLESALE'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-stone-800 text-[#D4AF37]'
-                    }`}>
-                      <Sparkles className="w-3 h-3" /> {customer.customerType} MEMBER
+                  <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
+                    <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">{customer.name}</h1>
+                    <span className="px-2.5 py-0.5 bg-stone-100 text-stone-800 text-[10px] font-bold uppercase rounded-md border border-stone-200">
+                      {customer.customerType || 'STANDARD'} MEMBER
                     </span>
                   </div>
                   <p className="text-stone-500 text-xs flex items-center justify-center sm:justify-start gap-2 flex-wrap font-medium">
@@ -567,38 +579,38 @@ export default function CustomerAccountPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-center gap-3 w-full md:w-auto">
+              <div className="flex flex-wrap items-center justify-center gap-2.5 w-full md:w-auto">
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-2xl transition-all flex items-center gap-2 border border-stone-200"
+                  className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 border border-stone-300 cursor-pointer uppercase tracking-wider"
                 >
-                  <Edit2 className="w-4 h-4 text-[#800020]" /> Ubah Profil & Alamat
+                  <Edit2 className="w-3.5 h-3.5 text-[#800020]" /> Edit Profil & Alamat
                 </button>
 
                 <button
                   onClick={handleCustomerLogout}
-                  className="px-3.5 py-2.5 bg-stone-50 hover:bg-red-50 text-red-600 font-bold text-xs rounded-2xl border border-stone-200 transition-colors flex items-center gap-1.5"
+                  className="px-3.5 py-2 bg-stone-50 hover:bg-red-50 text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                 >
-                  <LogOut className="w-4 h-4 text-red-500" /> Log Out
+                  <LogOut className="w-3.5 h-3.5 text-red-500" /> Log Out
                 </button>
               </div>
             </div>
 
-            {/* Modern Minimalist Quick Metrics Grid */}
-            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-stone-100 text-xs">
-              <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
-                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">
+            {/* Quick Metrics Grid */}
+            <div className="grid grid-cols-2 gap-4 pt-5 border-t border-stone-100 text-xs">
+              <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 font-medium">
+                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-0.5">
                   {language === 'EN' ? 'TOTAL ORDERS' : language === 'MS' ? 'JUMLAH PESANAN' : 'TOTAL PESANAN'}
                 </span>
-                <span className="font-serif font-extrabold text-xl text-stone-900">
+                <span className="font-serif font-bold text-xl text-stone-900">
                   {orders.length} {language === 'EN' ? (orders.length === 1 ? 'Order' : 'Orders') : 'Pesanan'}
                 </span>
               </div>
-              <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
-                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">
+              <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 font-medium">
+                <span className="text-[10px] uppercase font-bold text-stone-500 block mb-0.5">
                   {language === 'EN' ? 'SAVED WISHLIST' : language === 'MS' ? 'WISHLIST TERSIMPAN' : 'WISHLIST TERSIMPAN'}
                 </span>
-                <span className="font-serif font-extrabold text-xl text-[#800020]">
+                <span className="font-serif font-bold text-xl text-[#800020]">
                   {wishlist.length} {language === 'EN' ? (wishlist.length === 1 ? 'Product' : 'Products') : 'Produk'}
                 </span>
               </div>
@@ -607,11 +619,11 @@ export default function CustomerAccountPage() {
           </div>
         </div>
 
-        {/* Tab Selection */}
-        <div className="flex border-b border-[#EADBC8] mb-8 gap-4 overflow-x-auto scrollbar-none">
+        {/* TAB NAVIGATION BAR */}
+        <div className="flex border-b border-stone-200 mb-6 gap-4 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('orders')}
-            className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap transition-colors ${
+            className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap transition-colors cursor-pointer uppercase tracking-wider ${
               activeTab === 'orders' ? 'border-[#800020] text-[#800020]' : 'border-transparent text-stone-500 hover:text-stone-800'
             }`}
           >
@@ -619,7 +631,7 @@ export default function CustomerAccountPage() {
           </button>
           <button
             onClick={() => setActiveTab('wishlist')}
-            className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap transition-colors ${
+            className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap transition-colors cursor-pointer uppercase tracking-wider ${
               activeTab === 'wishlist' ? 'border-[#800020] text-[#800020]' : 'border-transparent text-stone-500 hover:text-stone-800'
             }`}
           >
@@ -627,7 +639,7 @@ export default function CustomerAccountPage() {
           </button>
           <button
             onClick={() => setActiveTab('profile')}
-            className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap transition-colors ${
+            className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap transition-colors cursor-pointer uppercase tracking-wider ${
               activeTab === 'profile' ? 'border-[#800020] text-[#800020]' : 'border-transparent text-stone-500 hover:text-stone-800'
             }`}
           >
@@ -635,11 +647,11 @@ export default function CustomerAccountPage() {
           </button>
         </div>
 
-        {/* TAB 1: ORDER HISTORY (SHOPEE / TOKOPEDIA STYLE) */}
+        {/* TAB 1: ORDER HISTORY */}
         {activeTab === 'orders' && (
           <div className="space-y-6">
             
-            {/* Shopee-style Status Navigation Filter Tabs */}
+            {/* Status Navigation Filter Chips */}
             {(() => {
               const unpaidCount = orders.filter(o => ['PENDING_PAYMENT', 'NEW', 'PENDING'].includes(normalizeToFrontendStatus(o.orderStatus))).length;
               const procCount = orders.filter(o => ['CONFIRMED', 'PROCESSING', 'PACKING', 'READY_TO_SHIP'].includes(normalizeToFrontendStatus(o.orderStatus))).length;
@@ -657,21 +669,21 @@ export default function CustomerAccountPage() {
               ];
 
               return (
-                <div className="flex bg-white rounded-2xl p-1.5 border border-[#EADBC8] shadow-sm gap-1 overflow-x-auto scrollbar-none">
+                <div className="flex bg-stone-100 rounded-xl p-1 border border-stone-200 gap-1 overflow-x-auto scrollbar-none">
                   {filterTabs.map(tab => (
                     <button
                       key={tab.key}
                       onClick={() => setOrderStatusFilter(tab.key as any)}
-                      className={`px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                      className={`px-3.5 py-2 rounded-lg font-bold text-xs whitespace-nowrap transition-all cursor-pointer uppercase tracking-wider flex items-center gap-1.5 ${
                         orderStatusFilter === tab.key
-                          ? 'bg-[#800020] text-[#D4AF37] shadow-md'
-                          : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                          ? 'bg-[#800020] text-[#FFF8F0] shadow-xs'
+                          : 'text-stone-600 hover:bg-stone-200 hover:text-stone-900'
                       }`}
                     >
                       <span>{tab.label}</span>
                       {tab.count > 0 && (
-                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
-                          orderStatusFilter === tab.key ? 'bg-[#D4AF37] text-[#800020]' : 'bg-stone-200 text-stone-700'
+                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          orderStatusFilter === tab.key ? 'bg-white text-[#800020]' : 'bg-stone-200 text-stone-700'
                         }`}>
                           {tab.count}
                         </span>
@@ -696,15 +708,15 @@ export default function CustomerAccountPage() {
 
               if (displayOrders.length === 0) {
                 return (
-                  <div className="bg-white rounded-3xl p-12 text-center border border-[#EADBC8] space-y-3 shadow-sm">
-                    <Package className="w-14 h-14 text-stone-300 mx-auto" />
-                    <h3 className="font-serif text-xl font-bold text-[#800020]">Tidak Ada Pesanan di Kategori Ini</h3>
-                    <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                  <div className="bg-white rounded-2xl p-10 text-center border border-stone-200 space-y-3 shadow-xs">
+                    <Package className="w-12 h-12 text-stone-300 mx-auto" />
+                    <h3 className="font-serif text-lg font-bold text-[#800020]">Tidak Ada Pesanan di Kategori Ini</h3>
+                    <p className="text-xs text-stone-500 max-w-sm mx-auto font-medium">
                       Belum ada transaksi dengan status ini. Silakan belanja bahan kue pilihan Anda di FBS Bakery World.
                     </p>
                     <Link
                       href="/products"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#800020] text-[#D4AF37] font-bold text-xs rounded-xl shadow hover:bg-[#6F1D1B] transition-transform active:scale-95 mt-2"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#800020] text-[#FFF8F0] font-bold text-xs rounded-xl shadow-xs hover:bg-[#6F1D1B] transition-all uppercase tracking-wider mt-2"
                     >
                       Mulai Belanja Bahan Kue <ArrowRight className="w-4 h-4" />
                     </Link>
@@ -713,26 +725,26 @@ export default function CustomerAccountPage() {
               }
 
               return (
-                <div className="space-y-5">
+                <div className="space-y-4">
                   {displayOrders.map(order => {
                     const normStatus = normalizeToFrontendStatus(order.orderStatus);
                     const badge = getOrderStatusBadge(order.orderStatus, language);
 
                     return (
-                      <div key={order.id} className="bg-white rounded-3xl border border-[#EADBC8] shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                      <div key={order.id} className="bg-white rounded-2xl border border-stone-200 shadow-xs hover:border-stone-300 transition-all overflow-hidden">
                         
-                        {/* Shopee Style Store Header */}
-                        <div className="p-4 sm:p-5 bg-stone-50/70 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        {/* Order Header */}
+                        <div className="p-4 sm:p-5 bg-stone-50 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-[#800020] text-[#D4AF37] font-serif font-black text-xs flex items-center justify-center border border-[#D4AF37] flex-shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-[#800020] text-[#FFF8F0] font-serif font-bold text-[10px] flex items-center justify-center border border-[#D4AF37] shrink-0">
                               FBS
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-bold text-xs text-stone-900">FBS Bakery World Official Store</span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 bg-[#800020] text-[#D4AF37] rounded-md uppercase">Official</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-[#800020] text-white rounded uppercase tracking-wider">Official</span>
                               </div>
-                              <div className="flex items-center gap-2 text-[11px] text-stone-500 mt-0.5">
+                              <div className="flex items-center gap-2 text-[11px] text-stone-500 mt-0.5 font-medium">
                                 <span className="font-mono font-bold text-[#800020]">{order.orderNumber}</span>
                                 <span>•</span>
                                 <span>{new Date(order.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
@@ -741,7 +753,7 @@ export default function CustomerAccountPage() {
                           </div>
 
                           <div className="flex items-center gap-2 self-end sm:self-center">
-                            <span className={`px-3 py-1 text-xs font-extrabold rounded-full border uppercase shadow-2xs ${badge.className}`}>
+                            <span className={`px-2.5 py-0.5 text-xs font-bold rounded-md border uppercase tracking-wider ${badge.className}`}>
                               {badge.label}
                             </span>
                           </div>
@@ -750,9 +762,9 @@ export default function CustomerAccountPage() {
                         {/* Order Item Rows */}
                         <div className="p-4 sm:p-5 divide-y divide-stone-100">
                           {(order.items || []).map((item: OrderItem) => (
-                            <div key={item.id} className="py-3 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                              <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-stone-200 overflow-hidden bg-stone-100 flex-shrink-0">
+                            <div key={item.id} className="py-3 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-medium">
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className="w-16 h-16 rounded-xl border border-stone-200 overflow-hidden bg-stone-100 shrink-0">
                                   <img 
                                     src={item.mainImage || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=300&auto=format&fit=crop'} 
                                     alt={item.productName} 
@@ -762,10 +774,10 @@ export default function CustomerAccountPage() {
                                 <div className="space-y-1 min-w-0">
                                   <h4 className="font-bold text-xs sm:text-sm text-stone-900 line-clamp-1">{item.productName}</h4>
                                   <div className="flex items-center gap-2 text-[11px] text-stone-500 flex-wrap">
-                                    <span className="px-2 py-0.5 bg-stone-100 rounded-md font-semibold text-stone-700">Varian: {item.variantName}</span>
+                                    <span className="px-2 py-0.5 bg-stone-100 rounded text-stone-700 font-semibold">Varian: {item.variantName}</span>
                                     <span>x{item.quantity}</span>
                                   </div>
-                                  <div className="text-xs font-extrabold text-[#800020]">
+                                  <div className="text-xs font-bold text-[#800020]">
                                     {formatMYR(item.price)} <span className="text-[10px] text-stone-400 font-normal">/ unit</span>
                                   </div>
                                 </div>
@@ -773,9 +785,8 @@ export default function CustomerAccountPage() {
 
                               <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100 gap-2">
                                 <span className="text-xs text-stone-500 sm:hidden">Subtotal Produk:</span>
-                                <span className="font-extrabold text-sm text-[#800020]">{formatMYR(item.subtotal)}</span>
+                                <span className="font-bold text-sm text-[#800020]">{formatMYR(item.subtotal)}</span>
 
-                                {/* Review Trigger Button */}
                                 {(normStatus === 'DELIVERED' || normStatus === 'COMPLETED') && (
                                   <button
                                     type="button"
@@ -784,9 +795,9 @@ export default function CustomerAccountPage() {
                                       productName: item.productName,
                                       customerName: order.customerName,
                                     })}
-                                    className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold rounded-xl shadow flex items-center gap-1 transition-transform active:scale-95"
+                                    className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold rounded-lg shadow-xs flex items-center gap-1 cursor-pointer uppercase tracking-wider"
                                   >
-                                    <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> Ulas Produk
+                                    <Sparkles className="w-3.5 h-3.5" /> Ulas Produk
                                   </button>
                                 )}
                               </div>
@@ -794,10 +805,9 @@ export default function CustomerAccountPage() {
                           ))}
                         </div>
 
-                        {/* Order Summary & Shopee Action Footer */}
-                        <div className="p-4 sm:p-5 bg-stone-50/90 border-t border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        {/* Order Action Footer */}
+                        <div className="p-4 sm:p-5 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-medium">
                           
-                          {/* Shipping / Resi Info */}
                           <div className="text-xs space-y-1 text-stone-600">
                             {order.courierName && (
                               <div className="flex items-center gap-1.5 font-bold text-stone-800">
@@ -812,44 +822,40 @@ export default function CustomerAccountPage() {
                             )}
                             <div className="flex items-center gap-1.5">
                               <span className="text-stone-500">Total Pesanan ({order.items?.length || 1} Produk):</span>
-                              <span className="font-serif font-extrabold text-base text-[#800020]">{formatMYR(order.totalAmount)}</span>
+                              <span className="font-serif font-bold text-base text-[#800020]">{formatMYR(order.totalAmount)}</span>
                             </div>
                           </div>
 
-                          {/* Action Buttons */}
+                          {/* Actions */}
                           <div className="flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto">
                             
-                            {/* 1. Shopee Tracking Modal Button */}
                             <button
                               type="button"
                               onClick={() => setTrackingModalOrder(order)}
-                              className="px-4 py-2 bg-stone-800 hover:bg-black text-[#D4AF37] text-xs font-bold rounded-xl shadow transition-transform active:scale-95 flex items-center gap-1.5"
+                              className="px-3.5 py-1.5 bg-stone-800 hover:bg-stone-900 text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                             >
                               <Truck className="w-3.5 h-3.5" /> Lacak Pengiriman
                             </button>
 
-                            {/* 1.5 Official Invoice PDF Button */}
                             <button
                               type="button"
                               onClick={() => setInvoiceModalOrder(order)}
-                              className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 border border-stone-300 shadow-2xs"
+                              className="px-3.5 py-1.5 bg-white hover:bg-stone-100 text-stone-800 text-xs font-bold rounded-lg border border-stone-300 shadow-xs flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                             >
                               <Printer className="w-3.5 h-3.5 text-[#800020]" /> Cetak Nota PDF
                             </button>
 
-                            {/* 2. WhatsApp Pay Button for Unpaid Orders */}
                             {(normStatus === 'PENDING_PAYMENT' || normStatus === 'NEW') && (
                               <a
                                 href={order.whatsappUrl || `https://wa.me/60183972147?text=Halo%20FBS%20Bakery,%20saya%20ingin%20bayar%20order%20${encodeURIComponent(order.orderNumber)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition-transform active:scale-95 flex items-center gap-1.5"
+                                className="px-3.5 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                               >
-                                <Phone className="w-3.5 h-3.5" /> Bayar via WhatsApp
+                                <Phone className="w-3.5 h-3.5" /> Bayar WA
                               </a>
                             )}
 
-                            {/* 3. Reorder Button for Delivered/Completed Orders */}
                             {(normStatus === 'DELIVERED' || normStatus === 'COMPLETED') && (
                               <button
                                 type="button"
@@ -862,13 +868,12 @@ export default function CustomerAccountPage() {
                                   });
                                   router.push('/checkout');
                                 }}
-                                className="px-4 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl shadow transition-transform active:scale-95 flex items-center gap-1.5"
+                                className="px-3.5 py-1.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                               >
                                 <ShoppingCart className="w-3.5 h-3.5" /> Beli Lagi
                               </button>
                             )}
 
-                            {/* 4. Cancel Request Button */}
                             {(normStatus === 'PENDING_PAYMENT' || normStatus === 'NEW' || normStatus === 'CONFIRMED') && (
                               <button
                                 type="button"
@@ -876,7 +881,7 @@ export default function CustomerAccountPage() {
                                   setCancelModalOrder({ id: order.id, orderNumber: order.orderNumber });
                                   setCancelReason('Ingin merubah rincian pesanan');
                                 }}
-                                className="px-3.5 py-2 bg-stone-100 hover:bg-red-50 text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center gap-1"
+                                className="px-3 py-1.5 bg-stone-100 hover:bg-red-50 text-red-600 font-bold text-xs rounded-lg border border-stone-200 transition-colors flex items-center gap-1 cursor-pointer uppercase tracking-wider"
                               >
                                 <X className="w-3.5 h-3.5 text-red-500" /> Batalkan
                               </button>
@@ -894,27 +899,27 @@ export default function CustomerAccountPage() {
           </div>
         )}
 
-        {/* TAB 3: WISHLIST */}
+        {/* TAB 2: WISHLIST */}
         {activeTab === 'wishlist' && (
           <div>
             {wishlistProducts.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-[#EADBC8]">
-                <Heart className="w-12 h-12 text-stone-300 mx-auto mb-2" />
-                <h3 className="font-serif text-lg font-bold text-[#800020]">No items in wishlist</h3>
-                <p className="text-xs text-stone-500 mt-1">Click the heart icon on any baking product to save for later.</p>
+              <div className="bg-white rounded-2xl p-10 text-center border border-stone-200 space-y-2 shadow-xs">
+                <Heart className="w-12 h-12 text-stone-300 mx-auto" />
+                <h3 className="font-serif text-lg font-bold text-[#800020]">Wishlist Kosong</h3>
+                <p className="text-xs text-stone-500 font-medium">Klik ikon hati pada produk kue favorit Anda untuk menyimpannya di sini.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {wishlistProducts.map(p => (
-                  <div key={p.id} className="bg-white p-4 rounded-2xl border border-[#EADBC8] shadow-sm flex flex-col justify-between">
+                  <div key={p.id} className="bg-white p-4 rounded-2xl border border-stone-200 shadow-xs flex flex-col justify-between hover:border-stone-300 transition-all">
                     <div>
-                      <img src={p.mainImage} alt={p.productName} className="w-full h-40 object-cover rounded-xl mb-3" />
+                      <img src={p.mainImage} alt={p.productName} className="w-full h-40 object-cover rounded-xl mb-3 border border-stone-200" />
                       <h4 className="font-serif font-bold text-sm text-[#2B1B1B]">{p.productName}</h4>
                       <span className="text-xs font-bold text-[#800020] block mt-1">{formatMYR((p.variants || [])[0]?.price || 0)}</span>
                     </div>
                     <button
                       onClick={() => { if (p.variants && p.variants[0]) addToCart(p, p.variants[0], 1); }}
-                      className="mt-4 w-full py-2 bg-[#800020] text-white text-xs font-bold rounded-xl"
+                      className="mt-4 w-full py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] text-xs font-bold rounded-xl shadow-xs uppercase tracking-wider transition-all cursor-pointer"
                     >
                       Add To Cart
                     </button>
@@ -925,33 +930,32 @@ export default function CustomerAccountPage() {
           </div>
         )}
 
-        {/* TAB 4: SAVED PROFILE & ADDRESS CMS WITH AVATAR UPLOADER */}
+        {/* TAB 3: SAVED PROFILE & ADDRESS FORM */}
         {activeTab === 'profile' && (
-          <div className="space-y-8 animate-fade-in max-w-4xl mx-auto">
+          <div className="space-y-6 max-w-3xl mx-auto">
             
-            {/* CARD 1: AVATAR & FOTO PROFIL MANAGEMENT */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-md space-y-6">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+            {/* AVATAR MANAGEMENT CARD */}
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs space-y-6">
+              <div className="flex items-center justify-between border-b border-stone-200 pb-3">
                 <div>
-                  <h3 className="font-serif text-xl font-bold text-[#800020] flex items-center gap-2">
-                    <Camera className="w-5 h-5 text-[#800020]" /> Kelola Foto Profil Akun Pelanggan
+                  <h3 className="font-serif text-lg font-bold text-[#800020] flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-[#800020]" /> Kelola Foto Profil Akun Pelanggan
                   </h3>
-                  <p className="text-stone-500 text-xs mt-0.5">
-                    Unggah foto diri atau pilih avatar favorit untuk menampilkan identitas member Anda di FBS Bakery World.
+                  <p className="text-stone-500 text-xs font-medium mt-0.5">
+                    Unggah foto diri atau pilih avatar favorit untuk member FBS Bakery World.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowPresetAvatars(!showPresetAvatars)}
-                  className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> {showPresetAvatars ? 'Sembunyikan Preset' : 'Pilih Avatar Preset'}
+                  <Sparkles className="w-3.5 h-3.5 text-[#800020]" /> {showPresetAvatars ? 'Sembunyikan Preset' : 'Preset Avatar'}
                 </button>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                {/* Live Avatar Preview */}
-                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#D4AF37] to-amber-600 text-[#800020] font-serif font-black text-4xl flex items-center justify-center border-4 border-[#800020] shadow-xl overflow-hidden flex-shrink-0 relative">
+              <div className="flex flex-col sm:flex-row items-center gap-5">
+                <div className="w-24 h-24 rounded-full bg-[#800020] text-[#FFF8F0] font-serif font-bold text-3xl flex items-center justify-center border-4 border-stone-200 shadow-xs overflow-hidden shrink-0 relative">
                   {customer.photo ? (
                     <img src={customer.photo} alt={customer.name} className="w-full h-full object-cover" />
                   ) : (
@@ -959,23 +963,23 @@ export default function CustomerAccountPage() {
                   )}
                 </div>
 
-                <div className="space-y-3 text-center sm:text-left flex-1">
+                <div className="space-y-2 text-center sm:text-left flex-1 font-medium">
                   <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl shadow transition-transform active:scale-95 flex items-center gap-2"
+                      className="px-4 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                     >
-                      <Upload className="w-4 h-4" /> Unggah Foto Dari Perangkat (JPG/PNG)
+                      <Upload className="w-3.5 h-3.5" /> Unggah Foto Perangkat
                     </button>
 
                     {customer.photo && (
                       <button
                         type="button"
                         onClick={() => updateCustomerPhoto('')}
-                        className="px-4 py-2.5 bg-stone-100 hover:bg-red-50 text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center gap-1.5"
+                        className="px-3.5 py-2 bg-stone-100 hover:bg-red-50 text-red-600 font-bold text-xs rounded-xl border border-stone-200 transition-colors flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                       >
-                        <X className="w-4 h-4" /> Hapus Foto Profil
+                        <X className="w-3.5 h-3.5" /> Hapus Foto
                       </button>
                     )}
                   </div>
@@ -986,24 +990,23 @@ export default function CustomerAccountPage() {
                 </div>
               </div>
 
-              {/* Preset Avatar Selection Grid */}
               {showPresetAvatars && (
-                <div className="pt-4 border-t border-stone-100 animate-fade-in space-y-3">
-                  <span className="text-xs font-bold text-stone-700 block">Atau Pilih Avatar Favorit:</span>
+                <div className="pt-4 border-t border-stone-100 space-y-3">
+                  <span className="text-xs font-bold text-stone-700 block uppercase tracking-wider">Atau Pilih Avatar Favorit:</span>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                     {presetAvatars.map((url, i) => (
                       <button
                         key={i}
                         type="button"
                         onClick={() => updateCustomerPhoto(url)}
-                        className={`w-16 h-16 rounded-full border-2 overflow-hidden shadow transition-transform hover:scale-110 relative ${
-                          customer.photo === url ? 'border-[#800020] ring-4 ring-[#D4AF37]' : 'border-stone-200'
+                        className={`w-14 h-14 rounded-full border-2 overflow-hidden shadow-xs transition-transform hover:scale-105 relative cursor-pointer ${
+                          customer.photo === url ? 'border-[#800020]' : 'border-stone-200'
                         }`}
                       >
                         <img src={url} alt={`Preset ${i}`} className="w-full h-full object-cover" />
                         {customer.photo === url && (
-                          <div className="absolute inset-0 bg-[#800020]/40 flex items-center justify-center text-[#D4AF37]">
-                            <Check className="w-6 h-6 stroke-[3]" />
+                          <div className="absolute inset-0 bg-[#800020]/40 flex items-center justify-center text-white">
+                            <Check className="w-5 h-5 stroke-[3]" />
                           </div>
                         )}
                       </button>
@@ -1013,20 +1016,17 @@ export default function CustomerAccountPage() {
               )}
             </div>
 
-            {/* CARD 2: SAVED ADDRESS & PROFILE FORM */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-md space-y-6 text-xs text-stone-700">
-              <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-                <div>
-                  <h3 className="font-serif text-xl font-bold text-[#800020] flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-[#800020]" /> Pengaturan Data Diri & Alamat Utama
-                  </h3>
-                  <p className="text-stone-500 text-[11px] mt-0.5">
-                    Data alamat ini tersimpan aman dan otomatis terisi secara instan saat Anda checkout order.
-                  </p>
-                </div>
+            {/* SAVED ADDRESS & PROFILE FORM */}
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs space-y-6 text-xs text-stone-700">
+              <div className="border-b border-stone-200 pb-3">
+                <h3 className="font-serif text-lg font-bold text-[#800020] flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#800020]" /> Pengaturan Data Diri & Alamat Utama
+                </h3>
+                <p className="text-stone-500 text-[11px] font-medium mt-0.5">
+                  Data alamat ini tersimpan aman dan otomatis terisi secara instan saat Anda checkout order.
+                </p>
               </div>
 
-              {/* Address Edit Form */}
               <form 
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -1058,7 +1058,7 @@ export default function CustomerAccountPage() {
                         name="name"
                         required
                         defaultValue={customer.name}
-                        className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
+                        className="w-full pl-9 pr-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020] transition-all"
                       />
                       <User className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                     </div>
@@ -1074,7 +1074,7 @@ export default function CustomerAccountPage() {
                         name="phone"
                         required
                         defaultValue={customer.phone}
-                        className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
+                        className="w-full pl-9 pr-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020] transition-all"
                       />
                       <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                     </div>
@@ -1091,7 +1091,7 @@ export default function CustomerAccountPage() {
                       name="email"
                       defaultValue={customer.email || ''}
                       placeholder="baker@example.com"
-                      className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                      className="w-full pl-9 pr-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                     />
                     <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                   </div>
@@ -1107,7 +1107,7 @@ export default function CustomerAccountPage() {
                     rows={2}
                     defaultValue={customer.address}
                     placeholder="Contoh: No 45, Jalan Bunga Raya 7/2, Section 7"
-                    className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                    className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                   />
                 </div>
 
@@ -1121,7 +1121,7 @@ export default function CustomerAccountPage() {
                       name="city"
                       required
                       defaultValue={customer.city || 'Shah Alam'}
-                      className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                     />
                   </div>
 
@@ -1134,7 +1134,7 @@ export default function CustomerAccountPage() {
                       name="postcode"
                       required
                       defaultValue={customer.postcode || '40000'}
-                      className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
                     />
                   </div>
 
@@ -1145,7 +1145,7 @@ export default function CustomerAccountPage() {
                     <select 
                       name="state"
                       defaultValue={customer.state || 'Selangor'}
-                      className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020] transition-all"
                     >
                       {[
                         'Selangor', 'Kuala Lumpur', 'Johor', 'Penang', 'Perak', 'Melaka', 'Kedah', 
@@ -1158,10 +1158,10 @@ export default function CustomerAccountPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-900 flex items-start gap-2">
-                  <ShieldCheck className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
+                <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 flex items-start gap-2 font-medium">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                   <div>
-                    <strong className="block text-xs">Otomatisasi Checkout Aktif:</strong>
+                    <strong className="block text-xs font-bold">Otomatisasi Checkout Aktif:</strong>
                     <p className="text-[11px] text-emerald-800">
                       Alamat ini tersimpan aman di peramban Anda. Setiap kali Anda melakukan checkout di FBS Bakery World, semua data nama, nomor HP, dan alamat pengiriman ini akan otomatis terisi secara instan tanpa perlu ketik ulang!
                     </p>
@@ -1170,7 +1170,7 @@ export default function CustomerAccountPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] font-bold text-xs rounded-xl shadow-xs transition-all uppercase tracking-wider active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4" /> SIMPAN PERUBAHAN PROFIL & ALAMAT
                 </button>
@@ -1179,7 +1179,7 @@ export default function CustomerAccountPage() {
               <div className="pt-4 border-t border-stone-100">
                 <button
                   onClick={handleCustomerLogout}
-                  className="w-full py-3 bg-red-900 hover:bg-red-950 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow"
+                  className="w-full py-3 bg-red-900 hover:bg-red-950 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all uppercase tracking-wider cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" /> KELUAR DARI AKUN CUSTOMER (LOG OUT)
                 </button>
@@ -1190,10 +1190,10 @@ export default function CustomerAccountPage() {
 
       </main>
 
-      {/* VERIFIED BUYER REVIEW POPUP MODAL */}
+      {/* REVIEW MODAL */}
       {reviewModalItem && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 border-2 border-[#D4AF37]/50 shadow-2xl space-y-4 text-xs relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white w-full max-w-lg rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-xl space-y-4 text-xs relative max-h-[90vh] overflow-y-auto">
             
             <button 
               onClick={() => {
@@ -1202,36 +1202,36 @@ export default function CustomerAccountPage() {
                 setModalVideoPreview('');
                 setModalImagePreview('');
               }}
-              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full"
+              className="absolute top-4 right-4 p-1.5 text-stone-400 hover:text-stone-700 rounded-full cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
             <div>
-              <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-[10px] font-black rounded-full uppercase inline-block mb-1">
+              <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md uppercase inline-block mb-1">
                 ✓ VERIFIED PURCHASED ORDER
               </span>
               <h2 className="font-serif text-xl font-bold text-[#800020]">
                 Beri Ulasan & Video Review
               </h2>
-              <p className="text-stone-500 text-xs font-semibold mt-0.5">
+              <p className="text-stone-500 text-xs font-medium mt-0.5">
                 Produk: <span className="text-stone-900 font-bold">{reviewModalItem.productName}</span>
               </p>
             </div>
 
             {modalSubmitted ? (
-              <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-3">
-                <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
-                <h3 className="font-serif text-lg font-bold text-emerald-900">Ulasan & Video Berhasil Dipublikasikan!</h3>
+              <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl text-center space-y-3 font-medium">
+                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
+                <h3 className="font-serif text-lg font-bold text-emerald-900">Ulasan Berhasil Dipublikasikan!</h3>
                 <p className="text-stone-600 text-xs">
-                  Terima kasih atas ulasan jujur Anda. Ulasan dan video demo produk Anda kini sudah tampil secara resmi dengan badge Verified Buyer di halaman katalog produk.
+                  Terima kasih atas ulasan jujur Anda. Ulasan dan video demo produk Anda kini sudah tampil secara resmi dengan badge Verified Buyer.
                 </p>
                 <button
                   onClick={() => {
                     setReviewModalItem(null);
                     setModalSubmitted(false);
                   }}
-                  className="px-5 py-2.5 bg-[#800020] text-white rounded-xl font-bold text-xs shadow"
+                  className="px-4 py-2 bg-[#800020] text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-xs cursor-pointer"
                 >
                   Tutup Halaman Ini
                 </button>
@@ -1280,18 +1280,18 @@ export default function CustomerAccountPage() {
               >
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">Berikan Rating Bintang</label>
-                  <div className="flex items-center gap-1.5 py-1">
+                  <div className="flex items-center gap-1 py-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         type="button"
                         key={star}
                         onClick={() => setModalRating(star)}
-                        className="p-1 hover:scale-110 transition-transform"
+                        className="p-1 hover:scale-105 transition-transform cursor-pointer"
                       >
-                        <Sparkles className={`w-7 h-7 ${star <= modalRating ? 'text-amber-400 fill-amber-400' : 'text-stone-300'}`} />
+                        <Sparkles className={`w-6 h-6 ${star <= modalRating ? 'text-amber-500 fill-amber-400' : 'text-stone-300'}`} />
                       </button>
                     ))}
-                    <span className="ml-2 font-bold text-stone-900 text-sm">{modalRating} / 5 Bintang</span>
+                    <span className="ml-2 font-bold text-stone-900 text-xs">{modalRating} / 5 Bintang</span>
                   </div>
                 </div>
 
@@ -1303,11 +1303,10 @@ export default function CustomerAccountPage() {
                     placeholder="Ceritakan tekstur kue, aroma, tingkat kelembutan, atau daya kembang kue hasil olahan Anda..."
                     value={modalComment}
                     onChange={(e) => setModalComment(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                    className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020] transition-all font-medium"
                   />
                 </div>
 
-                {/* UPLOAD FOTO & UPLOAD VIDEO */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-stone-700 uppercase text-[10px] mb-1">Upload Foto Kue</label>
@@ -1317,13 +1316,13 @@ export default function CustomerAccountPage() {
                         <button
                           type="button"
                           onClick={() => setModalImagePreview('')}
-                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full"
+                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full cursor-pointer"
                         >
                           <X className="w-3 h-3" />
                         </button>
                       </div>
                     ) : (
-                      <label className="border-2 border-dashed border-stone-300 hover:border-[#800020] rounded-xl p-2 text-center flex flex-col items-center justify-center bg-stone-50 cursor-pointer h-24">
+                      <label className="border border-dashed border-stone-300 hover:border-[#800020] rounded-xl p-2 text-center flex flex-col items-center justify-center bg-stone-50 cursor-pointer h-24 font-medium">
                         <ImageIcon className="w-5 h-5 text-stone-400 mb-1" />
                         <span className="text-[10px] font-bold text-stone-600">Pilih Foto Lokal</span>
                         <input 
@@ -1351,13 +1350,13 @@ export default function CustomerAccountPage() {
                         <button
                           type="button"
                           onClick={() => setModalVideoPreview('')}
-                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full z-10"
+                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full z-10 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
                         </button>
                       </div>
                     ) : (
-                      <label className="border-2 border-dashed border-stone-300 hover:border-[#800020] rounded-xl p-2 text-center flex flex-col items-center justify-center bg-stone-50 cursor-pointer h-24">
+                      <label className="border border-dashed border-stone-300 hover:border-[#800020] rounded-xl p-2 text-center flex flex-col items-center justify-center bg-stone-50 cursor-pointer h-24 font-medium">
                         <Video className="w-5 h-5 text-[#800020] mb-1" />
                         <span className="text-[10px] font-bold text-[#800020]">Pilih Video MP4/WebM</span>
                         <input 
@@ -1381,7 +1380,7 @@ export default function CustomerAccountPage() {
                 <button
                   type="submit"
                   disabled={modalSubmitting}
-                  className="w-full py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] font-bold text-xs rounded-xl shadow-xs uppercase tracking-wider transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" /> {modalSubmitting ? 'Mempublikasikan Ulasan...' : 'Publikasikan Ulasan & Video Feedback'}
                 </button>
@@ -1394,27 +1393,28 @@ export default function CustomerAccountPage() {
 
       <Footer />
       <FloatingWhatsApp />
-      {/* LOGOUT CONFIRMATION MODAL DIALOG */}
+
+      {/* LOGOUT CONFIRMATION MODAL */}
       {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white w-full max-w-md rounded-3xl p-6 sm:p-8 border-2 border-red-100 shadow-2xl space-y-5 text-center relative animate-fade-in">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white w-full max-w-md rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-xl space-y-4 text-center relative">
             <button 
               onClick={() => setShowLogoutModal(false)}
-              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full"
+              className="absolute top-4 right-4 p-1.5 text-stone-400 hover:text-stone-700 rounded-full cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto border-4 border-red-50">
-              <LogOut className="w-8 h-8 ml-1" />
+            <div className="w-14 h-14 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+              <LogOut className="w-7 h-7 ml-0.5" />
             </div>
 
-            <div>
-              <h3 className="font-serif text-2xl font-extrabold text-[#800020]">
-                Apakah Anda Yakin Ingin Keluar?
+            <div className="space-y-1">
+              <h3 className="font-serif text-xl font-bold text-stone-900">
+                Konfirmasi Logout
               </h3>
-              <p className="text-stone-600 text-xs mt-2 leading-relaxed">
-                Anda akan keluar dari akun <strong>{customer?.name}</strong>. Anda perlu masuk kembali untuk melihat riwayat pesanan dan menggunakan voucher diskon member.
+              <p className="text-stone-500 text-xs font-medium leading-relaxed">
+                Anda akan keluar dari akun <strong className="text-stone-800">{customer?.name}</strong>. Anda perlu login kembali untuk mengakses riwayat order.
               </p>
             </div>
 
@@ -1422,44 +1422,44 @@ export default function CustomerAccountPage() {
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(false)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl font-bold text-xs transition-colors"
+                className="py-2.5 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
               >
-                Batal (Tetap Masuk)
+                Batal
               </button>
 
               <button
                 type="button"
                 onClick={confirmLogout}
-                className="py-3 px-4 bg-[#800020] hover:bg-red-900 text-[#D4AF37] rounded-2xl font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+                className="py-2.5 px-4 bg-[#800020] hover:bg-red-900 text-[#FFF8F0] rounded-xl font-bold text-xs shadow-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <LogOut className="w-4 h-4" /> Ya, Keluar Akun
+                <LogOut className="w-3.5 h-3.5" /> Log Out
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* CUSTOM ORDER CANCELLATION REQUEST MODAL */}
+      {/* ORDER CANCELLATION REQUEST MODAL */}
       {cancelModalOrder && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white w-full max-w-md rounded-3xl p-6 sm:p-8 border-2 border-amber-200 shadow-2xl space-y-5 text-center relative animate-fade-in">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white w-full max-w-md rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-xl space-y-4 text-center relative">
             <button 
               onClick={() => setCancelModalOrder(null)}
-              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full"
+              className="absolute top-4 right-4 p-1.5 text-stone-400 hover:text-stone-700 rounded-full cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto border-4 border-amber-50">
-              <AlertTriangle className="w-8 h-8" />
+            <div className="w-14 h-14 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-7 h-7" />
             </div>
 
-            <div>
-              <h3 className="font-serif text-2xl font-extrabold text-[#800020]">
+            <div className="space-y-1">
+              <h3 className="font-serif text-xl font-bold text-stone-900">
                 Permohonan Pembatalan
               </h3>
-              <p className="text-stone-600 text-xs mt-2 leading-relaxed">
-                Silakan masukkan alasan pembatalan untuk pesanan <strong>{cancelModalOrder.orderNumber}</strong>:
+              <p className="text-stone-500 text-xs font-medium leading-relaxed">
+                Silakan masukkan alasan pembatalan untuk pesanan <strong className="text-stone-800">{cancelModalOrder.orderNumber}</strong>:
               </p>
             </div>
 
@@ -1469,7 +1469,7 @@ export default function CustomerAccountPage() {
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="Berikan alasan pembatalan..."
-                className="w-full px-4 py-3 border border-stone-300 rounded-2xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020] font-medium transition-all"
               />
             </div>
 
@@ -1477,7 +1477,7 @@ export default function CustomerAccountPage() {
               <button
                 type="button"
                 onClick={() => setCancelModalOrder(null)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl font-bold text-xs transition-colors"
+                className="py-2.5 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
               >
                 Batal
               </button>
@@ -1492,46 +1492,44 @@ export default function CustomerAccountPage() {
                     setCancelModalOrder(null);
                   }
                 }}
-                className="py-3 px-4 bg-[#800020] hover:bg-red-900 text-[#D4AF37] rounded-2xl font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+                className="py-2.5 px-4 bg-[#800020] hover:bg-red-900 text-[#FFF8F0] rounded-xl font-bold text-xs shadow-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <X className="w-4 h-4" /> Kirim Permohonan
+                <X className="w-3.5 h-3.5" /> Kirim
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* SHOPEE-STYLE LIVE TRACKING MODAL */}
+      {/* LIVE TRACKING MODAL */}
       {trackingModalOrder && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-stone-200 flex flex-col">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl border border-stone-200 flex flex-col">
             
-            {/* Modal Header */}
-            <div className="p-6 bg-gradient-to-r from-[#800020] to-[#6F1D1B] text-white rounded-t-3xl flex items-center justify-between relative overflow-hidden">
-              <div className="space-y-1 relative z-10">
+            <div className="p-4 bg-stone-900 text-white rounded-t-2xl flex items-center justify-between">
+              <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-[#D4AF37]" />
-                  <h3 className="font-serif text-lg font-bold text-white">Status Lacak Pengiriman</h3>
+                  <Truck className="w-4 h-4 text-[#D4AF37]" />
+                  <h3 className="font-serif text-sm font-bold text-white">Status Lacak Pengiriman</h3>
                 </div>
-                <p className="text-xs text-stone-200 font-mono">
+                <p className="text-[11px] text-stone-300 font-mono">
                   Nomor Pesanan: <span className="text-[#D4AF37] font-bold">{trackingModalOrder.orderNumber}</span>
                 </p>
               </div>
               <button
                 onClick={() => setTrackingModalOrder(null)}
-                className="p-2 hover:bg-white/20 rounded-full text-white transition-colors relative z-10"
+                className="p-1.5 hover:bg-white/20 rounded-full text-stone-300 hover:text-white transition-colors cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Courier & Resi Info Card */}
-            <div className="p-6 space-y-6 flex-1">
+            <div className="p-6 space-y-6 flex-1 text-xs">
               
-              <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 flex items-center justify-between gap-3">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold uppercase text-stone-500 block">Ekspedisi / Kurir:</span>
-                  <span className="font-extrabold text-sm text-stone-900 flex items-center gap-1.5">
+              <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 flex items-center justify-between gap-3 font-medium">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold uppercase text-stone-400 block">Ekspedisi / Kurir:</span>
+                  <span className="font-bold text-sm text-stone-900 flex items-center gap-1.5">
                     <Truck className="w-4 h-4 text-[#800020]" /> {trackingModalOrder.courierName || 'J&T Express'}
                   </span>
                   {trackingModalOrder.trackingNumber ? (
@@ -1550,7 +1548,7 @@ export default function CustomerAccountPage() {
                       setCopiedResi(true);
                       setTimeout(() => setCopiedResi(false), 2500);
                     }}
-                    className="px-3.5 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] text-xs font-bold rounded-xl shadow flex items-center gap-1.5 transition-transform active:scale-95 flex-shrink-0"
+                    className="px-3 py-1.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 transition-all cursor-pointer shrink-0 uppercase tracking-wider"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span>{copiedResi ? 'Tercopy!' : 'Salin Resi'}</span>
@@ -1560,7 +1558,7 @@ export default function CustomerAccountPage() {
 
               {/* Vertical Timeline Progress Bar */}
               <div className="space-y-4">
-                <h4 className="text-xs font-extrabold uppercase text-stone-800 flex items-center gap-1.5">
+                <h4 className="text-xs font-bold uppercase text-stone-800 flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-[#800020]" /> Timeline Tracking Pengiriman
                 </h4>
 
@@ -1586,17 +1584,16 @@ export default function CustomerAccountPage() {
                   const currentIdx = getStepIndex(norm);
 
                   return (
-                    <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-stone-200">
+                    <div className="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-2.5 before:bottom-2.5 before:w-0.5 before:bg-stone-200">
                       {steps.map((step, idx) => {
                         const isDone = idx <= currentIdx;
                         const isCurrent = idx === currentIdx;
 
                         return (
                           <div key={idx} className="relative flex items-start gap-3">
-                            {/* Step Dot */}
-                            <div className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 transition-all ${
+                            <div className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
                               isCurrent
-                                ? 'bg-[#800020] border-[#D4AF37] text-white ring-4 ring-[#800020]/20'
+                                ? 'bg-[#800020] border-[#800020] text-white ring-2 ring-[#800020]/30'
                                 : isDone
                                 ? 'bg-emerald-600 border-emerald-600 text-white'
                                 : 'bg-stone-100 border-stone-300 text-stone-400'
@@ -1605,10 +1602,10 @@ export default function CustomerAccountPage() {
                             </div>
 
                             <div className="space-y-0.5">
-                              <span className={`text-xs font-extrabold block ${isDone ? 'text-stone-900' : 'text-stone-400'}`}>
+                              <span className={`text-xs font-bold block ${isDone ? 'text-stone-900' : 'text-stone-400'}`}>
                                 {step.title}
                               </span>
-                              <p className="text-[11px] text-stone-500">{step.desc}</p>
+                              <p className="text-[11px] text-stone-500 font-medium">{step.desc}</p>
                             </div>
                           </div>
                         );
@@ -1621,9 +1618,9 @@ export default function CustomerAccountPage() {
               <div className="pt-4 border-t border-stone-100 flex justify-end">
                 <Link
                   href={`/track-order?orderNumber=${encodeURIComponent(trackingModalOrder.orderNumber)}&phone=${encodeURIComponent(trackingModalOrder.customerPhone)}`}
-                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
                 >
-                  <ExternalLink className="w-3.5 h-3.5 text-[#800020]" /> Halaman Tracking Detail Selengkapnya
+                  <ExternalLink className="w-3.5 h-3.5 text-[#800020]" /> Detail Tracking Portal
                 </Link>
               </div>
 
@@ -1635,35 +1632,34 @@ export default function CustomerAccountPage() {
 
       {/* PROFILE & ADDRESS SAVE CONFIRMATION MODAL */}
       {confirmSaveProfileModal && pendingSaveData && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-stone-200 space-y-6 text-center relative overflow-hidden">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-xl border border-stone-200 space-y-5 text-center relative">
             
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto border-4 border-emerald-50">
-              <ShieldCheck className="w-8 h-8" />
+            <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto">
+              <ShieldCheck className="w-7 h-7" />
             </div>
 
-            <div className="space-y-2">
-              <h3 className="font-serif text-2xl font-extrabold text-[#800020]">
-                Konfirmasi Simpan Profil & Alamat Utama
+            <div className="space-y-1">
+              <h3 className="font-serif text-xl font-bold text-stone-900">
+                Konfirmasi Simpan Profil
               </h3>
-              <p className="text-stone-600 text-xs leading-relaxed">
+              <p className="text-stone-500 text-xs font-medium leading-relaxed">
                 Apakah Anda yakin ingin menyimpan perubahan nama & alamat utama ini secara permanen ke akun Anda?
               </p>
             </div>
 
-            {/* Summary Preview Card */}
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 text-left text-xs space-y-2 text-stone-700">
+            <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 text-left text-xs space-y-1.5 text-stone-700 font-medium">
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-[#800020] flex-shrink-0" />
+                <User className="w-3.5 h-3.5 text-[#800020] shrink-0" />
                 <span className="font-bold text-stone-900">{pendingSaveData.name}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#800020] flex-shrink-0" />
+                <Phone className="w-3.5 h-3.5 text-[#800020] shrink-0" />
                 <span>{pendingSaveData.phone}</span>
               </div>
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#800020] flex-shrink-0 mt-0.5" />
-                <span className="text-stone-800 font-medium">
+                <MapPin className="w-3.5 h-3.5 text-[#800020] shrink-0 mt-0.5" />
+                <span className="text-stone-800">
                   {pendingSaveData.address}, {pendingSaveData.city}, {pendingSaveData.postcode}, {pendingSaveData.state}
                 </span>
               </div>
@@ -1674,7 +1670,7 @@ export default function CustomerAccountPage() {
                 type="button"
                 disabled={isSavingProfile}
                 onClick={() => setConfirmSaveProfileModal(false)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-2xl font-bold text-xs transition-colors"
+                className="py-2.5 px-4 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
               >
                 Batal
               </button>
@@ -1708,13 +1704,13 @@ export default function CustomerAccountPage() {
                     setConfirmSaveProfileModal(false);
                   }
                 }}
-                className="py-3 px-4 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] rounded-2xl font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+                className="py-2.5 px-4 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] rounded-xl font-bold text-xs shadow-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 {isSavingProfile ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4" /> Ya, Simpan Permanen
+                    <CheckCircle2 className="w-4 h-4" /> Simpan Permanen
                   </>
                 )}
               </button>

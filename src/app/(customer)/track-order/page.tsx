@@ -7,14 +7,13 @@ import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { Order, OrderStatus, normalizeToFrontendStatus } from '@/types';
 import { formatMYR } from '@/lib/currency';
-import { formatWhatsAppNumber, cleanPhoneNumber, normalizePhoneDigits, getCourierTrackingUrl } from '@/lib/whatsapp';
+import { cleanPhoneNumber, normalizePhoneDigits, getCourierTrackingUrl } from '@/lib/whatsapp';
 import { HeaderNav } from '@/components/customer/header-nav';
 import { Footer } from '@/components/customer/footer';
 import { AnnouncementBar } from '@/components/customer/announcement-bar';
 import { FloatingWhatsApp } from '@/components/customer/floating-whatsapp';
 import { 
   Search, 
-  PackageCheck, 
   Truck, 
   CheckCircle2, 
   Clock, 
@@ -23,7 +22,8 @@ import {
   MessageCircle,
   ExternalLink,
   Copy,
-  Check
+  Check,
+  ChevronRight
 } from 'lucide-react';
 
 function TrackOrderContent() {
@@ -258,21 +258,29 @@ function TrackOrderContent() {
 
   return (
     <>
-      {/* Header */}
-      <div className="text-center max-w-xl mx-auto mb-8">
-        <div className="w-14 h-14 rounded-full bg-[#800020]/10 text-[#800020] flex items-center justify-center mx-auto mb-3">
-          <PackageCheck className="w-7 h-7" />
+      {/* EDITORIAL HEADER */}
+      <div className="pb-6 mb-6 border-b border-[#EADBC8] flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-2 max-w-2xl">
+          {/* Breadcrumb Navigation */}
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500 font-medium mb-1">
+            <Link href="/" className="hover:text-[#800020] transition-colors">{t.nav.home}</Link>
+            <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+            <span className="text-[#800020] font-bold">
+              {language === 'EN' ? 'Track Order' : language === 'MS' ? 'Jejak Pesanan' : 'Lacak Pesanan'}
+            </span>
+          </nav>
+
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#2B1B1B] tracking-tight">
+            {language === 'EN' ? 'Track Parcel & Order Status' : language === 'MS' ? 'Jejak Status Penghantaran & Pesanan' : 'Lacak Status Paket & Pesanan'}
+          </h1>
+          <p className="text-stone-600 text-xs sm:text-sm font-medium leading-relaxed">
+            {language === 'EN' ? 'Enter your Order ID (e.g. #FBS-20260728-101) and phone number to view live delivery updates.' : language === 'MS' ? 'Masukkan Nombor Pesanan (cth #FBS-20260728-101) dan nombor telefon untuk melihat kemas kini.' : 'Masukkan ID Pesanan (misal #FBS-20260728-101) dan nomor telepon untuk melihat pembaruan.'}
+          </p>
         </div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#800020]">
-          {language === 'EN' ? 'Track Parcel & Order Status' : language === 'MS' ? 'Jejak Status Penghantaran & Pesanan' : 'Lacak Status Paket & Pesanan'}
-        </h1>
-        <p className="text-stone-600 text-xs sm:text-sm mt-1">
-          {language === 'EN' ? 'Enter your Order ID (e.g. #FBS-20260728-101) and phone number to view live delivery updates.' : language === 'MS' ? 'Masukkan Nombor Pesanan (cth #FBS-20260728-101) dan nombor telefon untuk melihat kemas kini.' : 'Masukkan ID Pesanan (misal #FBS-20260728-101) dan nomor telepon untuk melihat pembaruan.'}
-        </p>
       </div>
 
-      {/* Search Input Card */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-md mb-10 max-w-2xl mx-auto">
+      {/* SEARCH INPUT CARD */}
+      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs mb-8 max-w-xl mx-auto">
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -285,7 +293,7 @@ function TrackOrderContent() {
                 placeholder="#FBS-20260728-101"
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
               />
             </div>
 
@@ -298,41 +306,47 @@ function TrackOrderContent() {
                 placeholder="+60129876543"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#800020] transition-all"
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] font-bold text-xs rounded-xl shadow-xs transition-all uppercase tracking-wider active:scale-95 cursor-pointer flex items-center justify-center gap-2"
           >
             <Search className="w-4 h-4" /> {language === 'EN' ? 'Track Order Now' : language === 'MS' ? 'Jejak Pesanan Sekarang' : 'Lacak Pesanan Sekarang'}
           </button>
         </form>
       </div>
 
-      {/* Search Result */}
+      {/* SEARCH RESULT */}
       {searched && (
         <div>
           {!orderResult ? (
-            <div className="bg-white p-10 rounded-3xl border border-[#EADBC8] shadow-sm text-center max-w-xl mx-auto">
-              <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
-              <h3 className="font-serif text-xl font-bold text-[#800020]">{language === 'EN' ? 'Order Not Found' : language === 'MS' ? 'Pesanan Tidak Ditemui' : 'Pesanan Tidak Ditemukan'}</h3>
-              <p className="text-stone-600 text-xs mt-1">
-                {language === 'EN' ? 'We could not find an order matching your details. Please verify your info or contact support.' : language === 'MS' ? 'Pesanan tidak ditemui untuk maklumat tersebut. Sila semak butiran anda atau hubungi admin.' : 'Kami tidak dapat menemukan pesanan yang cocok. Silakan periksa kembali detail Anda.'}
-              </p>
+            /* ORDER NOT FOUND STATE */
+            <div className="bg-white p-8 sm:p-10 rounded-2xl border border-stone-200 shadow-xs text-center max-w-md mx-auto space-y-3">
+              <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center mx-auto">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-serif text-lg font-bold text-[#2B1B1B]">{language === 'EN' ? 'Order Not Found' : language === 'MS' ? 'Pesanan Tidak Ditemui' : 'Pesanan Tidak Ditemukan'}</h3>
+                <p className="text-stone-500 text-xs font-medium leading-relaxed">
+                  {language === 'EN' ? 'We could not find an order matching your details. Please verify your info or contact support.' : language === 'MS' ? 'Pesanan tidak ditemui untuk maklumat tersebut. Sila semak butiran anda atau hubungi admin.' : 'Kami tidak dapat menemukan pesanan yang cocok. Silakan periksa kembali detail Anda.'}
+                </p>
+              </div>
               <a
                 href={`https://wa.me/${cleanPhoneNumber(db.getStoreSettings().whatsappNumber)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white text-xs font-bold rounded-xl shadow"
+                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold rounded-xl shadow-xs uppercase tracking-wider transition-all cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4 fill-white" /> {language === 'EN' ? 'Contact Admin Support' : language === 'MS' ? 'Hubungi Bantuan Admin' : 'Hubungi Dukungan Admin'}
               </a>
             </div>
           ) : (
-            <div className="bg-white p-6 sm:p-10 rounded-3xl border border-[#EADBC8] shadow-lg space-y-8 animate-fade-in">
+            /* TRACKING RESULT SHOWCASE */
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-xs space-y-6 animate-fade-in">
               
               {/* Result Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-stone-200 pb-4 gap-4">
@@ -341,12 +355,12 @@ function TrackOrderContent() {
                     {(() => {
                       const b = getOrderStatusBadge(orderResult.orderStatus, language);
                       return (
-                        <span className={`px-3 py-1 text-xs font-bold rounded-full border ${b.className}`}>
+                        <span className={`px-2.5 py-0.5 text-xs font-bold rounded-md border ${b.className}`}>
                           {b.label}
                         </span>
                       );
                     })()}
-                    <span className="text-xs text-stone-500 flex items-center gap-1">
+                    <span className="text-xs text-stone-500 flex items-center gap-1 font-medium">
                       <Calendar className="w-3.5 h-3.5" /> {new Date(orderResult.createdAt).toLocaleDateString()}
                     </span>
                   </div>
@@ -356,8 +370,8 @@ function TrackOrderContent() {
                 </div>
 
                 <div className="text-left sm:text-right">
-                  <span className="text-xs text-stone-500 block">{t.checkout.totalAmount}</span>
-                  <span className="font-serif text-2xl font-extrabold text-[#800020]">
+                  <span className="text-xs text-stone-500 block font-medium">{t.checkout.totalAmount}</span>
+                  <span className="font-serif text-2xl font-bold text-[#800020]">
                     {formatMYR(orderResult.totalAmount)}
                   </span>
                 </div>
@@ -365,35 +379,35 @@ function TrackOrderContent() {
 
               {/* Courier Resi / Self-Pickup Information Card */}
               {orderResult.courierName?.includes('Self-Pickup') || orderResult.courierName?.includes('Penghantaran Sendiri') ? (
-                <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center flex-shrink-0">
-                      <Truck className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0">
+                      <Truck className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">🚗 {language === 'EN' ? 'Self-Pickup / Store Delivery' : language === 'MS' ? 'Penghantaran Mandiri / Ambil di Kedai' : 'Pengambilan Toko / Kurir Toko'}</span>
-                      <h4 className="text-sm font-extrabold text-stone-900">
+                      <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">🚗 {language === 'EN' ? 'Self-Pickup / Store Delivery' : language === 'MS' ? 'Penghantaran Mandiri / Ambil di Kedai' : 'Pengambilan Toko / Kurir Toko'}</span>
+                      <h4 className="text-xs sm:text-sm font-bold text-stone-900">
                         {orderResult.trackingNumber 
                           ? `Notes: ${orderResult.trackingNumber}` 
                           : 'FBS Bakery World Store Delivery'}
                       </h4>
                     </div>
                   </div>
-                  <span className="px-3.5 py-1.5 bg-emerald-700 text-white text-xs font-bold rounded-xl shadow">
+                  <span className="px-3 py-1 bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs">
                     {language === 'EN' ? 'Verified Store Delivery' : language === 'MS' ? 'Penghantaran Kedai Disahkan' : 'Pengiriman Toko Terverifikasi'}
                   </span>
                 </div>
               ) : orderResult.courierName && orderResult.trackingNumber ? (
-                <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-emerald-700 text-white flex items-center justify-center flex-shrink-0 shadow">
-                      <Truck className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0">
+                      <Truck className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-[11px] font-extrabold text-emerald-900 uppercase tracking-wider block">Nombor Resi Kurier Disertakan</span>
-                      <h4 className="text-sm sm:text-base font-extrabold text-stone-900 flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Nombor Resi Kurier Disertakan</span>
+                      <h4 className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-2 flex-wrap">
                         {orderResult.courierName}: 
-                        <span className="font-mono text-emerald-900 px-2.5 py-0.5 bg-emerald-100/80 rounded-md border border-emerald-300">
+                        <span className="font-mono text-emerald-900 px-2 py-0.5 bg-emerald-100 rounded border border-emerald-300">
                           {orderResult.trackingNumber}
                         </span>
                       </h4>
@@ -404,9 +418,9 @@ function TrackOrderContent() {
                     <button
                       type="button"
                       onClick={() => handleCopyResi(orderResult.trackingNumber || '')}
-                      className={`px-3.5 py-2 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 shadow ${
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 cursor-pointer ${
                         copiedResi 
-                          ? 'bg-emerald-700 text-white border-emerald-700 scale-105' 
+                          ? 'bg-emerald-700 text-white border-emerald-700' 
                           : 'bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-100'
                       }`}
                     >
@@ -425,59 +439,57 @@ function TrackOrderContent() {
                       href={getCourierTrackingUrl(orderResult.courierName, orderResult.trackingNumber)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5 flex-1 sm:flex-initial justify-center"
+                      className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 flex-1 sm:flex-initial justify-center cursor-pointer"
                     >
                       {language === 'EN' ? 'Track on Logistics Portal' : language === 'MS' ? 'Jejak di Laman Kurier' : 'Lacak di Situs Ekspedisi'} <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
                 </div>
               ) : (
-                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-center gap-2 font-medium">
+                  <Clock className="w-4 h-4 text-amber-600 shrink-0" />
                   <span>{language === 'EN' ? 'Package is being prepared for dispatch. Tracking resi number will be updated once shipped.' : language === 'MS' ? 'Pakej sedang disediakan untuk penghantaran. Nombor resi akan dikemas kini sebaik sahaja dihantar.' : 'Paket sedang disiapkan untuk dikirim. Nomor resi akan diperbarui setelah dikirim.'}</span>
                 </div>
               )}
 
               {/* Interactive Status Timeline */}
-              <div>
-                <h3 className="text-sm font-bold text-[#800020] uppercase tracking-wider mb-6">
+              <div className="space-y-4">
+                <h3 className="text-xs font-bold text-[#800020] uppercase tracking-wider">
                   {language === 'EN' ? 'Delivery Status Timeline' : language === 'MS' ? 'Garisan Masa Status Penghantaran' : 'Lini Masa Status Pengiriman'}
                 </h3>
 
-                <div className="relative">
-                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
-                    {timelineSteps.map((step, idx) => {
-                      const currentIdx = getStepIndex(orderResult.orderStatus);
-                      const isDone = currentIdx >= idx;
-                      const isCurrent = currentIdx === idx;
+                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                  {timelineSteps.map((step, idx) => {
+                    const currentIdx = getStepIndex(orderResult.orderStatus);
+                    const isDone = currentIdx >= idx;
+                    const isCurrent = currentIdx === idx;
 
-                      return (
-                        <div key={step.key} className="flex flex-col items-center text-center">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 shadow transition-colors ${
-                            isDone ? 'bg-[#800020] text-[#D4AF37]' : 'bg-stone-200 text-stone-400'
-                          } ${isCurrent ? 'ring-4 ring-[#D4AF37]' : ''}`}>
-                            {isDone ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
-                          </div>
-                          <h4 className={`text-xs font-bold ${isDone ? 'text-[#800020]' : 'text-stone-400'}`}>
-                            {step.label}
-                          </h4>
-                          <p className="text-[10px] text-stone-500 mt-0.5 max-w-[120px]">{step.desc}</p>
+                    return (
+                      <div key={step.key} className="flex flex-col items-center text-center">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center mb-1.5 shadow-xs transition-colors ${
+                          isDone ? 'bg-[#800020] text-[#FFF8F0]' : 'bg-stone-200 text-stone-400'
+                        } ${isCurrent ? 'ring-2 ring-[#800020]' : ''}`}>
+                          {isDone ? <CheckCircle2 className="w-4 h-4" /> : <span className="text-xs font-bold">{idx + 1}</span>}
                         </div>
-                      );
-                    })}
-                  </div>
+                        <h4 className={`text-xs font-bold ${isDone ? 'text-[#800020]' : 'text-stone-400'}`}>
+                          {step.label}
+                        </h4>
+                        <p className="text-[11px] text-stone-500 mt-0.5 font-medium leading-tight max-w-[120px]">{step.desc}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Purchased Items List */}
-              <div className="border-t border-stone-200 pt-6">
-                <h3 className="text-sm font-bold text-[#2B1B1B] mb-3">{language === 'EN' ? 'Purchased Items' : language === 'MS' ? 'Barang Dibeli' : 'Daftar Barang Dibeli'}</h3>
-                <div className="space-y-3">
+              <div className="border-t border-stone-200 pt-5 space-y-3">
+                <h3 className="text-xs font-bold text-[#2B1B1B] uppercase tracking-wider">{language === 'EN' ? 'Purchased Items' : language === 'MS' ? 'Barang Dibeli' : 'Daftar Barang Dibeli'}</h3>
+                <div className="space-y-2">
                   {(orderResult.items || []).map(item => (
-                    <div key={item.id} className="flex justify-between items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl border border-stone-200">
+                    <div key={item.id} className="flex justify-between items-center text-xs text-stone-700 bg-stone-50 p-3 rounded-xl border border-stone-200 font-medium">
                       <div className="flex items-center gap-3">
                         {item.mainImage && (
-                          <img src={item.mainImage} alt={item.productName} className="w-10 h-10 object-cover rounded-lg" />
+                          <img src={item.mainImage} alt={item.productName} className="w-10 h-10 object-cover rounded-lg border border-stone-200 shrink-0" />
                         )}
                         <div>
                           <span className="font-bold text-stone-900 block">{item.productName}</span>
@@ -500,11 +512,11 @@ function TrackOrderContent() {
 
 export default function TrackOrderPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+    <div className="min-h-screen flex flex-col bg-[#FFF8F0] font-sans antialiased text-stone-900 selection:bg-[#800020] selection:text-white overflow-x-hidden">
       <AnnouncementBar />
       <HeaderNav />
 
-      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         <Suspense fallback={<div className="p-8 text-center text-xs font-bold text-[#800020]">Loading Tracking...</div>}>
           <TrackOrderContent />
         </Suspense>

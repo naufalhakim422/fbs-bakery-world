@@ -14,15 +14,11 @@ import { ProductCard } from '@/components/customer/product-card';
 import { 
   Search, 
   RefreshCw, 
-  Layers, 
   LayoutGrid, 
   List, 
-  SlidersHorizontal, 
   Check, 
   ChevronRight, 
-  Sparkles, 
   Package, 
-  ShieldCheck,
   X
 } from 'lucide-react';
 
@@ -165,10 +161,10 @@ function CatalogContent() {
 
   return (
     <>
-      {/* WARM LUXURY HERITAGE CATALOG HEADER */}
-      <div className="pt-2 pb-8 mb-8 border-b border-[#EADBC8]/70 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative overflow-x-hidden">
+      {/* EDITORIAL CATALOG HEADER */}
+      <div className="pb-6 mb-6 border-b border-[#EADBC8] flex flex-col md:flex-row justify-between items-start md:items-end gap-5">
         
-        <div className="space-y-2.5 max-w-3xl text-left">
+        <div className="space-y-2 max-w-2xl text-left">
           {/* Breadcrumb Navigation */}
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500 font-medium mb-1">
             <Link href="/" className="hover:text-[#800020] transition-colors">
@@ -180,34 +176,28 @@ function CatalogContent() {
             </span>
           </nav>
 
-          {/* Collection Gold Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#800020]/10 border border-[#800020]/20 text-[#800020] text-[11px] font-black tracking-widest uppercase">
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>{language === 'EN' ? 'PREMIUM INGREDIENTS & TOOLS' : language === 'MS' ? 'RAMUAN & PERALATAN MEWAH' : 'BAHAN & PERALATAN PASTIKAN MEWAH'}</span>
-          </div>
-
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black text-[#2B1B1B] tracking-tight leading-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#2B1B1B] tracking-tight">
             {language === 'EN' ? 'Baking Supplies & Ingredients' : language === 'MS' ? 'Bekalan & Bahan Bakeri' : 'Perlengkapan & Bahan Kue'}
           </h1>
-          <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-medium max-w-2xl">
-            {language === 'EN' ? 'Browse our complete selection of flours, chocolates, butter, decorations, and tools with various weight options.' : language === 'MS' ? 'Semak pilihan lengkap tepung, coklat, mentega, hiasan, dan peralatan kami dengan pelbagai pilihan berat.' : 'Telusuri pilihan lengkap kami yang terdiri dari tepung, cokelat, mentega, hiasan, dan peralatan dengan berbagai pilihan berat.'}
+          <p className="text-stone-600 text-xs sm:text-sm font-medium leading-relaxed">
+            {language === 'EN' ? 'Browse our complete selection of flours, chocolates, butter, decorations, and tools.' : language === 'MS' ? 'Semak pilihan lengkap tepung, coklat, mentega, hiasan, dan peralatan kami.' : 'Telusuri pilihan lengkap kami yang terdiri dari tepung, cokelat, mentega, hiasan, dan peralatan.'}
           </p>
         </div>
 
-        {/* Elegant Search Input Box */}
-        <div className="w-full md:w-88 relative group flex-shrink-0">
+        {/* Clean Integrated Search Input Box */}
+        <div className="w-full md:w-80 relative group shrink-0">
           <input 
             type="text"
             placeholder={t.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3.5 bg-white border border-[#EADBC8] rounded-2xl text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#800020] focus:ring-1 focus:ring-[#800020] shadow-sm transition-all duration-300"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#800020] transition-all"
           />
-          <Search className="w-4 h-4 text-stone-400 group-focus-within:text-[#800020] absolute left-4 top-4 transition-colors" />
+          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3 transition-colors" />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-3.5 text-stone-400 hover:text-stone-700 p-0.5 rounded-full"
+              className="absolute right-3 top-3 text-stone-400 hover:text-stone-700 p-0.5 rounded-full cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -215,92 +205,92 @@ function CatalogContent() {
         </div>
       </div>
 
-      {/* INTEGRATED MODERN TOOLBAR & CATEGORY SELECTOR */}
-      <div className="bg-white p-4 sm:p-5 rounded-3xl border border-[#EADBC8] shadow-sm mb-8 flex flex-col gap-4">
+      {/* FILTER TOOLBAR & CATEGORY SELECTOR */}
+      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm mb-6 space-y-4">
         
-        {/* TOP ROW: CATEGORIES HORIZONTAL SMOOTH SCROLL */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          
-          {/* Horizontal Smooth Scroll Category Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none w-full lg:w-auto text-xs whitespace-nowrap">
+        {/* CATEGORY TABS HORIZONTAL SCROLL */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs whitespace-nowrap">
+          <button
+            onClick={() => setSelectedCategory('')}
+            className={`px-3.5 py-1.5 rounded-xl font-bold transition-all shrink-0 cursor-pointer ${
+              selectedCategory === ''
+                ? 'bg-[#800020] text-[#FFF8F0]'
+                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+            }`}
+          >
+            {t.common.allCategories}
+          </button>
+          {categories.map((cat) => (
             <button
-              onClick={() => setSelectedCategory('')}
-              className={`px-4 py-2 rounded-2xl font-bold transition-all flex-shrink-0 cursor-pointer ${
-                selectedCategory === ''
-                  ? 'bg-[#800020] text-[#F7E7CE] shadow-md border border-[#D4AF37]/50 scale-102'
-                  : 'bg-stone-100/90 text-stone-700 hover:bg-stone-200/90 hover:text-stone-900'
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-3.5 py-1.5 rounded-xl font-bold transition-all shrink-0 cursor-pointer ${
+                selectedCategory === cat.id
+                  ? 'bg-[#800020] text-[#FFF8F0]'
+                  : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
               }`}
             >
-              {t.common.allCategories}
+              {cat.name}
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-2xl font-bold transition-all flex-shrink-0 cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? 'bg-[#800020] text-[#F7E7CE] shadow-md border border-[#D4AF37]/50 scale-102'
-                    : 'bg-stone-100/90 text-stone-700 hover:bg-stone-200/90 hover:text-stone-900'
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
+          ))}
+        </div>
 
-          {/* RIGHT SIDE INLINE ACTIONS: TOGGLES + SORT + GRID/LIST VIEW */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-shrink-0 justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-stone-100">
-            
-            {/* Halal Only Switch Pill */}
+        {/* INLINE ACTIONS: TOGGLES + SORT + GRID/LIST VIEW */}
+        <div className="flex flex-wrap items-center gap-2.5 justify-between pt-3 border-t border-stone-100 text-xs font-bold text-stone-700">
+          
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Halal Only Filter Button */}
             <button
               onClick={() => setHalalOnly(!halalOnly)}
-              className={`px-3 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 border cursor-pointer ${
                 halalOnly
-                  ? 'bg-emerald-800 text-white border-emerald-600 shadow-sm'
+                  ? 'bg-emerald-800 text-white border-emerald-800'
                   : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200'
               }`}
             >
-              <div className={`w-4 h-4 rounded-md flex items-center justify-center text-[10px] ${halalOnly ? 'bg-white text-emerald-800' : 'border border-stone-400'}`}>
-                {halalOnly && <Check className="w-3 h-3 stroke-[3]" />}
+              <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${halalOnly ? 'bg-white text-emerald-800' : 'border border-stone-400'}`}>
+                {halalOnly && <Check className="w-2.5 h-2.5 stroke-[3]" />}
               </div>
               <span>{t.common.halalOnly}</span>
             </button>
 
-            {/* Ready Stock Filter Pill */}
+            {/* Ready Stock Filter Button */}
             <button
               onClick={() => setInStockOnly(!inStockOnly)}
-              className={`px-3 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 border cursor-pointer ${
                 inStockOnly
-                  ? 'bg-blue-800 text-white border-blue-600 shadow-sm'
+                  ? 'bg-blue-800 text-white border-blue-800'
                   : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200'
               }`}
             >
-              <div className={`w-4 h-4 rounded-md flex items-center justify-center text-[10px] ${inStockOnly ? 'bg-white text-blue-800' : 'border border-stone-400'}`}>
-                {inStockOnly && <Check className="w-3 h-3 stroke-[3]" />}
+              <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${inStockOnly ? 'bg-white text-blue-800' : 'border border-stone-400'}`}>
+                {inStockOnly && <Check className="w-2.5 h-2.5 stroke-[3]" />}
               </div>
               <span>{language === 'EN' ? 'Ready Stock' : language === 'MS' ? 'Stok Sedia Ada' : 'Stok Tersedia'}</span>
             </button>
 
-            {/* New Arrival Filter Pill */}
+            {/* New Arrival Filter Button */}
             <button
               onClick={() => setNewArrivalOnly(!newArrivalOnly)}
-              className={`px-3 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 border cursor-pointer ${
                 newArrivalOnly
-                  ? 'bg-amber-600 text-white border-amber-500 shadow-sm'
+                  ? 'bg-amber-600 text-white border-amber-600'
                   : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200'
               }`}
             >
-              <div className={`w-4 h-4 rounded-md flex items-center justify-center text-[10px] ${newArrivalOnly ? 'bg-white text-amber-600' : 'border border-stone-400'}`}>
-                {newArrivalOnly && <Check className="w-3 h-3 stroke-[3]" />}
+              <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${newArrivalOnly ? 'bg-white text-amber-600' : 'border border-stone-400'}`}>
+                {newArrivalOnly && <Check className="w-2.5 h-2.5 stroke-[3]" />}
               </div>
               <span>{language === 'EN' ? 'New Arrival' : language === 'MS' ? 'Produk Baharu' : 'Produk Baru'}</span>
             </button>
+          </div>
 
-            {/* Sort Select Dropdown */}
+          <div className="flex items-center gap-2.5">
+            {/* Sort Dropdown */}
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3.5 py-2 border border-stone-200 rounded-2xl text-xs font-bold text-stone-800 bg-stone-50 hover:bg-white focus:outline-none focus:border-[#800020] transition-colors cursor-pointer"
+              className="px-3 py-1.5 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 bg-stone-50 hover:bg-white focus:outline-none focus:border-[#800020] transition-colors cursor-pointer"
             >
               <option value="featured">{language === 'EN' ? 'Featured Order' : language === 'MS' ? 'Susunan Utama' : 'Pilihan Utamakan'}</option>
               <option value="price-asc">{language === 'EN' ? 'Price: Low to High' : language === 'MS' ? 'Harga: Rendah ke Tinggi' : 'Harga Termurah'}</option>
@@ -310,13 +300,13 @@ function CatalogContent() {
               <option value="name-asc">{language === 'EN' ? 'Name A-Z' : language === 'MS' ? 'Nama A-Z' : 'Nama A-Z'}</option>
             </select>
 
-            {/* INTEGRATED MODERN GRID / LIST VIEW TOGGLE BUTTONS */}
-            <div className="flex items-center bg-stone-100 p-1 rounded-2xl border border-stone-200 flex-shrink-0">
+            {/* Grid / List View Buttons */}
+            <div className="flex items-center bg-stone-100 p-0.5 rounded-xl border border-stone-200 shrink-0">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                   viewMode === 'grid'
-                    ? 'bg-[#800020] text-[#F7E7CE] shadow-md scale-105'
+                    ? 'bg-[#800020] text-[#FFF8F0]'
                     : 'text-stone-500 hover:text-stone-900'
                 }`}
                 title="Grid View"
@@ -325,9 +315,9 @@ function CatalogContent() {
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
                   viewMode === 'list'
-                    ? 'bg-[#800020] text-[#F7E7CE] shadow-md scale-105'
+                    ? 'bg-[#800020] text-[#FFF8F0]'
                     : 'text-stone-500 hover:text-stone-900'
                 }`}
                 title="List View"
@@ -336,17 +326,16 @@ function CatalogContent() {
               </button>
             </div>
 
-            {/* Reset Filter Icon */}
+            {/* Reset Filter Button */}
             {(selectedCategory || searchQuery || halalOnly || inStockOnly || newArrivalOnly) && (
               <button
                 onClick={handleResetFilters}
-                className="p-2 text-stone-500 hover:text-red-600 rounded-2xl border border-stone-200 hover:border-red-300 transition-colors cursor-pointer"
+                className="p-1.5 text-stone-500 hover:text-red-600 rounded-xl border border-stone-200 hover:border-red-300 transition-colors cursor-pointer"
                 title={t.common.reset}
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
             )}
-
           </div>
 
         </div>
@@ -355,40 +344,40 @@ function CatalogContent() {
 
       {/* Query Status Banner if Searching */}
       {searchQuery.trim() && (
-        <div className="mb-8 p-4 sm:p-5 bg-amber-50/80 border border-amber-200/90 rounded-3xl flex items-center justify-between shadow-sm">
-          <p className="text-xs sm:text-sm text-amber-950 font-bold">
+        <div className="mb-6 p-4 bg-stone-100 border border-stone-200 rounded-2xl flex items-center justify-between">
+          <p className="text-xs sm:text-sm text-stone-800 font-bold">
             {language === 'EN' ? 'Search results for' : language === 'MS' ? 'Hasil carian untuk' : 'Hasil pencarian untuk'} &quot;<span className="text-[#800020]">{searchQuery}</span>&quot;: <span className="font-extrabold text-[#800020]">{filteredProducts.length} {language === 'EN' ? 'products found' : language === 'MS' ? 'produk dijumpai' : 'produk ditemukan'}</span>
           </p>
           <button
             onClick={() => setSearchQuery('')}
-            className="text-xs font-black text-red-600 hover:underline cursor-pointer"
+            className="text-xs font-bold text-red-600 hover:underline cursor-pointer"
           >
             {language === 'EN' ? 'Clear Keyword' : language === 'MS' ? 'Padam Kata Kunci' : 'Hapus Kata Kunci'}
           </button>
         </div>
       )}
 
-      {/* Product Grid / List Display */}
+      {/* Product Display Grid / List */}
       {filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 sm:p-16 text-center border border-[#EADBC8] shadow-sm my-8 space-y-4 max-w-xl mx-auto">
-          <div className="w-16 h-16 rounded-full bg-[#800020]/10 border border-[#800020]/20 text-[#800020] flex items-center justify-center mx-auto shadow">
-            <Search className="w-8 h-8" />
+        <div className="bg-white rounded-2xl p-12 text-center border border-stone-200 shadow-sm my-6 space-y-3 max-w-md mx-auto">
+          <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center mx-auto">
+            <Package className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className="font-serif text-xl font-black text-[#2B1B1B]">{t.common.noResults}</h3>
-            <p className="text-stone-600 text-xs sm:text-sm max-w-sm mx-auto font-medium leading-relaxed">
-              {language === 'EN' ? `No baking products match your search query "${searchQuery}". Try searching for flour, matcha, butter, or chocolate.` : language === 'MS' ? `Tiada produk bakeri yang sepadan dengan carian "${searchQuery}". Cuba kata kunci seperti tepung, matcha, mentega, atau coklat.` : `Tidak ada produk baking yang cocok dengan pencarian "${searchQuery}". Coba kata kunci seperti tepung, matcha, butter, atau chocolate.`}
+            <h3 className="font-serif text-lg font-bold text-[#2B1B1B]">{t.common.noResults}</h3>
+            <p className="text-stone-500 text-xs font-medium leading-relaxed">
+              {language === 'EN' ? `No baking products match your search query "${searchQuery}".` : language === 'MS' ? `Tiada produk bakeri yang sepadan dengan carian "${searchQuery}".` : `Tidak ada produk baking yang cocok dengan pencarian "${searchQuery}".`}
             </p>
           </div>
           <button
             onClick={handleResetFilters}
-            className="px-6 py-3 bg-[#800020] hover:bg-[#600018] text-[#F7E7CE] font-bold text-xs rounded-2xl shadow-lg transition-all uppercase tracking-wider cursor-pointer"
+            className="px-5 py-2.5 bg-[#800020] hover:bg-[#600018] text-[#FFF8F0] font-bold text-xs rounded-xl transition-all uppercase tracking-wider cursor-pointer"
           >
             {t.common.reset}
           </button>
         </div>
       ) : (
-        <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-hidden' : 'space-y-4 overflow-x-hidden'}>
+        <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6' : 'space-y-4'}>
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} viewMode={viewMode} />
           ))}
@@ -404,15 +393,15 @@ export default function ProductCatalogPage() {
       <AnnouncementBar />
       <HeaderNav />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         <Suspense 
           fallback={
-            <div className="py-16 space-y-8 animate-pulse">
-              <div className="h-10 bg-stone-200/70 rounded-2xl w-2/3"></div>
-              <div className="h-14 bg-stone-200/70 rounded-3xl w-full"></div>
+            <div className="py-12 space-y-6 animate-pulse">
+              <div className="h-8 bg-stone-200 rounded-xl w-1/3"></div>
+              <div className="h-12 bg-stone-200 rounded-2xl w-full"></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <div key={n} className="bg-stone-200/60 rounded-3xl h-80 w-full"></div>
+                  <div key={n} className="bg-stone-200 rounded-2xl h-72 w-full"></div>
                 ))}
               </div>
             </div>

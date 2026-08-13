@@ -73,9 +73,9 @@ export default function CustomerRegisterPage() {
         try {
           if (widgetIdRef.current === null && recaptchaRef.current.children.length === 0) {
             widgetIdRef.current = (window as any).grecaptcha.render(recaptchaRef.current, {
-              sitekey: recaptchaSiteKey, // Pure Official Google v2 Site Key
+              sitekey: recaptchaSiteKey,
               theme: 'light',
-              callback: (token: string) => {
+              callback: () => {
                 setCaptchaVerified(true);
                 setCaptchaError(false);
               },
@@ -173,7 +173,6 @@ export default function CustomerRegisterPage() {
     db.saveCustomer(newCustomer);
     setActiveCustomer(newCustomer);
 
-    // Send Resend OTP Email via /api/auth/send-otp
     try {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
@@ -348,84 +347,74 @@ export default function CustomerRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF8F0]">
+    <div className="min-h-screen flex flex-col bg-[#FFF8F0] font-sans antialiased text-stone-900 selection:bg-[#800020] selection:text-white overflow-x-hidden">
       <AnnouncementBar />
       <HeaderNav />
 
-      <main className="flex-1 max-w-6xl mx-auto px-4 py-8 lg:py-14 w-full flex items-center justify-center">
+      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 w-full flex items-center justify-center">
         
-        {/* Desktop Split-Screen Grid Layout (2-Column Desktop, 1-Column Responsive Mobile) */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 rounded-3xl overflow-hidden shadow-2xl border border-[#EADBC8] bg-white transition-all">
+        {/* Editorial Split-Screen Grid Layout */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 rounded-2xl overflow-hidden border border-stone-200 bg-white shadow-xs">
           
-          {/* LEFT COLUMN: Luxury Visual Banner (Gradient Maroon & Gold Branding) */}
-          <div className="lg:col-span-5 bg-gradient-to-br from-[#580816] via-[#460612] to-[#3B040D] p-8 lg:p-12 text-[#FFF8F0] relative overflow-hidden flex flex-col justify-between min-h-[380px] lg:min-h-[580px]">
+          {/* LEFT COLUMN: Clean Deep Maroon Atmosphere Banner */}
+          <div className="lg:col-span-5 bg-[#800020] p-8 lg:p-10 text-[#FFF8F0] flex flex-col justify-between min-h-[280px] lg:min-h-[520px]">
             
-            {/* Elegant Background Patterns */}
-            <div className="absolute inset-0 bg-[radial-gradient(#D4AF37_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#800020]/40 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#D4AF37]/20 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Top Brand Logo & Badge */}
-            <div className="relative z-10 space-y-4">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-b from-[#800020] to-[#3A0612] border-2 border-[#D4AF37] p-1.5 shadow-2xl flex items-center justify-center">
+            {/* Top Brand Logo & Title */}
+            <div className="space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 p-1 border border-white/20 shadow-xs flex items-center justify-center">
                 <img 
                   src="/logo.jpg" 
                   alt="FBS Bakery World Logo" 
-                  className="w-full h-full object-cover rounded-2xl shadow"
+                  className="w-full h-full object-cover rounded-xl"
                 />
               </div>
 
-              <div className="inline-flex items-center gap-1.5 bg-[#D4AF37]/15 border border-[#D4AF37]/40 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Pendaftaran Pelanggan Baharu</span>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] block mb-1">
+                  NEW MEMBER REGISTRATION
+                </span>
+                <h2 className="font-serif text-2xl font-bold text-white tracking-tight">
+                  Pendaftaran Ahli FBS
+                </h2>
               </div>
             </div>
 
-            {/* Middle Promo Headline */}
-            <div className="relative z-10 my-6 space-y-3">
-              <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#FFF8F0] tracking-tight leading-tight">
-                Sertai Komuniti Pembekal & Bakeri Premium
-              </h2>
-              <p className="text-stone-300 text-xs sm:text-sm leading-relaxed max-w-md">
-                Daftar akaun percuma untuk mengakses ramuan bakeri berkualiti tinggi, harga borong istimewa, dan pengesahan selamat.
+            {/* Middle Brand Mission */}
+            <div className="my-6 space-y-2.5 font-medium">
+              <p className="text-stone-200 text-xs leading-relaxed">
+                Sertai komuniti pembuat kek & kedai bakeri di Malaysia untuk keahlian eksklusif FBS Bakery World.
               </p>
             </div>
 
-            {/* Bottom Value Proposition Pills */}
-            <div className="relative z-10 space-y-2.5 pt-4 border-t border-white/10 text-xs font-semibold text-stone-200">
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-lg bg-[#D4AF37]/20 text-[#D4AF37]">
-                  <Package className="w-4 h-4" />
-                </div>
-                <span>Diskaun & Tawaran Ahli Eksklusif</span>
+            {/* Bottom Features */}
+            <div className="space-y-2 pt-4 border-t border-white/15 text-[11px] font-semibold text-stone-200">
+              <div className="flex items-center gap-2">
+                <Package className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+                <span>Diskaun Member & Tawaran Pembekal</span>
               </div>
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-lg bg-[#D4AF37]/20 text-[#D4AF37]">
-                  <Award className="w-4 h-4" />
-                </div>
+              <div className="flex items-center gap-2">
+                <Award className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                 <span>Bahan Impor Original & Sijil Halal</span>
               </div>
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-lg bg-[#D4AF37]/20 text-[#D4AF37]">
-                  <Lock className="w-4 h-4" />
-                </div>
+              <div className="flex items-center gap-2">
+                <Lock className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                 <span>Pengesahan OTP Selamat Tanpa Kata Laluan</span>
               </div>
             </div>
 
           </div>
 
-          {/* RIGHT COLUMN: Modern Clean Form Container */}
-          <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-white space-y-6">
+          {/* RIGHT COLUMN: Modern Clean Registration Form */}
+          <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center bg-white space-y-6">
             
             {step === 'FORM_ENTRY' ? (
               <>
                 {/* Header Title & Subtitle */}
-                <div className="space-y-1.5">
-                  <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2B1B1B] tracking-tight">
+                <div className="space-y-1">
+                  <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
                     Daftar Akun Baru
                   </h1>
-                  <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
+                  <p className="text-stone-500 text-xs font-medium leading-relaxed">
                     Lengkapi formulir di bawah ini untuk menerima kode OTP verifikasi pendaftaran.
                   </p>
                 </div>
@@ -437,8 +426,8 @@ export default function CustomerRegisterPage() {
                   {/* Clean Divider */}
                   <div className="w-full flex items-center gap-3 py-1">
                     <div className="flex-1 h-[1px] bg-stone-200" />
-                    <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">
-                      atau daftar formulir & email
+                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">
+                      atau daftar dengan email
                     </span>
                     <div className="flex-1 h-[1px] bg-stone-200" />
                   </div>
@@ -446,16 +435,16 @@ export default function CustomerRegisterPage() {
 
                 {/* Error Banner */}
                 {error && (
-                  <div className="p-3.5 bg-red-50 text-red-700 border border-red-200 text-xs rounded-2xl font-medium flex items-center gap-2.5 shadow-sm">
-                    <AlertCircle className="w-4.5 h-4.5 flex-shrink-0" />
+                  <div className="p-3.5 bg-red-50 text-red-700 border border-red-200 text-xs rounded-xl font-medium flex items-center gap-2.5 shadow-xs">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{error}</span>
                   </div>
                 )}
 
                 {/* Form Input Register */}
-                <form onSubmit={handleRegisterSubmit} className="space-y-4 text-xs">
+                <form onSubmit={handleRegisterSubmit} className="space-y-4 text-xs font-medium">
                   <div>
-                    <label className="block font-bold text-stone-700 uppercase mb-1.5 tracking-wider text-[11px]">
+                    <label className="block font-bold text-stone-700 uppercase mb-1 tracking-wider text-[11px]">
                       Nama Lengkap <span className="text-red-600">*</span>
                     </label>
                     <div className="relative">
@@ -465,14 +454,14 @@ export default function CustomerRegisterPage() {
                         placeholder="misalnya Ahmad Naufal"
                         value={form.fullName}
                         onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                        className="w-full pl-11 pr-4 py-3.5 border border-stone-300 rounded-2xl text-stone-900 focus:outline-none focus:border-[#800020] focus:ring-2 focus:ring-[#800020]/20 text-xs sm:text-sm font-medium transition-all shadow-sm"
+                        className="w-full pl-9 pr-3.5 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020] transition-all text-xs font-bold"
                       />
-                      <User className="w-4.5 h-4.5 text-stone-400 absolute left-3.5 top-3.5" />
+                      <User className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block font-bold text-stone-700 uppercase mb-1.5 tracking-wider text-[11px]">
+                    <label className="block font-bold text-stone-700 uppercase mb-1 tracking-wider text-[11px]">
                       Alamat Email <span className="text-red-600">*</span>
                     </label>
                     <div className="relative">
@@ -482,14 +471,14 @@ export default function CustomerRegisterPage() {
                         placeholder="contoh: naufal@example.com"
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full pl-11 pr-4 py-3.5 border border-stone-300 rounded-2xl text-stone-900 focus:outline-none focus:border-[#800020] focus:ring-2 focus:ring-[#800020]/20 text-xs sm:text-sm font-medium transition-all shadow-sm"
+                        className="w-full pl-9 pr-3.5 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020] transition-all text-xs font-bold"
                       />
-                      <Mail className="w-4.5 h-4.5 text-stone-400 absolute left-3.5 top-3.5" />
+                      <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block font-bold text-stone-700 uppercase mb-1.5 tracking-wider text-[11px]">
+                    <label className="block font-bold text-stone-700 uppercase mb-1 tracking-wider text-[11px]">
                       Nomor Telepon / WhatsApp
                     </label>
                     <div className="relative">
@@ -498,9 +487,9 @@ export default function CustomerRegisterPage() {
                         placeholder="misalnya +60123456789"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                        className="w-full pl-11 pr-4 py-3.5 border border-stone-300 rounded-2xl text-stone-900 focus:outline-none focus:border-[#800020] focus:ring-2 focus:ring-[#800020]/20 text-xs sm:text-sm font-medium transition-all shadow-sm"
+                        className="w-full pl-9 pr-3.5 py-3 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020] transition-all text-xs font-bold"
                       />
-                      <Phone className="w-4.5 h-4.5 text-stone-400 absolute left-3.5 top-3.5" />
+                      <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-3.5" />
                     </div>
                   </div>
 
@@ -514,28 +503,28 @@ export default function CustomerRegisterPage() {
                     )}
                   </div>
 
-                  {/* Gradient Send OTP Button */}
+                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-4 bg-gradient-to-r from-[#800020] via-[#580816] to-[#3B040D] hover:brightness-110 active:scale-[0.99] text-[#D4AF37] font-bold text-xs sm:text-sm rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full py-3.5 bg-[#800020] hover:bg-[#6F1D1B] text-[#FFF8F0] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer active:scale-98"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin text-[#D4AF37]" />
+                        <Loader2 className="w-4 h-4 animate-spin text-[#FFF8F0]" />
                         <span>Mengirim Kode OTP...</span>
                       </>
                     ) : (
                       <>
                         <span>DAFTAR & HANTAR KOD OTP</span>
-                        <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
+                        <ArrowRight className="w-4 h-4 text-[#FFF8F0]" />
                       </>
                     )}
                   </button>
                 </form>
 
                 {/* Link to Login */}
-                <div className="pt-4 border-t border-stone-100 text-center text-xs text-stone-600">
+                <div className="pt-4 border-t border-stone-100 text-center text-xs text-stone-600 font-medium">
                   <p>
                     Sudah mempunyai akaun?{' '}
                     <Link href="/account/login" className="text-[#800020] font-bold hover:underline">
@@ -546,47 +535,47 @@ export default function CustomerRegisterPage() {
               </>
             ) : (
               /* OTP ENTRY STEP: Inline Pin Input Screen */
-              <div className="space-y-6 animate-fade-in">
+              <div className="space-y-6">
                 
                 {/* Header Step 2 */}
-                <div className="space-y-1.5 text-center sm:text-left">
-                  <div className="inline-flex items-center gap-1.5 bg-[#800020]/10 text-[#800020] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
-                    <ShieldCheck className="w-3.5 h-3.5" />
+                <div className="space-y-1 text-center sm:text-left font-medium">
+                  <div className="inline-flex items-center gap-1.5 bg-stone-100 text-stone-800 border border-stone-200 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#800020]" />
                     <span>Langkah 2: Verifikasi OTP 6-Digit</span>
                   </div>
 
-                  <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2B1B1B] tracking-tight">
+                  <h1 className="font-serif text-2xl font-bold text-stone-900 tracking-tight mt-1">
                     Pengesahan Pendaftaran
                   </h1>
 
-                  <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
+                  <p className="text-stone-500 text-xs leading-relaxed">
                     Masukkan kod verifikasi 6-digit yang telah dihantar via Resend ke:
                     <br />
-                    <strong className="font-mono text-[#800020] text-sm underline">{form.email}</strong>
+                    <strong className="font-mono text-[#800020] text-sm">{form.email}</strong>
                   </p>
                 </div>
 
                 {/* Dispatch Status Alert */}
                 {resendStatusMessage && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs rounded-2xl font-medium flex items-center justify-center gap-2 shadow-sm">
-                    <Mail className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-medium flex items-center justify-center gap-2 shadow-xs">
+                    <Mail className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>{resendStatusMessage}</span>
                   </div>
                 )}
 
                 {/* 10-Minute Expiry Countdown Bar */}
-                <div className="flex items-center justify-center gap-2 text-xs font-bold text-stone-700 bg-stone-100 px-4 py-2 rounded-2xl border border-stone-200 w-fit mx-auto sm:mx-0">
-                  <Clock className="w-4 h-4 text-[#800020]" />
+                <div className="flex items-center justify-center gap-2 text-xs font-bold text-stone-700 bg-stone-50 px-3.5 py-1.5 rounded-xl border border-stone-200 w-fit mx-auto sm:mx-0">
+                  <Clock className="w-3.5 h-3.5 text-[#800020]" />
                   <span>Waktu Berlaku OTP:</span>
-                  <span className={`font-mono text-sm font-black ${totalTimer < 60 ? 'text-red-600 animate-pulse' : 'text-[#800020]'}`}>
+                  <span className={`font-mono text-xs font-bold ${totalTimer < 60 ? 'text-red-600 animate-pulse' : 'text-[#800020]'}`}>
                     {formatTime(totalTimer)}
                   </span>
                 </div>
 
                 {/* Error Banner */}
                 {error && (
-                  <div className="p-3.5 bg-red-50 text-red-700 border border-red-200 text-xs rounded-2xl font-medium flex items-center gap-2.5 shadow-sm">
-                    <AlertCircle className="w-4.5 h-4.5 flex-shrink-0" />
+                  <div className="p-3.5 bg-red-50 text-red-700 border border-red-200 text-xs rounded-xl font-medium flex items-center gap-2.5 shadow-xs">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{error}</span>
                   </div>
                 )}
@@ -596,7 +585,7 @@ export default function CustomerRegisterPage() {
                   <label className="block text-center sm:text-left text-[11px] font-bold text-stone-700 uppercase tracking-wider">
                     Masukkan Kod OTP 6-Digit:
                   </label>
-                  <div className="flex justify-center sm:justify-start gap-2.5 sm:gap-3">
+                  <div className="flex justify-center sm:justify-start gap-2 sm:gap-2.5">
                     {otpValues.map((digit, index) => (
                       <input
                         key={index}
@@ -606,7 +595,7 @@ export default function CustomerRegisterPage() {
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(index, e)}
-                        className="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-black font-mono text-stone-900 bg-stone-50 border-2 border-stone-300 rounded-2xl focus:border-[#800020] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#800020]/20 transition-all shadow-inner"
+                        className="w-10 h-12 sm:w-11 sm:h-13 text-center text-lg font-bold font-mono text-stone-900 bg-stone-50 border border-stone-300 rounded-xl focus:border-[#800020] focus:bg-white focus:outline-none transition-all shadow-xs"
                       />
                     ))}
                   </div>
@@ -614,7 +603,7 @@ export default function CustomerRegisterPage() {
 
                 {/* Resend OTP & Change Email Action Bar */}
                 <div className="space-y-3 pt-2">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-medium">
                     <button
                       type="button"
                       onClick={handleResendOtp}
@@ -636,7 +625,7 @@ export default function CustomerRegisterPage() {
                     <button
                       type="button"
                       onClick={() => setStep('FORM_ENTRY')}
-                      className="text-stone-500 hover:text-stone-800 text-[11px] underline"
+                      className="text-stone-500 hover:text-stone-800 text-[11px] underline cursor-pointer"
                     >
                       Kembali & Tukar Email
                     </button>
