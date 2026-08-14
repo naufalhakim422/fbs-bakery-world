@@ -8,11 +8,27 @@ import { recordAuditLog } from '@/lib/audit';
 import { Product, ProductVariant } from '@/types';
 import { compressImageFile } from '@/lib/image-compressor';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
-import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, Sparkles, Upload, X, AlertCircle, Tag } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Save, 
+  Plus, 
+  Trash2, 
+  ShieldCheck, 
+  Sparkles, 
+  Upload, 
+  X, 
+  AlertCircle, 
+  Tag, 
+  Image as ImageIcon,
+  CheckCircle2,
+  Package,
+  Layers,
+  FileText
+} from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 function AdminNewProductContent() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
@@ -42,8 +58,8 @@ function AdminNewProductContent() {
   ]);
 
   const [variants, setVariants] = useState<Partial<ProductVariant>[]>([
-    { variantName: '1kg', weight: 1.0, price: 18.00, stock: 100, sku: `FBS-VAR-1KG-${Math.floor(100 + Math.random() * 900)}` },
-    { variantName: '5kg Commercial', weight: 5.0, price: 75.00, stock: 40, sku: `FBS-VAR-5KG-${Math.floor(100 + Math.random() * 900)}` },
+    { variantName: '1kg', weight: 1.0, price: 18.00, originalPrice: 0, isDiscountActive: false, stock: 100, sku: `FBS-VAR-1KG-${Math.floor(100 + Math.random() * 900)}` },
+    { variantName: '5kg Commercial', weight: 5.0, price: 75.00, originalPrice: 0, isDiscountActive: false, stock: 40, sku: `FBS-VAR-5KG-${Math.floor(100 + Math.random() * 900)}` },
   ]);
 
   const generateSlug = (name: string): string => {
@@ -177,13 +193,13 @@ function AdminNewProductContent() {
   const handleAddVariant = () => {
     setVariants([
       ...variants,
-      { variantName: 'New Size', weight: 1.0, price: 20.00, originalPrice: 0, isDiscountActive: false, stock: 50, sku: `FBS-VAR-${Math.floor(100 + Math.random() * 900)}` }
+      { variantName: 'Kemasan Baru', weight: 1.0, price: 20.00, originalPrice: 0, isDiscountActive: false, stock: 50, sku: `FBS-VAR-${Math.floor(100 + Math.random() * 900)}` }
     ]);
   };
 
   const handleRemoveVariant = (index: number) => {
     if (variants.length <= 1) {
-      alert('Product must have at least 1 packaging size variant.');
+      alert('Produk wajib memiliki minimal 1 varian kemasan.');
       return;
     }
     setVariants(variants.filter((_, i) => i !== index));
@@ -212,40 +228,36 @@ function AdminNewProductContent() {
     setValidationError(null);
 
     const cleanName = form.productName.trim();
-    const cleanSlug = (form.slug || generateSlug(cleanName)).trim();
 
-    // 1. Mandatory Product Name
     if (!cleanName) {
-      setValidationError('Product Name is required.');
+      setValidationError('Nama Produk wajib diisi.');
       return;
     }
 
-    // 2. Mandatory Main Image
     if (!form.mainImage || !form.mainImage.trim()) {
-      setValidationError('Product Main Image is required. Please upload or select a main cover photo.');
+      setValidationError('Foto Utama Produk wajib diunggah atau dipilih.');
       return;
     }
 
-    // 3. Variants Validation (Price > 0, Stock >= 0)
     if (!variants || variants.length === 0) {
-      setValidationError('Product must have at least 1 packaging size variant.');
+      setValidationError('Produk wajib memiliki minimal 1 varian kemasan.');
       return;
     }
 
     for (let i = 0; i < variants.length; i++) {
       const v = variants[i];
       if (!v.variantName || !v.variantName.trim()) {
-        setValidationError(`Variant #${i + 1} requires a Variant Name.`);
+        setValidationError(`Varian #${i + 1} membutuhkan Nama Varian.`);
         return;
       }
       const price = Number(v.price);
       if (isNaN(price) || price <= 0) {
-        setValidationError(`Variant "${v.variantName}" must have a price greater than 0.`);
+        setValidationError(`Varian "${v.variantName}" harus memiliki harga lebih dari 0.`);
         return;
       }
       const stock = Number(v.stock);
       if (isNaN(stock) || stock < 0) {
-        setValidationError(`Variant "${v.variantName}" stock cannot be negative.`);
+        setValidationError(`Stok varian "${v.variantName}" tidak boleh bernilai negatif.`);
         return;
       }
     }
@@ -277,7 +289,6 @@ function AdminNewProductContent() {
       })),
     };
 
-    // 1. Save to Railway PostgreSQL Database via API Endpoint First
     try {
       const res = await fetch('/api/products', {
         method: editId ? 'PATCH' : 'POST',
@@ -290,7 +301,6 @@ function AdminNewProductContent() {
         throw new Error(data.error || 'Server PostgreSQL Railway gagal menyimpan produk.');
       }
 
-      // 2. Save to Local Cache (db.ts) on Success
       db.saveProduct(productPayload);
 
       recordAuditLog(
@@ -311,168 +321,199 @@ function AdminNewProductContent() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-12">
+    <div className="max-w-[1000px] mx-auto space-y-6 text-stone-900 font-sans pb-12">
       
-      {/* Top Header */}
-      <div className="flex items-center justify-between">
-        <Link 
-          href="/admin/products" 
-          className="inline-flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-[#800020] transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Product Catalog
-        </Link>
-        <span className="px-3 py-1 bg-[#800020]/10 text-[#800020] text-xs font-bold rounded-full">
-          {editId ? 'EDIT PRODUCT MODE' : 'CREATE NEW PRODUCT'}
-        </span>
+      {/* REFINED OPERATIONAL HEADER */}
+      <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <Link 
+            href="/admin/products" 
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-500 hover:text-[#800020] transition-colors mb-2"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Katalog Produk
+          </Link>
+          <div className="flex items-center gap-2 text-xs font-bold text-[#800020] uppercase tracking-wider mb-1">
+            <span className="w-2 h-2 rounded-full bg-[#800020] inline-block" />
+            {editId ? 'MODUS EDIT PRODUK' : 'MODUS TAMBAH PRODUK BARU'}
+          </div>
+          <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+            {editId ? `Edit Produk: ${form.productName || 'Tanpa Judul'}` : 'Tambah Produk Bahan Baking Baru'}
+          </h1>
+          <p className="text-stone-500 text-xs sm:text-sm mt-1">
+            Atur spesifikasi bahan baking, varian kemasan &amp; harga, foto galeri, serta status sertifikasi halal.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5 self-start md:self-auto">
+          <Link
+            href="/admin/products"
+            className="px-4 py-2.5 border border-stone-300 hover:bg-stone-100 text-stone-700 font-bold text-xs rounded-xl transition-colors"
+          >
+            Batal
+          </Link>
+          <button
+            type="button"
+            onClick={handleSubmitProduct}
+            disabled={isSubmitting}
+            className="px-5 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" />
+            {isSubmitting ? 'Menyimpan...' : 'Simpan Produk & Varian'}
+          </button>
+        </div>
       </div>
 
-      {/* Validation Error Banner */}
+      {/* VALIDATION ERROR BANNER */}
       {validationError && (
-        <div className="p-4 bg-red-50 border-2 border-red-500/30 rounded-2xl text-red-700 text-xs font-bold flex items-center justify-between animate-fade-in shadow-sm">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-900 text-xs font-bold flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
             <span>{validationError}</span>
           </div>
-          <button type="button" onClick={() => setValidationError(null)} className="text-red-500 hover:text-red-800">
+          <button type="button" onClick={() => setValidationError(null)} className="text-rose-500 hover:text-rose-900 p-1">
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      <form onSubmit={handleSubmitProduct} className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6">
-        <div>
-          <h1 className="font-serif text-2xl font-bold text-stone-900">
-            {editId ? `Edit Product: ${form.productName}` : 'Add New Baking Ingredient Product'}
-          </h1>
-          <p className="text-xs text-stone-500 mt-0.5">
-            Fill in product specifications, multiple high-res gallery images, and packaging size variants.
-          </p>
-        </div>
+      {/* FORM BODY */}
+      <form onSubmit={handleSubmitProduct} className="space-y-6">
+        
+        {/* SECTION 1: INFORMASI DASAR PRODUK */}
+        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+          <div className="border-b border-stone-100 pb-3 flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-stone-100 text-[#800020]">
+              <Package className="w-4 h-4" />
+            </span>
+            <h3 className="font-serif text-base font-bold text-stone-900">
+              1. Informasi Dasar Produk
+            </h3>
+          </div>
 
-        {/* BASIC PRODUCT INFORMATION */}
-        <div className="space-y-4 text-xs">
-          <h3 className="font-serif font-bold text-sm text-[#800020] border-b border-stone-200 pb-2">
-            1. Basic Product Information
-          </h3>
+          <div className="space-y-4 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">
+                  Nama Produk <span className="text-rose-600">*</span>
+                </label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="Contoh: Tepung Semolina Durum Wheat Premium"
+                  value={form.productName}
+                  onChange={(e) => handleProductNameChange(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
+                />
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">
+                  URL Slug Produk <span className="text-rose-600">*</span>
+                </label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="tepung-semolina-durum-wheat-premium"
+                  value={form.slug}
+                  onChange={(e) => {
+                    setIsSlugManual(true);
+                    setForm({ ...form, slug: generateSlug(e.target.value) });
+                  }}
+                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-mono text-xs focus:outline-none focus:border-[#800020]"
+                />
+                <span className="text-[10px] text-stone-400 mt-1 block">
+                  Dibuat otomatis dari Nama Produk. Harus unik untuk SEO URL.
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">
+                  Kategori Bahan <span className="text-rose-600">*</span>
+                </label>
+                <select
+                  value={form.categoryId}
+                  onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold bg-white focus:outline-none focus:border-[#800020]"
+                >
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">
+                  SKU Utama / Kode Produk
+                </label>
+                <input 
+                  type="text"
+                  value={form.sku}
+                  onChange={(e) => setForm({ ...form, sku: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl font-mono text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 uppercase mb-1">
+                  Brand / Produsen
+                </label>
+                <input 
+                  type="text"
+                  placeholder="Contoh: Anchor, Beryls, Caputo, FBS Choice"
+                  value={form.brand}
+                  onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
-                Product Title / Name <span className="text-red-600">*</span>
+                Ringkasan Singkat (Subtitle Kartu Produk) <span className="text-rose-600">*</span>
               </label>
               <input 
                 type="text"
                 required
-                placeholder="e.g. Semolina Flour Premium Grade"
-                value={form.productName}
-                onChange={(e) => handleProductNameChange(e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
+                placeholder="Contoh: Tepung semolina kualitas tinggi untuk roti artisan & pasta Italia."
+                value={form.shortDescription}
+                onChange={(e) => setForm({ ...form, shortDescription: e.target.value })}
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
               />
             </div>
 
             <div>
               <label className="block font-bold text-stone-700 uppercase mb-1">
-                Product URL Slug <span className="text-red-600">*</span>
+                Spesifikasi Lengkap &amp; Panduan Penggunaan
               </label>
-              <input 
-                type="text"
-                required
-                placeholder="e.g. semolina-flour-premium-grade"
-                value={form.slug}
-                onChange={(e) => {
-                  setIsSlugManual(true);
-                  setForm({ ...form, slug: generateSlug(e.target.value) });
-                }}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-mono text-xs focus:outline-none focus:border-[#800020]"
+              <textarea
+                rows={4}
+                placeholder="Rincian komposisi bahan baku, petunjuk penyimpanan, serta instruksi pemakaian..."
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
               />
-              <span className="text-[10px] text-stone-500 mt-1 block">
-                Auto-generated from Product Name. Must be unique.
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 2: GALERI FOTO PRODUK */}
+        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+          <div className="border-b border-stone-100 pb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-stone-100 text-[#800020]">
+                <ImageIcon className="w-4 h-4" />
               </span>
+              <h3 className="font-serif text-base font-bold text-stone-900">
+                2. Galeri Foto Produk High-Res
+              </h3>
             </div>
+            <span className="text-[11px] text-stone-400">Auto-kompresi gambar otomatis</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">
-                Category <span className="text-red-600">*</span>
-              </label>
-              <select
-                value={form.categoryId}
-                onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
-              >
-                {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">
-                Product SKU / Code
-              </label>
-              <input 
-                type="text"
-                value={form.sku}
-                onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl font-mono text-stone-900"
-              />
-            </div>
-
-            <div>
-              <label className="block font-bold text-stone-700 uppercase mb-1">
-                Brand / Manufacturer
-              </label>
-              <input 
-                type="text"
-                placeholder="e.g. Anchor, Beryls, Caputo"
-                value={form.brand}
-                onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block font-bold text-stone-700 uppercase mb-1">
-              Short Description (Card Subtitle) <span className="text-red-600">*</span>
-            </label>
-            <input 
-              type="text"
-              required
-              placeholder="e.g. High protein durum wheat semolina flour for artisan pasta & fluffy breads."
-              value={form.shortDescription}
-              onChange={(e) => setForm({ ...form, shortDescription: e.target.value })}
-              className="w-full px-4 py-2 border border-stone-300 rounded-xl text-stone-900"
-            />
-          </div>
-
-          <div>
-            <label className="block font-bold text-stone-700 uppercase mb-1">
-              Full Specifications & Usage Guide
-            </label>
-            <textarea
-              rows={4}
-              placeholder="Detailed ingredient composition, storage instructions, and baking recipes..."
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full px-4 py-2 border border-stone-300 rounded-xl text-stone-900"
-            />
-          </div>
-        </div>
-
-        {/* MULTIPLE IMAGE GALLERY UPLOADER */}
-        <div className="space-y-4 text-xs pt-4 border-t border-stone-200">
-          <h3 className="font-serif font-bold text-sm text-[#800020] border-b border-stone-200 pb-2">
-            2. High-Res Image Gallery
-          </h3>
-
-          <div>
-            <label className="block font-bold text-stone-700 uppercase mb-1">
-              Upload Multiple Product Photos <span className="text-red-600">*</span>
-            </label>
-
-            <div className="border-2 border-dashed border-stone-300 hover:border-[#800020] rounded-2xl p-6 text-center bg-stone-50 transition-colors relative">
+          <div className="space-y-4 text-xs">
+            <div className="border-2 border-dashed border-stone-300 hover:border-[#800020] rounded-2xl p-6 text-center bg-stone-50/50 transition-colors relative cursor-pointer">
               <input
                 type="file"
                 multiple
@@ -480,26 +521,27 @@ function AdminNewProductContent() {
                 onChange={handleMultipleImagesUpload}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
-              <Upload className="w-8 h-8 text-[#800020] mx-auto mb-1" />
-              <span className="font-bold text-stone-800 block text-xs">+ Upload High-Res Product Photos</span>
-              <span className="text-[10px] text-stone-500">Auto-compresses images for instant loading speed</span>
+              <Upload className="w-7 h-7 text-[#800020] mx-auto mb-1.5" />
+              <span className="font-bold text-stone-800 block text-xs">+ Unggah Foto Produk High-Res</span>
+              <span className="text-[10px] text-stone-400">Pilih satu atau beberapa file foto (JPG, PNG, WEBP, maks 5MB)</span>
             </div>
 
             {galleryImages.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 sm:grid-cols-5 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 pt-1">
                 {galleryImages.map((imgUrl, idx) => (
-                  <div key={idx} className="relative h-24 rounded-xl overflow-hidden border border-stone-300 group">
-                    <img src={imgUrl} alt="Product Preview" className="w-full h-full object-cover" />
+                  <div key={idx} className="relative h-24 rounded-xl overflow-hidden border border-stone-200 group bg-stone-50">
+                    <img src={imgUrl} alt="Preview Foto Produk" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setGalleryImages(prev => prev.filter((_, i) => i !== idx))}
-                      className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full text-xs shadow"
+                      className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-full text-xs shadow hover:bg-rose-700 transition-colors"
+                      title="Hapus foto"
                     >
                       <X className="w-3 h-3" />
                     </button>
                     {idx === 0 && (
-                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-[#800020] text-white text-[9px] font-bold rounded">
-                        MAIN COVER
+                      <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-[#800020] text-white text-[8px] font-bold rounded">
+                        COVER UTAMA
                       </span>
                     )}
                   </div>
@@ -509,30 +551,33 @@ function AdminNewProductContent() {
           </div>
         </div>
 
-        {/* PACKAGING SIZE & PRICE VARIANTS */}
-        <div className="space-y-4 text-xs pt-4 border-t border-stone-200">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-200 pb-3">
-            <div>
-              <h3 className="font-serif font-bold text-sm text-[#800020] flex items-center gap-2">
-                3. Packaging Size & Price Variants
-              </h3>
-              <p className="text-[11px] text-stone-500">
-                Atur varian berat kemasan, stok ready, serta harga jual runcit & promo diskon.
-              </p>
+        {/* SECTION 3: VARIAN KEMASAN & HARGA */}
+        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-stone-100 text-[#800020]">
+                <Tag className="w-4 h-4" />
+              </span>
+              <div>
+                <h3 className="font-serif text-base font-bold text-stone-900">
+                  3. Varian Kemasan, Harga &amp; Stok Ready
+                </h3>
+                <p className="text-[11px] text-stone-500">
+                  Kelola ukuran berat kemasan, harga jual runcit, harga promo diskon, dan persediaan stok.
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleAddVariant}
-                className="px-3.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-[#D4AF37] font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-sm transition-all"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Size Variant
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleAddVariant}
+              className="px-3.5 py-2 bg-stone-900 hover:bg-stone-800 text-[#D4AF37] font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs transition-colors self-start sm:self-auto"
+            >
+              <Plus className="w-3.5 h-3.5" /> Tambah Varian Kemasan
+            </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 text-xs">
             {variants.map((v, index) => {
               const curPrice = Number(v.price) || 0;
               const isDiscountOn = Boolean(v.isDiscountActive);
@@ -543,14 +588,13 @@ function AdminNewProductContent() {
               const saveAmount = isDiscountOn && original > curPrice ? original - curPrice : 0;
 
               return (
-                <div key={index} className="p-4 bg-stone-50/80 rounded-2xl border border-stone-200 space-y-3 transition-all hover:border-[#800020]/30 shadow-xs">
-                  {/* Top Bar for Variant Slot */}
+                <div key={index} className="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-3">
+                  
                   <div className="flex items-center justify-between border-b border-stone-200/60 pb-2">
                     <span className="font-mono text-[11px] font-bold text-[#800020]">
-                      VARIANT SLOT #{index + 1}
+                      SLOT VARIAN #{index + 1}
                     </span>
 
-                    {/* DISCOUNT MODE TOGGLE SWITCH */}
                     <label className="flex items-center gap-2 cursor-pointer select-none bg-amber-50 px-3 py-1 rounded-full border border-amber-200 hover:bg-amber-100 transition-colors">
                       <input
                         type="checkbox"
@@ -568,21 +612,20 @@ function AdminNewProductContent() {
                       />
                       <span className="text-[11px] font-bold text-amber-900 flex items-center gap-1">
                         <Tag className="w-3 h-3 text-[#800020]" />
-                        Aktifkan Mode Harga Diskon / Promo
+                        Aktifkan Mode Harga Promo / Diskon
                       </span>
                     </label>
                   </div>
 
-                  {/* Input Grid */}
                   <div className={`grid grid-cols-1 ${isDiscountOn ? 'sm:grid-cols-6' : 'sm:grid-cols-5'} gap-3 items-center`}>
                     <div>
                       <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
-                        Variant Name <span className="text-red-500">*</span>
+                        Nama Varian <span className="text-rose-600">*</span>
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. 1kg Pack"
+                        placeholder="Contoh: Kemasan 1kg"
                         value={v.variantName}
                         onChange={(e) => handleVariantChange(index, 'variantName', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
@@ -591,7 +634,7 @@ function AdminNewProductContent() {
 
                     <div>
                       <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
-                        Weight (KG) <span className="text-red-500">*</span>
+                        Berat (KG) <span className="text-rose-600">*</span>
                       </label>
                       <input
                         type="number"
@@ -603,17 +646,16 @@ function AdminNewProductContent() {
                       />
                     </div>
 
-                    {/* Mode Harga Runcit Coret (When Discount Mode Active) */}
                     {isDiscountOn && (
                       <div>
-                        <label className="block text-[10px] font-bold text-amber-800 uppercase mb-1 flex items-center gap-1">
-                          Harga Runcit (MYR)
+                        <label className="block text-[10px] font-bold text-amber-800 uppercase mb-1">
+                          Harga Coret (MYR)
                         </label>
                         <input
                           type="number"
                           step="0.5"
                           required={isDiscountOn}
-                          placeholder="e.g. 32.00"
+                          placeholder="32.00"
                           value={v.originalPrice ?? ''}
                           onChange={(e) => handleVariantChange(index, 'originalPrice', e.target.value)}
                           className="w-full px-3 py-2 border border-amber-300 bg-amber-50/50 rounded-xl text-stone-500 line-through font-serif font-bold focus:outline-none focus:border-amber-600"
@@ -623,13 +665,13 @@ function AdminNewProductContent() {
 
                     <div>
                       <label className="block text-[10px] font-bold text-[#800020] uppercase mb-1">
-                        {isDiscountOn ? 'Harga Promo / Diskon (MYR)' : 'Harga Jual (MYR)'} <span className="text-red-500">*</span>
+                        {isDiscountOn ? 'Harga Promo (MYR)' : 'Harga Jual (MYR)'} <span className="text-rose-600">*</span>
                       </label>
                       <input
                         type="number"
                         step="0.5"
                         required
-                        placeholder="e.g. 26.00"
+                        placeholder="26.00"
                         value={v.price ?? ''}
                         onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-xl text-[#800020] font-serif font-bold text-sm focus:outline-none focus:border-[#800020]"
@@ -638,7 +680,7 @@ function AdminNewProductContent() {
 
                     <div>
                       <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
-                        Ready Stock <span className="text-red-500">*</span>
+                        Stok Ready <span className="text-rose-600">*</span>
                       </label>
                       <input
                         type="number"
@@ -653,22 +695,21 @@ function AdminNewProductContent() {
                       <button
                         type="button"
                         onClick={() => handleRemoveVariant(index)}
-                        className="p-2 text-stone-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition-colors"
-                        title="Delete Variant Slot"
+                        className="p-2 text-stone-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                        title="Hapus Varian"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Auto-Discount Badge Calculation Preview */}
                   {isDiscountOn && saveAmount > 0 && (
                     <div className="flex items-center gap-2 pt-1">
-                      <span className="px-2.5 py-0.5 bg-red-600 text-white text-[10px] font-extrabold rounded-md shadow-xs">
-                        DISKON {discountPct}% OFF
+                      <span className="px-2 py-0.5 bg-rose-600 text-white text-[10px] font-bold rounded shadow-xs">
+                        HEMAT {discountPct}% OFF
                       </span>
-                      <span className="text-[11px] font-bold text-amber-800">
-                        Pelanggan Hemat: <span className="text-red-700 font-extrabold">RM {saveAmount.toFixed(2)}</span> per barang!
+                      <span className="text-[11px] font-bold text-amber-900">
+                        Potongan harga pelanggan: <span className="text-rose-700 font-bold">RM {saveAmount.toFixed(2)}</span>
                       </span>
                     </div>
                   )}
@@ -678,58 +719,77 @@ function AdminNewProductContent() {
           </div>
         </div>
 
-        {/* BADGES & STATUS TOGGLES */}
-        <div className="pt-4 border-t border-stone-200 flex flex-wrap items-center gap-6 text-xs font-bold text-stone-700">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.isHalal}
-              onChange={(e) => setForm({ ...form, isHalal: e.target.checked })}
-              className="rounded text-[#800020] w-4 h-4"
-            />
-            <span>100% Halal Certified</span>
-          </label>
+        {/* SECTION 4: KLASIFIKASI & LENCANA PRODUK */}
+        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+          <div className="border-b border-stone-100 pb-3 flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-stone-100 text-emerald-700">
+              <ShieldCheck className="w-4 h-4" />
+            </span>
+            <h3 className="font-serif text-base font-bold text-stone-900">
+              4. Sertifikasi &amp; Lencana Keunggulan
+            </h3>
+          </div>
 
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.isBestSeller}
-              onChange={(e) => setForm({ ...form, isBestSeller: e.target.checked })}
-              className="rounded text-[#800020] w-4 h-4"
-            />
-            <span>Best Seller Showcase</span>
-          </label>
+          <div className="flex flex-wrap items-center gap-6 text-xs font-bold text-stone-800">
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.isHalal}
+                onChange={(e) => setForm({ ...form, isHalal: e.target.checked })}
+                className="rounded text-[#800020] w-4 h-4 focus:ring-[#800020]"
+              />
+              <span className="flex items-center gap-1">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                100% Sertifikasi Halal Resmi
+              </span>
+            </label>
 
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.isFeatured}
-              onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })}
-              className="rounded text-[#800020] w-4 h-4"
-            />
-            <span>Featured on Homepage</span>
-          </label>
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.isBestSeller}
+                onChange={(e) => setForm({ ...form, isBestSeller: e.target.checked })}
+                className="rounded text-[#800020] w-4 h-4 focus:ring-[#800020]"
+              />
+              <span className="flex items-center gap-1">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                Best Seller Showcase
+              </span>
+            </label>
+
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.isFeatured}
+                onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })}
+                className="rounded text-[#800020] w-4 h-4 focus:ring-[#800020]"
+              />
+              <span>Tampilkan di Homepage Utama</span>
+            </label>
+          </div>
         </div>
 
-        {/* SUBMIT BUTTON */}
-        <div className="flex justify-end gap-3 pt-4">
+        {/* BOTTOM ACTION BAR */}
+        <div className="flex items-center justify-end gap-3 pt-2">
           <Link
             href="/admin/products"
-            className="px-6 py-3 border border-stone-300 text-stone-700 font-bold text-xs rounded-xl hover:bg-stone-100"
+            className="px-5 py-2.5 border border-stone-300 hover:bg-stone-100 text-stone-700 font-bold text-xs rounded-xl transition-colors"
           >
-            Cancel
+            Batal
           </Link>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-8 py-3 bg-[#800020] hover:bg-[#6F1D1B] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-lg flex items-center gap-2"
+            className="px-6 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-2"
           >
-            <Save className="w-4 h-4" /> {isSubmitting ? 'Saving...' : 'Save Product & Variants'}
+            <Save className="w-4 h-4" />
+            {isSubmitting ? 'Menyimpan...' : 'Simpan Produk & Varian'}
           </button>
         </div>
 
       </form>
 
+      {/* CONFIRMATION MODAL */}
       <ConfirmModal
         isOpen={confirmSaveOpen}
         title={editId ? 'Perbarui Data Produk?' : 'Simpan Produk Baru?'}
@@ -744,7 +804,12 @@ function AdminNewProductContent() {
 
 export default function AdminNewProductPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-stone-500">Loading editor...</div>}>
+    <Suspense fallback={
+      <div className="p-12 text-center text-xs text-stone-500 font-bold uppercase tracking-wider space-y-2">
+        <div className="w-8 h-8 border-3 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto" />
+        <p>Memuat Form Editor Produk...</p>
+      </div>
+    }>
       <AdminNewProductContent />
     </Suspense>
   );
