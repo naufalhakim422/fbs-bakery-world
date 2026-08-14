@@ -1,21 +1,37 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '@/lib/db';
 import { useLanguage } from '@/lib/language-context';
 import { ConfirmModal } from '@/components/admin/confirm-modal';
-import { Category } from '@/types';
-import { Layers, Plus, Trash2, Edit3, Image as ImageIcon, X, CheckCircle2, Upload, Sparkles } from 'lucide-react';
-
+import { Category, Product } from '@/types';
+import { 
+  Layers, 
+  Plus, 
+  Trash2, 
+  Edit3, 
+  Image as ImageIcon, 
+  X, 
+  CheckCircle2, 
+  Upload, 
+  Search, 
+  Package, 
+  ArrowUpDown,
+  RefreshCw,
+  Eye
+} from 'lucide-react';
 import { compressImageFile } from '@/lib/image-compressor';
 
 export default function AdminCategoriesPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingDeleteName, setPendingDeleteName] = useState<string>('');
 
   const [form, setForm] = useState({
     name: '',
@@ -29,7 +45,42 @@ export default function AdminCategoriesPage() {
 
   useEffect(() => {
     setCategories(db.getCategories());
+    setProducts(db.getProducts());
+
+    // Sync with live server API
+    fetch(`/api/categories?t=${Date.now()}`, { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.categories)) {
+          setCategories(data.categories);
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  const productCountMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    products.forEach(p => {
+      if (p.categoryId) {
+        map[p.categoryId] = (map[p.categoryId] || 0) + 1;
+      }
+      if (p.categoryName) {
+        map[p.categoryName] = (map[p.categoryName] || 0) + 1;
+      }
+    });
+    return map;
+  }, [products]);
+
+  const filteredCategories = useMemo(() => {
+    let result = categories.filter(c => {
+      const q = search.toLowerCase();
+      return (c.name || '').toLowerCase().includes(q) ||
+        (c.slug || '').toLowerCase().includes(q) ||
+        (c.description || '').toLowerCase().includes(q);
+    });
+
+    return result.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  }, [categories, search]);
 
   const openCreateModal = () => {
     setEditingCategory(null);
@@ -117,6 +168,7 @@ export default function AdminCategoriesPage() {
 
   const handleDeleteCategory = (id: string, name: string) => {
     setPendingDeleteId(id);
+    setPendingDeleteName(name);
     setConfirmDeleteOpen(true);
   };
 
@@ -125,202 +177,310 @@ export default function AdminCategoriesPage() {
       db.deleteCategory(pendingDeleteId);
       setCategories(db.getCategories());
       setPendingDeleteId(null);
+      setPendingDeleteName('');
     }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 max-w-[1400px] mx-auto text-stone-900 font-sans pb-12">
       
-      {/* Header with + CREATE NEW CATEGORY Button */}
-      <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      {/* REFINED OPERATIONAL HEADER */}
+      <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[#800020] mb-1">
-            <Layers className="w-6 h-6" />
-            <span className="text-xs font-bold uppercase tracking-widest">{t.adminNav.categories}</span>
+          <div className="flex items-center gap-2 text-xs font-bold text-[#800020] uppercase tracking-wider mb-1">
+            <span className="w-2 h-2 rounded-full bg-[#800020] inline-block" />
+            FBS BAKERY WORLD • CATEGORY CMS
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">{t.adminCategories.title}</h1>
-          <p className="text-xs text-stone-500 mt-0.5">{t.adminCategories.subtitle}</p>
+          <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+            Kategori Bahan Baking
+          </h1>
+          <p className="text-stone-500 text-xs sm:text-sm mt-1">
+            Kelola pengelompokan produk, urutan prioritas kategori, foto sampul, dan hierarki navigasi.
+          </p>
         </div>
 
         <button
           onClick={openCreateModal}
-          className="px-5 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold text-xs rounded-2xl shadow-lg transition-transform active:scale-95 flex items-center gap-2"
+          className="px-4 py-2.5 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-2 self-start md:self-auto"
         >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>{t.adminCategories.addNew}</span>
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          Tambah Kategori Baru
         </button>
       </div>
 
-      {/* Category Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((cat) => (
-          <div key={cat.id} className="bg-white p-5 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
-            <div className="flex items-start gap-4">
-              <img 
-                src={cat.image} 
-                alt={cat.name} 
-                className="w-20 h-20 object-cover rounded-2xl border border-stone-200 flex-shrink-0 shadow-sm" 
-              />
-              <div className="space-y-1">
-                <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold rounded-md uppercase">
-                  Sort #{cat.sortOrder}
-                </span>
-                <h3 className="font-serif font-bold text-base text-stone-900">{cat.name}</h3>
-                <p className="text-stone-500 text-xs line-clamp-2">{cat.description}</p>
-                <span className="text-[10px] font-mono text-stone-400 block">{t.adminCategories.slugLabel}: {cat.slug}</span>
-              </div>
-            </div>
+      {/* SEARCH & SUMMARY TOOLBAR */}
+      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="relative flex-1 max-w-md">
+          <input 
+            type="text"
+            placeholder="Cari berdasarkan nama kategori, slug, atau deskripsi..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 border border-stone-300 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#800020]"
+          />
+          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+        </div>
 
-            <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-2 text-xs">
-              <button
-                onClick={() => openEditModal(cat)}
-                className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold rounded-xl flex items-center gap-1 transition-colors"
-              >
-                <Edit3 className="w-3.5 h-3.5" /> {t.common.edit}
-              </button>
-              <button
-                onClick={() => handleDeleteCategory(cat.id, cat.name)}
-                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-xl flex items-center gap-1 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" /> {t.common.delete}
-              </button>
+        <div className="flex items-center gap-3 text-xs text-stone-600">
+          <span className="font-medium">
+            Total Kategori: <strong className="text-stone-900 font-serif">{categories.length}</strong>
+          </span>
+          <span className="text-stone-300">•</span>
+          <span className="font-medium">
+            Total Produk Terkategori: <strong className="text-[#800020] font-serif">{products.length}</strong>
+          </span>
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="text-[#800020] font-bold hover:underline flex items-center gap-1 ml-2"
+            >
+              <RefreshCw className="w-3 h-3" /> Reset
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* CATEGORIES WORKSTATION DATA TABLE */}
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+        
+        {filteredCategories.length === 0 ? (
+          <div className="p-12 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-stone-100 text-stone-400 flex items-center justify-center mx-auto">
+              <Layers className="w-6 h-6" />
             </div>
+            <h4 className="font-serif text-lg font-bold text-stone-800">Kategori Tidak Ditemukan</h4>
+            <p className="text-xs text-stone-500 max-w-sm mx-auto">
+              Tidak ada kategori yang cocok dengan pencarian kata kunci "{search}".
+            </p>
+            <button
+              onClick={openCreateModal}
+              className="px-4 py-2 bg-[#800020] text-white text-xs font-bold rounded-xl shadow transition-colors"
+            >
+              + Tambah Kategori Baru
+            </button>
           </div>
-        ))}
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-stone-50 text-stone-500 border-b border-stone-200 uppercase tracking-wider text-[10px] font-bold">
+                  <th className="p-3.5 w-16 text-center">Urutan</th>
+                  <th className="p-3.5">Kategori &amp; Deskripsi</th>
+                  <th className="p-3.5">Slug URL</th>
+                  <th className="p-3.5">Jumlah Produk</th>
+                  <th className="p-3.5">Status</th>
+                  <th className="p-3.5 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100 text-stone-700">
+                {filteredCategories.map((cat) => {
+                  const pCount = productCountMap[cat.id] || productCountMap[cat.name] || 0;
+                  return (
+                    <tr key={cat.id} className="hover:bg-stone-50/70 transition-colors">
+                      
+                      {/* Sort Order */}
+                      <td className="p-3.5 text-center font-mono font-bold text-[#800020]">
+                        #{cat.sortOrder || 1}
+                      </td>
+
+                      {/* Image & Title */}
+                      <td className="p-3.5">
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={cat.image} 
+                            alt={cat.name} 
+                            className="w-11 h-11 object-cover rounded-lg border border-stone-200 flex-shrink-0 bg-stone-50" 
+                          />
+                          <div className="max-w-[280px]">
+                            <span className="font-serif font-bold text-stone-900 text-sm block">
+                              {cat.name}
+                            </span>
+                            <span className="text-[11px] text-stone-500 block truncate" title={cat.description}>
+                              {cat.description || 'Tidak ada deskripsi rincian.'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Slug */}
+                      <td className="p-3.5 font-mono font-bold text-[#800020]">
+                        {cat.slug}
+                      </td>
+
+                      {/* Product Count */}
+                      <td className="p-3.5">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-stone-100 text-stone-800 rounded-md font-bold text-[11px] border border-stone-200">
+                          <Package className="w-3.5 h-3.5 text-[#800020]" />
+                          {pCount} Bahan Baking
+                        </span>
+                      </td>
+
+                      {/* Status */}
+                      <td className="p-3.5">
+                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded uppercase">
+                          🟢 AKTIF
+                        </span>
+                      </td>
+
+                      {/* Action */}
+                      <td className="p-3.5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => openEditModal(cat)}
+                            className="p-1.5 text-stone-700 hover:text-[#800020] hover:bg-stone-100 rounded-lg transition-colors"
+                            title="Edit Kategori"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                            className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Hapus Kategori"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* CREATE / EDIT CATEGORY MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border-2 border-[#800020] animate-scale-up max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-stone-200 space-y-4">
             
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2 text-[#800020]">
-                <Layers className="w-6 h-6" />
-                <h3 className="font-serif font-bold text-lg">
-                  {editingCategory ? t.adminCategories.editBtn : t.adminCategories.addNew}
+                <Layers className="w-5 h-5" />
+                <h3 className="font-serif font-extrabold text-base text-stone-900">
+                  {editingCategory ? `Edit Kategori: ${editingCategory.name}` : 'Tambah Kategori Bahan Baking Baru'}
                 </h3>
               </div>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 text-stone-400 hover:text-stone-800"
+                className="p-1.5 text-stone-400 hover:text-stone-800 hover:bg-stone-100 rounded-full transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveCategory} className="space-y-4 text-xs">
+            <form onSubmit={handleSaveCategory} className="space-y-3.5 text-xs">
               
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  {t.adminCategories.nameLabel} <span className="text-red-600">*</span>
+                  Nama Kategori <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Dairy & Cheese Supplies"
+                  placeholder="Contoh: Olahan Susu & Kejuan"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-stone-900 font-bold focus:outline-none focus:border-[#800020]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">
-                    {t.adminCategories.slugLabel}
+                    Slug URL
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. dairy-and-cheese"
+                    placeholder="olahan-susu-dan-kejuan"
                     value={form.slug}
                     onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                    className="w-full px-3 py-2 border border-stone-300 rounded-xl font-mono text-stone-900"
+                    className="w-full px-3 py-2 border border-stone-300 rounded-xl font-mono text-stone-900 focus:outline-none focus:border-[#800020]"
                   />
                 </div>
 
                 <div>
                   <label className="block font-bold text-stone-700 uppercase mb-1">
-                    Sort Order
+                    Urutan Prioritas
                   </label>
                   <input
                     type="number"
                     value={form.sortOrder}
                     onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-stone-300 rounded-xl font-mono text-stone-900"
+                    className="w-full px-3 py-2 border border-stone-300 rounded-xl font-mono text-stone-900 focus:outline-none focus:border-[#800020]"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  {t.adminCategories.descLabel}
+                  Deskripsi Singkat Kategori
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="..."
+                  placeholder="Koleksi keju premium, mentega butter, dan whipping cream berkualitas tinggi..."
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
+                  className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:border-[#800020]"
                 />
               </div>
 
-              {/* LOCAL IMAGE FILE UPLOADER & DRAG-AND-DROP */}
+              {/* LOCAL IMAGE FILE UPLOADER & URL FALLBACK */}
               <div>
                 <label className="block font-bold text-stone-700 uppercase mb-1">
-                  {t.adminCategories.imageLabel}
+                  Foto Sampul Kategori
                 </label>
 
                 {imagePreview ? (
-                  <div className="relative mb-2 rounded-2xl overflow-hidden border border-stone-200 group">
-                    <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover" />
+                  <div className="relative mb-2 rounded-xl overflow-hidden border border-stone-200 group bg-stone-50">
+                    <img src={imagePreview} alt="Preview Sampul" className="w-full h-32 object-cover" />
                     <button
                       type="button"
                       onClick={() => { setImagePreview(''); setForm({ ...form, image: '' }); }}
-                      className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
+                      className="absolute top-2 right-2 p-1 bg-rose-600 text-white rounded-full hover:bg-rose-700 shadow-sm"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-stone-300 hover:border-[#800020] rounded-2xl p-4 text-center space-y-2 bg-stone-50 transition-colors">
-                    <Upload className="w-8 h-8 text-stone-400 mx-auto" />
-                    <div className="text-xs text-stone-600">
-                      <label className="text-[#800020] font-bold cursor-pointer hover:underline">
-                        <span>Upload File</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageFileChange}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
+                  <div className="border-2 border-dashed border-stone-300 hover:border-[#800020] rounded-xl p-4 text-center space-y-1.5 bg-stone-50/50 transition-colors">
+                    <Upload className="w-6 h-6 text-stone-400 mx-auto" />
+                    <label className="text-[#800020] font-bold cursor-pointer hover:underline block text-xs">
+                      <span>Unggah File Foto</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
                 )}
 
                 <input
                   type="text"
-                  placeholder="URL..."
+                  placeholder="Atau masukkan URL Foto (https://...)"
                   value={form.image}
                   onChange={(e) => { setForm({ ...form, image: e.target.value }); setImagePreview(e.target.value); }}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-xl text-stone-900 mt-2 font-mono text-[11px]"
+                  className="w-full px-3 py-1.5 border border-stone-300 rounded-xl text-stone-900 mt-2 font-mono text-[11px] focus:outline-none focus:border-[#800020]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-stone-100 flex gap-2">
+              <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/3 py-3 bg-stone-100 text-stone-700 font-bold rounded-xl hover:bg-stone-200"
+                  className="px-4 py-2 border border-stone-300 hover:bg-stone-100 text-stone-700 font-bold text-xs rounded-xl transition-colors"
                 >
-                  {t.adminCategories.cancelBtn}
+                  Batal
                 </button>
                 <button
                   type="submit"
-                  className="w-2/3 py-3 bg-[#800020] hover:bg-[#6F1D1B] text-[#D4AF37] font-bold rounded-xl shadow-lg flex items-center justify-center gap-2"
+                  className="px-5 py-2 bg-[#800020] hover:bg-[#6F1D1B] text-white font-bold text-xs rounded-xl shadow transition-colors flex items-center gap-1.5"
                 >
-                  <CheckCircle2 className="w-4 h-4" /> {t.adminCategories.saveBtn}
+                  <CheckCircle2 className="w-4 h-4" /> Simpan Kategori
                 </button>
               </div>
 
@@ -330,19 +490,20 @@ export default function AdminCategoriesPage() {
         </div>
       )}
 
+      {/* CONFIRMATION MODALS */}
       <ConfirmModal
         isOpen={confirmDeleteOpen}
-        title="Hapus Kategori?"
-        message="Kategori yang dihapus tidak dapat dipulihkan. Apakah Anda yakin ingin menghapus kategori ini?"
+        title="Hapus Kategori Produk?"
+        message={`Apakah Anda yakin ingin menghapus kategori "${pendingDeleteName}"? Produk yang terkait dengan kategori ini tidak akan terhapus, tetapi akan membutuhkan pengelompokan ulang.`}
         type="danger"
         onConfirm={executeDeleteCategory}
-        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); }}
+        onCancel={() => { setConfirmDeleteOpen(false); setPendingDeleteId(null); setPendingDeleteName(''); }}
       />
 
       <ConfirmModal
         isOpen={confirmSaveOpen}
         title={editingCategory ? 'Perbarui Kategori Produk?' : 'Simpan Kategori Produk Baru?'}
-        message={editingCategory ? 'Apakah Anda yakin ingin menyimpan perubahan kategori produk ini?' : 'Apakah Anda yakin ingin menambahkan kategori produk baru ini?'}
+        message={editingCategory ? 'Apakah Anda yakin ingin menyimpan perubahan data kategori ini?' : 'Apakah Anda yakin ingin menambahkan kategori produk baru ini ke katalog?'}
         type="save"
         onConfirm={executeSaveCategory}
         onCancel={() => setConfirmSaveOpen(false)}
