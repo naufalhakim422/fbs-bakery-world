@@ -57,7 +57,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     ? 'Pengurusan Penghantaran'
     : 'Shipping Management';
 
-  const adminBase = pathname?.startsWith('/admin2026') ? '/admin2026' : '/admin';
+  const adminBase = '/admin2026';
 
   const menuItems = [
     { name: t.adminNav.dashboard, href: adminBase, icon: LayoutDashboard },

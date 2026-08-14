@@ -15,7 +15,7 @@ export default function AdminOrderDetailPage() {
   const params = useParams();
   const pathname = usePathname();
   const router = useRouter();
-  const adminBase = pathname?.startsWith('/admin2026') ? '/admin2026' : '/admin';
+  const adminBase = '/admin2026';
   const { t, language } = useLanguage();
   const id = params?.id as string;
 
